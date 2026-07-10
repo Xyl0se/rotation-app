@@ -156,7 +156,9 @@ function HomePage({ adapter }: HomePageProps) {
                 albums.length === 0
                     ? (
                         <EmptyLibrary
+                            adapter={adapter}
                             onDiscoverAlbum={handleNewAlbum}
+                            onBackupRestored={() => window.location.reload()}
                         />
                     )
                     : (
