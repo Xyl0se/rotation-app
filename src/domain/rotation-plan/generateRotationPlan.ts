@@ -1,4 +1,5 @@
 import type { Album } from "../../types/album"
+import { generateUUID } from "../../utils/uuid"
 
 import type {
     RoleId,
@@ -168,7 +169,7 @@ export function generateRotationPlan(
 
     return {
 
-        id: options.id ?? crypto.randomUUID(),
+        id: options.id ?? generateUUID(),
 
         name: options.name ?? "Player-Rotation",
 

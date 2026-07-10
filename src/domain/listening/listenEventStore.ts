@@ -11,6 +11,8 @@ import type { Album } from "../../types/album"
 import type { StorageAdapter } from "../../adapters/storageAdapter"
 import type { ListenEvent } from "./listenEvents"
 
+import { generateUUID } from "../../utils/uuid"
+
 import { STORAGE } from "../../config/storage"
 
 function isString(value: unknown): value is string {
@@ -68,7 +70,7 @@ export function addListenEvent(
     key: string = STORAGE.LISTEN_EVENTS,
 ): ListenEvent[] {
     const newEvent: ListenEvent = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         albumId,
         listenedAt: new Date().toISOString(),
     }

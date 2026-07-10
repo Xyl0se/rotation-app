@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
+import { generateUUID } from "../utils/uuid"
 
 import type { Album } from "../types/album"
 import type { ListenEventRepository } from "../repositories/listenEventRepository"
@@ -28,7 +29,7 @@ export function useListenEvents(
     const logListen = useCallback((albumId: string) => {
         setListenEvents(previous => {
             const newEvent: ListenEvent = {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 albumId,
                 listenedAt: new Date().toISOString(),
             }

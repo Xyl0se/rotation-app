@@ -26,10 +26,11 @@ import ArchiveReturnCoach from "../components/features/archive/ArchiveReturnCoac
 import BackupControls from "../components/features/backup/BackupControls"
 
 import { evaluateReflection } from "../domain/reflection/evaluateReflection"
+import { generateUUID } from "../utils/uuid"
 
 function createEmptyAlbum(): Album {
     return {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         title: "",
         artist: "",
         year: "",
