@@ -9,29 +9,35 @@
 
 ## Voraussetzungen
 
-- [Docker Desktop](https://docs.docker.com/get-docker/)
-- Docker Compose (wird mit Docker Desktop mitgeliefert oder separat installiert)
-
-> **macOS mit Homebrew:** Falls `docker compose` nicht erkannt wird:
-> ```bash
-> brew install docker-compose
-> ```
-> Anschließend `cliPluginsExtraDirs` in `~/.docker/config.json` hinzufügen:
-> ```json
-> "cliPluginsExtraDirs": ["/opt/homebrew/lib/docker/cli-plugins"]
-> ```
+- Docker + Docker Compose
 
 ---
 
-## Schnellstart
+## Schnellstart: GHCR Image (empfohlen)
+
+Für Headless-Server oder NAS-Systeme (z. B. Synology, Raspberry Pi):
+
+```bash
+# 1. docker-compose.prod.yml herunterladen (nur diese eine Datei wird benötigt)
+curl -O https://raw.githubusercontent.com/Xyl0se/rotation-app/main/docker-compose.prod.yml
+
+# 2. Container starten — Image wird automatisch von GitHub Container Registry geladen
+docker compose -f docker-compose.prod.yml up -d
+
+# 3. Im Browser öffnen
+open http://localhost:3000
+```
+
+---
+
+## Schnellstart: Lokal bauen
 
 ```bash
 # 1. Repository klonen (oder Code entpacken)
+git clone https://github.com/Xyl0se/rotation-app.git
 cd rotation-app
 
-# 2. (Optional) Port anpassen – falls du vorher unter einem anderen Port gearbeitet hast
-# .env bearbeiten und z.B. ROTATION_PORT=5173 setzen
-
+# 2. (Optional) Port anpassen – .env bearbeiten
 # 3. Container bauen und starten
 docker compose up -d
 
@@ -39,18 +45,18 @@ docker compose up -d
 open http://localhost:3000
 ```
 
-Das war's. Rotation läuft jetzt auf dem konfigurierten Port (standardmäßig 3000).
-
 ---
 
 ## Verfügbare Befehle
 
 | Befehl | Beschreibung |
 |---|---|
-| `docker compose up -d` | Rotation im Hintergrund starten |
-| `docker compose down` | Rotation stoppen |
+| `docker compose -f docker-compose.prod.yml up -d` | Rotation auf Server/NAS starten (GHCR Image) |
+| `docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d` | Update auf neueste Version |
+| `docker compose -f docker-compose.prod.yml down` | Rotation stoppen |
+| `docker compose up -d` | Lokal bauen und starten |
+| `docker compose down` | Lokal stoppen |
 | `docker compose logs -f` | Logs live ansehen |
-| `docker compose pull && docker compose up -d --build` | Neu bauen und starten (nach Update) |
 
 ---
 
@@ -183,10 +189,11 @@ Die Zeile `try_files {path} /index.html` muss vorhanden sein.
 
 | Sprint | Thema |
 |---|---|
-| **58A** | ✅ Deployment Foundation (dieser Stand) |
-| 58B | Server Persistence (SQLite + REST API) |
-| 58C | Datenmigration (lokale → serverseitige Daten) |
-| 58D | Home Server Edition (Backups, Export/Import) |
+| **58A** | ✅ Deployment Foundation |
+| **59** | ✅ Home Server Edition — GitHub Container Registry, Auto-Build, Production Compose |
+| 60 | Server Persistence (SQLite + REST API) |
+| 61 | Datenmigration (lokale → serverseitige Daten) |
+| 62 | Multi-Device-Sync |
 
 ---
 

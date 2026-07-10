@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.20.0
+
+- **Sprint 59 — Self-Hosting mit GitHub Container Registry**
+  - **GitHub Actions Workflow**: Automatischer Docker-Build bei jedem Push auf `main`, pushed zu `ghcr.io/xyl0se/rotation-app:latest`.
+  - **Production Compose**: `docker-compose.prod.yml` für Headless-Server mit `restart: unless-stopped` und explizitem Image-Tag.
+  - **Bugfix: Weiße Seite über HTTP**: `crypto.randomUUID()` funktioniert im Browser nur in Secure Contexts (HTTPS/localhost). Über LAN-IPs (`192.168.x.x`) über HTTP ist die Funktion undefined. Eigener UUID-Generator (`generateUUID`) als Polyfill implementiert.
+  - **Bugfix: Backup-Import bei leerer Bibliothek**: `BackupControls` sind jetzt auch im `EmptyLibrary`-State sichtbar — ein erster Import ist möglich, bevor ein Album hinzugefügt wird.
+  - **Docker Image-Name**: Lowercase (`ghcr.io/xyl0se/...`) für GHCR-Kompatibilität.
+  - `.env` aus Git entfernt und in `.gitignore` gesichert.
+  - Kein Schema-Bump. TypeScript-frei, keine neuen Dependencies.
+
 ## v0.19.0-dev
 
 - **Sprint 58 — Backup & Portabilität**
