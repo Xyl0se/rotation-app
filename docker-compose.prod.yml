@@ -1,6 +1,6 @@
 services:
   rotation:
-    image: ghcr.io/Xyl0se/rotation-app:latest
+    image: ghcr.io/xyl0se/rotation-app:latest
     container_name: rotation
     ports:
       - "3000:80"
