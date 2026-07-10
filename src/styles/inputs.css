@@ -1,0 +1,35 @@
+/* ==========================================
+   Inputs — Identity Refresh
+   ========================================== */
+
+.text-field {
+    width: 100%;
+    padding: 14px 18px;
+    margin-top: 0;
+    border-radius: var(--radius-medium);
+    border: 1px solid var(--color-divider);
+    background: var(--color-paper);
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--color-text);
+    outline: none;
+    transition:
+        border-color var(--transition-base),
+        box-shadow var(--transition-base),
+        background var(--transition-base);
+}
+
+.text-field::placeholder {
+    color: var(--color-smoke);
+    opacity: .7;
+}
+
+.text-field:focus {
+    border-color: var(--color-primary);
+    box-shadow:
+        0 0 0 3px rgba(90,125,90,.12);
+}
+
+.text-field:hover:not(:focus) {
+    border-color: #D5CFC7;
+}

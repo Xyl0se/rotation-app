@@ -1,0 +1,24 @@
+/* ==========================================
+   Step Indicator — Identity Refresh
+   ========================================== */
+
+.step-indicator {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 0;
+}
+
+.step {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-divider);
+    transition: background var(--transition-base);
+}
+
+.step.active {
+    background: var(--color-primary);
+    box-shadow:
+        0 0 0 4px rgba(90,125,90,.10);
+}

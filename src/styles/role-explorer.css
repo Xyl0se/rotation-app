@@ -1,0 +1,422 @@
+/* ==========================================
+   Role Explorer — Sprint 49
+   ========================================== */
+
+/* ---- Library View Switcher ---- */
+
+.library-view-switcher-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.library-view-switcher {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.view-switcher-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-smoke);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: .9rem;
+    font-weight: 600;
+    transition:
+        color var(--transition-base),
+        background var(--transition-base);
+}
+
+.view-switcher-button:hover {
+    color: var(--color-ink);
+}
+
+.view-switcher-button.active {
+    background: var(--color-sand);
+    color: var(--color-ink);
+}
+
+/* ---- Perspective Switcher ---- */
+
+.perspective-switcher {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.perspective-button {
+    padding: 6px 14px;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-pill);
+    background: var(--color-paper);
+    color: var(--color-smoke);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: .82rem;
+    font-weight: 600;
+    transition:
+        color var(--transition-base),
+        background var(--transition-base),
+        border-color var(--transition-base);
+}
+
+.perspective-button:hover {
+    color: var(--color-ink);
+    border-color: var(--color-smoke);
+}
+
+.perspective-button.active {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-paper);
+}
+
+/* ---- Role Explorer ---- */
+
+.role-explorer {
+    margin-bottom: var(--space-5);
+}
+
+.role-explorer-intro {
+    margin: 0 0 var(--space-4);
+    max-width: 64ch;
+    color: var(--color-smoke);
+    line-height: 1.65;
+    font-size: 1rem;
+}
+
+.role-explorer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+/* ---- Role Card ---- */
+
+.role-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: 28px;
+    background: var(--color-paper);
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    text-align: left;
+    border: 2px solid transparent;
+    transition:
+        transform var(--transition-base),
+        box-shadow var(--transition-base),
+        border-color var(--transition-base);
+}
+
+.role-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card-hover);
+}
+
+.role-card:focus-visible {
+    outline: 3px solid rgba(90,125,90,.18);
+    outline-offset: 3px;
+}
+
+.role-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.role-card-icon {
+    font-size: 2.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.role-card-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.role-card-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.role-card-count {
+    margin: 0;
+    font-size: .85rem;
+    color: var(--color-smoke);
+    font-weight: 500;
+}
+
+.role-card-description {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--color-smoke);
+    font-size: .95rem;
+}
+
+.role-card-previews {
+    display: flex;
+    gap: -8px;
+    margin-top: 4px;
+}
+
+.role-card-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-small);
+    object-fit: cover;
+    border: 2px solid var(--color-paper);
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    flex-shrink: 0;
+}
+
+.role-card-preview + .role-card-preview {
+    margin-left: -12px;
+}
+
+.role-card-empty {
+    margin: 0;
+    padding: 16px 0;
+    font-style: italic;
+    color: var(--color-smoke);
+    font-size: .9rem;
+    line-height: 1.6;
+}
+
+/* ---- Role Detail ---- */
+
+.role-detail {
+    margin-bottom: var(--space-5);
+}
+
+.role-detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: var(--space-4);
+    padding: 8px 0;
+    border: none;
+    background: transparent;
+    color: var(--color-smoke);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: .9rem;
+    font-weight: 600;
+    transition: color var(--transition-base);
+}
+
+.role-detail-back:hover {
+    color: var(--color-ink);
+}
+
+.role-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-divider);
+}
+
+.role-detail-icon {
+    font-size: 3rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.role-detail-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.role-detail-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.role-detail-count {
+    margin: 0;
+    font-size: .95rem;
+    color: var(--color-smoke);
+    font-weight: 500;
+}
+
+.role-detail-description {
+    margin: 0 0 var(--space-4);
+    max-width: 64ch;
+    line-height: 1.65;
+    color: var(--color-smoke);
+    font-size: 1.05rem;
+}
+
+.role-detail-future {
+    margin: var(--space-4) 0;
+    padding: 24px;
+    background: var(--color-sand);
+    border-radius: var(--radius-large);
+    border: 1px dashed var(--color-divider);
+}
+
+.role-detail-future p {
+    margin: 0;
+    color: var(--color-smoke);
+    font-size: .9rem;
+    font-style: italic;
+}
+
+.role-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 28px;
+    margin-top: var(--space-4);
+}
+
+.role-detail-empty {
+    margin: var(--space-4) 0;
+    padding: 40px 28px;
+    text-align: center;
+    background: var(--color-sand);
+    border-radius: var(--radius-large);
+    border: 1px dashed var(--color-divider);
+}
+
+.role-detail-empty p {
+    margin: 0;
+    color: var(--color-smoke);
+    font-size: 1rem;
+    line-height: 1.65;
+    font-style: italic;
+}
+
+/* ---- Album Role Label ---- */
+
+.album-role-label {
+    display: inline-block;
+    align-self: flex-start;
+    margin-bottom: 10px;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1.4;
+}
+
+.album-role-label.role-new {
+    background: rgba(168,187,154,.18);
+    color: #5A7D5A;
+}
+
+.album-role-label.role-growing {
+    background: rgba(168,187,154,.22);
+    color: #4A6B4A;
+}
+
+.album-role-label.role-comfort-food {
+    background: rgba(212,122,99,.15);
+    color: #A85E4A;
+}
+
+.album-role-label.role-classic {
+    background: rgba(126,161,179,.15);
+    color: #4A6F7F;
+}
+
+.album-role-label.role-admire {
+    background: rgba(216,181,115,.18);
+    color: #8A6F3A;
+}
+
+.album-role-label.role-archive {
+    background: var(--color-sand);
+    color: var(--color-smoke);
+}
+
+/* ---- Grouped Library View ---- */
+
+.grouped-library-view {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.library-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.library-group-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-divider);
+}
+
+.library-group-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.library-group-description {
+    margin: 0;
+    font-size: .9rem;
+    color: var(--color-smoke);
+}
+
+/* ==========================================
+   Responsive
+   ========================================== */
+
+@media (max-width: 700px) {
+    .role-explorer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .role-detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .role-detail-title {
+        font-size: 1.6rem;
+    }
+
+    .role-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .library-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .library-view-switcher-wrapper {
+        align-items: flex-start;
+        width: 100%;
+    }
+}

@@ -1,0 +1,12 @@
+:80 {
+    root * /usr/share/caddy
+
+    handle /health {
+        respond "ok" 200
+    }
+
+    handle {
+        file_server
+        try_files {path} /index.html
+    }
+}

@@ -1,0 +1,301 @@
+/* ==========================================
+   Dialoge — Identity Refresh
+   ========================================== */
+
+.dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(43,43,43,.18);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-3);
+    z-index: 20;
+}
+
+.dialog {
+    width: 50vw;
+    max-width: min(50vw, 800px);
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--color-surface);
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-elevated);
+    padding: var(--space-5);
+}
+
+.dialog h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-ink);
+}
+
+.dialog p {
+    line-height: 1.7;
+    color: var(--color-smoke);
+}
+
+/* ---- Discover Dialog ---- */
+
+.discover-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.discover-dialog > h2 {
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.discover-step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.discover-step > p:first-child {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.metadata-feature-list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.metadata-feature-list li {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 40px;
+    padding: 10px 14px;
+    border-radius: var(--radius-medium);
+    background: var(--color-sand);
+    color: var(--color-text);
+}
+
+.metadata-feature-list li span:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    line-height: 1;
+}
+
+/* ---- Library Maintenance Dialog ---- */
+
+.library-maintenance-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.library-maintenance-dialog label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.library-maintenance-dialog label span {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--color-smoke);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.library-maintenance-dialog strong {
+    color: var(--color-text);
+}
+
+/* ---- Dialog Actions ---- */
+
+.dialog-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+}
+
+.dialog-actions .button {
+    min-width: 120px;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+    .dialog {
+        padding: var(--space-3) var(--space-2);
+    }
+
+    .dialog-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+}
+
+/* ---- Edit Album Cover Section ---- */
+
+.edit-cover-section {
+    border-top: 1px solid var(--color-sand);
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.edit-cover-section h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.edit-cover-preview {
+    width: 160px;
+    height: 160px;
+    align-self: center;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.edit-cover-preview > * {
+    width: 100%;
+    height: 100%;
+}
+
+.edit-cover-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.cover-override-badge {
+    align-self: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-smoke);
+    background: var(--color-sand);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.cover-url-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.cover-url-row .text-field {
+    flex: 1;
+}
+
+.cover-upload-row {
+    display: flex;
+}
+
+.cover-upload-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cover-upload-label {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--color-sand);
+    color: var(--color-text);
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 6px;
+    border: 1px dashed var(--color-smoke);
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.cover-upload-label:hover {
+    background: var(--color-surface-2);
+    border-color: var(--color-text);
+}
+
+.cover-error {
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+/* ---- Edit Album Story Section ---- */
+
+.edit-story-section {
+    border-top: 1px solid var(--color-sand);
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.edit-story-section h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.edit-story-section select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    font-family: var(--font-ui);
+    color: var(--color-text);
+    background: var(--color-sand);
+    border: 1px solid var(--color-sand);
+    border-radius: var(--radius-medium);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.edit-story-section select:focus {
+    border-color: var(--color-smoke);
+}
+
+.story-textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    font-family: var(--font-ui);
+    color: var(--color-text);
+    background: var(--color-sand);
+    border: 1px solid var(--color-sand);
+    border-radius: var(--radius-medium);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.story-textarea:focus {
+    border-color: var(--color-smoke);
+}
+
+.story-textarea::placeholder {
+    color: var(--color-smoke);
+}

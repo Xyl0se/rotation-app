@@ -1,0 +1,131 @@
+/* ==========================================
+   Design Tokens — Rotation Identity Refresh
+   Quelle: docs/DESIGN_SYSTEM.md
+   ========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+
+    /* ---- Farbpalette ---- */
+
+    --color-warm-white:   #FCFBF8;
+    --color-sand:         #F3EEE7;
+    --color-paper:        #FFFFFF;
+    --color-ink:          #2B2B2B;
+    --color-smoke:        #6F6B66;
+    --color-divider:      #E8E2DA;
+
+    /* ---- Akzentfarben (Rollen) ---- */
+
+    --color-sage:         #A8BB9A;
+    --color-dust-blue:    #7EA1B3;
+    --color-terracotta:   #D47A63;
+    --color-muted-gold:   #D8B573;
+    --color-blush:        #F6DDD6;
+
+    /* ---- Semantische Farben ---- */
+
+    --color-success:      #6BA57A;
+    --color-info:         #6C8EBF;
+    --color-warning:      #E0B15A;
+    --color-error:        #D46A6A;
+
+    /* ---- Aliase für bestehende Verwendung ---- */
+
+    --color-background:   var(--color-warm-white);
+    --color-surface:      var(--color-paper);
+    --color-text:         var(--color-ink);
+    --color-text-secondary: var(--color-smoke);
+    --color-primary:      #5A7D5A;
+    --color-primary-hover:#4E6E4E;
+
+    /* ---- Typografie ---- */
+
+    --font-display:       "Cormorant Garamond", Georgia, serif;
+    --font-body:          "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+    /* ---- Abstände (8px Grid) ---- */
+
+    --space-1:  8px;
+    --space-2:  16px;
+    --space-3:  24px;
+    --space-4:  32px;
+    --space-5:  48px;
+    --space-6:  64px;
+    --space-7:  96px;
+
+    /* ---- Radien ---- */
+
+    --radius-small:   8px;
+    --radius-medium:  12px;
+    --radius-large:   16px;
+    --radius-pill:    999px;
+
+    /* ---- Schatten ---- */
+
+    --shadow-card:
+        0 12px 24px rgba(0,0,0,.08);
+
+    --shadow-card-hover:
+        0 20px 40px rgba(0,0,0,.10);
+
+    --shadow-elevated:
+        0 20px 60px rgba(0,0,0,.12);
+
+    /* ---- Animationen ---- */
+
+    --transition-fast:   150ms ease-out;
+    --transition-base:   200ms ease-out;
+    --transition-slow:   300ms ease-out;
+
+}
+
+/* ==========================================
+   Basis-Styles
+   ========================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-text);
+    background: var(--color-background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    margin: 0;
+    background: var(--color-background);
+    color: var(--color-text);
+}
+
+/* ==========================================
+   Typografische Hilfsklassen
+   ========================================== */
+
+.font-display {
+    font-family: var(--font-display);
+}
+
+.font-body {
+    font-family: var(--font-body);
+}
+
+/* ==========================================
+   Album Cover Skeleton Animation
+   ========================================== */
+
+@keyframes album-cover-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
