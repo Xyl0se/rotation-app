@@ -18,6 +18,8 @@ import { createAlbumTimeline } from "../../../domain/timeline/createAlbumTimelin
 
 import AlbumCover from "../../ui/AlbumCover"
 
+import { useI18n } from "../../../i18n/I18nContext"
+
 function getRoleTitle(role: RoleId): string {
     return roles.find(item => item.id === role)?.title ?? role
 }
@@ -31,7 +33,7 @@ function formatDate(iso: string): string {
     if (Number.isNaN(date.getTime())) {
         return iso
     }
-    return date.toLocaleDateString("de-DE", {
+    return date.toLocaleDateString(undefined, {
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -82,6 +84,8 @@ function RotationTileTooltip({
     item,
     listenEvents,
 }: RotationTileTooltipProps) {
+    const { t } = useI18n()
+
     const [isVisible, setIsVisible] = useState(false)
     const wrapperRef = useRef<HTMLDivElement>(null)
 
@@ -128,7 +132,7 @@ function RotationTileTooltip({
                 coverOverride={album.coverOverride}
                 albumId={album.id}
                 title={album.title}
-                alt={`Cover von ${album.title}`}
+                alt={t.common.coverOf(album.title)}
                 className="player-rotation-cover"
             />
 
@@ -152,16 +156,14 @@ function RotationTileTooltip({
                             <div>
                                 <strong>{listenCount}</strong>
                                 <span>
-                                    {listenCount === 1
-                                        ? "Hörsession"
-                                        : "Hörsessions"}
+                                    {t.playerRotation.tooltip.listenSessions(listenCount)}
                                 </span>
                             </div>
                             {
                                 lastListened && (
                                     <div>
                                         <strong>{lastListened}</strong>
-                                        <span>Zuletzt gehört</span>
+                                        <span>{t.playerRotation.tooltip.lastListened}</span>
                                     </div>
                                 )
                             }
@@ -171,7 +173,7 @@ function RotationTileTooltip({
                             timeline.length > 0 && (
                                 <div className="rotation-tooltip-timeline">
                                     <p className="timeline-label">
-                                        Letzte Ereignisse
+                                        {t.timeline.latestEvents}
                                     </p>
                                     <ul>
                                         {

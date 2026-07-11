@@ -3,6 +3,7 @@ import type { StorageAdapter } from "../../adapters/storageAdapter"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import BackupControls from "./backup/BackupControls"
+import { useI18n } from "../../i18n/I18nContext"
 
 type EmptyLibraryProps = {
     adapter: StorageAdapter
@@ -11,28 +12,25 @@ type EmptyLibraryProps = {
 }
 
 function EmptyLibrary({ adapter, onDiscoverAlbum, onBackupRestored }: EmptyLibraryProps) {
+    const { t } = useI18n()
+
     return (
         <Card>
+            <h2>{t.emptyLibrary.title}</h2>
 
-            <h2>Noch keine Alben</h2>
-
-            <p>
-                Beginne deine persönliche Musiksammlung,
-                indem du dein erstes Album hinzufügst.
-            </p>
+            <p>{t.emptyLibrary.description}</p>
 
             <Button onClick={onDiscoverAlbum}>
-                Neues Album entdecken
+                {t.emptyLibrary.cta}
             </Button>
 
             <hr style={{ margin: "1.5rem 0", border: "none", borderTop: "1px solid var(--color-border)" }} />
 
             <p style={{ marginBottom: "0.75rem" }}>
-                Oder importiere ein bestehendes Backup:
+                {t.emptyLibrary.orImport}
             </p>
 
             <BackupControls adapter={adapter} onRestored={onBackupRestored} />
-
         </Card>
     )
 }

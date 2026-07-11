@@ -4,6 +4,8 @@ import {
     createRoleOverview,
 } from "../../../domain/roles/roleOverview"
 
+import { useI18n } from "../../../i18n/I18nContext"
+
 type RotationOverviewProps = {
 
     albums: Album[]
@@ -15,6 +17,7 @@ function RotationOverview({
     albums,
 
 }: RotationOverviewProps) {
+    const { t } = useI18n()
 
     const overview =
         createRoleOverview(albums)
@@ -49,9 +52,9 @@ function RotationOverview({
 
                                 entry.albumCount === 1
 
-                                    ? "Album"
+                                    ? t.common.album
 
-                                    : "Alben"
+                                    : t.common.albums
 
                             }
 

@@ -10,6 +10,8 @@ import { getRoleEmptyMessage } from "../../../domain/roles/roleEmptyMessages"
 
 import AlbumCard from "../library/AlbumCard"
 
+import { useI18n } from "../../../i18n/I18nContext"
+
 type RoleDetailProps = {
     roleId: RoleId
     albums: Album[]
@@ -35,6 +37,7 @@ function RoleDetail({
     onSetFocus,
     onBack,
 }: RoleDetailProps) {
+    const { t } = useI18n()
 
     const role = roles.find(r => r.id === roleId)
 
@@ -48,9 +51,9 @@ function RoleDetail({
             <button
                 className="role-detail-back"
                 onClick={onBack}
-                aria-label="Zurück zur Rollenübersicht"
+                aria-label={t.roleExplorer.backToOverviewAria}
             >
-                ← Zurück
+                {t.roleExplorer.backToOverview}
             </button>
 
             <header className="role-detail-header">
@@ -62,7 +65,7 @@ function RoleDetail({
                         {role.title}
                     </h2>
                     <p className="role-detail-count">
-                        {roleAlbums.length} Album{roleAlbums.length === 1 ? "" : "e"}
+                        {roleAlbums.length} {roleAlbums.length === 1 ? t.common.album : t.common.albums}
                     </p>
                 </div>
             </header>
@@ -73,13 +76,13 @@ function RoleDetail({
 
             <div className="role-detail-future">
                 <p>
-                    Hier entsteht bald: Timeline der Rolle, Listening-Auswertung und Übergangshistorie.
+                    {t.roleExplorer.futureInsights}
                 </p>
             </div>
 
             {roleAlbums.length === 0 ? (
                 <div className="role-detail-empty">
-                    <p>{getRoleEmptyMessage(roleId)}</p>
+                    <p>{getRoleEmptyMessage(roleId, t)}</p>
                 </div>
             ) : (
                 <div className="role-detail-grid">
@@ -94,7 +97,6 @@ function RoleDetail({
                             onLogListen={onLogListen}
                             onReconsider={onReconsider}
                             onSetFocus={onSetFocus}
-                            showRoleLabel={false}
                         />
                     ))}
                 </div>

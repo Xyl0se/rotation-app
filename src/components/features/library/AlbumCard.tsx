@@ -1,32 +1,28 @@
+import { useRef, useState, useEffect } from "react"
+
 import type { Album } from "../../../types/album"
 
-import type { RoleId } from "../../../domain/roles"
-
-import { roles } from "../../../domain/roles"
-
 import AlbumCover from "../../ui/AlbumCover"
-import Card from "../../ui/Card"
-
-function getRoleLabelClass(roleId: RoleId | undefined): string {
-    if (!roleId) return "album-role-label"
-    return `album-role-label role-${roleId}`
-}
-
-function getRoleTitle(roleId: RoleId | undefined): string | undefined {
-    if (!roleId) return undefined
-    return roles.find(r => r.id === roleId)?.title
-}
+import { useI18n } from "../../../i18n/I18nContext"
 
 type AlbumCardProps = {
+
     album: Album
+
     isFocus: boolean
+
     onArchive: (id: string) => void
+
     onDelete: (id: string) => void
+
     onEdit: (id: string) => void
+
     onLogListen: (id: string) => void
+
     onReconsider: (id: string) => void
+
     onSetFocus: (id: string) => void
-    showRoleLabel?: boolean
+
 }
 
 function AlbumCard({
@@ -47,195 +43,135 @@ function AlbumCard({
 
     onSetFocus,
 
-    showRoleLabel = true,
-
 }: AlbumCardProps) {
+    const { t } = useI18n()
 
-    const isArchived =
-        album.category === "archive"
+    const menuRef = useRef<HTMLDivElement>(null)
+
+    const [menuOpen, setMenuOpen] = useState(false)
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (
+                menuRef.current &&
+                !menuRef.current.contains(event.target as Node)
+            ) {
+                setMenuOpen(false)
+            }
+        }
+
+        if (menuOpen) {
+            document.addEventListener("mousedown", handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+        }
+    }, [menuOpen])
 
     return (
 
-        <Card>
+        <div className={`album-card ${isFocus ? "focus" : ""}`}>
 
-            <div className="album-card-inner">
-
+            <button
+                className="album-card-cover-button"
+                onClick={() => onSetFocus(album.id)}
+                title={t.albumCard.setFocus}
+            >
                 <AlbumCover
                     coverUrl={album.coverUrl}
                     coverOverride={album.coverOverride}
                     albumId={album.id}
                     title={album.title}
-                    alt={`Cover von ${album.title}`}
-                    className="album-cover-small"
+                    alt={album.title}
+                    className="album-cover library-cover"
                 />
+            </button>
 
-                <div className="album-card-body">
+            <div className="album-card-info">
 
-                    <div className="album-card-meta">
+                <h4>
+                    {album.title}
+                </h4>
 
-                        {
-                            isArchived && (
+                <p>
+                    {album.artist}
+                </p>
 
-                                <span className="album-state">
-
-                                    Archiv
-
-                                </span>
-
-                            )
-                        }
-
-                        {
-                            showRoleLabel && album.category && !isArchived && (
-
-                                <span className={getRoleLabelClass(album.category)}>
-
-                                    {getRoleTitle(album.category)}
-
-                                </span>
-
-                            )
-                        }
-
-                        <h3>
-
-                            {album.title}
-
-                        </h3>
-
-                        <p>
-
-                            {album.artist}
-
-                        </p>
-
-                        <small>
-
-                            {album.year}
-
-                        </small>
-
-                    </div>
-
-                    <div className="album-card-actions">
-
-                        <button
-
-                            className="album-listen-button"
-
-                            onClick={() => onLogListen(album.id)}
-
-                            aria-label={`Erfassen, dass du ${album.title} gehört hast`}
-
-                        >
-
-                            Gehört
-
-                        </button>
-
-                        <span className="album-listen-summary">
-
-                            {album.listenCount}x gehört
-
-                        </span>
-
-                    </div>
-
+                <div className="album-card-meta">
+                    <span>
+                        {album.year || "—"}
+                    </span>
+                    <span>
+                        {t.albumCard.listenCount(album.listenCount)}
+                    </span>
                 </div>
 
-                <div className="album-card-tools">
-
-                    {
-                        !isArchived && (
-
-                            <button
-
-                                className={
-                                    isFocus
-                                        ? "focus-button active"
-                                        : "focus-button"
-                                }
-
-                                onClick={() => onSetFocus(album.id)}
-
-                                aria-label="Fokus setzen"
-
-                                title="Fokus setzen"
-
-                            >
-
-                                {isFocus ? "★" : "☆"}
-
-                            </button>
-
-                        )
-                    }
-
+                <div className="album-card-actions">
                     <button
-
-                        className="card-tool-button edit"
-
-                        onClick={() => onEdit(album.id)}
-
-                        aria-label="Album bearbeiten"
-
-                        title="Album bearbeiten"
-
+                        className="listen-button"
+                        onClick={() => onLogListen(album.id)}
                     >
-
-                        ✎
-
+                        {t.albumCard.listened}
                     </button>
-
-                    <button
-
-                        className="archive-button"
-
-                        onClick={() =>
-                            isArchived
-                                ? onReconsider(album.id)
-                                : onArchive(album.id)
-                        }
-
-                        aria-label={
-                            isArchived
-                                ? "Wiederentdeckung prüfen"
-                                : "Im Archiv ablegen"
-                        }
-
-                        title={
-                            isArchived
-                                ? "Wiederentdeckung prüfen"
-                                : "Im Archiv ablegen"
-                        }
-
-                    >
-
-                        {isArchived ? "↩" : "⬇"}
-
-                    </button>
-
-                    <button
-
-                        className="card-tool-button delete"
-
-                        onClick={() => onDelete(album.id)}
-
-                        aria-label="Album löschen"
-
-                        title="Album löschen"
-
-                    >
-
-                        ✕
-
-                    </button>
-
+                    <div className="action-menu" ref={menuRef}>
+                        <button
+                            className="action-menu-toggle"
+                            onClick={() => setMenuOpen(!menuOpen)}
+                            aria-label="Open Action Menu"
+                            aria-expanded={menuOpen}
+                        >
+                            ⋮
+                        </button>
+                        {menuOpen && (
+                            <div className="action-menu-dropdown">
+                                <button
+                                    className="menu-item"
+                                    onClick={() => {
+                                        onEdit(album.id)
+                                        setMenuOpen(false)
+                                    }}
+                                >
+                                    {t.albumCard.edit}
+                                </button>
+                                {album.category === "archive" ? (
+                                    <button
+                                        className="menu-item"
+                                        onClick={() => {
+                                            onReconsider(album.id)
+                                            setMenuOpen(false)
+                                        }}
+                                    >
+                                        {t.albumCard.reconsider}
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="menu-item"
+                                        onClick={() => {
+                                            onArchive(album.id)
+                                            setMenuOpen(false)
+                                        }}
+                                    >
+                                        {t.albumCard.archive}
+                                    </button>
+                                )}
+                                <button
+                                    className="menu-item danger"
+                                    onClick={() => {
+                                        onDelete(album.id)
+                                        setMenuOpen(false)
+                                    }}
+                                >
+                                    {t.albumCard.delete}
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
             </div>
 
-        </Card>
+        </div>
 
     )
 

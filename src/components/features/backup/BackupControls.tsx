@@ -12,6 +12,7 @@ import {
 
 import Button from "../../ui/Button"
 import Dialog from "../../ui/Dialog"
+import { useI18n } from "../../../i18n/I18nContext"
 
 type BackupControlsProps = {
     adapter: StorageAdapter
@@ -19,6 +20,7 @@ type BackupControlsProps = {
 }
 
 function BackupControls({ adapter, onRestored }: BackupControlsProps) {
+    const { t } = useI18n()
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [pendingFile, setPendingFile] = useState<File | null>(null)
     const [error, setError] = useState<string | null>(null)
@@ -27,7 +29,7 @@ function BackupControls({ adapter, onRestored }: BackupControlsProps) {
     function handleExport() {
         const backup = createBackup(adapter)
         downloadBackup(backup)
-        setSuccess("Backup heruntergeladen.")
+        setSuccess(t.backup.exportSuccess)
         setTimeout(() => setSuccess(null), 3000)
     }
 
@@ -60,7 +62,7 @@ function BackupControls({ adapter, onRestored }: BackupControlsProps) {
                 const backup = validateBackup(parsed)
                 restoreBackup(adapter, backup)
                 setPendingFile(null)
-                setSuccess("Backup erfolgreich wiederhergestellt. Seite wird neu geladen...")
+                setSuccess(t.backup.importSuccess)
                 setTimeout(() => {
                     onRestored()
                 }, 1200)
@@ -68,9 +70,9 @@ function BackupControls({ adapter, onRestored }: BackupControlsProps) {
                 if (err instanceof BackupValidationError) {
                     setError(err.message)
                 } else if (err instanceof SyntaxError) {
-                    setError("Ungültige JSON-Datei.")
+                    setError(t.backup.errors.invalidJson)
                 } else {
-                    setError("Fehler beim Wiederherstellen des Backups.")
+                    setError(t.backup.errors.generic)
                 }
             } finally {
                 if (fileInputRef.current) {
@@ -79,7 +81,7 @@ function BackupControls({ adapter, onRestored }: BackupControlsProps) {
             }
         }
         reader.onerror = () => {
-            setError("Datei konnte nicht gelesen werden.")
+            setError(t.backup.errors.readError)
         }
         reader.readAsText(pendingFile)
     }
@@ -101,14 +103,14 @@ function BackupControls({ adapter, onRestored }: BackupControlsProps) {
                     onClick={handleExport}
                 >
                     <span aria-hidden="true">↓</span>
-                    Exportieren
+                    {t.backup.export}
                 </Button>
                 <Button
                     variant="secondary"
                     onClick={handleImportClick}
                 >
                     <span aria-hidden="true">↑</span>
-                    Importieren
+                    {t.backup.import}
                 </Button>
             </div>
 
@@ -125,22 +127,22 @@ function BackupControls({ adapter, onRestored }: BackupControlsProps) {
 
             <Dialog open={pendingFile !== null}>
                 <div className="backup-dialog-content">
-                    <h3>Backup importieren</h3>
+                    <h3>{t.backup.importDialog.title}</h3>
                     <p>
-                        Möchtest du wirklich das Backup <strong>{pendingFile?.name}</strong> importieren?
+                        {t.backup.importDialog.description(pendingFile?.name ?? "")}
                     </p>
                     <p className="backup-dialog-warning">
-                        Alle bestehenden Daten werden überschrieben. Diese Aktion kann nicht rückgängig gemacht werden.
+                        {t.backup.importDialog.warning}
                     </p>
                     <div className="dialog-actions">
                         <Button
                             variant="secondary"
                             onClick={handleCancelImport}
                         >
-                            Abbrechen
+                            {t.backup.importDialog.cancel}
                         </Button>
                         <Button onClick={handleConfirmImport}>
-                            Importieren
+                            {t.backup.importDialog.import}
                         </Button>
                     </div>
                 </div>

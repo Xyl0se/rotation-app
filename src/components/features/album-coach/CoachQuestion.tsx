@@ -2,6 +2,8 @@ import type {
     CoachQuestion as CoachQuestionModel,
 } from "../../../domain/album/coachQuestions"
 
+import { useI18n } from "../../../i18n/I18nContext"
+
 type CoachQuestionProps = {
 
     albumTitle: string
@@ -21,6 +23,7 @@ function CoachQuestion({
     onAnswer,
 
 }: CoachQuestionProps) {
+    const { t } = useI18n()
 
     return (
 
@@ -57,13 +60,13 @@ function CoachQuestion({
                 <button
                     onClick={() => onAnswer(true)}
                 >
-                    Ja
+                    {t.common.yes}
                 </button>
 
                 <button
                     onClick={() => onAnswer(false)}
                 >
-                    Nein
+                    {t.common.no}
                 </button>
 
             </div>

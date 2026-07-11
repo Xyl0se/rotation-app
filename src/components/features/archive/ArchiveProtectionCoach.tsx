@@ -17,6 +17,7 @@ import {
 } from "../../../domain/roles"
 
 import Button from "../../ui/Button"
+import { useI18n } from "../../../i18n/I18nContext"
 
 type ArchiveProtectionCoachProps = {
 
@@ -33,6 +34,7 @@ function ArchiveProtectionCoach({
     onComplete,
 
 }: ArchiveProtectionCoachProps) {
+    const { t } = useI18n()
 
     const [answers, setAnswers] =
         useState<Partial<ArchiveProtectionAnswers>>({})
@@ -58,8 +60,8 @@ function ArchiveProtectionCoach({
                 <h2>
 
                     {evaluation.role === "archive"
-                        ? "Dieses Album darf ruhen"
-                        : "Dieses Album bleibt geschützt"}
+                        ? t.archive.protection.keepInArchive
+                        : t.archive.protection.protectFromArchive}
 
                 </h2>
 
@@ -81,7 +83,7 @@ function ArchiveProtectionCoach({
                     }
                 >
 
-                    Entscheidung übernehmen
+                    {t.archive.protection.accept}
 
                 </Button>
 
@@ -129,7 +131,7 @@ function ArchiveProtectionCoach({
                     }
                 >
 
-                    Ja
+                    {t.common.yes}
 
                 </Button>
 
@@ -143,7 +145,7 @@ function ArchiveProtectionCoach({
                     }
                 >
 
-                    Nein
+                    {t.common.no}
 
                 </Button>
 

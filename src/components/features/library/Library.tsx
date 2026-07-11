@@ -16,6 +16,7 @@ import LastListenedView from "./views/LastListenedView"
 import RoleChangeView from "./views/RoleChangeView"
 
 import type { MainViewMode, PerspectiveMode } from "./LibraryViewSwitcher"
+import { useI18n } from "../../../i18n/I18nContext"
 
 type LibraryProps = {
     albums: Album[]
@@ -50,6 +51,7 @@ function Library({
     onSetFocus,
 
 }: LibraryProps) {
+    const { t } = useI18n()
 
     const [viewMode, setViewMode] = useState<MainViewMode>("all")
 
@@ -81,7 +83,7 @@ function Library({
 
             <div className="library-header">
 
-                <h2>Bibliothek</h2>
+                <h2>{t.library.title}</h2>
 
                 <LibraryViewSwitcher
                     viewMode={viewMode}

@@ -17,6 +17,7 @@ import {
 } from "../../../domain/roles"
 
 import Button from "../../ui/Button"
+import { useI18n } from "../../../i18n/I18nContext"
 
 type ArchiveReturnCoachProps = {
 
@@ -33,6 +34,7 @@ function ArchiveReturnCoach({
     onComplete,
 
 }: ArchiveReturnCoachProps) {
+    const { t } = useI18n()
 
     const [answers, setAnswers] =
         useState<Partial<ArchiveReturnAnswers>>({})
@@ -58,8 +60,8 @@ function ArchiveReturnCoach({
                 <h2>
 
                     {evaluation.role === "archive"
-                        ? "Dieses Album bleibt im Archiv"
-                        : "Dieses Album darf zurückkehren"}
+                        ? t.archive.return.keepArchived
+                        : t.archive.return.allowReturn}
 
                 </h2>
 
@@ -81,7 +83,7 @@ function ArchiveReturnCoach({
                     }
                 >
 
-                    Entscheidung übernehmen
+                    {t.archive.return.accept}
 
                 </Button>
 
@@ -132,7 +134,7 @@ function ArchiveReturnCoach({
                             }
                         >
 
-                            Ja
+                            {t.common.yes}
 
                         </Button>
 
@@ -146,7 +148,7 @@ function ArchiveReturnCoach({
                             }
                         >
 
-                            Nein
+                            {t.common.no}
 
                         </Button>
 

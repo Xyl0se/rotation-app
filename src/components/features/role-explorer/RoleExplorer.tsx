@@ -6,12 +6,15 @@ import { createRoleOverview } from "../../../domain/roles/roleOverview"
 
 import { getRoleEmptyMessage } from "../../../domain/roles/roleEmptyMessages"
 
+import { useI18n } from "../../../i18n/I18nContext"
+
 type RoleExplorerProps = {
     albums: Album[]
     onSelectRole: (roleId: RoleId) => void
 }
 
 function RoleExplorer({ albums, onSelectRole }: RoleExplorerProps) {
+    const { t } = useI18n()
 
     const overviews = createRoleOverview(albums)
 
@@ -19,7 +22,7 @@ function RoleExplorer({ albums, onSelectRole }: RoleExplorerProps) {
         <section className="role-explorer">
 
             <p className="role-explorer-intro">
-                Jede Rolle erzählt eine andere Geschichte über deine Sammlung.
+                {t.roleExplorer.intro}
             </p>
 
             <div className="role-explorer-grid">
@@ -30,7 +33,7 @@ function RoleExplorer({ albums, onSelectRole }: RoleExplorerProps) {
                         key={overview.role.id}
                         className="role-card"
                         onClick={() => onSelectRole(overview.role.id)}
-                        aria-label={`${overview.role.title}: ${overview.albumCount} ${overview.albumCount === 1 ? "Album" : "Alben"}`}
+                        aria-label={`${overview.role.title}: ${overview.albumCount} ${overview.albumCount === 1 ? t.common.album : t.common.albums}`}
                     >
 
                         <div className="role-card-header">
@@ -42,7 +45,7 @@ function RoleExplorer({ albums, onSelectRole }: RoleExplorerProps) {
                                     {overview.role.title}
                                 </h3>
                                 <p className="role-card-count">
-                                    {overview.albumCount} {overview.albumCount === 1 ? "Album" : "Alben"}
+                                    {overview.albumCount} {overview.albumCount === 1 ? t.common.album : t.common.albums}
                                 </p>
                             </div>
                         </div>

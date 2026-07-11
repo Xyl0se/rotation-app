@@ -8,33 +8,7 @@ import {
 
 import AlbumCover from "../../ui/AlbumCover"
 import AlbumTimeline from "../timeline/AlbumTimeline"
-
-const ACQUISITION_LABELS: Record<AlbumAcquisitionReason, string> = {
-    artist: "Künstler",
-    "friend-recommendation": "Empfehlung",
-    "specific-song": "Song",
-    concert: "Konzert",
-    review: "Rezension",
-    "record-store": "Plattenladen",
-    gift: "Geschenk",
-    "random-discovery": "Zufall",
-    "life-phase": "Lebensphase",
-    other: "Sonstiges",
-}
-
-const LIFE_PHASE_LABELS: Record<AlbumLifePhase, string> = {
-    childhood: "Kindheit",
-    school: "Schulzeit",
-    studies: "Studium",
-    "first-apartment": "Erste Wohnung",
-    relationship: "Beziehung",
-    breakup: "Trennung",
-    work: "Beruf",
-    travel: "Reise",
-    family: "Familie",
-    current: "Aktuell",
-    other: "Andere",
-}
+import { useI18n } from "../../../i18n/I18nContext"
 
 function StoryBadge({ label, value }: { label: string; value: string }) {
     return (
@@ -46,19 +20,21 @@ function StoryBadge({ label, value }: { label: string; value: string }) {
 }
 
 function AlbumStory({ story }: { story: NonNullable<Album["story"]> }) {
+    const { t } = useI18n()
+
     return (
         <div className="album-story">
             <div className="story-badges">
                 {story.acquiredBecause && (
                     <StoryBadge
-                        label="Warum"
-                        value={ACQUISITION_LABELS[story.acquiredBecause]}
+                        label={t.albumStory.why}
+                        value={t.acquisitionReasons[story.acquiredBecause]}
                     />
                 )}
                 {story.lifePhase && (
                     <StoryBadge
-                        label="Wann"
-                        value={LIFE_PHASE_LABELS[story.lifePhase]}
+                        label={t.albumStory.when}
+                        value={t.lifePhases[story.lifePhase]}
                     />
                 )}
             </div>
@@ -81,17 +57,17 @@ type FocusAlbumCardProps = {
 
 }
 
-function formatLastListened(date: string | null) {
+function formatLastListened(date: string | null, t: ReturnType<typeof useI18n>["t"]) {
 
     if (!date) {
 
-        return "Noch keine Hörsession"
+        return t.focusAlbum.noListenSession
 
     }
 
     return new Date(date).toLocaleDateString(
 
-        "de-DE",
+        undefined,
 
         {
 
@@ -119,7 +95,7 @@ function formatRoleSince(album: Album) {
 
     return new Date(roleSince).toLocaleDateString(
 
-        "de-DE",
+        undefined,
 
         {
 
@@ -145,6 +121,7 @@ function FocusAlbumCard({
 
 }: FocusAlbumCardProps) {
 
+    const { t } = useI18n()
     const roleSince =
         formatRoleSince(album)
 
@@ -154,7 +131,7 @@ function FocusAlbumCard({
 
             <p className="focus-album-label">
 
-                Fokusalbum
+                {t.focusAlbum.label}
 
             </p>
 
@@ -196,7 +173,7 @@ function FocusAlbumCard({
 
                             <div className="focus-album-meta">
 
-                                Aktuelle Rolle seit {roleSince}
+                                {t.focusAlbum.roleSince} {roleSince}
 
                             </div>
 
@@ -216,7 +193,7 @@ function FocusAlbumCard({
 
                             <span>
 
-                                Hörsessions
+                                {t.focusAlbum.listenCountLabel}
 
                             </span>
 
@@ -228,7 +205,7 @@ function FocusAlbumCard({
 
                                 {formatLastListened(
 
-                                    album.lastListened,
+                                    album.lastListened, t
 
                                 )}
 
@@ -236,7 +213,7 @@ function FocusAlbumCard({
 
                             <span>
 
-                                Zuletzt gehört
+                                {t.focusAlbum.lastListenedLabel}
 
                             </span>
 
@@ -250,11 +227,11 @@ function FocusAlbumCard({
 
                         onClick={onLogListen}
 
-                        aria-label={`Erfassen, dass du ${album.title} gehört hast`}
+                        aria-label={`${t.focusAlbum.listened}: ${album.title}`}
 
                     >
 
-                        Gehört
+                        {t.focusAlbum.listened}
 
                     </button>
 

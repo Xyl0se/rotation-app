@@ -1,125 +1,65 @@
-export type MainViewMode = "all" | "roles" | "perspectives"
+import { useI18n } from "../../../i18n/I18nContext"
 
+export type MainViewMode = "all" | "roles" | "perspectives"
 export type PerspectiveMode = "artist" | "year" | "lastListened" | "roleChange"
 
 type LibraryViewSwitcherProps = {
     viewMode: MainViewMode
-    perspectiveMode?: PerspectiveMode
+    perspectiveMode: PerspectiveMode
     onChange: (mode: MainViewMode) => void
-    onPerspectiveChange?: (mode: PerspectiveMode) => void
+    onPerspectiveChange: (mode: PerspectiveMode) => void
 }
 
 function LibraryViewSwitcher({
     viewMode,
-    perspectiveMode = "artist",
+    perspectiveMode,
     onChange,
     onPerspectiveChange,
 }: LibraryViewSwitcherProps) {
+    const { t } = useI18n()
+
+    const mainViews: { mode: MainViewMode; label: string }[] = [
+        { mode: "all", label: t.library.views.all },
+        { mode: "roles", label: t.library.views.byRole },
+        { mode: "perspectives", label: t.library.views.perspectives },
+    ]
+
+    const perspectives: { mode: PerspectiveMode; label: string }[] = [
+        { mode: "artist", label: t.library.views.artist },
+        { mode: "year", label: t.library.views.year },
+        { mode: "lastListened", label: t.library.views.lastListened },
+        { mode: "roleChange", label: t.library.views.roleChange },
+    ]
 
     return (
-        <div className="library-view-switcher-wrapper">
-            <div
-                className="library-view-switcher"
-                role="tablist"
-                aria-label="Bibliotheksansicht"
-            >
-                <button
-                    className={
-                        viewMode === "all"
-                            ? "view-switcher-button active"
-                            : "view-switcher-button"
-                    }
-                    onClick={() => onChange("all")}
-                    role="tab"
-                    aria-selected={viewMode === "all"}
-                >
-                    Alle Alben
-                </button>
-                <button
-                    className={
-                        viewMode === "roles"
-                            ? "view-switcher-button active"
-                            : "view-switcher-button"
-                    }
-                    onClick={() => onChange("roles")}
-                    role="tab"
-                    aria-selected={viewMode === "roles"}
-                >
-                    Rollen
-                </button>
-                <button
-                    className={
-                        viewMode === "perspectives"
-                            ? "view-switcher-button active"
-                            : "view-switcher-button"
-                    }
-                    onClick={() => onChange("perspectives")}
-                    role="tab"
-                    aria-selected={viewMode === "perspectives"}
-                >
-                    Perspektiven
-                </button>
+        <div className="library-view-switcher">
+            <div className="library-view-switcher-main">
+                {mainViews.map(({ mode, label }) => (
+                    <button
+                        key={mode}
+                        className={viewMode === mode ? "active" : ""}
+                        onClick={() => onChange(mode)}
+                    >
+                        {label}
+                    </button>
+                ))}
             </div>
 
-            {viewMode === "perspectives" && onPerspectiveChange && (
-                <div
-                    className="perspective-switcher"
-                    role="tablist"
-                    aria-label="Perspektive"
-                >
-                    <button
-                        className={
-                            perspectiveMode === "artist"
-                                ? "perspective-button active"
-                                : "perspective-button"
-                        }
-                        onClick={() => onPerspectiveChange("artist")}
-                        role="tab"
-                        aria-selected={perspectiveMode === "artist"}
-                    >
-                        Künstler
-                    </button>
-                    <button
-                        className={
-                            perspectiveMode === "year"
-                                ? "perspective-button active"
-                                : "perspective-button"
-                        }
-                        onClick={() => onPerspectiveChange("year")}
-                        role="tab"
-                        aria-selected={perspectiveMode === "year"}
-                    >
-                        Jahre
-                    </button>
-                    <button
-                        className={
-                            perspectiveMode === "lastListened"
-                                ? "perspective-button active"
-                                : "perspective-button"
-                        }
-                        onClick={() => onPerspectiveChange("lastListened")}
-                        role="tab"
-                        aria-selected={perspectiveMode === "lastListened"}
-                    >
-                        Hörsession
-                    </button>
-                    <button
-                        className={
-                            perspectiveMode === "roleChange"
-                                ? "perspective-button active"
-                                : "perspective-button"
-                        }
-                        onClick={() => onPerspectiveChange("roleChange")}
-                        role="tab"
-                        aria-selected={perspectiveMode === "roleChange"}
-                    >
-                        Zuletzt eingeordnet
-                    </button>
+            {viewMode === "perspectives" && (
+                <div className="library-view-switcher-sub">
+                    {perspectives.map(({ mode, label }) => (
+                        <button
+                            key={mode}
+                            className={perspectiveMode === mode ? "active" : ""}
+                            onClick={() => onPerspectiveChange(mode)}
+                        >
+                            {label}
+                        </button>
+                    ))}
                 </div>
             )}
         </div>
     )
-
 }
 
 export default LibraryViewSwitcher

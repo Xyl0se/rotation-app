@@ -6,6 +6,8 @@ import {
     createAlbumTimeline,
 } from "../../../domain/timeline/createAlbumTimeline"
 
+import { useI18n } from "../../../i18n/I18nContext"
+
 type AlbumTimelineProps = {
 
     album: Album
@@ -18,7 +20,7 @@ function formatDate(date: string) {
 
     return new Date(date).toLocaleDateString(
 
-        "de-DE",
+        undefined,
 
         {
 
@@ -41,6 +43,7 @@ function AlbumTimeline({
     listenEvents,
 
 }: AlbumTimelineProps) {
+    const { t } = useI18n()
 
     const events =
         createAlbumTimeline(album, listenEvents)
@@ -59,8 +62,7 @@ function AlbumTimeline({
 
                 <p>
 
-                    Die bisher dokumentierte Geschichte
-                    dieses Albums.
+                    {t.timeline.header}
 
                 </p>
 
@@ -71,7 +73,7 @@ function AlbumTimeline({
 
                     <p className="timeline-empty">
 
-                        Noch keine dokumentierten Ereignisse.
+                        {t.timeline.noEvents}
 
                     </p>
 

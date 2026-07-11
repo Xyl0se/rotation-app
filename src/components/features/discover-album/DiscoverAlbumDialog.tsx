@@ -2,36 +2,23 @@ import { useState } from "react"
 
 import type { Album } from "../../../types/album"
 
-import { searchAlbum } from "../../../services/music/albumMetadata"
-
-import {
-    saveCustomCover,
-} from "../../../repositories/coverCache"
-
 import Dialog from "../../ui/Dialog"
-import Button from "../../ui/Button"
 import StepIndicator from "../../ui/StepIndicator"
+import Button from "../../ui/Button"
+import { searchAlbum } from "../../../services/music/albumMetadata"
+import { useI18n } from "../../../i18n/I18nContext"
 
-import AlbumTitleStep from "./steps/AlbumTitleStep"
-import ArtistStep from "./steps/ArtistStep"
-import MetadataLookupStep from "./steps/MetadataLookupStep"
+type DiscoverStep = "title" | "artist" | "metadata" | "year"
 
-import AlbumCoach from "../album-coach/AlbumCoach"
+const steps: DiscoverStep[] = ["title", "artist", "metadata"]
 
-type DiscoverAlbumDialogProps = {
+interface DiscoverAlbumDialogProps {
     open: boolean
     album: Album
     setAlbum: React.Dispatch<React.SetStateAction<Album>>
     onClose: () => void
     onFinish: (album: Album) => void
 }
-
-type MetadataLookupState =
-    | "idle"
-    | "searching"
-    | "success"
-    | "not-found"
-    | "error"
 
 function DiscoverAlbumDialog({
     open,
@@ -40,362 +27,179 @@ function DiscoverAlbumDialog({
     onClose,
     onFinish,
 }: DiscoverAlbumDialogProps) {
+    const { t } = useI18n()
+    const [currentStepIndex, setCurrentStepIndex] = useState(0)
+    const [metadataState, setMetadataState] = useState<
+        "idle" | "searching" | "found" | "not-found"
+    >("idle")
 
-    const [step, setStep] = useState(0)
+    const currentStep = steps[currentStepIndex]
 
-    const [loadingMetadata, setLoadingMetadata] =
-        useState(false)
-
-    const [metadataState, setMetadataState] =
-        useState<MetadataLookupState>("idle")
-
-    async function handleMetadataLookup() {
-
-        setLoadingMetadata(true)
-
-        setMetadataState("searching")
-
-        try {
-
-            const metadata =
-                await searchAlbum(
-
-                    album.title,
-
-                    album.artist,
-
-                )
-
-            if (metadata) {
-
-                let coverOverride =
-                    undefined
-
-                if (metadata.coverUrl) {
-
-                    try {
-
-                        const response =
-                            await fetch(
-                                metadata.coverUrl,
-                            )
-
-                        if (response.ok) {
-
-                            const blob =
-                                await response.blob()
-
-                            if (
-                                blob.size > 0
-                                && blob.type.startsWith("image/")
-                            ) {
-
-                                await saveCustomCover(
-                                    album.id,
-                                    blob,
-                                    { source: "alternative" },
-                                )
-
-                                const blobUrl =
-                                    URL.createObjectURL(blob)
-
-                                coverOverride = {
-                                    type: "custom" as const,
-                                    albumId: album.id,
-                                    blobUrl,
-                                    source: "alternative" as const,
-                                    fetchedAt: new Date().toISOString(),
-                                }
-
-                            }
-
-                        }
-
-                    } catch (e) {
-
-                        console.warn(
-                            "Cover-Download fehlgeschlagen, verwende URL stattdessen",
-                            e,
-                        )
-
-                    }
-
-                }
-
-                if (
-                    album.coverOverride?.type === "custom"
-                    && album.coverOverride.blobUrl
-                ) {
-
-                    URL.revokeObjectURL(
-                        album.coverOverride.blobUrl,
-                    )
-
-                }
-
-                setAlbum({
-
-                    ...album,
-
-                    year: metadata.year ?? album.year,
-
-                    coverUrl: metadata.coverUrl,
-
-                    coverOverride,
-
-                })
-
-                setMetadataState("success")
-
-            } else {
-
-                setMetadataState("not-found")
-
-            }
-
-        } catch (error) {
-
-            console.error(error)
-
-            setMetadataState("error")
-
-        } finally {
-
-            setLoadingMetadata(false)
-
-            setTimeout(() => {
-
-                setStep(3)
-
-                setMetadataState("idle")
-
-            }, 1200)
-
+    function handleNext() {
+        if (currentStepIndex < steps.length - 1) {
+            setCurrentStepIndex(currentStepIndex + 1)
+            return
         }
-
+        onFinish(album)
+        setCurrentStepIndex(0)
+        setMetadataState("idle")
     }
 
-    function renderStep() {
+    function handleBack() {
+        if (currentStepIndex > 0) {
+            setCurrentStepIndex(currentStepIndex - 1)
+        }
+    }
 
-        switch (step) {
-
-            case 0:
-
-                return (
-
-                    <AlbumTitleStep
-
-                        value={album.title}
-
-                        onChange={(value) =>
-
-                            setAlbum({
-
-                                ...album,
-
-                                title: value,
-
-                            })
-
-                        }
-
-                    />
-
-                )
-
-            case 1:
-
-                return (
-
-                    <ArtistStep
-
-                        value={album.artist}
-
-                        onChange={(value) =>
-
-                            setAlbum({
-
-                                ...album,
-
-                                artist: value,
-
-                            })
-
-                        }
-
-                    />
-
-                )
-
-            case 2:
-
-                return (
-
-                    <MetadataLookupStep
-
-                        loading={loadingMetadata}
-
-                        state={metadataState}
-
-                        onSearch={handleMetadataLookup}
-
-                        onSkip={() =>
-
-                            setStep(3)
-
-                        }
-
-                    />
-
-                )
-
-            case 3:
-
-                return (
-
-                    <AlbumCoach
-
-                        albumTitle={album.title}
-
-                        onComplete={(role) => {
-
-                            const completedAlbum: Album = {
-
-                                ...album,
-
-                                category: role,
-
-                                roleHistory: [
-
-                                    ...album.roleHistory,
-
-                                    {
-
-                                        role,
-
-                                        recordedAt:
-                                            new Date().toISOString(),
-
-                                        source: "coach",
-
-                                    },
-
-                                ],
-
-                            }
-
-                            setAlbum(completedAlbum)
-
-                            setStep(0)
-
-                            onFinish(completedAlbum)
-
-                        }}
-
-                    />
-
-                )
-
+    function canProceed() {
+        switch (currentStep) {
+            case "title":
+                return album.title.trim().length > 0
+            case "artist":
+                return album.artist.trim().length > 0
+            case "metadata":
+                return true
             default:
-
-                return null
-
+                return false
         }
-
     }
 
-    const showNavigation = step < 2
+    async function handleFetchMetadata() {
+        setMetadataState("searching")
+        try {
+            const metadata = await searchAlbum(album.title, album.artist)
+            if (metadata) {
+                setAlbum(prev => ({
+                    ...prev,
+                    year: metadata.year ?? prev.year,
+                    coverUrl: metadata.coverUrl ?? prev.coverUrl,
+                }))
+                setMetadataState("found")
+            } else {
+                setMetadataState("not-found")
+            }
+        } catch {
+            setMetadataState("not-found")
+        }
+    }
+
+    function handleClose() {
+        onClose()
+        setCurrentStepIndex(0)
+        setMetadataState("idle")
+    }
 
     return (
-
         <Dialog open={open}>
-
-            <div className="discover-dialog">
-
-                <h2>
-
-                    Neues Album entdecken
-
-                </h2>
-
+            <div className="discover-album-dialog">
                 <StepIndicator
-
-                    current={step}
-
-                    total={4}
-
+                    current={currentStepIndex}
+                    total={steps.length}
                 />
 
                 <div className="discover-step">
+                    {currentStep === "title" && (
+                        <label className="discover-field">
+                            {t.discoverAlbum.steps.title.label}
+                            <input
+                                type="text"
+                                value={album.title}
+                                onChange={e =>
+                                    setAlbum(prev => ({
+                                        ...prev,
+                                        title: e.target.value,
+                                    }))
+                                }
+                                placeholder={t.discoverAlbum.steps.title.placeholder}
+                                autoFocus
+                            />
+                        </label>
+                    )}
 
-                    {renderStep()}
+                    {currentStep === "artist" && (
+                        <label className="discover-field">
+                            {t.discoverAlbum.steps.artist.label}
+                            <input
+                                type="text"
+                                value={album.artist}
+                                onChange={e =>
+                                    setAlbum(prev => ({
+                                        ...prev,
+                                        artist: e.target.value,
+                                    }))
+                                }
+                                placeholder={t.discoverAlbum.steps.artist.placeholder}
+                                autoFocus
+                            />
+                        </label>
+                    )}
 
+                    {currentStep === "metadata" && (
+                        <div className="discover-metadata-step">
+                            {metadataState === "idle" && (
+                                <div className="discover-metadata-actions">
+                                    <p>{t.discoverAlbum.steps.metadata.moreInfo}</p>
+                                    <Button onClick={handleFetchMetadata}>
+                                        {t.discoverAlbum.steps.metadata.addData}
+                                    </Button>
+                                    <Button variant="secondary" onClick={handleNext}>
+                                        {t.discoverAlbum.steps.metadata.skip}
+                                    </Button>
+                                </div>
+                            )}
+
+                            {metadataState === "searching" && (
+                                <p>{t.discoverAlbum.steps.metadata.searching}</p>
+                            )}
+
+                            {metadataState === "found" && (
+                                <div className="discover-metadata-found">
+                                    <p>{t.discoverAlbum.steps.metadata.found}</p>
+                                    {album.year && (
+                                        <p>Year: {album.year}</p>
+                                    )}
+                                    {album.coverUrl && (
+                                        <img
+                                            src={album.coverUrl}
+                                            alt={`Cover: ${album.title}`}
+                                            className="discover-cover-preview"
+                                        />
+                                    )}
+                                    <Button onClick={handleNext}>
+                                        {t.discoverAlbum.finish}
+                                    </Button>
+                                </div>
+                            )}
+
+                            {metadataState === "not-found" && (
+                                <div className="discover-metadata-notfound">
+                                    <p>{t.discoverAlbum.steps.metadata.notFound}</p>
+                                    <Button onClick={handleNext}>
+                                        {t.discoverAlbum.finish}
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
-                {
-
-                    showNavigation && (
-
-                        <div className="dialog-actions">
-
-                            <Button
-
-                                variant="secondary"
-
-                                onClick={() => {
-
-                                    if (step === 0) {
-
-                                        onClose()
-
-                                        return
-
-                                    }
-
-                                    setStep(step - 1)
-
-                                }}
-
-                            >
-
-                                {
-
-                                    step === 0
-
-                                        ? "Abbrechen"
-
-                                        : "Zurück"
-
-                                }
-
+                {currentStep !== "metadata" && (
+                    <div className="dialog-actions">
+                        {currentStepIndex > 0 && (
+                            <Button variant="secondary" onClick={handleBack}>
+                                {t.discoverAlbum.back}
                             </Button>
-
-                            <Button
-
-                                onClick={() =>
-
-                                    setStep(step + 1)
-
-                                }
-
-                            >
-
-                                Weiter
-
-                            </Button>
-
-                        </div>
-
-                    )
-
-                }
-
+                        )}
+                        <Button onClick={handleNext} disabled={!canProceed()}>
+                            {currentStepIndex === steps.length - 1
+                                ? t.discoverAlbum.finish
+                                : t.discoverAlbum.next}
+                        </Button>
+                    </div>
+                )}
             </div>
-
         </Dialog>
-
     )
-
 }
 
 export default DiscoverAlbumDialog

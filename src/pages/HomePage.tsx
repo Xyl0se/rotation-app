@@ -27,6 +27,7 @@ import BackupControls from "../components/features/backup/BackupControls"
 
 import { evaluateReflection } from "../domain/reflection/evaluateReflection"
 import { generateUUID } from "../utils/uuid"
+import { useI18n } from "../i18n/I18nContext"
 
 function createEmptyAlbum(): Album {
     return {
@@ -45,6 +46,7 @@ interface HomePageProps {
 }
 
 function HomePage({ adapter }: HomePageProps) {
+    const { t } = useI18n()
     const [dialogOpen, setDialogOpen] = useState(false)
     const [reflectionAlbumId, setReflectionAlbumId] = useState<string | null>(null)
     const [archiveAlbumId, setArchiveAlbumId] = useState<string | null>(null)
@@ -168,10 +170,10 @@ function HomePage({ adapter }: HomePageProps) {
                                     variant="secondary"
                                     onClick={handleSuggestFocusAlbum}
                                 >
-                                    Neues Fokusalbum vorschlagen
+                                    {t.home.suggestFocusAlbum}
                                 </Button>
                                 <Button onClick={handleNewAlbum}>
-                                    Neues Album entdecken
+                                    {t.home.discoverAlbum}
                                 </Button>
                             </div>
                             {
@@ -265,7 +267,7 @@ function HomePage({ adapter }: HomePageProps) {
                                     variant="secondary"
                                     onClick={() => setReflectionAlbumId(null)}
                                 >
-                                    Später
+                                    {t.reflection.later}
                                 </Button>
                             </div>
                         </>
@@ -286,7 +288,7 @@ function HomePage({ adapter }: HomePageProps) {
                                     variant="secondary"
                                     onClick={() => setArchiveAlbumId(null)}
                                 >
-                                    Abbrechen
+                                    {t.archive.protection.cancel}
                                 </Button>
                             </div>
                         </>
@@ -307,7 +309,7 @@ function HomePage({ adapter }: HomePageProps) {
                                     variant="secondary"
                                     onClick={() => setArchiveReturnAlbumId(null)}
                                 >
-                                    Später
+                                    {t.archive.return.later}
                                 </Button>
                             </div>
                         </>

@@ -16,6 +16,7 @@ import type { ListenEvent } from "../../../domain/listening/listenEvents"
 
 import AlbumCover from "../../ui/AlbumCover"
 import RotationTileTooltip from "./RotationTileTooltip"
+import { useI18n } from "../../../i18n/I18nContext"
 
 type PlayerRotationProps = {
 
@@ -74,6 +75,7 @@ function PlayerRotation({
 
 }: PlayerRotationProps) {
 
+    const { t } = useI18n()
     const isDraft =
         plan?.status === "draft"
 
@@ -120,15 +122,15 @@ function PlayerRotation({
 
                     <p className="player-rotation-label">
 
-                        Player-Rotation
+                        {t.playerRotation.label}
 
                     </p>
 
                     <h2>
 
                         {plan
-                            ? `${planItems.length} Alben für den Player`
-                            : "Noch keine Player-Rotation"}
+                            ? t.playerRotation.title(planItems.length)
+                            : t.playerRotation.title(0)}
 
                     </h2>
 
@@ -136,9 +138,9 @@ function PlayerRotation({
 
                         {plan
                             ? isDraft
-                                ? "Überprüfe den Vorschlag bevor du ihn übernimmst."
-                                : "Eine bewusste Auswahl aus deiner Sammlung."
-                            : "Erzeuge eine kuratierte Auswahl aus deinen Rollen."}
+                                ? t.playerRotation.subtitle.draft
+                                : t.playerRotation.subtitle.active
+                            : t.playerRotation.subtitle.empty}
 
                     </p>
 
@@ -153,7 +155,7 @@ function PlayerRotation({
                                 className="player-rotation-action accept"
                                 onClick={onAccept}
                             >
-                                Mitnehmen
+                                {t.playerRotation.accept}
                             </button>
 
                         )
@@ -168,8 +170,8 @@ function PlayerRotation({
                     >
 
                         {plan
-                            ? "Neue Rotation vorschlagen"
-                            : "Rotation vorschlagen"}
+                            ? t.playerRotation.newSuggestion
+                            : t.playerRotation.generate}
 
                     </button>
 
@@ -213,9 +215,7 @@ function PlayerRotation({
 
                             <p>
 
-                                Sobald genug Alben eingeordnet sind,
-                                kann Rotation eine Player-Auswahl
-                                vorschlagen.
+                                {t.playerRotation.emptyHint}
 
                             </p>
 
@@ -286,6 +286,7 @@ function RotationTile({
 
 }) {
 
+    const { t } = useI18n()
     const [showReplacements, setShowReplacements] =
         useState(false)
 
@@ -349,7 +350,7 @@ function RotationTile({
                                         onRemove(item.albumId)
                                     }
 
-                                    title="Aus der Rotation entfernen"
+                                    title={t.playerRotation.remove}
 
                                 >
                                     ✕
@@ -367,7 +368,7 @@ function RotationTile({
 
                                     onClick={handleToggleReplacements}
 
-                                    title="Ersetzen"
+                                    title={t.playerRotation.replace}
 
                                 >
                                     ↻
@@ -387,7 +388,7 @@ function RotationTile({
                     <div className="player-rotation-replacements">
 
                         <p className="replacement-hint">
-                            Alternativen derselben Rolle:
+                            {t.playerRotation.replaceTitle}:
                         </p>
 
                         <div className="replacement-candidates">
@@ -421,7 +422,7 @@ function RotationTile({
                                             coverOverride={candidate.coverOverride}
                                             albumId={candidate.id}
                                             title={candidate.title}
-                                            alt={`Cover von ${candidate.title}`}
+                                            alt={`Cover: ${candidate.title}`}
                                             className="replacement-cover"
                                         />
 

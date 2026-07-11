@@ -1,4 +1,5 @@
 import Button from "../components/ui/Button"
+import { useI18n } from "../i18n/I18nContext"
 
 type WelcomePageProps = {
     onContinue: () => void
@@ -7,53 +8,32 @@ type WelcomePageProps = {
 function WelcomePage({
     onContinue,
 }: WelcomePageProps) {
+    const { t } = useI18n()
 
     return (
-
         <main className="welcome">
-
-            <h1>Rotation</h1>
+            <h1>{t.welcome.title}</h1>
 
             <h2>
-
-                Musik verändert sich nicht.
-
-                <br />
-
-                Deine Beziehung zu ihr schon.
-
+                {t.welcome.subtitle.split(". ").map((line, i, arr) => (
+                    <span key={i}>
+                        {line}{i < arr.length - 1 ? "." : ""}
+                        {i < arr.length - 1 && <br />}
+                    </span>
+                ))}
             </h2>
 
-            <p>
-
-                Rotation hilft dir dabei,
-
-                Alben bewusst zu hören,
-
-                sie wiederzuentdecken
-
-                und deine persönliche Bibliothek
-
-                über viele Jahre wachsen zu lassen.
-
-            </p>
+            <p>{t.welcome.description}</p>
 
             <Button onClick={onContinue}>
-
-                Meine Bibliothek beginnen
-
+                {t.welcome.cta}
             </Button>
 
             <small>
-
-                Version 0.1
-
+                {t.welcome.version}
             </small>
-
         </main>
-
     )
-
 }
 
 export default WelcomePage

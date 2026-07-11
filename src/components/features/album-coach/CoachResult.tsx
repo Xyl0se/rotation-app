@@ -5,6 +5,8 @@ import {
     type RoleId,
 } from "../../../domain/roles"
 
+import { useI18n } from "../../../i18n/I18nContext"
+
 type CoachResultProps = {
 
     albumTitle: string
@@ -24,6 +26,7 @@ function CoachResult({
     onAccept,
 
 }: CoachResultProps) {
+    const { t } = useI18n()
 
     const roleDefinition =
         roles.find(r => r.id === role)
@@ -40,7 +43,7 @@ function CoachResult({
 
             <h2>
 
-                Unsere Empfehlung
+                {t.coach.result.ourRecommendation}
 
             </h2>
 
@@ -62,7 +65,7 @@ function CoachResult({
 
             >
 
-                Rolle übernehmen
+                {t.coach.result.accept}
 
             </button>
 

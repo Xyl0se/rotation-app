@@ -7,6 +7,7 @@ import {
 import InsightsPanel from "../insights/InsightsPanel"
 import ReflectionCard from "../reflection/ReflectionCard"
 import RoleOverviewPanel from "../rotation-dashboard/RoleOverviewPanel"
+import { useI18n } from "../../../i18n/I18nContext"
 
 type DashboardProps = {
 
@@ -27,6 +28,7 @@ function Dashboard({
     onReflect,
 
 }: DashboardProps) {
+    const { t } = useI18n()
 
     return (
 
@@ -36,13 +38,13 @@ function Dashboard({
 
                 <h2>
 
-                    Dashboard
+                    {t.dashboard.title}
 
                 </h2>
 
                 <p>
 
-                    Was gerade Aufmerksamkeit verdient.
+                    {t.dashboard.subtitle}
 
                 </p>
 
@@ -54,7 +56,7 @@ function Dashboard({
 
                     <p className="dashboard-section-label">
 
-                        Nächste Frage
+                        {t.dashboard.nextQuestion}
 
                     </p>
 
@@ -82,7 +84,7 @@ function Dashboard({
 
                     <p className="dashboard-section-label">
 
-                        Rollenübersicht
+                        {t.dashboard.roleOverview}
 
                     </p>
 

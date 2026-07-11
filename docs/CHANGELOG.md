@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.21.0
+
+- **Sprint 60 — Internationalization (i18n) & Documentation Sprint**
+  - **Complete i18n system**: DE/EN locale files (`src/i18n/locales/{de,en}.ts`) with full type safety via `Stringify<>` mapped type.
+  - **React Context + Hook**: `I18nContext` provides `locale`, `setLocale`, and `t()` for type-safe translations. `useI18n()` is the primary consumption hook.
+  - **Language switcher**: Globe icon in the header toolbar with accessible ARIA label.
+  - **All UI components internationalized**: `WelcomePage`, `Header`, `EmptyLibrary`, `Library`, `AlbumCard`, `EditAlbumDialog`, `FocusAlbumCard`, `PlayerRotation`, `RotationTileTooltip`, `AlbumCoach`, `ReflectionCard`, `Dashboard`, `RoleExplorer`, `RoleDetail`, `ArchiveProtectionCoach`, `ArchiveReturnCoach`, `AlbumTimeline`, `DiscoverAlbumDialog`, `MetadataLookupStep`, `BackupControls`, `LibraryViewSwitcher`, and all sub-views.
+  - **Persistent language preference**: Saved to `rotation-locale` in `localStorage`; defaults to browser language (`navigator.language`), falls back to English.
+  - **Domain strings remaining in German**: Coach questions, archive questions, role explanations, timeline labels, reflection messages, insight descriptions, rotation explanations, and backup error messages are intentionally kept in the domain layer as a known follow-up item. They are not user-facing raw strings in React components.
+  - **No new dependencies** — pure TypeScript/React implementation.
+  - **0 TypeScript errors, 244 tests green, Vite build clean**.
+
 ## v0.20.0
 
 - **Sprint 59 — Self-Hosting mit GitHub Container Registry**

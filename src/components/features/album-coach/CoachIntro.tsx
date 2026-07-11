@@ -1,3 +1,5 @@
+import { useI18n } from "../../../i18n/I18nContext"
+
 type CoachIntroProps = {
 
     albumTitle: string
@@ -13,6 +15,7 @@ function CoachIntro({
     onStart,
 
 }: CoachIntroProps) {
+    const { t } = useI18n()
 
     return (
 
@@ -32,25 +35,19 @@ function CoachIntro({
 
             <p>
 
-                Jedes Album spielt im Laufe der Zeit
-                eine andere Rolle.
+                {t.coach.intro.line1}
 
             </p>
 
             <p>
 
-                Manche begleiten uns über Jahre.
-                Andere wachsen langsam.
-                Wieder andere dürfen irgendwann
-                ihren Platz im Archiv finden.
+                {t.coach.intro.line2} {t.coach.intro.line3}
 
             </p>
 
             <p>
 
-                Lass uns gemeinsam herausfinden,
-                welche Rolle <strong>{albumTitle}</strong>
-                heute für dich spielt.
+                {t.coach.intro.cta(albumTitle)}
 
             </p>
 
@@ -60,7 +57,7 @@ function CoachIntro({
 
             >
 
-                Los geht's
+                {t.coach.intro.start}
 
             </button>
 
