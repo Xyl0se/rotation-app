@@ -1,20 +1,20 @@
 /**
- * Eintrag im Cover-Cache.
+ * Entry in the cover cache.
  *
- * Cover werden als Blob in IndexedDB gespeichert,
- * um Offline-Nutzung zu ermöglichen und
- * wiederholte Downloads zu vermeiden.
+ * Covers are stored as Blob in IndexedDB,
+ * to enable offline use and
+ * avoid repeated downloads.
  */
 export interface CoverCacheEntry {
-    /** Album-ID als eindeutiger Schlüssel */
+    /** Album ID as unique key */
     albumId: string
 
-    /** Herkunfts-URL des Covers (z. B. Cover Art Archive) */
+    /** Origin URL of the cover (e.g. Cover Art Archive) */
     sourceUrl: string
 
-    /** Zeitpunkt des Caching */
+    /** Timestamp of caching */
     cachedAt: string
 
-    /** MIME-Typ des Bildes */
+    /** MIME type of the image */
     contentType: string
 }

@@ -2,11 +2,11 @@ import type { StorageAdapter } from "./storageAdapter"
 import { StorageQuotaError } from "./storageQuotaError"
 
 /**
- * Produktions-Adapter: Nutzt den Browser-localStorage.
+ * Production adapter: Uses the browser localStorage.
  *
- * Schreibfehler (z.B. QuotaExceededError) werden nicht
- * stillschweigend geschluckt, sondern als normalisierter
- * StorageQuotaError nach oben gemeldet.
+ * Write errors (e.g. QuotaExceededError) are not
+ * silently swallowed, but reported upward as normalized
+ * StorageQuotaError.
  */
 export function createLocalStorageAdapter(): StorageAdapter {
     return {

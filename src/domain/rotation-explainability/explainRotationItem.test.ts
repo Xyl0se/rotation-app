@@ -37,8 +37,8 @@ function makeItem(overrides: Partial<RotationPlanItem> = {}): RotationPlanItem {
 const now = new Date("2024-06-15T00:00:00Z")
 
 describe("explainRotationItem", () => {
-    describe("Rollen-Erklärung", () => {
-        it("erklärt ein 'new'-Album", () => {
+    describe("Role explanation", () => {
+        it("explains a 'new' album", () => {
             const album = makeAlbum({
                 category: "new",
                 listenCount: 1,
@@ -48,12 +48,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Dieses Album ist neu in deiner Sammlung und wartet darauf, entdeckt zu werden.",
+                "This album is new in your collection and waiting to be discovered.",
             )
             expect(explanation.source).toBe("role")
         })
 
-        it("erklärt ein 'growing'-Album", () => {
+        it("explains a 'growing' album", () => {
             const album = makeAlbum({
                 category: "growing",
                 listenCount: 1,
@@ -63,12 +63,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Dieses Album wächst mit jedem Hören ein Stück mehr.",
+                "This album grows a little more with every listen.",
             )
             expect(explanation.source).toBe("role")
         })
 
-        it("erklärt ein 'comfort-food'-Album", () => {
+        it("explains a 'comfort-food' album", () => {
             const album = makeAlbum({
                 category: "comfort-food",
                 listenCount: 1,
@@ -78,12 +78,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Dieses Album bringt Vertrautheit in die aktuelle Auswahl.",
+                "This album brings familiarity to the current selection.",
             )
             expect(explanation.source).toBe("role")
         })
 
-        it("erklärt ein 'classic'-Album", () => {
+        it("explains a 'classic' album", () => {
             const album = makeAlbum({
                 category: "classic",
                 listenCount: 1,
@@ -93,12 +93,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Dieses Album begleitet dich schon lange und bildet einen ruhigen Mittelpunkt.",
+                "This album has accompanied you for a long time and forms a calm center.",
             )
             expect(explanation.source).toBe("role")
         })
 
-        it("erklärt ein 'admire'-Album", () => {
+        it("explains an 'admire' album", () => {
             const album = makeAlbum({
                 category: "admire",
                 listenCount: 1,
@@ -108,14 +108,14 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Dieses Album schätzt du – auch wenn du nicht oft dazu greifst.",
+                "This album is highly valued by you — even if you don't reach for it often.",
             )
             expect(explanation.source).toBe("role")
         })
     })
 
-    describe("Hörhistorie-Erklärung", () => {
-        it("erwähnt fehlende Hörsession, wenn noch nie gehört", () => {
+    describe("Listen history explanation", () => {
+        it("mentions missing listen session when never listened", () => {
             const album = makeAlbum({
                 category: "new",
                 listenCount: 0,
@@ -126,12 +126,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, events, now)
 
             expect(explanation.text).toBe(
-                "Es wartet auf seine erste Hörsession.",
+                "It's waiting for its first listen session.",
             )
             expect(explanation.source).toBe("listen-history")
         })
 
-        it("erwähnt fehlende Hörsession primär über listenEvents", () => {
+        it("mentions missing listen session primarily via listenEvents", () => {
             const album = makeAlbum({
                 category: "new",
                 listenCount: 5,
@@ -144,7 +144,7 @@ describe("explainRotationItem", () => {
             expect(explanation.source).toBe("listen-history")
         })
 
-        it("erwähnt lange nicht gehört, wenn lastListened alt", () => {
+        it("mentions not listened in a while when lastListened is old", () => {
             const album = makeAlbum({
                 category: "comfort-food",
                 listenCount: 3,
@@ -155,12 +155,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, events, now)
 
             expect(explanation.text).toBe(
-                "Es wurde schon eine Weile nicht mehr gehört.",
+                "It hasn't been listened to in a while.",
             )
             expect(explanation.source).toBe("listen-history")
         })
 
-        it("nutzt listenEvents primär für lange nicht gehört", () => {
+        it("uses listenEvents primarily for not listened in a while", () => {
             const album = makeAlbum({
                 category: "comfort-food",
                 listenCount: 0,
@@ -177,12 +177,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, events, now)
 
             expect(explanation.text).toBe(
-                "Es wurde schon eine Weile nicht mehr gehört.",
+                "It hasn't been listened to in a while.",
             )
             expect(explanation.source).toBe("listen-history")
         })
 
-        it("erwähnt häufiges Hören, wenn count >= 5 und kürzlich gehört", () => {
+        it("mentions frequent listening when count >= 5 and recently listened", () => {
             const album = makeAlbum({
                 category: "growing",
                 listenCount: 0,
@@ -197,14 +197,14 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, events, now)
 
             expect(explanation.text).toBe(
-                "Du hast es in letzter Zeit oft gehört.",
+                "You've listened to it a lot recently.",
             )
             expect(explanation.source).toBe("listen-history")
         })
     })
 
-    describe("Rollenverlauf-Erklärung", () => {
-        it("erwähnt kurze Rolle, wenn roleHistory jünger als 14 Tage", () => {
+    describe("Role history explanation", () => {
+        it("mentions short role when roleHistory younger than 14 days", () => {
             const album = makeAlbum({
                 category: "new",
                 listenCount: 1,
@@ -221,12 +221,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Es ist erst seit Kurzem Teil dieser Rolle.",
+                "It's only recently become part of this role.",
             )
             expect(explanation.source).toBe("role-history")
         })
 
-        it("erwähnt lange Rolle, wenn roleHistory älter als 180 Tage", () => {
+        it("mentions long role when roleHistory older than 180 days", () => {
             const album = makeAlbum({
                 category: "classic",
                 listenCount: 1,
@@ -243,14 +243,14 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Es gehört schon lange zu dieser Rolle.",
+                "It has belonged to this role for a long time.",
             )
             expect(explanation.source).toBe("role-history")
         })
     })
 
-    describe("Plan-Grund-Erklärung", () => {
-        it("erwähnt fill-Grund, wenn reason = 'fill' und keine andere Erklärung zutrifft", () => {
+    describe("Plan reason explanation", () => {
+        it("mentions fill reason when reason = 'fill' and no other explanation applies", () => {
             const album = makeAlbum({
                 category: "archive",
                 listenCount: 1,
@@ -267,14 +267,14 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Es ergänzt die aktuelle Auswahl.",
+                "It complements the current selection.",
             )
             expect(explanation.source).toBe("plan-reason")
         })
     })
 
-    describe("Story-Erklärung", () => {
-        it("berücksichtigt Story: friend-recommendation", () => {
+    describe("Story explanation", () => {
+        it("considers Story: friend-recommendation", () => {
             const album = makeAlbum({
                 category: "archive",
                 listenCount: 1,
@@ -296,12 +296,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Es kam ursprünglich durch eine Empfehlung in deine Sammlung.",
+                "It originally came into your collection through a recommendation.",
             )
             expect(explanation.source).toBe("story")
         })
 
-        it("berücksichtigt Story: concert", () => {
+        it("considers Story: concert", () => {
             const album = makeAlbum({
                 category: "archive",
                 listenCount: 1,
@@ -323,12 +323,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Es ist mit einem Konzert verbunden.",
+                "It's connected to a concert.",
             )
             expect(explanation.source).toBe("story")
         })
 
-        it("berücksichtigt Story: gift", () => {
+        it("considers Story: gift", () => {
             const album = makeAlbum({
                 category: "archive",
                 listenCount: 1,
@@ -350,12 +350,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Es ist ein Geschenk, das in deiner Sammlung geblieben ist.",
+                "It's a gift that remained in your collection.",
             )
             expect(explanation.source).toBe("story")
         })
 
-        it("berücksichtigt Story: lifePhase", () => {
+        it("considers Story: lifePhase", () => {
             const album = makeAlbum({
                 category: "archive",
                 listenCount: 1,
@@ -377,12 +377,12 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Es ist mit einer bestimmten Lebensphase verbunden.",
+                "It's connected to a specific life phase.",
             )
             expect(explanation.source).toBe("story")
         })
 
-        it("berücksichtigt Story: memoryNote", () => {
+        it("considers Story: memoryNote", () => {
             const album = makeAlbum({
                 category: "archive",
                 listenCount: 1,
@@ -395,7 +395,7 @@ describe("explainRotationItem", () => {
                     },
                 ],
                 story: {
-                    memoryNote: "Hat mich durch den Winter begleitet.",
+                    memoryNote: "Got me through the winter.",
                     createdAt: "2023-01-01T00:00:00Z",
                     updatedAt: "2023-01-01T00:00:00Z",
                 },
@@ -404,14 +404,14 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Eine persönliche Erinnerung gehört dazu.",
+                "A personal memory is attached to it.",
             )
             expect(explanation.source).toBe("story")
         })
     })
 
-    describe("Priorisierung", () => {
-        it("priorisiert Listen-History vor Role-History", () => {
+    describe("Prioritization", () => {
+        it("prioritizes listen-history over role-history", () => {
             const album = makeAlbum({
                 category: "comfort-food",
                 listenCount: 0,
@@ -430,11 +430,11 @@ describe("explainRotationItem", () => {
 
             expect(explanation.source).toBe("listen-history")
             expect(explanation.text).toBe(
-                "Es wartet auf seine erste Hörsession.",
+                "It's waiting for its first listen session.",
             )
         })
 
-        it("priorisiert Role-History vor Role", () => {
+        it("prioritizes role-history over role", () => {
             const album = makeAlbum({
                 category: "new",
                 listenCount: 1,
@@ -452,11 +452,11 @@ describe("explainRotationItem", () => {
 
             expect(explanation.source).toBe("role-history")
             expect(explanation.text).toBe(
-                "Es ist erst seit Kurzem Teil dieser Rolle.",
+                "It's only recently become part of this role.",
             )
         })
 
-        it("priorisiert Rolle vor Story", () => {
+        it("prioritizes role over story", () => {
             const album = makeAlbum({
                 category: "new",
                 listenCount: 1,
@@ -480,7 +480,7 @@ describe("explainRotationItem", () => {
             expect(explanation.source).toBe("role")
         })
 
-        it("priorisiert Story vor Plan-Reason", () => {
+        it("prioritizes story over plan-reason", () => {
             const album = makeAlbum({
                 category: "archive",
                 listenCount: 1,
@@ -506,7 +506,7 @@ describe("explainRotationItem", () => {
     })
 
     describe("Fallback", () => {
-        it("gibt Fallback zurück, wenn nichts zutrifft", () => {
+        it("returns fallback when nothing applies", () => {
             const album = makeAlbum({
                 category: "archive",
                 listenCount: 1,
@@ -523,7 +523,7 @@ describe("explainRotationItem", () => {
             const explanation = explainRotationItem(album, item, [], now)
 
             expect(explanation.text).toBe(
-                "Dieses Album ist Teil deiner aktuellen Auswahl.",
+                "This album is part of your current selection.",
             )
             expect(explanation.source).toBe("role")
         })

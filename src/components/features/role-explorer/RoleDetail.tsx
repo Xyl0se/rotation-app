@@ -10,7 +10,7 @@ import { getRoleEmptyMessage } from "../../../domain/roles/roleEmptyMessages"
 
 import AlbumCard from "../library/AlbumCard"
 
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 type RoleDetailProps = {
     roleId: RoleId

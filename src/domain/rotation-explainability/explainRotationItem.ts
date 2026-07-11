@@ -99,27 +99,27 @@ function roleExplanation(
     switch (role) {
         case "new":
             return {
-                text: "Dieses Album ist neu in deiner Sammlung und wartet darauf, entdeckt zu werden.",
+                text: "This album is new in your collection and waiting to be discovered.",
                 source: "role",
             }
         case "growing":
             return {
-                text: "Dieses Album wächst mit jedem Hören ein Stück mehr.",
+                text: "This album grows a little more with every listen.",
                 source: "role",
             }
         case "comfort-food":
             return {
-                text: "Dieses Album bringt Vertrautheit in die aktuelle Auswahl.",
+                text: "This album brings familiarity to the current selection.",
                 source: "role",
             }
         case "classic":
             return {
-                text: "Dieses Album begleitet dich schon lange und bildet einen ruhigen Mittelpunkt.",
+                text: "This album has accompanied you for a long time and forms a calm center.",
                 source: "role",
             }
         case "admire":
             return {
-                text: "Dieses Album schätzt du – auch wenn du nicht oft dazu greifst.",
+                text: "This album is highly valued by you — even if you don't reach for it often.",
                 source: "role",
             }
         default:
@@ -137,21 +137,21 @@ function listenHistoryExplanation(
 
     if (count === 0) {
         return {
-            text: "Es wartet auf seine erste Hörsession.",
+            text: "It's waiting for its first listen session.",
             source: "listen-history",
         }
     }
 
     if (daysSince !== undefined && daysSince > 60) {
         return {
-            text: "Es wurde schon eine Weile nicht mehr gehört.",
+            text: "It hasn't been listened to in a while.",
             source: "listen-history",
         }
     }
 
     if (count >= 5 && (daysSince === undefined || daysSince <= 14)) {
         return {
-            text: "Du hast es in letzter Zeit oft gehört.",
+            text: "You've listened to it a lot recently.",
             source: "listen-history",
         }
     }
@@ -167,14 +167,14 @@ function roleHistoryExplanation(
 
     if (roleDays !== undefined && roleDays < 14) {
         return {
-            text: "Es ist erst seit Kurzem Teil dieser Rolle.",
+            text: "It's only recently become part of this role.",
             source: "role-history",
         }
     }
 
     if (roleDays !== undefined && roleDays > 180) {
         return {
-            text: "Es gehört schon lange zu dieser Rolle.",
+            text: "It has belonged to this role for a long time.",
             source: "role-history",
         }
     }
@@ -187,7 +187,7 @@ function planReasonExplanation(
 ): RotationExplanation | null {
     if (item.reason === "fill") {
         return {
-            text: "Es ergänzt die aktuelle Auswahl.",
+            text: "It complements the current selection.",
             source: "plan-reason",
         }
     }
@@ -205,35 +205,35 @@ function storyExplanation(
 
     if (story.acquiredBecause === "friend-recommendation") {
         return {
-            text: "Es kam ursprünglich durch eine Empfehlung in deine Sammlung.",
+            text: "It originally came into your collection through a recommendation.",
             source: "story",
         }
     }
 
     if (story.acquiredBecause === "concert") {
         return {
-            text: "Es ist mit einem Konzert verbunden.",
+            text: "It's connected to a concert.",
             source: "story",
         }
     }
 
     if (story.acquiredBecause === "gift") {
         return {
-            text: "Es ist ein Geschenk, das in deiner Sammlung geblieben ist.",
+            text: "It's a gift that remained in your collection.",
             source: "story",
         }
     }
 
     if (story.lifePhase) {
         return {
-            text: "Es ist mit einer bestimmten Lebensphase verbunden.",
+            text: "It's connected to a specific life phase.",
             source: "story",
         }
     }
 
     if (story.memoryNote) {
         return {
-            text: "Eine persönliche Erinnerung gehört dazu.",
+            text: "A personal memory is attached to it.",
             source: "story",
         }
     }
@@ -242,10 +242,10 @@ function storyExplanation(
 }
 
 /**
- * Erklärt, warum ein einzelnes Album Teil der aktuellen Player-Rotation ist.
+ * Explains why a single album is part of the current player rotation.
  *
- * Die Erklärung basiert ausschließlich auf der konkreten Rotation.
- * Nicht auf Bibliotheksgröße, nicht auf Rollenlimits, nicht auf Optimierung.
+ * The explanation is based exclusively on the concrete rotation.
+ * Not on library size, not on role limits, not on optimization.
  */
 export function explainRotationItem(
     album: Album,
@@ -282,7 +282,7 @@ export function explainRotationItem(
 
     if (candidates.length === 0) {
         return {
-            text: "Dieses Album ist Teil deiner aktuellen Auswahl.",
+            text: "This album is part of your current selection.",
             source: "role",
         }
     }

@@ -1,15 +1,19 @@
-# 002 - Albums, Not Songs
+# ADR 002: Albums, Not Songs
 
-## Entscheidung
+## Status
 
-Rotation kennt ausschliesslich Alben.
+Accepted
 
-## Begruendung
+## Decision
 
-Das Produkt betrachtet Musik als laengere Beziehung. Einzelne Songs wuerden die Aufmerksamkeit in Richtung Sammlungsgroesse, Playlists und kleinteiliges Tracking verschieben.
+Rotation knows exclusively albums.
 
-## Konsequenz
+## Rationale
 
-Das zentrale Modell ist `Album`. Features, Domain-Regeln und UI-Texte sollen keine Song-Entitaeten einfuehren.
+The product views music as a longer relationship. Individual songs would shift attention toward collection size, playlists, and fine-grained tracking.
 
-Wenn spaeter einzelne Hoermomente dokumentiert werden, beziehen sie sich auf ein Album.
+## Consequence
+
+The central model is `Album`. Features, domain rules, and UI texts should not introduce song entities.
+
+If individual listening moments are documented later, they refer to an album.

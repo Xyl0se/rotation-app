@@ -1,39 +1,39 @@
 # Library Maintenance
 
-Library Maintenance beschreibt die grundlegende Pflege der Albumsammlung.
+Library Maintenance describes the basic care of the album collection.
 
-Sie ist bewusst von Rotation-Entscheidungen getrennt.
+It is deliberately separated from rotation decisions.
 
-## Bearbeiten
+## Edit
 
-Der Stift auf einer Album Card oeffnet den Bearbeiten-Dialog.
+The pencil on an album card opens the edit dialog.
 
-Bearbeitbar sind:
+Editable are:
 
-- Titel
+- Title
 - Artist
-- Jahr
+- Year
 
-Nicht bearbeitet wird:
+Not edited are:
 
-- Rolle
+- Role
 - Role History
-- Hoersessions
+- Listening Sessions
 
-Rollen bleiben Entscheidungen aus Coach, Reflection oder Archiv Workflow.
+Roles remain decisions from Coach, Reflection, or Archive Workflow.
 
-## Loeschen
+## Delete
 
-Der Papierkorb auf einer Album Card oeffnet einen Bestaetigungsdialog.
+The trash can on an album card opens a confirmation dialog.
 
-Loeschen entfernt ein Album endgueltig aus der lokalen Bibliothek.
+Deleting permanently removes an album from the local library.
 
-Diese Aktion ist nicht rueckgaengig.
+This action is not undoable.
 
-## Produktgrenze
+## Product Limit
 
-Archivieren bedeutet: Ein Album darf ruhen.
+Archiving means: An album may rest.
 
-Loeschen bedeutet: Ein Album wird entfernt.
+Deleting means: An album is removed.
 
-Diese beiden Aktionen duerfen in der UI nicht dieselbe Bedeutung bekommen.
+These two actions must not have the same meaning in the UI.

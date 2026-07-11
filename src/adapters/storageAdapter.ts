@@ -1,7 +1,7 @@
 /**
- * Abstraktes Interface für alle Speicheroperationen.
- * Ermöglicht das Austauschen von localStorage gegen
- * In-Memory-Implementierungen in Tests oder Storybook.
+ * Abstract interface for all storage operations.
+ * Enables swapping localStorage for
+ * in-memory implementations in tests or Storybook.
  */
 export interface StorageAdapter {
     get(key: string): string | null

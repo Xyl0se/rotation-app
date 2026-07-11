@@ -4,7 +4,7 @@ import { determineRole } from "./determineRole"
 
 describe("determineRole", () => {
 
-    describe("Pfad: new", () => {
+    describe("Path: new", () => {
 
         it("returned new when heardThreeTimes is false", () => {
 
@@ -20,7 +20,7 @@ describe("determineRole", () => {
 
     })
 
-    describe("Pfad: archive (wouldMissAlbum false)", () => {
+    describe("Path: archive (wouldMissAlbum false)", () => {
 
         it("returned archive when wouldMissAlbum is false", () => {
 
@@ -38,9 +38,9 @@ describe("determineRole", () => {
 
     })
 
-    describe("Aktiver Zweig: stillReturningConsciously === true", () => {
+    describe("Active branch: stillReturningConsciously === true", () => {
 
-        it("returned classic when shapedTasteLongterm is true (Vorrang)", () => {
+        it("returns classic when shapedTasteLongterm is true (priority)", () => {
 
             const result = determineRole({
 
@@ -164,7 +164,7 @@ describe("determineRole", () => {
 
     })
 
-    describe("Ruhender Zweig: stillReturningConsciously === false", () => {
+    describe("Resting branch: stillReturningConsciously === false", () => {
 
         it("returned admire when musicallyValued is true", () => {
 
@@ -226,7 +226,7 @@ describe("determineRole", () => {
 
     })
 
-    describe("Überschneidungen und Randfälle", () => {
+    describe("Overlaps and edge cases", () => {
 
         it("classic + no general recommendation still stays classic", () => {
 

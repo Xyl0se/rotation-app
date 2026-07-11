@@ -1,4 +1,4 @@
-import type { Album, AlbumAcquisitionReason, AlbumLifePhase } from "../../../types/album"
+import type { Album } from "../../../types/album"
 
 import type { ListenEvent } from "../../../domain/listening/listenEvents"
 
@@ -8,7 +8,7 @@ import {
 
 import AlbumCover from "../../ui/AlbumCover"
 import AlbumTimeline from "../timeline/AlbumTimeline"
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 function StoryBadge({ label, value }: { label: string; value: string }) {
     return (

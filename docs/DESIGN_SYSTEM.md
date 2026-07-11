@@ -6,95 +6,95 @@ Version: 1.0
 
 # Design Vision
 
-Rotation ist kein Musikplayer.
+Rotation is not a music player.
 
-Rotation ist ein ruhiger Ort,
-an dem Menschen ihre Beziehung zu Musik pflegen.
+Rotation is a quiet place
+where people nurture their relationship with music.
 
-Die Gestaltung soll deshalb nicht laut sein.
+The design should therefore not be loud.
 
-Nicht verspielt.
+Not playful.
 
-Nicht gamifiziert.
+Not gamified.
 
-Sondern ruhig, warm und zeitlos.
+But calm, warm, and timeless.
 
-Wir nennen diesen Stil:
+We call this style:
 
 > Modern Analog
 
-Digitale Klarheit.
-Analoge Wärme.
+Digital clarity.
+Analog warmth.
 
 ---
 
-# Designprinzipien
+# Design Principles
 
-## 1. Ruhe
+## 1. Calm
 
-Jede Seite soll wirken,
-als hätte sie genug Zeit.
+Every page should feel
+as if it has enough time.
 
-Keine visuellen Reize,
-die Aufmerksamkeit erzwingen.
-
----
-
-## 2. Editorial statt Dashboard
-
-Rotation fühlt sich eher
-wie ein hochwertiges Magazin
-oder ein Musikjournal an
-als wie eine Analytics-App.
-
-Große Überschriften.
-
-Viel Rhythmus.
-
-Klare Abschnitte.
+No visual stimuli
+that force attention.
 
 ---
 
-## 3. Musik zuerst
+## 2. Editorial instead of Dashboard
 
-Cover stehen im Mittelpunkt.
+Rotation feels more like
+a high-quality magazine
+or a music journal
+than an analytics app.
 
-Nicht Tabellen.
+Large headlines.
 
-Nicht Zahlen.
+Lots of rhythm.
 
-Nicht Diagramme.
-
-Die Musik ist das Objekt.
-
-Die Software tritt in den Hintergrund.
-
----
-
-## 4. Wärme
-
-Rotation benutzt keine kalten Grautöne.
-
-Fast alle Farben besitzen
-eine leichte Wärme.
-
-Papier statt Glas.
-
-Holz statt Chrom.
+Clear sections.
 
 ---
 
-# Farbpalette
+## 3. Music First
 
-## Primärfarben
+Covers are the focal point.
+
+Not tables.
+
+Not numbers.
+
+Not charts.
+
+The music is the object.
+
+The software steps into the background.
+
+---
+
+## 4. Warmth
+
+Rotation uses no cold gray tones.
+
+Almost all colors have
+a slight warmth.
+
+Paper instead of glass.
+
+Wood instead of chrome.
+
+---
+
+# Color Palette
+
+## Primary Colors
 
 Warm White
 
 #FCFBF8
 
-Hintergrund der gesamten App.
+Background of the entire app.
 
-Nie reines Weiß.
+Never pure white.
 
 ---
 
@@ -102,9 +102,9 @@ Sand
 
 #F3EEE7
 
-Sekundäre Flächen.
+Secondary surfaces.
 
-Dialoge.
+Dialogs.
 
 Cards.
 
@@ -114,9 +114,9 @@ Paper
 
 #FFFFFF
 
-Nur einzelne Karten.
+Only individual cards.
 
-Nicht als Seitenhintergrund.
+Not as page background.
 
 ---
 
@@ -124,9 +124,9 @@ Ink
 
 #2B2B2B
 
-Primäre Schriftfarbe.
+Primary text color.
 
-Nie tiefschwarz.
+Never deep black.
 
 ---
 
@@ -134,7 +134,7 @@ Smoke
 
 #6F6B66
 
-Sekundärer Text.
+Secondary text.
 
 ---
 
@@ -142,19 +142,19 @@ Divider
 
 #E8E2DA
 
-Linien.
+Lines.
 
-Trennungen.
+Separations.
 
 ---
 
-# Akzentfarben
+# Accent Colors
 
-Rotation verwendet Farben sehr sparsam.
+Rotation uses colors very sparingly.
 
-Sie markieren keine Funktionen.
+They do not mark functions.
 
-Sie erzeugen Stimmung.
+They create mood.
 
 ---
 
@@ -164,9 +164,9 @@ Sage
 
 Growing
 
-Ruhe
+Calm
 
-Natur
+Nature
 
 ---
 
@@ -176,9 +176,9 @@ Dust Blue
 
 Classic
 
-Gelassenheit
+Serenity
 
-Tiefe
+Depth
 
 ---
 
@@ -188,9 +188,9 @@ Terracotta
 
 Comfort Food
 
-Wärme
+Warmth
 
-Vertrautheit
+Familiarity
 
 ---
 
@@ -198,9 +198,9 @@ Muted Gold
 
 #D8B573
 
-Admire
+Admiration
 
-Respekt
+Respect
 
 ---
 
@@ -210,13 +210,13 @@ Blush
 
 Discovery
 
-Leichtigkeit
+Lightness
 
 ---
 
-# Semantische Farben
+# Semantic Colors
 
-Erfolg
+Success
 
 #6BA57A
 
@@ -224,88 +224,88 @@ Information
 
 #6C8EBF
 
-Warnung
+Warning
 
 #E0B15A
 
-Fehler
+Error
 
 #D46A6A
 
-Diese Farben werden ausschließlich
-für Status verwendet.
+These colors are used exclusively
+for status.
 
-Nicht als Gestaltungselement.
+Not as design elements.
 
 ---
 
-# Typografie
+# Typography
 
-## Charakter
+## Character
 
 Editorial.
 
 Warm.
 
-Ruhig.
+Calm.
 
-Nicht technisch.
+Not technical.
 
 ---
 
-## Überschriften
+## Headings
 
 Playfair Display
 
-oder
+or
 
 Cormorant Garamond
 
-Große Größen.
+Large sizes.
 
-Viel Weißraum.
+Lots of whitespace.
 
-Keine Vollversalien.
+No all caps.
 
 ---
 
-## Fließtext
+## Body Text
 
 Inter
 
-oder
+or
 
 Source Sans
 
 16–18 px
 
-Zeilenhöhe
+Line height
 
 1.6
 
 ---
 
-## Kleine Labels
+## Small Labels
 
 Inter SemiBold
 
 12–13 px
 
-Großbuchstaben vermeiden.
+Avoid uppercase.
 
 ---
 
-# Abstände
+# Spacing
 
-Rotation lebt vom Rhythmus.
+Rotation lives from rhythm.
 
-Nicht von maximaler Informationsdichte.
+Not from maximum information density.
 
 Standard Grid
 
 8 px
 
-Typische Abstände
+Typical spacing
 
 8
 
@@ -323,13 +323,13 @@ Typische Abstände
 
 ---
 
-# Karten
+# Cards
 
-Cards schweben leicht.
+Cards float lightly.
 
-Keine harten Schatten.
+No harsh shadows.
 
-Beispiel
+Example
 
 Radius
 
@@ -347,39 +347,39 @@ translateY(-3px)
 
 # Buttons
 
-Primär
+Primary
 
-Dunkler Grünton
+Darker green tone
 
-Weiße Schrift
+White text
 
-Großer Radius
-
----
-
-Sekundär
-
-Weißer Hintergrund
-
-Feine Kontur
+Large radius
 
 ---
 
-Buttons wirken ruhig.
+Secondary
 
-Nicht aggressiv.
+White background
+
+Fine outline
+
+---
+
+Buttons feel calm.
+
+Not aggressive.
 
 ---
 
 # Cover
 
-Albumcover sind die wichtigsten visuellen Elemente.
+Album covers are the most important visual elements.
 
-Sie sollen immer quadratisch erscheinen.
+They should always appear square.
 
-Nie verzerrt.
+Never distorted.
 
-Immer mit leicht gerundeten Ecken.
+Always with slightly rounded corners.
 
 Radius
 
@@ -389,25 +389,25 @@ Radius
 
 # Icons
 
-Linienicons.
+Line icons.
 
-Kein Filled-Stil.
+No filled style.
 
-Empfehlung
+Recommendation
 
 Lucide
 
-oder
+or
 
 Phosphor
 
 ---
 
-# Animationen
+# Animations
 
-Animationen sollen kaum auffallen.
+Animations should hardly be noticeable.
 
-Standarddauer
+Standard duration
 
 200 ms
 
@@ -415,77 +415,77 @@ Easing
 
 ease-out
 
-Keine Sprünge.
+No jumps.
 
-Keine Bounces.
+No bounces.
 
-Keine übertriebenen Skalierungen.
+No exaggerated scaling.
 
 ---
 
-# Sprache
+# Language
 
-Rotation vermeidet Gamification.
+Rotation avoids gamification.
 
-Nicht:
+Not:
 
 "100 %"
 
-Nicht:
+Not:
 
 "Level"
 
-Nicht:
+Not:
 
 "Mission"
 
-Sondern:
+But:
 
-"Momentaufnahme"
+"Snapshot"
 
-"Begleitung"
+"Companion"
 
-"Entwicklung"
+"Development"
 
-"Reflexion"
+"Reflection"
 
 ---
 
 # Inspiration
 
-Nicht Spotify.
+Not Spotify.
 
-Nicht Apple Music.
+Not Apple Music.
 
-Nicht Notion.
+Not Notion.
 
-Nicht Material Design.
+Not Material Design.
 
-Sondern:
+But:
 
 - Moleskine
 - Kinfolk Magazine
 - Monocle
 - Readymag Editorials
-- Analoge Musikjournale
-- Hochwertige Buchgestaltung
+- Analog music journals
+- High-quality book design
 
 ---
 
-# Zielgefühl
+# Target Feel
 
-Wenn Rotation geöffnet wird,
-soll sie sich anfühlen wie:
+When Rotation is opened,
+it should feel like:
 
-"Ich schlage mein persönliches Musikjournal auf."
+"I'm opening my personal music journal."
 
-Nicht:
+Not:
 
-"Ich öffne eine Verwaltungssoftware."
+"I'm opening management software."
 
-Die Benutzeroberfläche soll Ruhe vermitteln,
-ohne langweilig zu wirken.
+The user interface should convey calm,
+without being boring.
 
-Sie soll zum Stöbern,
-Nachdenken
-und bewussten Musikhören einladen.
+It should invite browsing,
+reflecting,
+and conscious music listening.

@@ -1,13 +1,12 @@
 /**
- * Der Album Coach ist das Herzstück von Rotation.
+ * The Album Coach is the heart of Rotation.
  *
- * Diese Datei beschreibt den vollständigen
- * Entscheidungsbaum, mit dem Rotation gemeinsam
- * mit dem Nutzer die aktuelle Rolle eines Albums
- * bestimmt.
+ * This file describes the complete
+ * decision tree with which Rotation together
+ * with the user determines the current role of an album.
  *
- * Änderungen an dieser Datei verändern bewusst
- * die Philosophie des Produkts.
+ * Changes to this file deliberately change
+ * the philosophy of the product.
  */
 
 import type { RoleId } from "../roles"
@@ -34,19 +33,18 @@ export type CoachEvaluation =
       }
 
 /**
- * Entscheidet anhand der bisherigen Antworten,
- * welche Frage als Nächstes gestellt werden muss
- * oder ob bereits eine Rolle eindeutig bestimmt
- * werden kann.
+ * Decides based on the answers given so far,
+ * which question must be asked next
+ * or whether a role can already be clearly determined.
  *
- * Es werden ausschließlich die für den jeweiligen
- * Zweig erforderlichen Fragen gestellt.
+ * Only the questions required for the respective
+ * branch are asked.
  */
 export function evaluateCoach(
     answers: AlbumCoachAnswers
 ): CoachEvaluation {
 
-    // Frage 1
+    // Question 1
     if (answers.heardThreeTimes === undefined) {
 
         return {
@@ -71,7 +69,7 @@ export function evaluateCoach(
 
     }
 
-    // Frage 2
+    // Question 2
     if (answers.wouldMissAlbum === undefined) {
 
         return {
@@ -96,7 +94,7 @@ export function evaluateCoach(
 
     }
 
-    // Frage 3: Aktive oder ruhende Beziehung?
+    // Question 3: Active or resting relationship?
     if (answers.stillReturningConsciously === undefined) {
 
         return {
@@ -111,7 +109,7 @@ export function evaluateCoach(
 
     if (answers.stillReturningConsciously === true) {
 
-        // Aktiver Zweig
+        // Active branch
         if (answers.shapedTasteLongterm === undefined) {
 
             return {
@@ -184,7 +182,7 @@ export function evaluateCoach(
 
         }
 
-        // Fallback: aktiv, aber weder prägend noch vertraut noch überraschend
+        // Fallback: active, but neither formative nor familiar nor surprising
         return {
 
             finished: true,
@@ -197,7 +195,7 @@ export function evaluateCoach(
 
     if (answers.stillReturningConsciously === false) {
 
-        // Ruhender Zweig
+        // Resting branch
         if (answers.musicallyValued === undefined) {
 
             return {
@@ -234,7 +232,7 @@ export function evaluateCoach(
 
         }
 
-        // memoryOfEarlierPhase === true oder false → archive
+        // memoryOfEarlierPhase === true or false → archive
         return {
 
             finished: true,
@@ -246,7 +244,7 @@ export function evaluateCoach(
     }
 
     throw new Error(
-        "Unvollständige Antworten für evaluateCoach"
+        "Incomplete answers for evaluateCoach"
     )
 
 }

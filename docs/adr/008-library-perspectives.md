@@ -1,28 +1,28 @@
-# ADR 008: Library Perspectives — Mehrere Blickwinkel auf dieselbe Sammlung
+# ADR 008: Library Perspectives — Multiple Viewpoints on the Same Collection
 
 ## Status
 
-Akzeptiert
+Accepted
 
-## Kontext
+## Context
 
-Die Bibliothek kannte nur zwei Ansichten: alle Alben oder nach Rolle gruppiert. Nutzer wollten jedoch auch nach Kuenstler, Jahr, Hoersession oder letzter Einordnung erkunden. Die Frage war nicht: "Was fehlt?", sondern: "Wie koennen wir dieselbe Sammlung aus verschiedenen Perspektiven zeigen, ohne die UI zu ueberladen?"
+The library only knew two views: all albums or grouped by role. Users, however, also wanted to explore by artist, year, listening session, or last classification. The question was not: "What is missing?" but: "How can we show the same collection from different perspectives without overloading the UI?"
 
-Sprint 50 sollte die Bibliothek um vier weitere Perspektiven erweitern.
+Sprint 50 was meant to extend the library by four additional perspectives.
 
-## Entscheidung
+## Decision
 
-Die Bibliothek unterstuetzt Perspektiven als verschiedene Blickwinkel auf dieselbe Datenmenge.
+The library supports perspectives as different viewpoints on the same data set.
 
-- Perspektiven sind Gruppierungen, keine Filter. Jedes Album erscheint in genau einer Gruppe pro Perspektive.
-- Ein generisches `LibraryGroup<T>`-Modell beschreibt alle Perspektiven einheitlich.
-- Der View Switcher bietet drei Hauptmodi: Alle, Nach Rolle, Perspektiven — mit Sub-Switcher fuer die vier Perspektiven.
-- Perspektiven sind: Kuenstler, Jahr, letzte Hoersession, letzte Rollenaenderung.
-- Zeitkategorien (Heute, Diese Woche, Dieser Monat, etc.) werden durch eine gemeinsame Hilfsfunktion `categorizeRecency()` berechnet.
+- Perspectives are groupings, not filters. Every album appears in exactly one group per perspective.
+- A generic `LibraryGroup<T>` model describes all perspectives uniformly.
+- The view switcher offers three main modes: All, By Role, Perspectives — with a sub-switcher for the four perspectives.
+- Perspectives are: Artist, Year, Last Listening Session, Last Role Change.
+- Time categories (Today, This Week, This Month, etc.) are computed by a shared helper function `categorizeRecency()`.
 
-## Konsequenzen
+## Consequences
 
-- Neue Perspektiven erfordern nur eine neue Gruppierungsfunktion und einen duennen Wrapper.
-- `LibraryViewSwitcher` muss bei neuen Perspektiven erweitert werden.
-- Die Domain bleibt komponentenfrei; Gruppierungslogik lebt in `domain/library-views/*`.
-- Perspektiven sind bewusst keine komplexen Filter — sie zeigen die gesamte Sammlung umgruppiert.
+- New perspectives only require a new grouping function and a thin wrapper.
+- `LibraryViewSwitcher` must be extended for new perspectives.
+- The domain remains component-free; grouping logic lives in `domain/library-views/*`.
+- Perspectives are deliberately not complex filters — they show the entire collection regrouped.

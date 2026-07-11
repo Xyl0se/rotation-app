@@ -1,9 +1,9 @@
 /**
- * Normalisierter Fehler für Speicher-Quota-Probleme.
+ * Normalized error for storage quota problems.
  *
- * Wird von Storage-Adaptern geworfen, wenn das Schreiben
- * fehlschlägt (z.B. localStorage voll). Nicht stillschweigend
- * geschluckt — sondern sichtbar nach oben gemeldet.
+ * Thrown by storage adapters when writing
+ * fails (e.g. localStorage full). Not silently
+ * swallowed — but visibly reported upward.
  */
 export class StorageQuotaError extends Error {
     readonly key: string

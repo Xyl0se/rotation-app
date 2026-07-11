@@ -1,31 +1,20 @@
 import type { RoleId } from "../roles"
 
-export function explainRole(
-    role: RoleId
-): string {
-
+export function explainRole(role: RoleId): string {
     switch (role) {
-
         case "new":
-            return "Du kennst dieses Album noch nicht gut genug. Gib ihm noch etwas Zeit."
-
+            return "You don't know this album well enough yet. Give it some more time."
         case "growing":
-            return "Dieses Album überrascht oder fordert dich noch immer."
-
+            return "This album still surprises or challenges you."
         case "comfort-food":
-            return "Zu diesem Album greifst du intuitiv zurück."
-
+            return "You reach for this album intuitively."
         case "classic":
-            return "Dieses Album hat dich über längere Zeit geprägt und bleibt Teil deiner musikalischen Biografie."
-
+            return "This album has shaped you over a longer period and remains part of your musical biography."
         case "admire":
-            return "Dieses Album wird musikalisch hoch geschätzt, auch wenn du nicht mehr selbstverständlich dazu greifst."
-
+            return "This album is highly valued musically, even if you don't instinctively reach for it anymore."
         case "archive":
-            return "Dieses Album darf im Moment ruhen, ohne aus deiner Geschichte zu verschwinden."
-
+            return "This album may rest for now, without disappearing from your story."
         default:
             return ""
     }
-
 }

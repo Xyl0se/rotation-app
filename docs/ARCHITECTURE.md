@@ -1,110 +1,110 @@
-# Architektur
+# Architecture
 
-Features besitzen keine Daten.
+Features own no data.
 
-Features bearbeiten Daten.
-
----
-
-## Produkt- und Domänenprinzip
-
-Rotation unterscheidet bewusst zwischen **Bibliothek** und **Player-Rotation**.
-
-Die Bibliothek dokumentiert die persönliche Beziehung zwischen Mensch und Album.
-
-Sie wird **nicht bewertet**.
-
-Albumrollen besitzen **keine Zielgrößen**, **keine optimale Verteilung** und **keine empfohlene Balance**.
-
-Die Player-Rotation ist eine bewusst kuratierte Auswahl aus der Bibliothek.
-
-Reflection, Explainability und zukünftige Empfehlungen beziehen sich ausschließlich auf diese aktive Player-Rotation – niemals auf die Größe einzelner Rollen innerhalb der Bibliothek.
+Features transform data.
 
 ---
 
-## Technischer Rahmen
+## Product and Domain Principle
+
+Rotation deliberately distinguishes between **Library** and **Player Rotation**.
+
+The library documents the personal relationship between person and album.
+
+It is **not evaluated**.
+
+Album roles have **no target sizes**, **no optimal distribution**, and **no recommended balance**.
+
+The Player Rotation is a consciously curated selection from the library.
+
+Reflection, Explainability, and future recommendations refer exclusively to this active Player Rotation — never to the size of individual roles within the library.
+
+---
+
+## Technical Framework
 
 - React 19
 - TypeScript
 - Vite
-- Browser-`localStorage`
-- IndexedDB (Cover-Cache, Custom Covers)
-- Externe Metadaten: MusicBrainz und Cover Art Archive
+- Browser `localStorage`
+- IndexedDB (Cover Cache, Custom Covers)
+- External metadata: MusicBrainz and Cover Art Archive
 
 ---
 
-## Domänenmodell
+## Domain Model
 
-Rotation kennt zwei klar getrennte Ebenen.
+Rotation knows two clearly separated layers.
 
-### Bibliothek
+### Library
 
-Die Bibliothek beschreibt die vollständige Albumsammlung.
+The library describes the complete album collection.
 
-Albumrollen dokumentieren die aktuelle Beziehung zwischen Nutzer und Album.
+Album roles document the current relationship between user and album.
 
-Es existieren keine Zielgrößen oder optimale Verteilungen.
+There are no target sizes or optimal distributions.
 
-Die Bibliothek dient als Grundlage für:
+The library serves as the basis for:
 
 - Reflection
 - Timeline
 - Insights
-- Player-Rotation
+- Player Rotation
 
-Sie wird selbst nicht bewertet.
+It is not evaluated itself.
 
-### Player-Rotation
+### Player Rotation
 
-Die Player-Rotation ist eine bewusst kuratierte Auswahl aus der Bibliothek.
+The Player Rotation is a consciously curated selection from the library.
 
-Diese Auswahl darf:
+This selection may:
 
-- erklärt werden
-- reflektiert werden
-- später intelligent unterstützt werden
+- be explained
+- be reflected upon
+- later be intelligently supported
 
-Empfehlungen beziehen sich ausschließlich auf diese Ebene.
-
----
-
-## Aktuelle Datenführung
-
-`App.tsx` entscheidet, ob die Willkommen-Seite oder die HomePage angezeigt wird. Der Onboarding-Status liegt unter `STORAGE.ONBOARDING` im `localStorage`.
-
-`HomePage.tsx` ist der zentrale Container. Sie komponiert Features und reicht Daten und Callbacks durch Props weiter. Direkter `localStorage`-Zugriff existiert nicht mehr in der Page-Komponente.
-
-Die Bibliothekslogik lebt in `useLibrary.ts` (ADR 004). Der Hook kapselt:
-
-- Laden, Speichern und Normalisieren von Alben
-- CRUD-Operationen (`addAlbum`, `updateAlbum`, `deleteAlbum`)
-- Cover-Override-Management
-- Fokusalbum-Verwaltung
-- Rollenaktualisierung
-
-Die Hörhistorie lebt in `useListenEvents.ts`.
-
-Der Hook kapselt:
-
-- Laden und Migrieren von Legacy-Hördaten
-- Erfassen neuer Hörsessions
-- Normalisierung von `listenCount` und `lastListened`
-
-Der RotationPlan lebt in `useRotationPlan.ts`.
-
-Der Hook kapselt:
-
-- Generieren von Player-Rotationen
-- Annehmen und Verwerfen
-- Modifizieren
-- Ersatzkandidaten-Suche
-- Dualen Speicher (`draft` / `active`)
+Recommendations refer exclusively to this layer.
 
 ---
 
-## Albummodell
+## Current Data Flow
 
-Ein Album besteht aktuell aus:
+`App.tsx` decides whether to show the welcome page or the HomePage. The onboarding status is stored under `STORAGE.ONBOARDING` in `localStorage`.
+
+`HomePage.tsx` is the central container. It composes features and passes data and callbacks through props. Direct `localStorage` access no longer exists in the page component.
+
+The library logic lives in `useLibrary.ts` (ADR 004). The hook encapsulates:
+
+- Loading, saving, and normalizing albums
+- CRUD operations (`addAlbum`, `updateAlbum`, `deleteAlbum`)
+- Cover override management
+- Focus Album management
+- Role updates
+
+The listening history lives in `useListenEvents.ts`.
+
+The hook encapsulates:
+
+- Loading and migrating legacy listening data
+- Recording new listening sessions
+- Normalization of `listenCount` and `lastListened`
+
+The RotationPlan lives in `useRotationPlan.ts`.
+
+The hook encapsulates:
+
+- Generating player rotations
+- Accepting and rejecting
+- Modifying
+- Replacement candidate search
+- Dual storage (`draft` / `active`)
+
+---
+
+## Album Model
+
+An album currently consists of:
 
 - id
 - title
@@ -117,39 +117,39 @@ Ein Album besteht aktuell aus:
 - listenCount
 - lastListened
 
-`category` wird durch Album Coach, Reflection oder Archiv Workflow gesetzt.
+`category` is set by Album Coach, Reflection, or Archive Workflow.
 
-`roleHistory` dokumentiert bewusst nachvollziehbar die Entwicklung dieser Beziehung.
+`roleHistory` consciously and traceably documents the development of this relationship.
 
-Die aktuelle Rolle beschreibt ausschließlich die Beziehung zwischen Mensch und Album.
+The current role describes exclusively the relationship between person and album.
 
-Sie dient **nicht** zur Bewertung der Sammlung.
+It does **not** serve to evaluate the collection.
 
-`listenCount` und `lastListened` sind Legacy-Felder zur Kompatibilität.
+`listenCount` and `lastListened` are legacy fields for compatibility.
 
-Die eigentliche Hörhistorie liegt in `listenEvents`.
+The actual listening history lives in `listenEvents`.
 
-`coverOverride` ist eine discriminated union:
+`coverOverride` is a discriminated union:
 
 - `type: "url"`
 - `type: "custom"`
 
-`coverUrl` bleibt das Original aus MusicBrainz / Cover Art Archive.
+`coverUrl` remains the original from MusicBrainz / Cover Art Archive.
 
-`coverOverride` überschreibt dieses bewusst.
+`coverOverride` deliberately overrides this.
 
-Die eigentliche Player-Rotation wird als `RotationPlan` gespeichert.
+The actual Player Rotation is stored as `RotationPlan`.
 
-Ein RotationPlan beschreibt eine konkrete Auswahl mehrerer Alben inklusive Auswahlgrund.
+A RotationPlan describes a concrete selection of multiple albums including the reason for selection.
 
 ---
 
-## Feature-Schnitt
+## Feature Slice
 
 - discover-album
 - album-coach
 - archive
-- dashboard (Reflection, Insights und neutrale Rollenübersicht)
+- dashboard (Reflection, Insights, and neutral role overview)
 - library
 - library dialogs
 - focus-album
@@ -160,19 +160,19 @@ Ein RotationPlan beschreibt eine konkrete Auswahl mehrerer Alben inklusive Auswa
 - role-explorer
 - ui
 
-Der Bereich `rotation-dashboard` dient ausschließlich als Einstiegspunkt für Reflection, Insights und Explainability.
+The `rotation-dashboard` area serves exclusively as the entry point for Reflection, Insights, and Explainability.
 
-Er bewertet die Bibliothek nicht.
+It does not evaluate the library.
 
 ---
 
-## Domain-Schnitt
+## Domain Slice
 
-### Rollen
+### Roles
 
 `domain/roles.ts`
 
-Kanonische Albumrollen.
+Canonical album roles.
 
 ---
 
@@ -180,23 +180,23 @@ Kanonische Albumrollen.
 
 `domain/album/*`
 
-Coach-Fragen
+Coach questions
 
-Coach-Auswertung
+Coach evaluation
 
-Rollenermittlung
+Role determination
 
 ---
 
-### Archiv
+### Archive
 
 `domain/archive/*`
 
-Archivschutz
+Archive protection
 
-Wiederentdeckung
+Rediscovery
 
-Archivfragen
+Archive questions
 
 ---
 
@@ -204,11 +204,11 @@ Archivfragen
 
 `domain/dashboard/*`
 
-Zusammenstellung der Dashboard-Bausteine.
+Composition of dashboard building blocks.
 
-Sprachliche Zusammenfassungen.
+Linguistic summaries.
 
-Keine Bewertungslogik.
+No evaluation logic.
 
 ---
 
@@ -216,7 +216,7 @@ Keine Bewertungslogik.
 
 `domain/insights/*`
 
-Sprachliche Beobachtungen über Sammlung und Hörverhalten.
+Linguistic observations about collection and listening behavior.
 
 ---
 
@@ -224,7 +224,7 @@ Sprachliche Beobachtungen über Sammlung und Hörverhalten.
 
 `domain/timeline/*`
 
-Ableitung dokumentierter Albumgeschichte.
+Derivation of documented album history.
 
 ---
 
@@ -232,13 +232,13 @@ Ableitung dokumentierter Albumgeschichte.
 
 `domain/rotation/*`
 
-Domänenlogik rund um die aktive Player-Rotation.
+Domain logic around the active Player Rotation.
 
-Dieser Bereich beschreibt die Auswahl einer Rotation.
+This area describes the selection of a rotation.
 
-Er bewertet ausdrücklich nicht die Bibliothek.
+It explicitly does not evaluate the library.
 
-Langfristig entsteht hier Explainability der Rotation.
+Long term, Explainability of the rotation emerges here.
 
 ---
 
@@ -246,7 +246,7 @@ Langfristig entsteht hier Explainability der Rotation.
 
 `domain/rotation-plan/*`
 
-Generator und Zielmodell der Player-Rotation.
+Generator and target model of the Player Rotation.
 
 ---
 
@@ -254,7 +254,7 @@ Generator und Zielmodell der Player-Rotation.
 
 `domain/reflection/*`
 
-Regeln und Texte für bewusste Neueinordnungen einzelner Alben.
+Rules and texts for conscious reclassifications of individual albums.
 
 ---
 
@@ -262,49 +262,49 @@ Regeln und Texte für bewusste Neueinordnungen einzelner Alben.
 
 `domain/library-views/*`
 
-Gruppierungslogik für Perspektiven.
+Grouping logic for perspectives.
 
 ---
 
-Domain-Code bleibt vollständig komponentenfrei und separat testbar.
+Domain code remains completely component-free and separately testable.
 
 ---
 
-## Service-Schnitt
+## Service Slice
 
-React-Komponenten sprechen ausschließlich mit `searchAlbum`.
+React components communicate exclusively with `searchAlbum`.
 
-Dieser Service kapselt:
+This service encapsulates:
 
 - MusicBrainz
 - Cover Art Archive
 
-Externe APIs bleiben dadurch vollständig außerhalb der Features.
+External APIs remain fully outside the features.
 
 ---
 
 ## Cover Management
 
-Albumcover werden als eigenständige Ressource behandelt.
+Album covers are treated as an independent resource.
 
-`AlbumCover` ist die zentrale Komponente für sämtliche Coverdarstellungen.
+`AlbumCover` is the central component for all cover renderings.
 
 ### Cache
 
 - IndexedDB
 - Blob Cache
-- Offlinefähig
-- Netzwerkreduzierung
+- Offline-capable
+- Network reduction
 
 ### Custom Covers
 
-Separater Store:
+Separate store:
 
 - saveCustomCover
 - getCustomCover
 - removeCustomCover
 
-### Priorität
+### Priority
 
 1. coverOverride URL
 2. coverOverride Custom
@@ -315,27 +315,27 @@ Separater Store:
 
 ## Migration Registry
 
-Migrationen werden deklarativ registriert.
+Migrations are registered declaratively.
 
-Eigenschaften:
+Properties:
 
-- versioniert
-- inkrementell
+- versioned
+- incremental
 - idempotent
-- testbar
+- testable
 
-Neue Migration:
+New migration:
 
-1. Funktion schreiben
-2. registrieren
-3. SCHEMA_VERSION erhöhen
-4. Tests ergänzen
+1. Write function
+2. Register
+3. Increase SCHEMA_VERSION
+4. Add tests
 
 ---
 
 ## Data Integrity Layer
 
-Drei Verteidigungslinien:
+Three lines of defense:
 
 ### Adapter
 
@@ -349,50 +349,50 @@ StorageQuotaError
 
 Type Guards
 
-Defensives Laden
+Defensive Loading
 
-Normalisierung
+Normalization
 
-### Normalisierung
+### Normalization
 
-Legacy-Felder
+Legacy fields
 
 Migration
 
-Bereinigung
+Cleanup
 
 ---
 
-## Architekturprinzipien
+## Architecture Principles
 
-Die Architektur folgt einigen grundlegenden Regeln.
+The architecture follows some fundamental rules.
 
-### Bibliothek dokumentiert.
+### Library documents.
 
-Nicht bewerten.
+Does not evaluate.
 
-### Rollen beschreiben Beziehungen.
+### Roles describe relationships.
 
-Nicht Kategorien.
+Not categories.
 
-Nicht Quoten.
+Not quotas.
 
-### Dashboard beobachtet.
+### Dashboard observes.
 
-Nicht optimieren.
+Does not optimize.
 
-### Reflection begleitet.
+### Reflection accompanies.
 
-Nicht korrigieren.
+Does not correct.
 
-### Explainability erklärt Entscheidungen.
+### Explainability explains decisions.
 
-Nicht Regeln.
+Not rules.
 
 ---
 
-## Bekannte Architektur-Schuld
+## Known Architecture Debt
 
-- `listenCount` und `lastListened` sind Legacyfelder und sollen langfristig vollständig aus `listenEvents` abgeleitet werden.
-- `StorageQuotaError` wird aktuell noch nicht bis in die UI kommuniziert.
-- Teile der Dashboard-Domäne basieren noch auf historischer Rollen-Balance. Diese Logik wird in einem späteren Sprint vollständig entfernt und durch Explainability der Player-Rotation ersetzt.
+- `listenCount` and `lastListened` are legacy fields and should long-term be fully derived from `listenEvents`.
+- `StorageQuotaError` is currently not communicated to the UI.
+- Parts of the Dashboard domain still rely on historical role balance. This logic will be completely removed in a later sprint and replaced by Explainability of the Player Rotation.

@@ -11,13 +11,13 @@ describe("listenEventRepository", () => {
         adapter = createMemoryStorageAdapter()
     })
 
-    it("sollte leere Events laden, wenn nichts gespeichert ist", () => {
+    it("should load empty events when nothing is stored", () => {
         const repository = createListenEventRepository(adapter)
         const events = repository.load()
         expect(events).toEqual([])
     })
 
-    it("sollte Events laden, die gespeichert wurden", () => {
+    it("should load stored events", () => {
         const repository = createListenEventRepository(adapter)
         const testEvents: ListenEvent[] = [
             {
@@ -36,7 +36,7 @@ describe("listenEventRepository", () => {
         expect(loaded).toEqual(testEvents)
     })
 
-    it("sollte ein neues Event hinzufuegen", () => {
+    it("should add a new event", () => {
         const repository = createListenEventRepository(adapter)
         const events: ListenEvent[] = []
         const updated = repository.add(events, "album-1")
@@ -45,7 +45,7 @@ describe("listenEventRepository", () => {
         expect(updated[0].listenedAt).toBeDefined()
     })
 
-    it("sollte Events persistieren", () => {
+    it("should persist events", () => {
         const repository = createListenEventRepository(adapter)
         const events: ListenEvent[] = []
         repository.add(events, "album-1")
@@ -54,7 +54,7 @@ describe("listenEventRepository", () => {
         expect(loaded[0].albumId).toBe("album-1")
     })
 
-    it("sollte Events loeschen", () => {
+    it("should delete events", () => {
         const repository = createListenEventRepository(adapter)
         const testEvents: ListenEvent[] = [
             {
@@ -69,7 +69,7 @@ describe("listenEventRepository", () => {
         expect(loaded).toEqual([])
     })
 
-    it("sollte defensiv bei korrupten Daten sein", () => {
+    it("should be defensive with corrupted data", () => {
         adapter.set(STORAGE.LISTEN_EVENTS, "invalid json")
         const repository = createListenEventRepository(adapter)
         const events = repository.load()

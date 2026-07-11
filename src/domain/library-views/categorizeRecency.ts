@@ -1,7 +1,7 @@
 /**
- * Zeitkategorien für zeitbasierte Gruppierungen.
+ * Time categories for time-based groupings.
  *
- * Kürzere, neutrale Schlüssel — die UI übersetzt sie in deutsche Labels.
+ * Short, neutral keys — the UI translates them into English labels.
  */
 export type RecencyCategory =
     | "today"
@@ -12,25 +12,25 @@ export type RecencyCategory =
     | "never"
 
 /**
- * Label-Map für die UI.
+ * Label map for the UI.
  *
- * Zentralisiert, damit alle zeitbasierten Ansichten
- * konsistente Gruppennamen verwenden.
+ * Centralized so all time-based views use
+ * consistent group names.
  */
 export const recencyGroups = [
-    { key: "today", title: "Heute" },
-    { key: "thisWeek", title: "Diese Woche" },
-    { key: "thisMonth", title: "Dieser Monat" },
-    { key: "thisYear", title: "Dieses Jahr" },
-    { key: "older", title: "Länger her" },
-    { key: "never", title: "Noch nicht gehört" },
+    { key: "today", title: "Today" },
+    { key: "thisWeek", title: "This Week" },
+    { key: "thisMonth", title: "This Month" },
+    { key: "thisYear", title: "This Year" },
+    { key: "older", title: "Longer Ago" },
+    { key: "never", title: "Not Yet Listened" },
 ] as const
 
 /**
- * Ordnet ein ISO-Datum einer Zeitkategorie zu.
+ * Maps an ISO date to a time category.
  *
- * @param isoDate ISO-Datum oder null
- * @param now Referenzzeitpunkt (für Tests)
+ * @param isoDate ISO date or null
+ * @param now Reference point (for tests)
  * @returns RecencyCategory
  */
 export function categorizeRecency(

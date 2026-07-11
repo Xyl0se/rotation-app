@@ -7,95 +7,53 @@ export type RoleId =
     | "archive"
 
 export interface RoleDefinition {
-
     id: RoleId
-
     icon: string
-
     title: string
-
     description: string
-
 }
 
 export const roles: RoleDefinition[] = [
-
     {
-
         id: "new",
-
         icon: "🌱",
-
-        title: "Neu entdeckt",
-
+        title: "Newly Discovered",
         description:
-            "Dieses Album möchte ich erst kennenlernen.",
-
+            "I want to get to know this album first.",
     },
-
     {
-
         id: "growing",
-
         icon: "🌿",
-
-        title: "Wächst noch",
-
+        title: "Still Growing",
         description:
-            "Mit jedem Hören entdecke ich mehr.",
-
+            "I discover more with every listen.",
     },
-
     {
-
         id: "comfort-food",
-
         icon: "❤️",
-
         title: "Comfort Food",
-
         description:
-            "Hierhin komme ich immer wieder zurück.",
-
+            "I keep coming back to this one.",
     },
-
     {
-
         id: "classic",
-
         icon: "🏛",
-
-        title: "Klassiker",
-
+        title: "Classic",
         description:
-            "Dieses Album hat mich über längere Zeit geprägt und bleibt Teil meiner musikalischen Biografie.",
-
+            "This album has shaped me over a longer period and remains part of my musical biography.",
     },
-
     {
-
         id: "admire",
-
         icon: "🎩",
-
-        title: "Bewunderung",
-
+        title: "Admiration",
         description:
-            "Ich erkenne seine musikalische Größe an, auch wenn ich nicht mehr selbstverständlich dazu greife.",
-
+            "I recognize its musical greatness, even if I don't instinctively reach for it anymore.",
     },
-
     {
-
         id: "archive",
-
         icon: "📦",
-
-        title: "Archiv",
-
+        title: "Archive",
         description:
-            "Dieses Album darf im Moment ruhen, ohne aus meiner Geschichte zu verschwinden.",
-
+            "This album may rest for now, without disappearing from my story.",
     },
-
 ]

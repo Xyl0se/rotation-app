@@ -1,96 +1,96 @@
 # Curated Rotation
 
-Rotation meint ab Sprint 43 eine kuratierte Player-Auswahl.
+Rotation means from Sprint 43 onwards a curated player selection.
 
-Die App soll nicht nur ein Album hervorheben, sondern aus einer grossen Bibliothek eine bewusste Auswahl vorschlagen:
+The app should not just highlight one album, but from a large library make a conscious selection:
 
-- Zielgroesse, zuerst typischerweise 30 Alben
-- gewichtete Anteile aus mehreren Rollen
-- nachvollziehbare Auswahl aus mehr Kandidaten als Plaetzen
-- keine automatische Entfernung aus der Bibliothek
+- Target size, initially typically 30 albums
+- Weighted proportions from multiple roles
+- Traceable selection from more candidates than slots
+- No automatic removal from the library
 
-## Begriffe
+## Terms
 
-## Bibliothek
+### Library
 
-Alle Alben, die der Nutzer kennt, entdeckt, archiviert oder wieder befragt.
+All albums the user knows, discovered, archived, or revisited.
 
-## Rolle
+### Role
 
-Die aktuelle Beziehung zu einem Album, zum Beispiel Neu entdeckt, Comfort Food oder Klassiker.
+The current relationship with an album, for example Newly Discovered, Comfort Food, or Classic.
 
-Rollen sind Kandidatenklassen fuer eine Rotation.
+Roles are candidate classes for a rotation.
 
-## RotationPlan
+### RotationPlan
 
-Das Zielmodell fuer eine konkrete Player-Rotation.
+The target model for a concrete player rotation.
 
-Ein RotationPlan enthaelt:
+A RotationPlan contains:
 
-- Zielgroesse
-- Album-IDs
-- konkrete Items mit Rolle und Auswahlgrund
-- Rollenquoten
-- Erstellungszeitpunkt
+- Target size
+- Album IDs
+- Concrete items with role and selection reason
+- Role quotas
+- Creation timestamp
 
-Sprint 44 erzeugt daraus den ersten sichtbaren Player-Rotation-Vorschlag.
+Sprint 44 generates the first visible player rotation suggestion from this.
 
-## Generator MVP
+### Generator MVP
 
-`generateRotationPlan(albums)` erzeugt eine erste Auswahl:
+`generateRotationPlan(albums)` creates a first selection:
 
-- Standardziel sind 30 Alben.
-- Archivierte Alben werden ausgeschlossen.
-- Rollenquoten bevorzugen Neu entdeckt, Comfort Food, Klassiker, Waechst noch und Bewunderung.
-- Wenn Rollen nicht genug Kandidaten haben, werden freie Plaetze robust aufgefuellt.
-- Jedes Item merkt, ob es ueber einen Rollenplatz oder Auffuellplatz in die Auswahl kam.
+- Default target is 30 albums.
+- Archived albums are excluded.
+- Role quotas favor Newly Discovered, Comfort Food, Classic, Growing, and Admiration.
+- When roles don't have enough candidates, free slots are robustly filled.
+- Each item remembers whether it came in via a role slot or a fill slot.
 
-Der Generator ist bewusst einfach und nachvollziehbar.
+The generator is deliberately simple and traceable.
 
-## RotationPlan Lebenszyklus (Sprint 45)
+### RotationPlan Lifecycle (Sprint 45)
 
-Jeder `RotationPlan` hat einen Status:
+Every `RotationPlan` has a status:
 
-- `draft` – Der Vorschlag wird gerade geprueft und kann noch bearbeitet werden.
-- `active` – Der Nutzer hat den Plan uebernommen. Er ist dann fixiert und rein lesend.
+- `draft` — The suggestion is currently being reviewed and can still be edited.
+- `active` — The user has adopted the plan. It is then fixed and read-only.
 
-Ein Draft kann einzelne Alben enthalten, die der Nutzer entfernt oder durch Alternativen derselben Rolle ersetzt. Erst beim Klick auf "Mitnehmen" wird der Plan auf `active` gesetzt und in `rotation-active-plan` gespeichert.
+A draft can contain individual albums that the user removes or replaces with alternatives of the same role. Only when clicking "Adopt" is the plan set to `active` and saved in `rotation-active-plan`.
 
-## Ersatz-Logik
+### Replacement Logic
 
-`findReplacementCandidates(removedItem, plan, albums)` sucht die besten Ersatzkandidaten fuer ein entferntes Album:
+`findReplacementCandidates(removedItem, plan, albums)` searches for the best replacement candidates for a removed album:
 
-- Kandidaten muessen dieselbe Rolle haben.
-- Bereits im Plan enthaltene Alben werden ausgeschlossen.
-- Sortierung nach Listen-Count, dann letzter Hoerzeitpunkt, dann Titel.
-- Standardmaessig werden die Top 3 vorgeschlagen.
+- Candidates must have the same role.
+- Albums already contained in the plan are excluded.
+- Sorting by listen count, then last listen timestamp, then title.
+- By default, the top 3 are suggested.
 
-## Fokusalbum
+### Focus Album
 
-Ein einzelnes Album, das in der UI hervorgehoben wird.
+A single album highlighted in the UI.
 
-Das Fokusalbum ersetzt die alte Sprache "Jetzt in Rotation". Es bedeutet nicht, dass dieses Album die Rotation ist.
+The Focus Album replaces the old language "Currently in Rotation". It does not mean that this album *is* the rotation.
 
-Technisch nutzt die App dafuer vorerst weiter das Legacy-Feld `isCurrent`.
+Technically, the app continues to use the legacy field `isCurrent` for this.
 
-## Hoersession
+### Listening Session
 
-Ein Hoerereignis auf einem Album.
+A listening event on an album.
 
-Hoersessions koennen auf jeder Album Card erfasst werden. Sie sind nicht daran gebunden, ob ein Album Fokusalbum ist oder spaeter Teil eines RotationPlans wird.
+Listening sessions can be captured on every album card. They are not bound to whether an album is the Focus Album or later becomes part of a RotationPlan.
 
-## Sichtbare Player-Rotation
+### Visible Player Rotation
 
-Die HomePage zeigt eine eigene Player-Rotation-Sektion:
+The HomePage shows its own player rotation section:
 
-- Anzahl der vorgeschlagenen Alben
-- Button fuer eine neue Rotation
-- Im Draft-Modus: "Mitnehmen"-Button zum Fixieren
-- Rollen-Zusammenfassung
-- Kompakte Album-Tiles mit Cover, Rolle und Grund
-- Im Draft-Modus pro Tile: Entfernen- und Ersetzen-Buttons
-- Expandable Drawer mit 3 Cover-Vorschlaegen derselben Rolle
+- Number of suggested albums
+- Button for a new rotation
+- In draft mode: "Adopt" button for fixation
+- Role summary
+- Compact album tiles with cover, role, and reason
+- In draft mode per tile: Remove and Replace buttons
+- Expandable drawer with 3 cover suggestions of the same role
 
-Die aktuelle Player-Rotation wird lokal gespeichert:
-- Draft unter `rotation-current-plan`
-- Active unter `rotation-active-plan`
+The current player rotation is stored locally:
+- Draft under `rotation-current-plan`
+- Active under `rotation-active-plan`

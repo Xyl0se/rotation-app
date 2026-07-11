@@ -1,31 +1,31 @@
 # Reflection Engine
 
-Die Reflection Engine stellt Fragen, wenn ein Album wahrscheinlich neu betrachtet werden sollte.
+The Reflection Engine asks questions when an album should likely be reconsidered.
 
-Sie aendert keine Rolle automatisch. Sie erzeugt nur einen Impuls und kann den Album Coach erneut starten.
+It does not change a role automatically. It only generates an impulse and can restart the Album Coach.
 
-## Datenfluss
+## Data Flow
 
-1. `evaluateReflection(albums)` prueft alle Alben gegen `reflectionRules`.
-2. Die HomePage zeigt die `ReflectionCard`.
-3. Wenn ein Impuls vorhanden ist, zeigt die Card das erste passende Album.
-4. Der Nutzer kann den Album Coach oder bei Archiv-Alben den Archive Return Coach starten.
-5. Das Ergebnis setzt `category`.
-6. `roleHistory` erhaelt einen Eintrag mit `source: "reflection"`.
+1. `evaluateReflection(albums)` checks all albums against `reflectionRules`.
+2. The HomePage shows the `ReflectionCard`.
+3. If an impulse is present, the card shows the first matching album.
+4. The user can start the Album Coach or — for archive albums — the Archive Return Coach.
+5. The result sets `category`.
+6. `roleHistory` receives an entry with `source: "reflection"`.
 
-## Aktuelle Regeln
+## Current Rules
 
-- `new-after-listens`: Ein neues Album wurde mindestens dreimal gehoert.
-- `growing-for-a-while`: Ein wachsendes Album liegt mindestens 90 Tage in dieser Rolle.
-- `comfort-not-recent`: Ein Comfort-Food-Album wurde mindestens 60 Tage nicht gehoert.
-- `archive-return-candidate`: Ein Archiv-Album ruht seit mindestens 180 Tagen.
+- `new-after-listens`: A new album has been listened to at least three times.
+- `growing-for-a-while`: A growing album has been in this role for at least 90 days.
+- `comfort-not-recent`: A comfort-food album has not been listened to for at least 60 days.
+- `archive-return-candidate`: An archive album has been resting for at least 180 days.
 
-## Wiederholschutz
+## Repeat Protection
 
-Wenn die aktuelle Rolle zuletzt durch eine Reflection bestaetigt wurde, erzeugt dieselbe Rolle nicht sofort wieder einen neuen Impuls.
+If the current role was last confirmed by a Reflection, the same role does not immediately generate a new impulse again.
 
-## Produktprinzip
+## Product Principle
 
-Reflection ist kein Alarm.
+Reflection is not an alarm.
 
-Reflection ist eine Einladung, die eigene Beziehung zu einem Album wieder kurz anzuschauen.
+Reflection is an invitation to briefly look at one's own relationship with an album again.

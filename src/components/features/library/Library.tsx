@@ -16,7 +16,7 @@ import LastListenedView from "./views/LastListenedView"
 import RoleChangeView from "./views/RoleChangeView"
 
 import type { MainViewMode, PerspectiveMode } from "./LibraryViewSwitcher"
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 type LibraryProps = {
     albums: Album[]

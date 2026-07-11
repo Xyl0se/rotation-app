@@ -18,7 +18,7 @@ describe("evaluateCoach", () => {
 
     })
 
-    describe("Pfad: new", () => {
+    describe("Path: new", () => {
 
         it("finishes with new after heardThreeTimes = false", () => {
 
@@ -40,7 +40,7 @@ describe("evaluateCoach", () => {
 
     })
 
-    describe("Pfad: archive via wouldMissAlbum false", () => {
+    describe("Path: archive via wouldMissAlbum false", () => {
 
         it("asks wouldMissAlbum after heardThreeTimes true", () => {
 
@@ -82,7 +82,7 @@ describe("evaluateCoach", () => {
 
     })
 
-    describe("Aktiver Zweig: classic", () => {
+    describe("Active branch: classic", () => {
 
         it("asks stillReturningConsciously after wouldMissAlbum true", () => {
 
@@ -152,7 +152,7 @@ describe("evaluateCoach", () => {
 
     })
 
-    describe("Aktiver Zweig: comfort-food", () => {
+    describe("Active branch: comfort-food", () => {
 
         it("asks comfortAlbum when shapedTasteLongterm false", () => {
 
@@ -206,7 +206,7 @@ describe("evaluateCoach", () => {
 
     })
 
-    describe("Aktiver Zweig: growing", () => {
+    describe("Active branch: growing", () => {
 
         it("asks surprisedOnLastListen when comfortAlbum false", () => {
 
@@ -264,7 +264,7 @@ describe("evaluateCoach", () => {
 
     })
 
-    describe("Aktiver Zweig: admire (fallback)", () => {
+    describe("Active branch: admire (fallback)", () => {
 
         it("finishes with admire when active but not shaped, comfortable, or surprising", () => {
 
@@ -296,7 +296,7 @@ describe("evaluateCoach", () => {
 
     })
 
-    describe("Ruhender Zweig: admire", () => {
+    describe("Resting branch: admire", () => {
 
         it("asks musicallyValued when not returning consciously", () => {
 
@@ -346,7 +346,7 @@ describe("evaluateCoach", () => {
 
     })
 
-    describe("Ruhender Zweig: archive", () => {
+    describe("Resting branch: archive", () => {
 
         it("asks memoryOfEarlierPhase when musicallyValued false", () => {
 

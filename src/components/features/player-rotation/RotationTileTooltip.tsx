@@ -18,7 +18,7 @@ import { createAlbumTimeline } from "../../../domain/timeline/createAlbumTimelin
 
 import AlbumCover from "../../ui/AlbumCover"
 
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 function getRoleTitle(role: RoleId): string {
     return roles.find(item => item.id === role)?.title ?? role

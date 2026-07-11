@@ -23,10 +23,10 @@ function openCoverDb(): Promise<IDBDatabase> {
 }
 
 /**
- * Ruft einen gecachten Cover-Eintrag ab.
+ * Retrieves a cached cover entry.
  *
- * Gibt ein Objekt mit Blob-URL und Metadaten zurück,
- * oder `null`, wenn kein Cache-Eintrag existiert.
+ * Returns an object with blob URL and metadata,
+ * or `null` if no cache entry exists.
  */
 export async function getCachedCover(
     albumId: string,
@@ -69,9 +69,9 @@ export async function getCachedCover(
 }
 
 /**
- * Lädt ein Cover herunter und speichert es im Cache.
+ * Downloads a cover and stores it in the cache.
  *
- * Gibt eine Blob-URL zurück, die direkt verwendet werden kann.
+ * Returns a blob URL that can be used directly.
  */
 export async function cacheCover(
     albumId: string,
@@ -81,7 +81,7 @@ export async function cacheCover(
 
     if (!response.ok) {
         throw new Error(
-            `Cover-Download fehlgeschlagen: ${response.status} ${response.statusText}`,
+            `Cover download failed: ${response.status} ${response.statusText}`,
         )
     }
 
@@ -89,7 +89,7 @@ export async function cacheCover(
     const blob = await response.blob()
 
     if (blob.size === 0) {
-        throw new Error("Heruntergeladenes Cover ist leer")
+        throw new Error("Downloaded cover is empty")
     }
 
     const db = await openCoverDb()
@@ -122,7 +122,7 @@ export async function cacheCover(
 }
 
 /**
- * Prüft, ob ein Cover für ein Album gecacht ist.
+ * Checks whether a cover is cached for an album.
  */
 export async function hasCachedCover(albumId: string): Promise<boolean> {
     const cached = await getCachedCover(albumId)
@@ -134,8 +134,8 @@ export async function hasCachedCover(albumId: string): Promise<boolean> {
 }
 
 /**
- * Löscht den Cover-Cache für ein einzelnes Album
- * oder den gesamten Cache.
+ * Deletes the cover cache for a single album
+ * or the entire cache.
  */
 export async function clearCoverCache(
     albumId?: string,
@@ -169,9 +169,9 @@ export async function clearCoverCache(
 // --- Custom Covers API ---
 
 /**
- * Speichert ein benutzerdefiniertes Cover-Blob in IndexedDB.
+ * Saves a custom cover blob in IndexedDB.
  *
- * Gibt das gespeicherte CustomCover-Objekt zurück.
+ * Returns the saved CustomCover object.
  */
 export async function saveCustomCover(
     albumId: string,
@@ -181,7 +181,7 @@ export async function saveCustomCover(
     } = {},
 ): Promise<{ albumId: string; blob: Blob; source?: string; fetchedAt: string }> {
     if (blob.size === 0) {
-        throw new Error("Custom-Cover-Blob ist leer")
+        throw new Error("Custom cover blob is empty")
     }
 
     const db = await openCoverDb()
@@ -213,10 +213,10 @@ export async function saveCustomCover(
 }
 
 /**
- * Ruft ein benutzerdefiniertes Cover ab.
+ * Retrieves a custom cover.
  *
- * Gibt ein Objekt mit Blob-URL und optionaler Source zurück,
- * oder `null`, wenn kein Custom Cover existiert.
+ * Returns an object with blob URL and optional source,
+ * or `null` if no custom cover exists.
  */
 export async function getCustomCover(
     albumId: string,
@@ -259,7 +259,7 @@ export async function getCustomCover(
 }
 
 /**
- * Löscht ein benutzerdefiniertes Cover.
+ * Deletes a custom cover.
  */
 export async function removeCustomCover(
     albumId: string,

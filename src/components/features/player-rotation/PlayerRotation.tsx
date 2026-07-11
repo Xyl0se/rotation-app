@@ -16,7 +16,7 @@ import type { ListenEvent } from "../../../domain/listening/listenEvents"
 
 import AlbumCover from "../../ui/AlbumCover"
 import RotationTileTooltip from "./RotationTileTooltip"
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 type PlayerRotationProps = {
 

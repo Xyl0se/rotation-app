@@ -17,7 +17,7 @@ import {
 } from "../../../domain/roles"
 
 import Button from "../../ui/Button"
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 type ArchiveProtectionCoachProps = {
 

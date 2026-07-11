@@ -3,7 +3,7 @@ import type { StorageAdapter } from "../../adapters/storageAdapter"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import BackupControls from "./backup/BackupControls"
-import { useI18n } from "../../i18n/I18nContext"
+import { useI18n } from "../../i18n/useI18n"
 
 type EmptyLibraryProps = {
     adapter: StorageAdapter

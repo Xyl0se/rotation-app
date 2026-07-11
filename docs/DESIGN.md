@@ -6,17 +6,17 @@ Version 0.1
 
 # Vision
 
-Rotation ist keine Musikverwaltung.
+Rotation is not music management.
 
-Rotation hilft dabei, bewusster Musik zu hören.
+Rotation helps people listen to music more consciously.
 
 ---
 
 # Mission
 
-Jedes Album erzählt eine Geschichte.
+Every album tells a story.
 
-Rotation dokumentiert diese Geschichte.
+Rotation documents this story.
 
 ---
 
@@ -24,66 +24,66 @@ Rotation dokumentiert diese Geschichte.
 
 ## Albums before Songs
 
-Rotation kennt ausschließlich Alben.
+Rotation knows only albums.
 
 ---
 
 ## Reflection over Collection
 
-Nicht die Größe der Sammlung zählt.
+Not the size of the collection counts.
 
-Sondern die Beziehung zu ihr.
+But the relationship to it.
 
 ---
 
 ## Every Album tells a Story
 
-Ein Album besitzt eine Historie.
+An album has a history.
 
-Keine statischen Metadaten.
+Not static metadata.
 
 ---
 
 ## Silence is Part of the Design
 
-Großzügige Weißräume.
+Generous whitespace.
 
-Wenige Farben.
+Few colors.
 
-Keine visuelle Unruhe.
+No visual unrest.
 
 ---
 
 ## One Action at a Time
 
-Der Benutzer erledigt immer nur eine Aufgabe.
+The user always completes only one task.
 
-Nie mehrere gleichzeitig.
+Never several at once.
 
 ---
 
-# Sprache
+# Language
 
-Nicht:
+Not:
 
-Album hinzufügen
+Add album
 
-Sondern:
+But:
 
-Neues Album entdecken
+Discover new album
 
-Nicht:
+Not:
 
-Löschen
+Delete
 
-Sondern:
+But:
 
-Aus der Rotation nehmen
+Remove from rotation
 
-Nicht:
+Not:
 
-Archivieren
+Archive
 
-Sondern:
+But:
 
-Im Archiv ablegen
+Place in archive

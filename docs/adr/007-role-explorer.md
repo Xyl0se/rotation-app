@@ -1,28 +1,28 @@
-# ADR 007: Role Explorer — Rollen als eigenstaendige Bereiche innerhalb der Bibliothek
+# ADR 007: Role Explorer — Roles as Distinct Areas Within the Library
 
 ## Status
 
-Akzeptiert
+Accepted
 
-## Kontext
+## Context
 
-Die Bibliothek zeigte Alben als flaches Raster. Nutzer konnten zwar nach Rolle filtern, aber die Rollen selbst hatten keine eigene Praesenz. Die Frage "Welche Alben erzaehlen gemeinsam dieselbe Geschichte?" liess sich nicht beantworten.
+The library showed albums as a flat grid. Users could filter by role, but the roles themselves had no own presence. The question "Which albums tell the same story together?" could not be answered.
 
-Sprint 49 sollte Rollen zu eigenstaendigen, erkundbaren Bereichen machen.
+Sprint 49 was meant to make roles into distinct, explorable areas.
 
-## Entscheidung
+## Decision
 
-Jede der sechs Albumrollen erhaelt eine eigene Uebersichtsseite im Role Explorer.
+Each of the six album roles receives its own overview page in the Role Explorer.
 
-- Der Role Explorer zeigt alle Rollen als Grid mit Icon, Titel, Beschreibung, Anzahl und Cover-Vorschau.
-- Jede Rolle hat eine Detailansicht mit eigenem Header, Beschreibung und Album-Grid.
-- Die Bibliothek erhaelt einen View Switcher, der zwischen "Alle Alben" und "Nach Rolle" wechselt.
-- Album Cards koennen optional ein Rollen-Label anzeigen.
-- Pro Rolle gibt es einen individuellen Empty State statt eines generischen Platzhalters.
+- The Role Explorer shows all roles as a grid with icon, title, description, count, and cover preview.
+- Each role has a detail view with its own header, description, and album grid.
+- The library receives a view switcher that toggles between "All Albums" and "By Role".
+- Album cards can optionally show a role label.
+- Each role has an individual empty state instead of a generic placeholder.
 
-## Konsequenzen
+## Consequences
 
-- Rollen sind nicht mehr nur Filterkriterien, sondern navigierbare Bereiche.
-- `domain/roles/*` enthaelt Rollen-spezifische Logik und Nachrichten.
-- `components/features/role-explorer` ist ein eigenstaendiger Feature-Schnitt.
-- Neue Rollen erfordern Anpassungen im Explorer, im Switcher und in den Empty States.
+- Roles are no longer just filter criteria, but navigable areas.
+- `domain/roles/*` contains role-specific logic and messages.
+- `components/features/role-explorer` is a distinct feature slice.
+- New roles require adjustments in the explorer, the switcher, and the empty states.

@@ -1,54 +1,56 @@
-# Archiv Workflow
+# Archive Workflow
 
-Archivieren bedeutet in Rotation nicht loeschen.
+Archiving in Rotation does not mean deleting.
 
-Ein Album im Archiv bleibt Teil der Sammlung, ruht aber ausserhalb einer aktiven Player-Auswahl.
+An album in the archive remains part of the collection but rests outside an active player selection.
 
-## Ins Archiv gehen
+## Entering the Archive
 
-Bevor ein Album ins Archiv gelegt wird, laeuft ein Klassiker-Schutz.
+Before an album is placed in the archive, a classic protection runs.
 
-Der Schutz stellt drei Fragen:
+The protection asks three questions:
 
-1. Wuerde ich dieses Album jemandem aktiv empfehlen?
-2. Habe ich es in den letzten 12 Monaten wirklich gehoert?
-3. Sage ich haeufiger "Das muesste ich mal wieder hoeren", als dass ich es tue?
+1. Does this album have a biographical place in my life?
+2. Have I really listened to it in the last 12 months?
+3. Do I say "I should listen to that again" more often than I actually do?
 
-Moegliche Ergebnisse:
+> **Sprint 57 update:** `wouldRecommend` was removed as the primary protection signal. Instead, `hasBiographicPlace` is now the primary signal — personal classics may currently rest and remain protected nonetheless.
 
-- `archive`: Das Album darf ruhen.
-- `classic`: Das Album ist zu wichtig fuer einen reinen Archivplatz.
-- `admire`: Das Album wird bewundert, ohne sofort Teil einer Player-Auswahl zu sein.
+Possible results:
 
-Jede Entscheidung schreibt einen `roleHistory`-Eintrag mit `source: "archive"`.
+- `archive`: The album may rest.
+- `classic`: The album is too important for a pure archive spot.
+- `admire`: The album is admired without immediately being part of a player selection.
 
-Wenn das Fokusalbum ins Archiv geht, wird das Legacy-Feld `isCurrent` auf `false` gesetzt.
+Every decision writes a `roleHistory` entry with `source: "archive"`.
 
-## Rueckkehr aus dem Archiv
+When the Focus Album goes into the archive, the legacy field `isCurrent` is set to `false`.
 
-Die Rueckkehr ist Teil des Reflection Workflows.
+## Returning from the Archive
 
-Wenn ein Album mindestens 180 Tage im Archiv liegt, kann die Reflection Engine einen Wiederentdeckungsimpuls anzeigen.
+The return is part of the Reflection workflow.
 
-Der Archive Return Coach fragt:
+When an album has been in the archive for at least 180 days, the Reflection Engine can show a rediscovery impulse.
 
-1. Habe ich es in den letzten 6 Monaten bewusst gehoert?
-2. Erinnere ich mich spontan an einen Song, ein Riff, eine Textzeile oder einen besonderen Moment?
-3. Wuerde ich widersprechen, wenn jemand das Album durchschnittlich nennt?
-4. Warum habe ich es damals gekauft?
-5. Passt es zu meiner aktuellen Lebensphase oder Hoerstimmung?
-6. Suche ich heute eher Vertrautheit oder Entdeckung?
+The Archive Return Coach asks:
 
-Moegliche Ergebnisse:
+1. Have I listened to it consciously in the last 6 months?
+2. Do I spontaneously remember a song, a riff, a lyric line, or a special moment?
+3. Would I object if someone called the album average?
+4. Why did I buy it back then?
+5. Does it fit my current life phase or listening mood?
+6. Am I today looking more for familiarity or discovery?
 
-- `archive`: Das Album bleibt im Archiv.
-- `classic`: Das Album kehrt als Klassiker zurueck.
-- `growing`: Das Album kehrt als Wiederentdeckung zurueck.
+Possible results:
 
-Rueckkehrentscheidungen schreiben `roleHistory` mit `source: "reflection"`.
+- `archive`: The album stays in the archive.
+- `classic`: The album returns as a classic.
+- `growing`: The album returns as a rediscovery.
 
-## Produktprinzip
+Return decisions write `roleHistory` with `source: "reflection"`.
 
-Rotation darf Fragen stellen.
+## Product Principle
 
-Rotation darf nie automatisch ein Album zurueckholen oder weglegen.
+Rotation may ask questions.
+
+Rotation must never automatically bring an album back or put it away.

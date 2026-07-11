@@ -1,5 +1,5 @@
 import Button from "../components/ui/Button"
-import { useI18n } from "../i18n/I18nContext"
+import { useI18n } from "../i18n/useI18n"
 
 type WelcomePageProps = {
     onContinue: () => void

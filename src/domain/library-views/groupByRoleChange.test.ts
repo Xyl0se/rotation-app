@@ -21,7 +21,7 @@ describe("groupByRoleChange", () => {
 
         expect(result).toHaveLength(1)
         expect(result[0].key).toBe("never")
-        expect(result[0].title).toBe("Noch keine Einordnung")
+        expect(result[0].title).toBe("No classification yet")
         expect(result[0].albums).toHaveLength(1)
     })
 

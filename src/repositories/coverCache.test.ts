@@ -9,14 +9,13 @@ import {
     removeCustomCover,
 } from "./coverCache"
 
-// In-Memory-Datenbank pro Test-Datei
+// In-memory database per test file
 const memoryDb = new Map<string, Map<string, unknown>>()
 
 function getStore(name: string): Map<string, unknown> {
     if (!memoryDb.has(name)) {
         memoryDb.set(name, new Map())
     }
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return memoryDb.get(name)!
 }
 
@@ -159,7 +158,7 @@ beforeEach(() => {
     })
 })
 
-// --- Hilfsfunktionen ---
+// --- Helper functions ---
 
 function createFakeBlob(): Blob {
     return new Blob(["fake-image-data"], { type: "image/jpeg" })
@@ -209,7 +208,7 @@ describe("coverCache", () => {
 
             await expect(
                 cacheCover("album-2", "https://example.com/missing.jpg"),
-            ).rejects.toThrow("Cover-Download fehlgeschlagen: 404 Not Found")
+            ).rejects.toThrow("Cover download failed: 404 Not Found")
         })
     })
 
@@ -283,7 +282,7 @@ describe("coverCache", () => {
         it("rejects empty blobs", async () => {
             await expect(
                 saveCustomCover("album-1", new Blob([])),
-            ).rejects.toThrow("Custom-Cover-Blob ist leer")
+            ).rejects.toThrow("Custom cover blob is empty")
         })
 
         it("saves a custom cover blob", async () => {

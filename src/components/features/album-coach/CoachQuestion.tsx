@@ -2,7 +2,7 @@ import type {
     CoachQuestion as CoachQuestionModel,
 } from "../../../domain/album/coachQuestions"
 
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 type CoachQuestionProps = {
 

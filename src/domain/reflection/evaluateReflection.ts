@@ -26,14 +26,14 @@ export interface ReflectionEvaluation {
 }
 
 /**
- * Prueft, ob ein Album zu einer gegebenen Reflection-Regel passt.
+ * Checks whether an album matches a given reflection rule.
  *
- * Die Pruefung beruecksichtigt:
- * - aktuelle Rolle des Albums
- * - ob die letzte Rollenaenderung bereits durch Reflection kam
- * - Mindest-Hoeranzahl
- * - Mindesttage in der aktuellen Rolle
- * - Mindesttage seit letzter Hoersession
+ * The check considers:
+ * - current role of the album
+ * - whether the last role change already came via reflection
+ * - minimum listen count
+ * - minimum days in the current role
+ * - minimum days since last listen session
  */
 
 function daysBetween(

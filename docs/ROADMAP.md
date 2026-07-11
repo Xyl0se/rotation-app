@@ -1,111 +1,100 @@
 # Rotation Roadmap
 
-> Rotation ist kein Werkzeug zum Verwalten einer Musiksammlung.
+> Rotation is not a tool for managing a music collection.
 >
-> Rotation begleitet die Beziehung zwischen Mensch und Album.
+> Rotation accompanies the relationship between person and album.
 
-Version: v0.18.x-dev
-
----
-
-# Produktleitlinie
-
-Rotation verfolgt seit Version 0.16 eine klare Produktphilosophie.
-
-Die Bibliothek dokumentiert Beziehungen.
-
-Sie wird nicht bewertet.
-
-Albumrollen besitzen keine Zielgrößen.
-
-Es existieren keine optimale Rollenverteilung.
-
-Es gibt keine „perfekte Sammlung“.
-
-Die Player-Rotation ist eine bewusst kuratierte Auswahl aus der Bibliothek.
-
-Reflection unterstützt Entscheidungen.
-
-Explainability erklärt Entscheidungen.
-
-Das Dashboard schafft Aufmerksamkeit.
-
-Nicht Optimierung.
-
-Alle zukünftigen Entwicklungen orientieren sich an diesen Prinzipien.
+Version: v0.21.x-dev
 
 ---
 
-# Aktueller Produktstand
+# Product Guideline
 
-Rotation besitzt heute folgende Kernfunktionen.
+Rotation has pursued a clear product philosophy since version 0.16.
 
-## Sammlung
+The library documents relationships.
 
-- Album entdecken
-- MusicBrainz Lookup
+It is not evaluated.
+
+Album roles have no target sizes.
+
+There is no optimal role distribution.
+
+There is no "perfect collection".
+
+The Player Rotation is a consciously curated selection from the library.
+
+Reflection supports decisions.
+
+Explainability explains decisions.
+
+The Dashboard creates attention.
+
+Not optimization.
+
+All future developments are oriented toward these principles.
+
+---
+
+# Current Product State
+
+Rotation today has the following core features.
+
+## Collection
+
+- Album discovery
+- MusicBrainz lookup
 - Cover Art Archive
-- Cover Override
+- Cover override
 - Album Coach
-- Rollenmodell
+- Role model
 - Role History
 - Timeline
 - Listening History
-- Archiv
-- Wiederentdeckung
+- Archive
+- Rediscovery
 
-## Bibliothek
+## Library
 
 - Editor
 - Role Explorer
 - Library Perspectives
-- Suche vorbereitet
+- Search prepared
 - Cover Cache
-- Persistenz
+- Persistence
 
 ## Rotation
 
-- Fokusalbum
-
-- Player-Rotation
-
+- Focus Album
+- Player Rotation
 - Rotation Review
-
 - RotationPlan
 
 ## Dashboard
 
 - Reflection
-
 - Insights
+- Role overview
 
-- Rollenübersicht
-
-## Infrastruktur
+## Infrastructure
 
 - Repository Pattern
-
 - Storage Adapter
-
 - Migration Registry
-
 - IndexedDB
-
-- Persistenz
-
+- Persistence
 - Defensive Loading
-
-- Testabdeckung >200 Tests
+- Test coverage >200 tests
 
 ---
 
-# Abgeschlossene Entwicklungsphasen
+# Completed Development Phases
 
 ## Phase I
 
 Foundation
 
-Grundlagen der React-Anwendung.
+Basics of the React application.
 
 ---
 
@@ -119,7 +108,7 @@ MusicBrainz
 
 Album Coach
 
-Metadaten
+Metadata
 
 ---
 
@@ -133,7 +122,7 @@ Timeline
 
 Reflection
 
-Archiv
+Archive
 
 Listening History
 
@@ -143,7 +132,7 @@ Listening History
 
 Curated Rotation
 
-Player-Rotation
+Player Rotation
 
 Rotation Review
 
@@ -185,131 +174,143 @@ Data Integrity
 
 ---
 
-# Aktuelle Architektur
+## Phase VII
 
-Rotation besteht aus zwei klar getrennten Ebenen.
+Self-Hosting & Internationalization
 
-## Bibliothek
+Deployment Foundation
 
-Die Bibliothek beschreibt die gesamte Albumsammlung.
+GitHub Container Registry
 
-Albumrollen dokumentieren Beziehungen.
+Internationalization (i18n)
 
-Die Bibliothek besitzt keine Zielgrößen.
+Documentation Sprint
 
-Sie wird nicht bewertet.
+---
 
-Sie dient als Grundlage für:
+# Current Architecture
+
+Rotation consists of two clearly separated layers.
+
+## Library
+
+The library describes the entire album collection.
+
+Album roles document relationships.
+
+The library has no target sizes.
+
+It is not evaluated.
+
+It serves as the basis for:
 
 - Reflection
-
 - Timeline
-
 - Insights
-
-- Player-Rotation
-
----
-
-## Player-Rotation
-
-Die Player-Rotation ist eine bewusst kuratierte Auswahl.
-
-Sie darf erklärt werden.
-
-Sie darf reflektiert werden.
-
-Sie darf zukünftig intelligent unterstützt werden.
-
-Empfehlungen beziehen sich ausschließlich auf diese Ebene.
+- Player Rotation
 
 ---
 
-# Nächste Entwicklungsphase
+## Player Rotation
 
-## Phase VII
+The Player Rotation is a consciously curated selection.
+
+It may be explained.
+
+It may be reflected upon.
+
+It may later be intelligently supported.
+
+Recommendations refer exclusively to this layer.
+
+---
+
+# Next Development Phase
+
+## Phase VIII
 
 From Dashboard to Companion
 
-Rotation entwickelt sich von einer Sammlung hin zu einem musikalischen Begleiter.
+Rotation evolves from a collection toward a musical companion.
 
 ---
 
-# Sprint 57 — Klassiker- und Archivlogik überarbeiten
+# Sprint 57 — Classic & Archive Logic Rework
 
-**Status:** Abgeschlossen
+**Status:** Completed
 
-**Zielversion:** `v0.18.0-dev`
+**Target version:** `v0.18.0-dev`
 
-## Ergebnis
+## Result
 
-- Neuer Album Coach: deterministischer Baum mit 8 möglichen Fragen, keine Pflicht-Fragenkette mehr
-- Classic hat Vorrang vor comfort-food und growing (prägende Wirkung als primäres Signal)
-- Archivschutz: `hasBiographicPlace` statt `wouldRecommend` — persönliche Klassiker bleiben geschützt
-- Partielle Antworten: `AlbumCoachAnswers = Partial<AlbumCoachAnswerValues>`
-- Rollendefinitionen präzisiert: `classic` = dauerhaft prägend, `admire` = musikalisch geschätzt ohne Nähe, `archive` = darf ruhen
-- Details im [CHANGELOG](CHANGELOG.md)
+- New Album Coach: deterministic tree with 8 possible questions, no mandatory question chain anymore
+- Classic has priority over comfort-food and growing (formative effect as primary signal)
+- Archive protection: `hasBiographicPlace` instead of `wouldRecommend` — personal classics remain protected
+- Partial answers: `AlbumCoachAnswers = Partial<AlbumCoachAnswerValues>`
+- Role definitions refined: `classic` = permanently formative, `admire` = musically valued without closeness, `archive` = may rest
+- Details in [CHANGELOG](CHANGELOG.md)
 
 ---
-# Sprint 58 — Self Hosted Rotation
 
-## Status: Geplant
+# Sprint 58 — Self-Hosted Rotation
 
-## Zielversion: v0.19.x-dev
+**Status:** Completed
 
-## Ziel
+**Target version:** `v0.19.x-dev` → `v0.20.x-dev`
 
-Rotation wird erstmals unabhängig vom lokalen Entwicklungsrechner betrieben.
-Die Anwendung kann auf einem Server laufen und von mehreren Geräten im Heimnetz oder Internet genutzt werden.
-Dabei bleiben alle Produktprinzipien erhalten.
-Die bestehende Bibliothek kann vollständig übernommen werden.
+## Goal
+
+Rotation is operated independently from the local development machine for the first time.
+The application can run on a server and be used by multiple devices on the home network or internet.
+All product principles are preserved.
+The existing library can be fully adopted.
 
 ## 58A — Deployment Foundation
 
-### Ziel
+### Goal
 
-Rotation wird produktionsfähig gebaut.
+Rotation is built production-ready.
 
-Nicht mehr nur npm run dev.
+No longer just npm run dev.
 
-### Themen
+### Topics
 
-* Production Build
-* Dockerfile
-* Docker Compose
-* nginx oder Caddy als Webserver
-* Environment-Konfiguration
-* Healthcheck
-* Persistentes Datenverzeichnis vorbereiten
+- Production Build
+- Dockerfile
+- Docker Compose
+- nginx or Caddy as webserver
+- Environment configuration
+- Healthcheck
+- Persistent data directory prepared
 
-### Ergebnis
-Rotation läuft per docker compose up im Browser.
-Noch vollständig lokal.
-Keine Datenbank.
-Keine API.
+### Result
+Rotation runs via docker compose up in the browser.
+Still completely local.
+No database.
+No API.
 
-### Nicht Bestandteil
-* Benutzerverwaltung
-* Datenbank
-* Migration
+### Not included
+- User management
+- Database
+- Migration
 
 
 ## 58B — Server Persistence
 
-### Ziel
-Die Browser-Persistenz wird durch eine echte Serverpersistenz ergänzt.
-Die Architektur bleibt Repository-basiert.
+### Goal
+Browser persistence is supplemented by real server persistence.
+The architecture remains repository-based.
 
-### Architektur
+### Architecture
 
-#### Heute:
+#### Today:
 React
 ↓
 StorageAdapter
 ↓
 localStorage
 
-#### Neu:
+#### New:
 React
 ↓
 Repository
@@ -320,97 +321,97 @@ Persistence Service
 ↓
 SQLite
 
-SQLite halte ich für den perfekten ersten Schritt.
+SQLite is the perfect first step.
 
-Warum?
-* keine Serverinstallation
-* Backups trivial
-* Dockerfreundlich
-* Millionenfach bewährt
-* später problemlos auf PostgreSQL migrierbar
+Why?
+- No server installation
+- Trivial backups
+- Docker-friendly
+- Proven millions of times over
+- Later easily migratable to PostgreSQL
 
-### Themen
+### Topics
 
 #### Backend
-* kleines Node Backend
-* REST API
-* Repository Layer
-* SQLite
+- Small Node backend
+- REST API
+- Repository Layer
+- SQLite
 
 #### Frontend
-* ApiStorageAdapter
-* bestehende Repository Interfaces weiterverwenden
+- ApiStorageAdapter
+- Reuse existing Repository Interfaces
 
-### Ergebnis
-Die Anwendung arbeitet vollständig gegen eine Datenbank.
+### Result
+The application works completely against a database.
 
-### Nicht Bestandteil
-Noch keine Benutzer.
+### Not included
+No users yet.
 
 
-## 58C — Datenmigration
+## 58C — Data Migration
 
-### Ziel
-Bestehende lokale Bibliotheken übernehmen.
+### Goal
+Adopt existing local libraries.
 
-### Import-Assistent
-Beim ersten Start erkennt Rotation:
-Es existieren lokale Daten.
-Der Nutzer bekommt: Möchtest du deine Bibliothek übernehmen?
+### Import Assistant
+On first start Rotation detects:
+Local data exists.
+The user gets: Would you like to adopt your library?
 
-Importiert werden:
-* Alben
-* Storys
-* Role History
-* Listening History
-* Rotation Plans
-* Reflection
-* Cover Overrides
+Imported:
+- Albums
+- Stories
+- Role History
+- Listening History
+- Rotation Plans
+- Reflection
+- Cover Overrides
 
-Danach werden lokale Daten optional gelöscht.
+Afterward local data is optionally deleted.
 
 ### Cover Migration
-Besonders wichtig.
-Heute liegen Cover
-* localStorage
-* IndexedDB
-Später
+Especially important.
+Today covers live in
+- localStorage
+- IndexedDB
+Later
 SQLite + Filesystem
-oder
+or
 SQLite + Blob Storage
-Ich würde nicht in der Datenbank speichern.
+I would not store in the database.
 
-Sondern:
+Instead:
 /covers/
 album-id.webp
-Die DB enthält nur den Pfad.
+The DB only contains the path.
 
-Ergebnis
-Bestehende Installationen können vollständig migrieren.
+Result
+Existing installations can fully migrate.
 
 ## 58D — Home Server Edition
 
-### Ziel
-Rotation fühlt sich wie eine “echte” Anwendung an.
+### Goal
+Rotation feels like a "real" application.
 
-### Themen
-* Automatische Backups -> backup/rotation-2026-08-31.sqlite
-* Export -> rotation-backup.zip
-* Import -> rotation-backup.zip
-* Healthcheck -> /health
-* Docker Volumes
-* Konfiguration
-* .env
+### Topics
+- Automatic backups -> backup/rotation-2026-08-31.sqlite
+- Export -> rotation-backup.zip
+- Import -> rotation-backup.zip
+- Healthcheck -> /health
+- Docker Volumes
+- Configuration
+- .env
 
-### Ergebnis
-Rotation kann dauerhaft auf einem NAS,
-Mini-PC,
+### Result
+Rotation can run permanently on a NAS,
+mini PC,
 Raspberry Pi
-oder Heimserver laufen.
+or home server.
 
-## Architekturziel
+## Architecture Goal
 
-Nach Sprint 58 sieht Rotation ungefähr so aus:
+After Sprint 58 Rotation looks approximately like this:
 
                 Browser
                     │
@@ -418,181 +419,203 @@ Nach Sprint 58 sieht Rotation ungefähr so aus:
                     │
            Repository Pattern
                     │
-             REST API Layer
+              REST API Layer
                     │
-         Persistence Service
-         ├───────────────┐
-         │               │
-      SQLite        Cover Storage
-                        │
-                 Original Covers
-                 Custom Covers
-                 Cache
+          Persistence Service
+          ├───────────────┐
+          │               │
+       SQLite        Cover Storage
+                         │
+                  Original Covers
+                  Custom Covers
+                  Cache
 
 ⸻
 
 ## Definition of Done
-* Rotation läuft vollständig in Docker
-* Anwendung ist ohne Entwicklungsserver nutzbar
-* SQLite ersetzt Browser-Persistenz
-* Repository-Pattern bleibt erhalten
-* Bestehende lokale Bibliothek kann vollständig migriert werden
-* Cover werden übernommen
-* Backups sind möglich
-* Restore ist möglich
-* Dokumentation für Self Hosting vorhanden
+- Rotation runs completely in Docker
+- Application is usable without development server
+- SQLite replaces browser persistence
+- Repository Pattern is preserved
+- Existing local library can be fully migrated
+- Covers are adopted
+- Backups are possible
+- Restore is possible
+- Documentation for Self Hosting available
 
-## Sprint-Abschluss
+## Sprint Conclusion
 
-### ADR 011 – Rotation wird serverfähig
-Darin sollte festgehalten werden:
-* Warum SQLite als erste Datenbank gewählt wurde.
-* Warum REST statt direkter DB-Zugriffe.
-* Warum Cover als Dateien statt als BLOBs gespeichert werden.
-* Warum Single User bewusst Teil der Produktphilosophie ist.
+### ADR 011 — Rotation becomes server-capable
+This should document:
+- Why SQLite was chosen as the first database.
+- Why REST instead of direct DB access.
+- Why covers are stored as files instead of BLOBs.
+- Why Single User is consciously part of the product philosophy.
 
-### Abschluss
-* changelog
-* roadmap
-* version+
-* git-commit
+### Conclusion
+- changelog
+- roadmap
+- version+
+- git-commit
 
 
 # Sprint 59 — Story-driven Insights
-**Status:** Geplant
-**Zielversion:** `v0.19.0-dev`
+**Status:** Completed
+**Target version:** `v0.19.0-dev`
 
-## Ziel
-Rotation kann persönliche Albumgeschichten später vorsichtig in Insights einbeziehen.
-Nicht als Statistik.
-Sondern als sprachliche Beobachtung.
+## Goal
+Rotation can carefully incorporate personal album stories into Insights later.
+Not as statistics.
+But as linguistic observation.
 
-## Beispiele
+## Examples
 
-Viele deiner wichtigsten Alben kamen über Empfehlungen in deine Sammlung.
-Mehrere Klassiker begleiten dich seit deiner Studienzeit.
-Einige archivierte Alben wirken eher wie Erinnerungsstücke als wie aktive Rotation.
+Many of your most important albums came into your collection through recommendations.
+Several classics have accompanied you since your student days.
+Some archived albums feel more like mementos than active rotation.
 
-## Nicht Bestandteil
-* keine Diagramme
-* keine Scores
-* keine Auswertungspflicht
-* keine Bewertung persönlicher Erinnerungen
-
-
-
----
+## Not included
+- No diagrams
+- No scores
+- No evaluation obligation
+- No evaluation of personal memories
 
 
-# Sprint 60 - Search & Discovery
-
-## Ziel
-Große Bibliotheken besser erschließen.
-
-## Themen
-- Bibliothek durchsuchen
-- intelligente Filter
-- schnelle Navigation
-- vorbereitete Smart Collections
 
 ---
 
-# Sprint 61
 
-## Platform Foundation
+# Sprint 60 — Internationalization (i18n) & Documentation Sprint
+**Status:** Completed
+**Target version:** `v0.21.0-dev`
 
-### Ziel
+## Goal
+Rotation becomes accessible in English and German.
+All user-facing UI strings are internationalized via a type-safe i18n system.
+All product documentation is translated to English.
+Legacy German strings in the domain layer are identified as a known follow-up item.
 
-Vorbereitung einer nativen Anwendung.
+## Result
+- Complete i18n system: DE/EN locale files with full type safety.
+- React Context + Hook: `I18nContext` provides `locale`, `setLocale`, and `t()`.
+- Language switcher: Globe icon in the header toolbar.
+- All UI components internationalized.
+- Persistent language preference in `localStorage`.
+- All `/docs` translated to English.
+- Domain strings (coach questions, archive questions, role explanations) remain in German as a known follow-up.
+- No new dependencies.
 
-### Themen
+---
 
-- PWA
-- iOS
-- Android
-- Offline First
-- Synchronisation vorbereiten
+# Sprint 61 - Search & Discovery
+
+## Goal
+Better access to large libraries.
+
+## Topics
+- Search library
+- Intelligent filters
+- Quick navigation
+- Prepared Smart Collections
 
 ---
 
 # Sprint 62
 
-## Native Prototype
+## Platform Foundation
 
-Erste lauffähige mobile Version.
+### Goal
 
----
+Preparation of a native application.
 
-# Phase VIII
+### Topics
 
-## Musical Companion
-
-Rotation entwickelt sich vom Werkzeug zum Begleiter.
+- PWA
+- iOS
+- Android
+- Offline First
+- Prepare synchronization
 
 ---
 
 # Sprint 63
 
-## Weekly Reflection
+## Native Prototype
 
-Wöchentliche Rückblicke.
+First runnable mobile version.
 
-Nicht Statistiken.
+---
 
-Sondern Geschichten.
+# Phase IX
+
+## Musical Companion
+
+Rotation evolves from tool to companion.
 
 ---
 
 # Sprint 64
 
-## Listening Patterns
+## Weekly Reflection
 
-Rotation erkennt langfristige Entwicklungen.
+Weekly reviews.
 
-Beispiele
+Not statistics.
 
-- Du hörst wieder mehr Jazz.
-
-- Viele Alben wechseln gerade ihre Rolle.
-
-- Deine Klassiker verändern sich kaum.
-
-Keine Bewertung.
-
-Nur Beobachtung.
+But stories.
 
 ---
 
 # Sprint 65
 
-## Explainability 2.0
+## Listening Patterns
 
-Die Player-Rotation wird vollständig nachvollziehbar.
+Rotation recognizes long-term developments.
 
-Der Nutzer versteht jederzeit:
+Examples
 
-- warum ein Album gewählt wurde
+- You are listening to more jazz again.
 
-- welche Rolle es erfüllt
+- Many albums are currently changing their role.
 
-- welche Geschichte die Rotation erzählt
+- Your classics change hardly at all.
+
+No evaluation.
+
+Only observation.
 
 ---
 
-# Langfristige Vision
+# Sprint 66
 
-Rotation soll sich niemals wie eine Datenbank anfühlen.
+## Explainability 2.0
 
-Rotation soll sich niemals wie Spotify anfühlen.
+The Player Rotation becomes fully traceable.
 
-Rotation soll sich niemals wie ein Statistiktool anfühlen.
+The user understands at all times:
 
-Rotation soll sich anfühlen wie ein Gespräch über Musik.
+- why an album was chosen
 
-Ein Album ist keine Datei.
+- which role it fulfills there
 
-Ein Album ist eine Geschichte.
+- which story the rotation tells
 
-Rotation hilft dabei,
+---
 
-diese Geschichten über viele Jahre bewusst zu begleiten.
+# Long-term Vision
+
+Rotation should never feel like a database.
+
+Rotation should never feel like Spotify.
+
+Rotation should never feel like a statistics tool.
+
+Rotation should feel like a conversation about music.
+
+An album is not a file.
+
+An album is a story.
+
+Rotation helps
+
+consciously accompany these stories over many years.

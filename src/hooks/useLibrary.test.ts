@@ -31,13 +31,13 @@ describe("useLibrary", () => {
         vi.clearAllMocks()
     })
 
-    it("sollte ein leeres Album-Array laden, wenn nichts gespeichert ist", () => {
+    it("should load an empty album array when nothing is stored", () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
         expect(result.current.albums).toEqual([])
     })
 
-    it("sollte ein Album hinzufuegen", () => {
+    it("should add an album", () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
         const album: Album = {
@@ -56,7 +56,7 @@ describe("useLibrary", () => {
         expect(result.current.albums[0].title).toBe("Test Album")
     })
 
-    it("sollte ein Album loeschen", async () => {
+    it("should delete an album", async () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
         const album: Album = {
@@ -77,7 +77,7 @@ describe("useLibrary", () => {
         expect(result.current.albums).toHaveLength(0)
     })
 
-    it("sollte ein Album aktualisieren", () => {
+    it("should update an album", () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
         const album: Album = {
@@ -101,7 +101,7 @@ describe("useLibrary", () => {
         expect(result.current.albums[0].title).toBe("Updated Title")
     })
 
-    it("sollte Cover-Cache invalidieren wenn sich coverUrl aendert", async () => {
+    it("should invalidate cover cache when coverUrl changes", async () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
         const album: Album = {
@@ -126,7 +126,7 @@ describe("useLibrary", () => {
         expect(clearCoverCache).toHaveBeenCalledWith("test-1")
     })
 
-    it("sollte Cover-Cache NICHT invalidieren wenn coverUrl gleich bleibt", async () => {
+    it("should NOT invalidate cover cache when coverUrl stays the same", async () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
         const album: Album = {
@@ -152,7 +152,7 @@ describe("useLibrary", () => {
         expect(clearCoverCache).not.toHaveBeenCalled()
     })
 
-    it("sollte die Album-Rolle aktualisieren", () => {
+    it("should update the album role", () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
         const album: Album = {
@@ -174,7 +174,7 @@ describe("useLibrary", () => {
         expect(result.current.albums[0].roleHistory).toHaveLength(1)
     })
 
-    it("sollte einen Listen-Event loggen", () => {
+    it("should log a listen event", () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
         const album: Album = {
@@ -196,7 +196,7 @@ describe("useLibrary", () => {
         expect(result.current.albums[0].lastListened).not.toBeNull()
     })
 
-    it("sollte das Fokusalbum setzen", () => {
+    it("should set the focus album", () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
         act(() => {
@@ -206,7 +206,7 @@ describe("useLibrary", () => {
         expect(adapter.get(STORAGE.FOCUS_ALBUM)).toBe("album-1")
     })
 
-    it("sollte legacy Daten normalisieren", () => {
+    it("should normalize legacy data", () => {
         const adapter = makeAdapter()
         const legacyAlbum = {
             id: "legacy-1",
@@ -221,7 +221,7 @@ describe("useLibrary", () => {
         expect(result.current.albums[0].lastListened).toBeNull()
     })
 
-    it("sollte ein Cover-Override setzen", async () => {
+    it("should set a cover override", async () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
         const album: Album = {
@@ -249,7 +249,7 @@ describe("useLibrary", () => {
         expect(updated.coverOverride?.albumId).toBe("test-1")
     })
 
-    it("sollte ein Cover-Override entfernen", async () => {
+    it("should remove a cover override", async () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
         const album: Album = {

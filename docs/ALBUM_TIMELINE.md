@@ -1,32 +1,37 @@
 # Album Timeline
 
-Die Album Timeline macht sichtbar, was Rotation bereits ueber ein Album weiss.
+The Album Timeline makes visible what Rotation already knows about an album.
 
-Sie ist keine Statistik. Sie ist eine kleine Chronik der Beziehung zu einem Album.
+It is not a statistic. It is a small chronicle of the relationship with an album.
 
-## Aktueller Umfang
+## Current Scope
 
-Sprint 40 zeigt die Timeline fuer das aktuelle Album.
+Sprint 40 introduced the timeline for the active album.
 
-Die Timeline erzeugt Ereignisse aus:
+The timeline generates events from:
 
 - `roleHistory`
-- `lastListened`
-- `listenCount`
+- `listenEvents`
+- `story` (Sprint 55)
 
-## Ereignisse
+## Events
 
-Aktuelle Event-Typen:
+Current event types:
 
-- `role-assigned`: Eine Rolle wurde durch Coach, Reflection oder Archiv Workflow gesetzt.
-- `listened`: Das Album wurde zuletzt gehoert.
+- `role-assigned`: A role was set by Coach, Reflection, or Archive Workflow.
+- `listened`: The album was listened to.
+- `story-created`: The album story was first documented (Sprint 55).
+- `story-updated`: The album story was edited.
 
-Die Timeline wird neueste zuerst sortiert.
+The timeline is sorted newest first.
 
-## Bewusste Grenze
+## Conscious Limit
 
-Rotation speichert noch keine vollstaendige Hoersession-Historie.
+Rotation stores a full listening session history since Sprint 46.
 
-Deshalb zeigt die Timeline aktuell nur den letzten Hoermoment und die Gesamtzahl der dokumentierten Hoersessions.
+The timeline shows individual listening sessions with ordinal numbers:
+- "First listen"
+- "Last listen"
+- "Session N"
 
-Eine echte Session-Historie gehoert in einen spaeteren Sprint oder in den Persistenz-Schnitt.
+Before Sprint 46, the timeline only showed the last listening moment and the total number of documented listening sessions.

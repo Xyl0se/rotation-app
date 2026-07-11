@@ -3,13 +3,9 @@ import type {
 } from "./evaluateArchiveProtection"
 
 export interface ArchiveProtectionQuestion {
-
     id: ArchiveProtectionQuestionId
-
     title: string
-
     description: string
-
 }
 
 export const archiveProtectionQuestions:
@@ -17,41 +13,24 @@ export const archiveProtectionQuestions:
         ArchiveProtectionQuestionId,
         ArchiveProtectionQuestion
     > = {
-
     hasBiographicPlace: {
-
         id: "hasBiographicPlace",
-
-        title:
-            "Hat dieses Album einen dauerhaften Platz in deiner musikalischen Biografie?",
-
+        title: "Does this album have a permanent place in your musical biography?",
         description:
-            "Ein persönlicher Klassiker kann aktuell ruhen und trotzdem ein Klassiker bleiben.",
-
+            "A personal classic can rest currently and still remain a classic.",
     },
 
     stillReturningConsciously: {
-
         id: "stillReturningConsciously",
-
-        title:
-            "Kehrst du heute noch bewusst zu diesem Album zurück?",
-
+        title: "Do you still consciously return to this album today?",
         description:
-            "Wenn du noch aktiv dorthin greifst, ist es vielleicht Bewunderung statt Archiv.",
-
+            "If you still actively reach for it, perhaps it's admiration rather than archive.",
     },
 
     musicallyValued: {
-
         id: "musicallyValued",
-
-        title:
-            "Schätzt du es musikalisch weiterhin sehr?",
-
+        title: "Do you still value it musically very much?",
         description:
-            "Hohe musikalische Wertschätzung reicht für Bewunderung, auch ohne aktive Rückkehr.",
-
+            "High musical appreciation is enough for admiration, even without active return.",
     },
-
 }

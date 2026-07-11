@@ -1,6 +1,6 @@
 /**
- * Ermittelt die URL des Frontcovers
- * für eine MusicBrainz Release-ID.
+ * Determines the URL of the front cover
+ * for a MusicBrainz release ID.
  */
 export function getCoverUrl(
 

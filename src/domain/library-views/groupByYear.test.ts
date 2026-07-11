@@ -78,7 +78,7 @@ describe("groupByYear", () => {
         expect(result).toHaveLength(3)
         expect(result[0].title).toBe("2024")
         expect(result[1].title).toBe("1971")
-        expect(result[2].title).toBe("Unbekannt")
+        expect(result[2].title).toBe("Unknown")
         expect(result[2].albums).toHaveLength(1)
 
     })

@@ -6,7 +6,7 @@ import Dialog from "../../ui/Dialog"
 import StepIndicator from "../../ui/StepIndicator"
 import Button from "../../ui/Button"
 import { searchAlbum } from "../../../services/music/albumMetadata"
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 type DiscoverStep = "title" | "artist" | "metadata" | "year"
 
@@ -83,14 +83,8 @@ function DiscoverAlbumDialog({
         }
     }
 
-    function handleClose() {
-        onClose()
-        setCurrentStepIndex(0)
-        setMetadataState("idle")
-    }
-
     return (
-        <Dialog open={open}>
+        <Dialog open={open} onClose={onClose}>
             <div className="discover-album-dialog">
                 <StepIndicator
                     current={currentStepIndex}

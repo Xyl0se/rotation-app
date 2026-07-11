@@ -1,13 +1,17 @@
-# 001 - Product Name
+# ADR 001: Product Name
 
-## Entscheidung
+## Status
 
-Das Produkt heisst `Rotation`.
+Accepted
 
-## Begruendung
+## Decision
 
-Der Name beschreibt nicht eine Sammlung, sondern eine aktive Beziehung zu Alben. Er laesst Raum fuer Hoeren, Wiederkehren, Pausieren und Archivieren.
+The product is called `Rotation`.
 
-## Konsequenz
+## Rationale
 
-UI-Texte und Dokumentation sprechen bevorzugt von Rotation statt von Musikverwaltung, Collection oder Library. Der technische Begriff `Library` darf fuer Codebereiche bestehen bleiben, sollte aber nicht die Produktsprache dominieren.
+The name does not describe a collection, but an active relationship with albums. It leaves room for listening, returning, pausing, and archiving.
+
+## Consequence
+
+UI texts and documentation prefer the term Rotation over music management, collection, or library. The technical term `Library` may remain for code areas but should not dominate the product language.

@@ -11,12 +11,12 @@ import {
 } from "./schemaVersion"
 
 /**
- * Führt alle nötigen Datenmigrationen aus,
- * wenn die gespeicherte Schema-Version älter ist
- * als die aktuelle.
+ * Runs all necessary data migrations
+ * when the stored schema version is older
+ * than the current one.
  *
- * Schema-Version wird nur nach erfolgreichem Abschluss
- * aller ausstehenden Migrationen aktualisiert.
+ * Schema version is only updated after successful completion
+ * of all pending migrations.
  */
 export function runMigrations(adapter: StorageAdapter): void {
     const storedVersion = getStoredSchemaVersion(adapter)
@@ -31,12 +31,12 @@ export function runMigrations(adapter: StorageAdapter): void {
 }
 
 /**
- * Migration von unversionierten Daten (vor v0.11.0-dev).
+ * Migration from unversioned data (before v0.11.0-dev).
  *
- * Durchgeführte Migrationen:
- * - isCurrent → Fokusalbum-ID
- * - Legacy listenCount/lastListened bleibt erhalten,
- *   wird später von useListenEvents migriert
+ * Performed migrations:
+ * - isCurrent → focus album ID
+ * - Legacy listenCount/lastListened is preserved,
+ *   will be migrated later by useListenEvents
  */
 export function migrateFromUnversioned(adapter: StorageAdapter): void {
     const raw = adapter.get(STORAGE.LIBRARY)
@@ -58,16 +58,17 @@ export function migrateFromUnversioned(adapter: StorageAdapter): void {
 }
 
 /**
- * Migration für Schema-Version 2 (v0.17.0-dev).
+ * Migration for schema version 2 (v0.17.0-dev).
  *
- * Album Story wurde als optionales Feld eingeführt.
- * Alte Alben ohne Story bleiben gültig.
- * Diese Migration ist formal — die Repository-Normalisierung
- * filtert ungültige Story-Daten bereits beim Laden.
+ * Album Story was introduced as an optional field.
+ * Old albums without Story remain valid.
+ * This migration is formal — the repository normalization
+ * already filters invalid Story data on load.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function migrateToSchemaV2(_adapter: StorageAdapter): void {
-    // Keine Datenmigration nötig.
-    // Story ist optional; ungültige Daten werden von normalizeAlbum verworfen.
+    // No data migration needed.
+    // Story is optional; invalid data is discarded by normalizeAlbum.
 }
 
 // Register all migrations in this module.

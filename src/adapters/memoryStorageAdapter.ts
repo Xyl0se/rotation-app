@@ -1,9 +1,9 @@
 import type { StorageAdapter } from "./storageAdapter"
 
 /**
- * In-Memory-Adapter für Tests und Storybook.
- * Hält alle Werte in einem internen Map und geht
- * bei Tab-Wechsel oder Reload verloren.
+ * In-memory adapter for tests and Storybook.
+ * Keeps all values in an internal Map and is lost
+ * on tab switch or reload.
  */
 export function createMemoryStorageAdapter(): StorageAdapter {
     const store = new Map<string, string>()

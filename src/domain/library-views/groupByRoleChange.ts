@@ -8,12 +8,12 @@ import {
 } from "./categorizeRecency"
 
 /**
- * Gruppiert Alben nach der letzten Einordnung (Role History).
+ * Groups albums by the last role assignment (Role History).
  *
- * Nutzt den neuesten `recordedAt`-Eintrag in `album.roleHistory`.
- * Alben ohne History landen in "Noch keine Einordnung".
+ * Uses the most recent `recordedAt` entry in `album.roleHistory`.
+ * Albums without history land in "No classification yet".
  *
- * Gruppen: Heute → Diese Woche → Dieser Monat → Dieses Jahr → Länger her → Noch keine Einordnung
+ * Groups: Today → This Week → This Month → This Year → Longer ago → No classification yet
  */
 export function groupByRoleChange(
     albums: Album[],
@@ -38,13 +38,13 @@ export function groupByRoleChange(
         }
     }
 
-    // Feste Reihenfolge via recencyGroups, mit angepasstem Label für "never"
+    // Fixed order via recencyGroups, with adjusted label for "never"
     return recencyGroups
         .filter(group => categorized.has(group.key))
         .map(group => {
             const groupAlbums = categorized.get(group.key)!
 
-            // Innerhalb der Gruppe: neueste Einordnung zuerst
+            // Within the group: most recent role assignment first
             groupAlbums.sort((a, b) => {
                 const aDate = a.roleHistory
                     .slice()
@@ -62,7 +62,7 @@ export function groupByRoleChange(
             return {
                 key: group.key,
                 title: group.key === "never"
-                    ? "Noch keine Einordnung"
+                    ? "No classification yet"
                     : group.title,
                 albums: groupAlbums,
             }

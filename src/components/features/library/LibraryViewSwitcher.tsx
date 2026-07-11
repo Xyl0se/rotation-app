@@ -1,4 +1,4 @@
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 export type MainViewMode = "all" | "roles" | "perspectives"
 export type PerspectiveMode = "artist" | "year" | "lastListened" | "roleChange"

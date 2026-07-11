@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from "react"
 import type { Album } from "../../../types/album"
 
 import AlbumCover from "../../ui/AlbumCover"
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 type AlbumCardProps = {
 

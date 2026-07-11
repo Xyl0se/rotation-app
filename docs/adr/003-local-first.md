@@ -1,18 +1,24 @@
-# 003 - Local First
+# ADR 003: Local First
 
-## Entscheidung
+## Status
 
-Rotation speichert den aktuellen Produktkern lokal im Browser.
+Accepted (superseded by Sprint 58 — see `ARCHITECTURE.md`)
 
-## Begruendung
+## Decision
 
-Der fruehe Produktwert entsteht ohne Benutzerkonto, Server oder Synchronisierung. Local-first haelt die Anwendung leicht, privat und schnell testbar.
+Rotation stores the current product core locally in the browser.
 
-## Konsequenz
+## Rationale
 
-`localStorage` ist aktuell die persistente Quelle fuer:
+Early product value emerges without user account, server, or synchronization. Local-first keeps the application light, private, and quickly testable.
 
-- Onboarding-Status
-- Album-Bibliothek
+## Consequence
 
-Spaetere Migrationen zu IndexedDB, Export/Import oder Cloud-Sync muessen die lokale Bibliothek respektieren und migrierbar halten.
+`localStorage` is currently the persistent source for:
+
+- Onboarding status
+- Album library
+
+Later migrations to IndexedDB, export/import, or cloud sync must respect the local library and keep it migratable.
+
+> **Update Sprint 58:** The deployment foundation uses Docker with Caddy as a static web server. The app remains local-first in the browser — there is still no server-side backend or database.

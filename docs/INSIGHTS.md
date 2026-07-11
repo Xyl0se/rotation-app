@@ -1,39 +1,39 @@
 # Insights
 
-Insights sind keine Analytics.
+Insights are not analytics.
 
-Sie sind kurze Beobachtungen darueber, was die aktuelle Sammlung ueber das Hoeren erzaehlt.
+They are short observations about what the current collection tells about listening.
 
-## Ziel
+## Goal
 
-Rotation soll nicht nur zaehlen, sondern kleine Erkenntnisse formulieren.
+Rotation should not only count, but formulate small insights.
 
-Ein Insight klingt deshalb wie:
+An insight therefore sounds like:
 
-> Du bist gerade in einer Entdeckungsphase.
+> You are currently in a discovery phase.
 
-Nicht wie:
+Not like:
 
-> 42 Prozent deiner Alben sind new oder growing.
+> 42 percent of your albums are new or growing.
 
-## Aktuelle Insights
+## Current Insights
 
-- `building-library`: Die Sammlung ist noch zu klein fuer belastbare Muster.
-- `discovery-phase`: Viele Alben sind neu oder wachsen noch.
-- `archive-heavy`: Ein spuerbarer Teil der Sammlung ruht.
-- `comfort-heavy`: Comfort-Food-Alben nehmen viel Raum ein.
-- `classic-core`: Die Sammlung hat einen klaren Klassiker-Kern.
+- `building-library`: The collection is still too small for reliable patterns.
+- `discovery-phase`: Many albums are new or still growing.
+- `archive-heavy`: A noticeable part of the collection is resting.
+- `comfort-heavy`: Comfort-food albums take up a lot of space.
+- `classic-core`: The collection has a clear classic core.
 
-## Regeln
+## Rules
 
-- Unter 3 Alben zeigt Rotation nur einen Aufbauzustand.
-- `new + growing` ab 40 Prozent: Entdeckungsphase.
-- `archive` ab 30 Prozent: Archiv-Schwerpunkt.
-- `comfort-food` ab 30 Prozent: Vertrautheitsphase.
-- `classic` ab 5 Alben oder 20 Prozent: Klassiker-Kern.
+- Under 3 albums Rotation only shows a building state.
+- `new + growing` from 40 percent: discovery phase.
+- `archive` from 30 percent: archive focus.
+- `comfort-food` from 30 percent: familiarity phase.
+- `classic` from 5 albums or 20 percent: classic core.
 
-## Produktgrenze
+## Product Limit
 
-Sprint 41 bringt keine Charts, Jahresdekaden oder Artist-Auswertungen.
+Sprint 41 brings no charts, year decades, or artist evaluations.
 
-Diese Themen gehoeren in spaetere Insights- oder Dashboard-Sprints.
+These topics belong in later insights or dashboard sprints.

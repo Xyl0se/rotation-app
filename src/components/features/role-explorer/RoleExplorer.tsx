@@ -6,7 +6,7 @@ import { createRoleOverview } from "../../../domain/roles/roleOverview"
 
 import { getRoleEmptyMessage } from "../../../domain/roles/roleEmptyMessages"
 
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 type RoleExplorerProps = {
     albums: Album[]
@@ -56,7 +56,7 @@ function RoleExplorer({ albums, onSelectRole }: RoleExplorerProps) {
 
                         {overview.isEmpty ? (
                             <p className="role-card-empty">
-                                {getRoleEmptyMessage(overview.role.id)}
+                                {getRoleEmptyMessage(overview.role.id, t)}
                             </p>
                         ) : (
                             <div className="role-card-previews">

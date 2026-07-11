@@ -3,9 +3,9 @@ import type { Album } from "../../types/album"
 import type { LibraryGroup } from "./libraryGroup"
 
 /**
- * Gruppiert Alben alphabetisch nach Künstler.
+ * Groups albums alphabetically by artist.
  *
- * Alben ohne Künstler landen in der Gruppe „Unbekannt".
+ * Albums without an artist land in the group "Unknown".
  */
 export function groupByArtist(albums: Album[]): LibraryGroup[] {
     const groups = new Map<string, Album[]>()
@@ -22,7 +22,7 @@ export function groupByArtist(albums: Album[]): LibraryGroup[] {
     }
 
     const sortedKeys = Array.from(groups.keys()).sort((a, b) => {
-        // "unknown" immer ans Ende
+        // Always sort "unknown" to the end
         if (a === "unknown") return 1
         if (b === "unknown") return -1
         return a.localeCompare(b, "de")
@@ -31,14 +31,14 @@ export function groupByArtist(albums: Album[]): LibraryGroup[] {
     return sortedKeys.map(key => {
         const groupAlbums = groups.get(key)!
 
-        // Innerhalb der Gruppe alphabetisch nach Titel sortieren
+        // Within the group: sort alphabetically by title
         groupAlbums.sort((a, b) =>
             a.title.localeCompare(b.title, "de"),
         )
 
         return {
             key,
-            title: key === "unknown" ? "Unbekannt" : key,
+            title: key === "unknown" ? "Unknown" : key,
             albums: groupAlbums,
         }
     })

@@ -1,32 +1,32 @@
-# ADR 006: Identity Refresh — Design System als verbindliche Grundlage
+# ADR 006: Identity Refresh — Design System as Binding Foundation
 
 ## Status
 
-Akzeptiert
+Accepted
 
-## Kontext
+## Context
 
-Rotation wuchs organisch. Farben, Abstaende, Schatten und Radien entstanden situativ. Die Oberflaeche fuehlte sich an wie zusammengewachsener Code, nicht wie ein durchgestaltetes Produkt.
+Rotation grew organically. Colors, spacing, shadows, and radii emerged situationally. The interface felt like grown-together code, not like a designed product.
 
-Sprint 46.5 sollte Rotation erstmals eine eigenstaendige visuelle Identitaet geben.
+Sprint 46.5 was meant to give Rotation a distinct visual identity for the first time.
 
-## Entscheidung
+## Decision
 
-Rotation erhaelt ein verbindliches Design System. Alle bestehenden und neuen Komponenten muessen sich an dessen Regeln orientieren.
+Rotation receives a binding Design System. All existing and new components must orient themselves to its rules.
 
-Das Design System definiert:
-- Farbpalette (warm, reduziert, nicht bunt)
-- Typografische Hierarchie (lesbar, nicht dekorativ)
-- Spacing-System (rhythmisch, nicht willkuerlich)
-- Komponentenregeln (Buttons, Cards, Dialoge, Formulare)
-- Motion Guidelines (dezent, nicht auffaellig)
+The Design System defines:
+- Color palette (warm, reduced, not colorful)
+- Typographic hierarchy (readable, not decorative)
+- Spacing system (rhythmic, not arbitrary)
+- Component rules (buttons, cards, dialogs, forms)
+- Motion guidelines (subtle, not conspicuous)
 
-Die Umsetzung ist keine pixelgenaue Nachbildung, sondern eine konsequente Uebersetzung der Prinzipien in Code.
+The implementation is not a pixel-perfect replica, but a consistent translation of the principles into code.
 
-## Konsequenzen
+## Consequences
 
-- `docs/DESIGN_SYSTEM.md` ist waehrend der gesamten Entwicklung verbindliche Grundlage.
-- Farben stammen ausschliesslich aus dem Design System.
-- Buttons, Cards, Dialoge und Formulare besitzen eine einheitliche Formsprache.
-- Animationen sind dezent und einheitlich.
-- Neue Features duerfen nicht mit ad-hoc-Styles arbeiten.
+- `docs/DESIGN_SYSTEM.md` is a binding foundation throughout the entire development.
+- Colors come exclusively from the Design System.
+- Buttons, cards, dialogs, and forms have a uniform design language.
+- Animations are subtle and uniform.
+- New features must not work with ad-hoc styles.

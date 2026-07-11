@@ -1,118 +1,118 @@
 # Dashboard
 
-Das Dashboard bündelt die wichtigsten Signale der aktuellen Sammlung.
+The Dashboard bundles the most important signals of the current collection.
 
-Es ersetzt keine Domänenlogik.
+It replaces no domain logic.
 
-Es bewertet keine Bibliothek.
+It evaluates no library.
 
-Es macht Entwicklungen und Zusammenhänge sichtbar und hilft dabei, die Aufmerksamkeit auf die richtigen Alben zu lenken.
-
----
-
-## Aufgabe
-
-Das Dashboard beantwortet Fragen wie:
-
-- Welche Alben beschäftigen mich gerade?
-- Welche Geschichten entwickeln sich in meiner Sammlung?
-- Welche Reflection verdient Aufmerksamkeit?
-- Welche Rollen sind aktuell vertreten?
-- Wie entwickelt sich meine Player-Rotation?
-
-Es beantwortet ausdrücklich **nicht**:
-
-- Welche Rolle ist zu groß?
-- Welche Rolle ist zu klein?
-- Welche Verteilung wäre optimal?
+It makes developments and connections visible and helps direct attention to the right albums.
 
 ---
 
-## Bereiche
+## Task
 
-Das Dashboard besteht aus:
+The Dashboard answers questions like:
 
-- Reflection — offene Fragen und mögliche Neueinordnungen
-- Insights — sprachliche Beobachtungen über Sammlung und Hörverhalten
-- Rollenübersicht — neutrale Übersicht über die aktuellen Albumrollen
+- Which albums are occupying me right now?
+- What stories are developing in my collection?
+- Which reflection deserves attention?
+- Which roles are currently represented?
+- How is my player rotation developing?
 
-Langfristig kann das Dashboard zusätzlich Explainability der aktiven Player-Rotation integrieren.
+It explicitly does **not** answer:
+
+- Which role is too large?
+- Which role is too small?
+- Which distribution would be optimal?
 
 ---
 
-## Datenfluss
+## Areas
 
-Die HomePage übergibt:
+The Dashboard consists of:
+
+- Reflection — open questions and possible reclassifications
+- Insights — linguistic observations about collection and listening behavior
+- Role overview — neutral overview of current album roles
+
+Long term, the Dashboard can additionally integrate Explainability of the active player rotation.
+
+---
+
+## Data Flow
+
+The HomePage passes:
 
 - `albums`
 - `reflectionPrompt`
 
-Das Dashboard nutzt ausschließlich bestehende Domänenfunktionen.
+The Dashboard uses exclusively existing domain functions.
 
-Beispielsweise:
+For example:
 
 - `evaluateReflection`
 - `evaluateInsights`
 
-Weitere Domänen (Explainability der Player-Rotation) können später ergänzt werden.
+Further domains (Explainability of the player rotation) can be added later.
 
 ---
 
-## Rollenübersicht
+## Role Overview
 
-Die Rollenübersicht dient ausschließlich der Orientierung.
+The role overview serves exclusively for orientation.
 
-Jede Rolle zeigt:
+Each role shows:
 
-- Titel
-- Beschreibung
-- Anzahl der Alben
-- optionale Cover-Vorschau
+- Title
+- Description
+- Number of albums
+- Optional cover preview
 
-Die Rollenübersicht besitzt:
+The role overview has:
 
-- keine Zielgrößen
-- keine Limits
-- keine Fortschrittsbalken
-- keine Warnungen
-- keine Empfehlungen
+- No target sizes
+- No limits
+- No progress bars
+- No warnings
+- No recommendations
 
-Albumrollen beschreiben Beziehungen zu Musik.
+Album roles describe relationships with music.
 
-Sie besitzen keine optimale Größe.
-
----
-
-## Produktprinzip
-
-Die Bibliothek wird nicht bewertet.
-
-Das Dashboard beobachtet Entwicklungen.
-
-Es unterstützt Reflection.
-
-Es erklärt Zusammenhänge.
-
-Es optimiert keine Sammlung.
+They have no optimal size.
 
 ---
 
-## Produktgrenze
+## Product Principle
 
-Das Dashboard ist kein Analytics Dashboard.
+The library is not evaluated.
 
-Es gibt:
+The Dashboard observes developments.
 
-- keine Charts
-- keine KPIs
-- keine Scores
-- keine Gamification
-- keine Rollenoptimierung
+It supports reflection.
 
-Das Dashboard beantwortet ausschließlich:
+It explains connections.
 
-> Was verdient gerade Aufmerksamkeit?
+It does not optimize a collection.
 
-Nicht:
+---
 
-> Was sollte ich optimieren?
+## Product Limit
+
+The Dashboard is not an analytics dashboard.
+
+It contains:
+
+- No charts
+- No KPIs
+- No scores
+- No gamification
+- No role optimization
+
+The Dashboard answers exclusively:
+
+> What deserves attention right now?
+
+Not:
+
+> What should I optimize?

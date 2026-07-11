@@ -9,6 +9,7 @@
   - **All UI components internationalized**: `WelcomePage`, `Header`, `EmptyLibrary`, `Library`, `AlbumCard`, `EditAlbumDialog`, `FocusAlbumCard`, `PlayerRotation`, `RotationTileTooltip`, `AlbumCoach`, `ReflectionCard`, `Dashboard`, `RoleExplorer`, `RoleDetail`, `ArchiveProtectionCoach`, `ArchiveReturnCoach`, `AlbumTimeline`, `DiscoverAlbumDialog`, `MetadataLookupStep`, `BackupControls`, `LibraryViewSwitcher`, and all sub-views.
   - **Persistent language preference**: Saved to `rotation-locale` in `localStorage`; defaults to browser language (`navigator.language`), falls back to English.
   - **Domain strings remaining in German**: Coach questions, archive questions, role explanations, timeline labels, reflection messages, insight descriptions, rotation explanations, and backup error messages are intentionally kept in the domain layer as a known follow-up item. They are not user-facing raw strings in React components.
+  - **All product documentation (`/docs`) translated to English**: Core docs (PRODUCT, ARCHITECTURE, DESIGN, DESIGN_SYSTEM), operations docs (SELFHOST, VERSIONING, ROADMAP), and feature docs (ALBUM_COACH, ALBUM_TIMELINE, REFLECTION_ENGINE, ARCHIVE_WORKFLOW, CURATED_ROTATION, INSIGHTS, LIBRARY_MAINTENANCE, DASHBOARD).
   - **No new dependencies** — pure TypeScript/React implementation.
   - **0 TypeScript errors, 244 tests green, Vite build clean**.
 

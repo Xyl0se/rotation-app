@@ -1,10 +1,10 @@
 /**
  * ListenEvent Store
  *
- * Lädt, speichert und migriert Listen-Events.
- * Beim ersten Start nach dem Update werden bestehende
- * listenCount / lastListened Werte aus Alben defensiv
- * in Events zurückgerechnet.
+ * Loads, saves and migrates listen events.
+ * On first start after the update, existing
+ * listenCount / lastListened values from albums are defensively
+ * back-calculated into events.
  */
 
 import type { Album } from "../../types/album"
@@ -109,9 +109,9 @@ export function lastListened(
 
 /**
  * Defensive Migration:
- * Wenn keine Events existieren, aber Alben mit
- * listenCount / lastListened vorhanden sind,
- * erzeuge für jedes Album ein Event aus dem letzten Hördatum.
+ * If no events exist, but albums with
+ * listenCount / lastListened are present,
+ * create one event per album from the last listen date.
  */
 export function migrateLegacyListenData(
     adapter: StorageAdapter,

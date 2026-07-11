@@ -10,20 +10,20 @@ import {
 } from "./categorizeRecency"
 
 /**
- * Gruppiert Alben nach der letzten Hörsession.
+ * Groups albums by the last listen session.
  *
- * Quelle der Wahrheit:
- * 1. listenEvents (neuestes Event pro Album)
+ * Source of truth:
+ * 1. listenEvents (most recent event per album)
  * 2. Fallback: album.lastListened
  *
- * Gruppen: Heute → Diese Woche → Dieser Monat → Dieses Jahr → Länger her → Noch nicht gehört
+ * Groups: Today → This Week → This Month → This Year → Longer ago → Not yet listened
  */
 export function groupByLastListened(
     albums: Album[],
     listenEvents: ListenEvent[],
     now = new Date(),
 ): LibraryGroup[] {
-    // Index: albumId → neuestes listenedAt
+    // Index: albumId → most recent listenedAt
     const eventMap = new Map<string, string>()
 
     for (const event of listenEvents) {
@@ -49,13 +49,13 @@ export function groupByLastListened(
         }
     }
 
-    // Feste Reihenfolge via recencyGroups
+    // Fixed order via recencyGroups
     return recencyGroups
         .filter(group => categorized.has(group.key))
         .map(group => {
             const groupAlbums = categorized.get(group.key)!
 
-            // Innerhalb der Gruppe: neueste Hörsession zuerst
+            // Within the group: most recent listen session first
             groupAlbums.sort((a, b) => {
                 const aDate = eventMap.get(a.id) ?? a.lastListened ?? ""
                 const bDate = eventMap.get(b.id) ?? b.lastListened ?? ""

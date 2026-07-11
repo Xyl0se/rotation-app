@@ -24,15 +24,15 @@ export type ArchiveProtectionEvaluation =
       }
 
 /**
- * Der Archivschutz verhindert, dass Alben mit
- * dauerhafter biografischer Bedeutung vorschnell
- * archiviert werden.
+ * Archive protection prevents albums with
+ * permanent biographical significance from being archived
+ * prematurely.
  *
- * Ein persönlicher Klassiker kann aktuell ruhen
- * und trotzdem ein Klassiker bleiben.
- * Deshalb prüft dieser Flow zuerst die
- * dauerhafte Bedeutung, nicht die aktuelle
- * Höraktivität.
+ * A personal classic can currently rest
+ * and still remain a classic.
+ * That's why this flow first checks
+ * permanent significance, not current
+ * listening activity.
  */
 export function evaluateArchiveProtection(
     answers: Partial<ArchiveProtectionAnswers>,

@@ -1,149 +1,149 @@
 # Rotation Self-Hosting
 
-> **Hinweis:** Dies ist Sprint 58A — die reine Deployment-Foundation.
-> Es gibt noch kein serverseitiges Backend, keine Datenbank und keinen Multi-Device-Sync.
-> Alle Daten leben weiterhin im Browser (localStorage / IndexedDB).
-> Jeder Browser und jedes Gerät hat seinen eigenen, isolierten Datenbestand.
+> **Note:** Sprint 58A deploys the pure deployment foundation.
+> There is no server-side backend, no database, and no multi-device sync yet.
+> All data continues to live in the browser (localStorage / IndexedDB).
+> Every browser and every device has its own isolated data set.
 
 ---
 
-## Voraussetzungen
+## Requirements
 
 - Docker + Docker Compose
 
 ---
 
-## Schnellstart: GHCR Image (empfohlen)
+## Quick Start: GHCR Image (recommended)
 
-Für Headless-Server oder NAS-Systeme (z. B. Synology, Raspberry Pi):
+For headless servers or NAS systems (e.g. Synology, Raspberry Pi):
 
 ```bash
-# 1. docker-compose.prod.yml herunterladen (nur diese eine Datei wird benötigt)
+# 1. Download docker-compose.prod.yml (only this single file is needed)
 curl -O https://raw.githubusercontent.com/Xyl0se/rotation-app/main/docker-compose.prod.yml
 
-# 2. Container starten — Image wird automatisch von GitHub Container Registry geladen
+# 2. Start container — image is automatically pulled from GitHub Container Registry
 docker compose -f docker-compose.prod.yml up -d
 
-# 3. Im Browser öffnen
+# 3. Open in browser
 open http://localhost:3000
 ```
 
 ---
 
-## Schnellstart: Lokal bauen
+## Quick Start: Build Locally
 
 ```bash
-# 1. Repository klonen (oder Code entpacken)
+# 1. Clone repository (or unpack code)
 git clone https://github.com/Xyl0se/rotation-app.git
 cd rotation-app
 
-# 2. (Optional) Port anpassen – .env bearbeiten
-# 3. Container bauen und starten
+# 2. (Optional) Adjust port — edit .env
+# 3. Build and start container
 docker compose up -d
 
-# 4. Im Browser öffnen
+# 4. Open in browser
 open http://localhost:3000
 ```
 
 ---
 
-## Verfügbare Befehle
+## Available Commands
 
-| Befehl | Beschreibung |
+| Command | Description |
 |---|---|
-| `docker compose -f docker-compose.prod.yml up -d` | Rotation auf Server/NAS starten (GHCR Image) |
-| `docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d` | Update auf neueste Version |
-| `docker compose -f docker-compose.prod.yml down` | Rotation stoppen |
-| `docker compose up -d` | Lokal bauen und starten |
-| `docker compose down` | Lokal stoppen |
-| `docker compose logs -f` | Logs live ansehen |
+| `docker compose -f docker-compose.prod.yml up -d` | Start Rotation on server/NAS (GHCR image) |
+| `docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d` | Update to latest version |
+| `docker compose -f docker-compose.prod.yml down` | Stop Rotation |
+| `docker compose up -d` | Build and start locally |
+| `docker compose down` | Stop locally |
+| `docker compose logs -f` | Watch logs live |
 
 ---
 
 ## Healthcheck
 
-Rotation meldet sich gesund unter:
+Rotation reports healthy at:
 
 ```bash
 curl http://localhost:3000/health
 # → ok
 ```
 
-Docker prüft diesen Endpunkt automatisch alle 30 Sekunden.
+Docker checks this endpoint automatically every 30 seconds.
 
 ---
 
-## Daten und Persistenz
+## Data and Persistence
 
-### Wichtig: Noch kein serverseitiger Speicher
+### Important: No server-side storage yet
 
-Sprint 58A deployt lediglich die Frontend-Anwendung als statische SPA.
-Alle Daten werden weiterhin **im Browser** gespeichert:
+Sprint 58A only deploys the frontend application as a static SPA.
+All data continues to be stored **in the browser**:
 
-- **Alben, Rotation Plans, Stories** → `localStorage`
-- **Cover-Cache, Custom Covers** → `IndexedDB`
+- **Albums, Rotation Plans, Stories** → `localStorage`
+- **Cover Cache, Custom Covers** → `IndexedDB`
 
-### Was das bedeutet
+### What this means
 
-- Daten sind **gerätegebunden**. Ein Album, das auf dem Laptop hinzugefügt wird, erscheint **nicht automatisch** auf dem Handy.
-- Daten überleben Browser-Reloads und Schließens des Tabs.
-- Daten gehen verloren, wenn der Browser-Cache geleert wird.
-- Server-Neustarts oder Container-Updates haben **keinen Einfluss** auf die Daten.
+- Data is **device-bound**. An album added on a laptop does **not automatically** appear on a phone.
+- Data survives browser reloads and tab closings.
+- Data is lost when the browser cache is cleared.
+- Server restarts or container updates have **no effect** on data.
 
-### Daten von lokalem Dev-Server übernehmen (Safari/macOS)
+### Transferring data from local dev server (Safari/macOS)
 
-Safari isoliert `localStorage` und `IndexedDB` strikt nach **Origin** (Hostname + Port).
-Wenn du vorher unter `http://localhost:5173` (Vite Dev Server) gearbeitet hast
-und jetzt unter `http://localhost:3000` (Docker) aufrufst, sieht Safari das als
-**völlig getrennte Website** – die Daten erscheinen leer.
+Safari isolates `localStorage` and `IndexedDB` strictly by **Origin** (hostname + port).
+If you previously worked under `http://localhost:5173` (Vite Dev Server)
+and now access under `http://localhost:3000` (Docker), Safari treats this as a
+**completely separate website** — the data appears empty.
 
-**Lösung: Port im Docker-Container anpassen**
+**Solution: Adjust port in Docker container**
 
-1. `.env` bearbeiten und den alten Port eintragen:
+1. Edit `.env` and enter the old port:
    ```bash
    ROTATION_PORT=5173
    ```
 
-2. Container neu bauen und starten:
+2. Rebuild and restart container:
    ```bash
    docker compose up -d --build
    ```
 
-3. Jetzt unter `http://localhost:5173` öffnen – die vorhandenen Safari-Daten
-   sind sofort verfügbar.
+3. Now open under `http://localhost:5173` — existing Safari data
+   is immediately available.
 
-> **Hinweis:** Das gilt nur, solange Sprint 58A keine serverseitige
-> Persistenz hat. Ab Sprint 58B (SQLite + API) wird die Datenhaltung
-> unabhängig vom Browser-Port.
+> **Note:** This only applies as long as Sprint 58A has no server-side
+> persistence. From Sprint 58B (SQLite + API) onward, data storage becomes
+> independent of the browser port.
 
-### Backup (manuell)
+### Backup (manual)
 
-Bis Sprint 58C (Datenmigration) gibt es keinen automatischen Backup-Mechanismus.
-Ein manuelles Backup ist über den Browser-Entwicklertools möglich:
+Until Sprint 58C (data migration) there is no automatic backup mechanism.
+A manual backup is possible via browser developer tools:
 
-1. **localStorage exportieren:**
+1. **Export localStorage:**
    ```js
    copy(JSON.stringify(localStorage))
    ```
-   In die Konsole einfügen, gibt einen kopierbaren String aus.
+   Paste into console, outputs a copyable string.
 
-2. **IndexedDB exportieren:** Erweitert — empfohlen, bis 58C zu warten.
+2. **Export IndexedDB:** Advanced — recommended to wait until 58C.
 
 ---
 
-## Architektur
+## Architecture
 
 ```
 ┌─────────────┐
 │   Browser   │
 │  (Client)   │
 ├─────────────┤
-│ localStorage│ ← Alben, Pläne, Events
-│  IndexedDB  │ ← Cover-Cache, Custom Covers
+│ localStorage│ ← Albums, Plans, Events
+│  IndexedDB  │ ← Cover Cache, Custom Covers
 └──────┬──────┘
        │ HTTP
 ┌──────┴──────┐
-│    Caddy    │ ← Statischer Webserver
+│    Caddy    │ ← Static webserver
 │   (:3000)   │
 ├─────────────┤
 │  index.html │
@@ -156,50 +156,51 @@ Ein manuelles Backup ist über den Browser-Entwicklertools möglich:
 
 ## Troubleshooting
 
-### Port 3000 ist bereits belegt
+### Port 3000 already in use
 
-In `docker-compose.yml` den Port anpassen:
+Adjust the port in `docker-compose.yml`:
 
 ```yaml
 ports:
   - "8080:80"
 ```
 
-### Container startet nicht
+### Container does not start
 
 ```bash
 docker compose logs
 ```
 
-Prüfen, ob der Build-Schritt fehlschlägt (TypeScript-Fehler, fehlende Dependencies).
+Check whether the build step fails (TypeScript errors, missing dependencies).
 
-### SPA-Routes geben 404
+### SPA routes return 404
 
-Dies sollte durch Caddy's `try_files` nicht passieren. Falls doch:
+This should not happen due to Caddy's `try_files`. If it does:
 
 ```bash
 docker compose exec rotation cat /etc/caddy/Caddyfile
 ```
 
-Die Zeile `try_files {path} /index.html` muss vorhanden sein.
+The line `try_files {path} /index.html` must be present.
 
 ---
 
 ## Roadmap
 
-| Sprint | Thema |
+| Sprint | Theme |
 |---|---|
 | **58A** | ✅ Deployment Foundation |
 | **59** | ✅ Home Server Edition — GitHub Container Registry, Auto-Build, Production Compose |
-| 60 | Server Persistence (SQLite + REST API) |
-| 61 | Datenmigration (lokale → serverseitige Daten) |
-| 62 | Multi-Device-Sync |
+| **60** | ✅ Internationalization (i18n) & Documentation Sprint |
+| 61 | Server Persistence (SQLite + REST API) |
+| 62 | Data Migration (local → server-side data) |
+| 63 | Multi-Device Sync |
 
 ---
 
-## Unterstützte Plattformen
+## Supported Platforms
 
 - Docker Desktop (macOS, Windows, Linux)
-- Raspberry Pi (ARM64) — `caddy:2-alpine` und `node:22-alpine` unterstützen ARM64
-- NAS-Systeme mit Docker-Support (Synology, QNAP, TrueNAS Scale)
-- Jeder Mini-PC oder Server, der Docker ausführen kann
+- Raspberry Pi (ARM64) — `caddy:2-alpine` and `node:22-alpine` support ARM64
+- NAS systems with Docker support (Synology, QNAP, TrueNAS Scale)
+- Any mini PC or server capable of running Docker

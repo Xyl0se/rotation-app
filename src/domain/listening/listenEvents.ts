@@ -1,13 +1,13 @@
 /**
  * Listening History
  *
- * Hör-Sessions als eigenständige Ereignisse modelliert.
- * Nicht direkt ins Album eingebettet, sondern als globale Event-Log
- * in lokalem Speicher gehalten.
+ * Listen sessions are modeled as independent events.
+ * Not embedded directly into the album, but kept as a global event log
+ * in local storage.
  *
- * Die Felder listenCount und lastListened am Album bleiben als
- * gespiegelte Ableitungen erhalten — damit bestehende Komponenten
- * und Domain-Logik weiter funktionieren.
+ * The listenCount and lastListened fields on the album remain as
+ * mirrored derivations — so existing components and domain logic
+ * continue to function.
  */
 
 export interface ListenEvent {

@@ -4,7 +4,7 @@ import {
     createRoleOverview,
 } from "../../../domain/roles/roleOverview"
 
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 type RotationOverviewProps = {
 

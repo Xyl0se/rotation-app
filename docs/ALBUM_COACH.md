@@ -1,50 +1,131 @@
 # Album Coach
 
-Der Album Coach bestimmt die aktuelle Beziehung zu einem Album.
+The Album Coach determines the current relationship with an album.
 
-Er ersetzt eine direkte Rollenauswahl durch kurze Ja/Nein-Fragen. Dadurch fuehlt sich die Einordnung weniger wie Verwaltung und mehr wie Reflexion an.
+It replaces direct role selection with short yes/no questions. This makes the classification feel less like administration and more like reflection.
 
-## Entscheidungsbaum
+## Decision Tree (Sprint 57)
 
-1. Noch nicht mindestens dreimal bewusst gehoert: `new`
-2. Wuerde nicht vermisst: `archive`
-3. Automatisches Wohlfuehlalbum: `comfort-food`
-4. Ueberrascht oder fordert noch heraus: `growing`
-5. Keine klare Empfehlung: `archive`
-6. Wird regelmaessig gehoert: `classic`
-7. Wird bewundert, aber selten gehoert: `admire`
+The new tree is fully deterministic with 8 possible questions and no mandatory long question chain.
 
-## Rollen
+### Step 1: Listened Enough?
 
-- `new`: Das Album will erst kennengelernt werden.
-- `growing`: Das Album veraendert sich mit weiteren Durchlaeufen.
-- `comfort-food`: Das Album ist vertraut und verlaesslich.
-- `classic`: Das Album hat dauerhaft gepraegt.
-- `admire`: Das Album wird anerkannt, ohne oft gehoert zu werden.
-- `archive`: Das Album ruht im Moment.
+**Question:** Has the album been listened to consciously at least three times?
 
-## Beispiel
+- **No** → `new`
+- **Yes** → Continue
 
-Kid A
+### Step 2: Would Miss?
 
-✓ mindestens dreimal gehört
+**Question:** Would I miss this album?
 
-✓ würde ich vermissen
+- **No** → `archive`
+- **Yes** → Continue
 
-✗ kein Comfort Album
+### Step 3: Returning Consciously?
 
-✓ überrascht mich immer noch
+**Question:** Do I still return to this album consciously?
+
+- **No** → Passive branch (Step 5)
+- **Yes** → Active branch (Step 4)
+
+### Step 4: Shaped Taste Long-Term? (Active Branch)
+
+**Question:** Has this album shaped my taste long-term?
+
+- **Yes** → `classic`
+- **No** → Continue to Step 6
+
+> **Priority rule:** `classic` takes precedence over `comfort-food` and `growing`.
+
+### Step 5: Musically Valued? (Passive Branch)
+
+**Question:** Do I value this album musically?
+
+- **Yes** → `admire`
+- **No** → `archive`
+
+### Step 6: Comfort Album?
+
+**Question:** Is this an automatic feel-good album?
+
+- **Yes** → `comfort-food`
+- **No** → Continue
+
+### Step 7: Still Surprising?
+
+**Question:** Does this album still surprise or challenge me?
+
+- **Yes** → `growing`
+- **No** → `archive`
+
+### Partial Answers
+
+`AlbumCoachAnswers = Partial<AlbumCoachAnswerValues>`.
+
+Missing answers are not interpreted as `false`.
+
+## Roles
+
+- `new`: The album wants to be discovered first.
+- `growing`: The album changes with further listens.
+- `comfort-food`: The album is familiar and reliable.
+- `classic`: The album has had a lasting formative effect.
+- `admire`: The album is appreciated without being listened to often.
+- `archive`: The album is resting at the moment.
+
+## Examples
+
+### Example: Kid A
+
+✓ listened at least three times
+
+✓ would miss it
+
+✓ still returning consciously
+
+✗ did not shape taste long-term
+
+✗ not a comfort album
+
+✓ still surprises me
 
 ➡️ Growing
 
-## Beispiel
+### Example: Rumours
 
-Rumours
+✓ listened at least three times
 
-✓ mindestens dreimal gehört
+✓ would miss it
 
-✓ würde ich vermissen
+✓ still returning consciously
 
-✓ Comfort Album
+✗ did not shape taste long-term
+
+✓ comfort album
 
 ➡️ Comfort Food
+
+### Example: Unknown Pleasures
+
+✓ listened at least three times
+
+✓ would miss it
+
+✓ still returning consciously
+
+✓ shaped taste long-term
+
+➡️ Classic (priority over comfort-food/growing)
+
+### Example: Obscure Jazz Record
+
+✓ listened at least three times
+
+✓ would miss it
+
+✗ not returning consciously anymore
+
+✓ valued musically
+
+➡️ Admire

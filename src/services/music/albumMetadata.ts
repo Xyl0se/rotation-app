@@ -21,11 +21,11 @@ export interface AlbumMetadata {
 }
 
 /**
- * Öffentliche Schnittstelle
- * für Album-Metadaten.
+ * Public interface
+ * for album metadata.
  *
- * React-Komponenten sprechen ausschließlich
- * mit dieser Funktion.
+ * React components exclusively
+ * call this function.
  */
 export async function searchAlbum(
 

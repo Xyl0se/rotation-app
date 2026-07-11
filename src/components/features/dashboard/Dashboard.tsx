@@ -7,7 +7,7 @@ import {
 import InsightsPanel from "../insights/InsightsPanel"
 import ReflectionCard from "../reflection/ReflectionCard"
 import RoleOverviewPanel from "../rotation-dashboard/RoleOverviewPanel"
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 type DashboardProps = {
 

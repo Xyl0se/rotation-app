@@ -56,7 +56,7 @@ export function useLibrary(
         try {
             await removeCustomCover(id)
         } catch {
-            // Ignorieren – Cover-Löschung ist nicht kritisch
+            // Ignore – cover deletion is not critical
         }
         setAlbums(previous =>
             previous.filter(album => album.id !== id)
@@ -73,7 +73,7 @@ export function useLibrary(
                 && previousAlbum.coverUrl !== updatedAlbum.coverUrl
             ) {
                 clearCoverCache(updatedAlbum.id).catch(() => {
-                    // Ignorieren – Cache-Invalidierung ist nicht kritisch
+                    // Ignore – cache invalidation is not critical
                 })
             }
             return previous.map(album =>
@@ -135,7 +135,7 @@ export function useLibrary(
         const customCover = await saveCustomCover(id, blob, { source })
         const blobUrl = URL.createObjectURL(blob)
         clearCoverCache(id).catch(() => {
-            // Ignorieren – Cache-Invalidierung ist nicht kritisch
+            // Ignore – cache invalidation is not critical
         })
         setAlbums(previous =>
             previous.map(album => {
@@ -161,7 +161,7 @@ export function useLibrary(
         url: string,
     ) => {
         clearCoverCache(id).catch(() => {
-            // Ignorieren – Cache-Invalidierung ist nicht kritisch
+            // Ignore – cache invalidation is not critical
         })
         setAlbums(previous =>
             previous.map(album => {
@@ -184,7 +184,7 @@ export function useLibrary(
     const removeAlbumCoverOverride = useCallback(async (id: string) => {
         await removeCustomCover(id)
         clearCoverCache(id).catch(() => {
-            // Ignorieren – Cache-Invalidierung ist nicht kritisch
+            // Ignore – cache invalidation is not critical
         })
         setAlbums(previous =>
             previous.map(album => {

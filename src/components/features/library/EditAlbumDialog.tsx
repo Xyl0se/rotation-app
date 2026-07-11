@@ -6,7 +6,7 @@ import Button from "../../ui/Button"
 import Dialog from "../../ui/Dialog"
 import TextField from "../../ui/TextField"
 import AlbumCover from "../../ui/AlbumCover"
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 const ACQUISITION_OPTIONS: AlbumAcquisitionReason[] = [
     "artist",
@@ -176,7 +176,8 @@ function EditAlbumDialog({
 
     function removeStory() {
         setDraft((prev) => {
-            const { story: _, ...rest } = prev
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { story: _s, ...rest } = prev
             return rest
         })
     }

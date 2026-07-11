@@ -68,7 +68,7 @@ export function determineRole(
 
         }
 
-        // Fallback: aktiv, aber weder prägend noch vertraut noch überraschend
+        // Fallback: active, but neither formative nor familiar nor surprising
         return "admire"
 
     }
@@ -88,7 +88,7 @@ export function determineRole(
     }
 
     throw new Error(
-        "Unvollständige Antworten für determineRole"
+        "Incomplete answers for determineRole"
     )
 
 }

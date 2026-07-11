@@ -3,10 +3,10 @@ import type { Album } from "../../types/album"
 import type { LibraryGroup } from "./libraryGroup"
 
 /**
- * Gruppiert Alben chronologisch nach Erscheinungsjahr.
+ * Groups albums chronologically by release year.
  *
- * Alben ohne Jahr landen in der Gruppe „Unbekannt".
- * Die Gruppen sind absteigend sortiert (neuestes Jahr oben).
+ * Albums without a year land in the group "Unknown".
+ * Groups are sorted in descending order (newest year first).
  */
 export function groupByYear(albums: Album[]): LibraryGroup[] {
     const groups = new Map<string, Album[]>()
@@ -23,11 +23,11 @@ export function groupByYear(albums: Album[]): LibraryGroup[] {
     }
 
     const sortedKeys = Array.from(groups.keys()).sort((a, b) => {
-        // "unknown" immer ans Ende
+        // Always sort "unknown" to the end
         if (a === "unknown") return 1
         if (b === "unknown") return -1
 
-        // Numerisch absteigend sortieren
+        // Sort numerically in descending order
         const yearA = parseInt(a, 10)
         const yearB = parseInt(b, 10)
 
@@ -35,21 +35,21 @@ export function groupByYear(albums: Album[]): LibraryGroup[] {
             return yearB - yearA
         }
 
-        // Fallback für nicht-numerische Jahre
+        // Fallback for non-numeric years
         return b.localeCompare(a, "de")
     })
 
     return sortedKeys.map(key => {
         const groupAlbums = groups.get(key)!
 
-        // Innerhalb der Gruppe alphabetisch nach Titel sortieren
+        // Within the group: sort alphabetically by title
         groupAlbums.sort((a, b) =>
             a.title.localeCompare(b.title, "de"),
         )
 
         return {
             key,
-            title: key === "unknown" ? "Unbekannt" : key,
+            title: key === "unknown" ? "Unknown" : key,
             albums: groupAlbums,
         }
     })

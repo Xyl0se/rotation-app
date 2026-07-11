@@ -12,73 +12,50 @@ export type AlbumTimelineEventType =
     | "story-added"
 
 export interface AlbumTimelineEvent {
-
     id: string
-
     type: AlbumTimelineEventType
-
     date: string
-
     title: string
-
     description: string
-
     role?: RoleId
-
 }
 
 function getRoleTitle(role: RoleId): string {
-
     return roles.find(item => item.id === role)?.title ?? role
-
 }
 
 function getSourceLabel(source: string): string {
-
     switch (source) {
-
         case "coach":
             return "Album Coach"
-
         case "reflection":
             return "Reflection"
-
         case "archive":
-            return "Archiv Workflow"
-
+            return "Archive Workflow"
         default:
             return "Rotation"
-
     }
-
 }
 
 function formatListenTitle(
     index: number,
     total: number,
 ): string {
-
     if (total === 1) {
-
-        return "Erste Hörsession"
-
+        return "First Listen Session"
     }
 
     if (index === 0) {
-
-        return "Letzte Hörsession"
-
+        return "Last Listen Session"
     }
 
-    return `Hörsession ${total - index}`
-
+    return `Listen Session ${total - index}`
 }
 
 function createListenEvents(
     album: Album,
     listenEvents: ListenEvent[],
 ): AlbumTimelineEvent[] {
-
     const albumEvents =
         listenEvents
             .filter(event => event.albumId === album.id)
@@ -91,70 +68,45 @@ function createListenEvents(
     const total = albumEvents.length
 
     if (total === 0 && album.lastListened) {
-
         return [
             {
-
                 id: `legacy-${album.lastListened}`,
-
                 type: "listened" as const,
-
                 date: album.lastListened,
-
-                title: "Zuletzt gehört",
-
+                title: "Last Listened",
                 description:
                     album.listenCount === 1
-                        ? "Die erste dokumentierte Hörsession."
-                        : `${album.listenCount} dokumentierte Hörsessions insgesamt.`,
-
+                        ? "The first documented listen session."
+                        : `${album.listenCount} documented listen sessions in total.`,
             },
         ]
-
     }
 
     return albumEvents.map((event, index) => ({
-
         id: event.id,
-
         type: "listened" as const,
-
         date: event.listenedAt,
-
         title: formatListenTitle(index, total),
-
         description:
             index === 0
-                ? `Höchstens dokumentierte Session (${total} insgesamt).`
-                : `Session ${total - index} von ${total}.`,
-
+                ? `Most recent documented session (${total} in total).`
+                : `Session ${total - index} of ${total}.`,
     }))
-
 }
 
 export function createAlbumTimeline(
     album: Album,
     listenEvents: ListenEvent[],
 ): AlbumTimelineEvent[] {
-
     const roleEvents =
         album.roleHistory.map((entry, index) => ({
-
             id: `role-${entry.recordedAt}-${index}`,
-
             type: "role-assigned" as const,
-
             date: entry.recordedAt,
-
-            title:
-                getRoleTitle(entry.role),
-
+            title: getRoleTitle(entry.role),
             description:
-                `Eingeordnet durch ${getSourceLabel(entry.source)}.`,
-
-            role:
-                entry.role,
-
+                `Assigned via ${getSourceLabel(entry.source)}.`,
+            role: entry.role,
         }))
 
     const listenTimelineEvents =
@@ -167,11 +119,11 @@ export function createAlbumTimeline(
                     id: `story-${album.story.createdAt}`,
                     type: "story-added" as const,
                     date: album.story.createdAt,
-                    title: "Geschichte hinzugefügt",
+                    title: "Story added",
                     description:
                         album.story.acquiredBecause
-                            ? `Erworben wegen: ${getAcquisitionLabel(album.story.acquiredBecause)}`
-                            : "Eine persönliche Geschichte wurde verknüpft.",
+                            ? `Acquired because: ${getAcquisitionLabel(album.story.acquiredBecause)}`
+                            : "A personal story was linked.",
                 },
             ]
             : []
@@ -181,41 +133,36 @@ export function createAlbumTimeline(
     ): string {
         switch (reason) {
             case "artist":
-                return "Ich mag den Künstler"
+                return "I like the artist"
             case "friend-recommendation":
-                return "Empfehlung"
+                return "Recommendation"
             case "specific-song":
-                return "Ein bestimmter Song"
+                return "A specific song"
             case "concert":
-                return "Konzert"
+                return "Concert"
             case "review":
-                return "Rezension"
+                return "Review"
             case "record-store":
-                return "Plattenladen"
+                return "Record Store"
             case "gift":
-                return "Geschenk"
+                return "Gift"
             case "random-discovery":
-                return "Zufällig entdeckt"
+                return "Randomly discovered"
             case "life-phase":
-                return "Lebensphase"
+                return "Life phase"
             case "other":
-                return "Anderer Grund"
+                return "Other reason"
             default:
                 return reason ?? ""
         }
     }
 
     return [
-
         ...roleEvents,
-
         ...listenTimelineEvents,
-
         ...storyEvent,
-
     ].sort((first, second) =>
         new Date(second.date).getTime() -
         new Date(first.date).getTime()
     )
-
 }

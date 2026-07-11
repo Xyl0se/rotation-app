@@ -65,8 +65,8 @@ describe("categorizeRecency", () => {
     })
 
     it("defaults now to new Date() when not provided", () => {
-        // Wir testen nur, dass der Aufruf ohne now-Parameter keinen Fehler wirft
-        // und ein gültiges Ergebnis zurückgibt
+        // We only test that calling without now parameter does not throw
+        // and returns a valid result
         const result = categorizeRecency("2020-01-01T12:00:00Z")
         expect(["today", "thisWeek", "thisMonth", "thisYear", "older"]).toContain(result)
     })
@@ -87,10 +87,10 @@ describe("recencyGroups", () => {
         ])
     })
 
-    it("has German titles", () => {
-        expect(recencyGroups[0].title).toBe("Heute")
-        expect(recencyGroups[4].title).toBe("Länger her")
-        expect(recencyGroups[5].title).toBe("Noch nicht gehört")
+    it("has English titles", () => {
+        expect(recencyGroups[0].title).toBe("Today")
+        expect(recencyGroups[4].title).toBe("Longer Ago")
+        expect(recencyGroups[5].title).toBe("Not Yet Listened")
     })
 
 })

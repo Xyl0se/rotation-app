@@ -33,123 +33,79 @@ type ArchiveReturnQuestion =
       }
 
 export const archiveReturnQuestions:
-    Record<ArchiveReturnQuestionId, ArchiveReturnQuestion> = {
-
+    Record<
+        ArchiveReturnQuestionId,
+        ArchiveReturnQuestion
+    > = {
     heardLastSixMonths: {
-
         type: "boolean",
-
         id: "heardLastSixMonths",
-
-        title:
-            "Hast du dieses Album in den letzten 6 Monaten mindestens einmal bewusst gehört?",
-
+        title: "Have you listened to this album at least once consciously in the last 6 months?",
         description:
-            "Wenn es noch aktiv auftaucht, darf es im Archiv weiter ruhig bleiben.",
-
+            "If it still appears actively, it may remain quietly in the archive.",
     },
 
     remembersMoment: {
-
         type: "boolean",
-
         id: "remembersMoment",
-
-        title:
-            "Erinnerst du dich spontan an einen Song, ein Riff, eine Textzeile oder einen besonderen Moment?",
-
+        title: "Do you spontaneously remember a song, a riff, a lyric line, or a special moment?",
         description:
-            "Wiederentdeckung beginnt oft mit einem kleinen, klaren Erinnerungsfunken.",
-
+            "Rediscovery often begins with a small, clear spark of memory.",
     },
 
     wouldDefendAlbum: {
-
         type: "boolean",
-
         id: "wouldDefendAlbum",
-
-        title:
-            "Würdest du jemandem widersprechen, der sagt: 'Das Album ist eigentlich ziemlich durchschnittlich'?",
-
+        title: 'Would you disagree with someone who says: "This album is actually pretty average"?',
         description:
-            "Wenn du es verteidigen würdest, ist es vielleicht ein Klassiker.",
-
+            "If you would defend it, perhaps it's a classic.",
     },
 
     reason: {
-
         type: "choice",
-
         id: "reason",
-
-        title:
-            "Warum hast du dieses Album damals gekauft?",
-
+        title: "Why did you acquire this album back then?",
         description:
-            "Die Antwort verändert nicht allein die Rolle, hilft aber beim Erinnern.",
-
+            "The answer doesn't change the role alone, but helps with remembering.",
         options: [
-
             {
                 value: "recommendation",
-                label: "Empfehlung oder Jahresliste",
+                label: "Recommendation or year-end list",
             },
-
             {
                 value: "artist",
-                label: "Band oder Künstler geliebt",
+                label: "Loved the band or artist",
             },
-
             {
                 value: "curiosity",
-                label: "Neugier, Cover oder Impulskauf",
+                label: "Curiosity, cover, or impulse buy",
             },
-
         ],
-
     },
 
     fitsCurrentMood: {
-
         type: "boolean",
-
         id: "fitsCurrentMood",
-
-        title:
-            "Passt dieses Album zu deiner aktuellen Lebensphase oder Hörstimmung?",
-
+        title: "Does this album fit your current life phase or listening mood?",
         description:
-            "Nicht jedes gute Album muss gerade zurück in die Rotation.",
-
+            "Not every good album needs to return to the rotation right now.",
     },
 
     listeningNeed: {
-
         type: "choice",
-
         id: "listeningNeed",
-
-        title:
-            "Suchst du heute eher Vertrautheit oder Entdeckung?",
-
+        title: "Are you looking for familiarity or discovery today?",
         description:
-            "Vertrautheit führt eher zum Klassiker, Entdeckung eher zu 'Wächst noch'.",
-
+            "Familiarity tends toward Classic, discovery tends toward Still Growing.",
         options: [
-
             {
                 value: "familiarity",
-                label: "Vertrautheit",
+                label: "Familiarity",
             },
-
             {
                 value: "discovery",
-                label: "Entdeckung",
+                label: "Discovery",
             },
-
         ],
-
     },
-
 }

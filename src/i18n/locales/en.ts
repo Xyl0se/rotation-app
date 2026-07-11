@@ -565,7 +565,7 @@ export const en = {
 }
 
 type Stringify<T> = {
-    [K in keyof T]: T[K] extends (...args: infer A) => infer R
+    [K in keyof T]: T[K] extends (...args: infer A) => string
         ? (...args: A) => string
         : T[K] extends object
           ? Stringify<T[K]>

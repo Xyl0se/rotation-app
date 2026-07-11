@@ -3,114 +3,68 @@ import type { AlbumCoachAnswers } from "./determineRole"
 export type CoachQuestionId = keyof AlbumCoachAnswers
 
 export interface CoachQuestion {
-
     id: CoachQuestionId
-
     title: string
-
     description?: string
-
 }
 
 export const coachQuestions: Record<
     CoachQuestionId,
     CoachQuestion
 > = {
-
     heardThreeTimes: {
-
         id: "heardThreeTimes",
-
-        title:
-            "Hast du dieses Album mindestens dreimal bewusst gehört?",
-
+        title: "Have you listened to this album at least three times consciously?",
         description:
-            "Erst nach mehreren Durchgängen entsteht meist ein belastbarer Eindruck.",
-
+            "Only after several listens does a reliable impression usually form.",
     },
 
     wouldMissAlbum: {
-
         id: "wouldMissAlbum",
-
-        title:
-            "Würdest du dieses Album vermissen, wenn es morgen nicht mehr verfügbar wäre?",
-
+        title: "Would you miss this album if it were no longer available tomorrow?",
         description:
-            "Diese Frage hilft dabei, die emotionale Bindung zu erkennen.",
-
+            "This question helps recognize the emotional connection.",
     },
 
     stillReturningConsciously: {
-
         id: "stillReturningConsciously",
-
-        title:
-            "Kehrst du heute noch bewusst zu diesem Album zurück?",
-
+        title: "Do you still consciously return to this album today?",
         description:
-            "Diese Frage unterscheidet zwischen einer aktiven und einer ruhenden Beziehung.",
-
+            "This question distinguishes between an active and a resting relationship.",
     },
 
     shapedTasteLongterm: {
-
         id: "shapedTasteLongterm",
-
-        title:
-            "Hat dieses Album dich über längere Zeit begleitet oder deinen Musikgeschmack geprägt?",
-
+        title: "Has this album accompanied you over a longer period or shaped your taste in music?",
         description:
-            "Persönliche Klassiker bleiben auch dann bestehen, wenn sie gerade weniger häufig gespielt werden.",
-
+            "Personal classics persist even when played less frequently.",
     },
 
     comfortAlbum: {
-
         id: "comfortAlbum",
-
-        title:
-            "Greifst du manchmal ganz automatisch zu diesem Album, ohne lange über deine Musikauswahl nachzudenken?",
-
+        title: "Do you sometimes reach for this album completely automatically, without thinking much about your music choice?",
         description:
-            "Comfort-Food-Alben fühlen sich vertraut an und begleiten dich zuverlässig.",
-
+            "Comfort-food albums feel familiar and accompany you reliably.",
     },
 
     surprisedOnLastListen: {
-
         id: "surprisedOnLastListen",
-
-        title:
-            "Hat dich das Album beim letzten bewussten Hören überrascht oder herausgefordert?",
-
+        title: "Did the album surprise or challenge you during the last conscious listen?",
         description:
-            "Manche Alben wachsen mit jedem Hören weiter.",
-
+            "Some albums keep growing with every listen.",
     },
 
     musicallyValued: {
-
         id: "musicallyValued",
-
-        title:
-            "Schätzt du es musikalisch weiterhin sehr?",
-
+        title: "Do you still value it musically very much?",
         description:
-            "Hohe musikalische Wertschätzung reicht für Bewunderung, auch ohne aktive Rückkehr.",
-
+            "High musical appreciation is enough for admiration, even without active return.",
     },
 
     memoryOfEarlierPhase: {
-
         id: "memoryOfEarlierPhase",
-
-        title:
-            "Ist es vor allem Erinnerung an eine frühere Phase?",
-
+        title: "Is it mainly a memory of an earlier phase?",
         description:
-            "Manche Alben bleiben wichtig, ohne aktuell eine musikalische Rolle zu spielen.",
-
+            "Some albums remain important without currently playing a musical role.",
     },
-
 }

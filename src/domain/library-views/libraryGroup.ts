@@ -1,19 +1,18 @@
 import type { Album } from "../../types/album"
 
 /**
- * Gemeinsames Modell für gruppierte Bibliotheksansichten.
+ * Common model for grouped library views.
  *
- * Alle Gruppierungsfunktionen liefern dieselbe Struktur,
- * sodass die UI eine einzige Komponente für alle Perspektiven
- * verwenden kann.
+ * All grouping functions return the same structure,
+ * so the UI can use a single component for all perspectives.
  */
 export interface LibraryGroup {
-    /** Technischer Schlüssel für die Gruppe */
+    /** Technical key for the group */
     key: string
-    /** Anzeigetitel der Gruppe */
+    /** Display title of the group */
     title: string
-    /** Optional: kurze Beschreibung oder Kontext */
+    /** Optional: short description or context */
     description?: string
-    /** Alben in dieser Gruppe */
+    /** Albums in this group */
     albums: Album[]
 }

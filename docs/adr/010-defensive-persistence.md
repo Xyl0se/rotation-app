@@ -1,19 +1,23 @@
-# ADR 010: Defensive Persistence — StorageQuotaError und Type Guards
+# ADR 010: Defensive Persistence — StorageQuotaError and Type Guards
 
-## Kontext
+## Status
 
-Die Anwendung speichert alle Nutzerdaten im Browser-`localStorage`. Dies birgt zwei Risiken:
+Accepted
 
-1. **Speicherplatz erschöpft:** `localStorage` hat ein hartes Limit (typisch 5–10 MB). Beim Überschreiten wirft der Browser `QuotaExceededError` (Chrome) bzw. `NS_ERROR_DOM_QUOTA_REACHED` (Firefox).
-2. **Korrupte Daten:** Nutzer können den Speicher manuell manipulieren, oder Migrationen können fehlschlagen. Bisher führte invalider JSON direkt zu App-Crashes.
+## Context
 
-## Entscheidung
+The application stores all user data in browser `localStorage`. This entails two risks:
 
-Wir führen zwei Verteidigungsmechanismen ein:
+1. **Storage exhausted:** `localStorage` has a hard limit (typically 5–10 MB). When exceeded, the browser throws `QuotaExceededError` (Chrome) or `NS_ERROR_DOM_QUOTA_REACHED` (Firefox).
+2. **Corrupt data:** Users can manually manipulate the storage, or migrations can fail. Previously, invalid JSON led directly to app crashes.
+
+## Decision
+
+We introduce two defense mechanisms:
 
 ### 1. StorageQuotaError
 
-Ein eigener Fehlertyp, der den betroffenen `key` mitführt:
+A custom error type that carries the affected `key`:
 
 ```ts
 class StorageQuotaError extends Error {
@@ -21,31 +25,31 @@ class StorageQuotaError extends Error {
 }
 ```
 
-Der `localStorageAdapter` fängt Quota-Fehler ab und wirft `StorageQuotaError` statt des rohen Browser-Fehlers. Nicht-Quota-Fehler werden durchgereicht.
+The `localStorageAdapter` catches quota errors and throws `StorageQuotaError` instead of the raw browser error. Non-quota errors are passed through.
 
 ### 2. Defensive Type Guards in Repositories
 
-Jedes Repository validiert geladene Daten mit expliziten Type Guards statt blindem Casting:
+Every repository validates loaded data with explicit type guards instead of blind casting:
 
-- `albumRepository`: prüft `id`, `title`, `artist`, `year`, `category` auf Typ `string`, `roleHistory` auf Array-Struktur
-- `rotationPlanRepository`: prüft `items[].albumId`, `albumIds[]`, `roleQuotas[].role`, `status`
-- `listenEventRepository`: prüft `id`, `albumId`, `timestamp`, `type`
+- `albumRepository`: checks `id`, `title`, `artist`, `year`, `category` for type `string`, `roleHistory` for array structure
+- `rotationPlanRepository`: checks `items[].albumId`, `albumIds[]`, `roleQuotas[].role`, `status`
+- `listenEventRepository`: checks `id`, `albumId`, `timestamp`, `type`
 
-Ungültige Einträge werden **still ignoriert** (`warn`-only in der Konsole), statt die gesamte App zu crashen. Das Repository gibt den restlichen validen Datensatz zurück.
+Invalid entries are **silently ignored** (`warn`-only in the console), instead of crashing the entire app. The repository returns the remaining valid data set.
 
-## Konsequenzen
+## Consequences
 
-**Positiv:**
-- Die App startet auch mit korrupten Einträgen im `localStorage`.
-- Speicherplatz-Fehler sind explizit erkennbar und können zukünftig in der UI behandelt werden.
-- Tests können Quota-Fehler deterministisch simulieren (via Memory-Storage-Adapter).
+**Positive:**
+- The app starts even with corrupt entries in `localStorage`.
+- Storage errors are explicitly recognizable and can be handled in the UI in the future.
+- Tests can simulate quota errors deterministically (via Memory Storage Adapter).
 
-**Negativ:**
-- Mehr Boilerplate in den Repositories (Type Guards).
-- Stilles Ignorieren kann Datenverlust verschleiern — daher `console.warn` bei jedem verworfenen Eintrag.
-- `StorageQuotaError` wird aktuell noch nicht in der UI gefangen (technische Schuld).
+**Negative:**
+- More boilerplate in the repositories (type guards).
+- Silent ignoring can obscure data loss — therefore `console.warn` for every discarded entry.
+- `StorageQuotaError` is currently not yet caught in the UI (technical debt).
 
-## Alternativen
+## Alternatives
 
-- **Schema-Validierung mit Zod:** Zu schwer für unseren aktuellen Bedarf; Type Guards sind explizit und ohne Runtime-Dependency.
-- **Crash on invalid data:** Sicherer für Entwickler, aber schlechte Nutzererfahrung bei manueller Speichermanipulation.
+- **Schema validation with Zod:** Too heavy for our current needs; type guards are explicit and without runtime dependency.
+- **Crash on invalid data:** Safer for developers, but poor user experience with manual storage manipulation.

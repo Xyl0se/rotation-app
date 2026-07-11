@@ -2,7 +2,7 @@ import type { Album } from "../../../types/album"
 
 import Button from "../../ui/Button"
 import Dialog from "../../ui/Dialog"
-import { useI18n } from "../../../i18n/I18nContext"
+import { useI18n } from "../../../i18n/useI18n"
 
 type DeleteAlbumDialogProps = {
     album: Album | undefined

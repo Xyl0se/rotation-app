@@ -1,29 +1,29 @@
-# ADR 009: Schema-Versionierung und Migrationsframework
+# ADR 009: Schema Versioning and Migration Framework
 
 ## Status
 
-Akzeptiert
+Accepted
 
-## Kontext
+## Context
 
-Rotation speichert Daten im Browser-`localStorage`. Aenderungen am Datenmodell (z. B. Entfernen von `isCurrent`, Einfuehren von `listenEvents`) mussten bisher manuell oder gar nicht behandelt werden. Bestehende Nutzerdaten drohten inkonsistent zu werden.
+Rotation stores data in browser `localStorage`. Changes to the data model (e.g. removing `isCurrent`, introducing `listenEvents`) previously had to be handled manually or not at all. Existing user data risked becoming inconsistent.
 
-Sprint 47 sollte eine robuste Grundlage fuer zukuenftige Datenmodell-Aenderungen schaffen.
+Sprint 47 was meant to create a robust foundation for future data model changes.
 
-## Entscheidung
+## Decision
 
-Rotation fuehrt eine Schema-Versionierung mit automatischen Migrationen ein.
+Rotation introduces schema versioning with automatic migrations.
 
-- Ein zentraler Key `rotation-schema-version` speichert die aktuelle Schema-Version.
-- Beim App-Start wird die gespeicherte Version mit der aktuellen Version verglichen.
-- Falls die gespeicherte Version fehlt oder aelter ist, werden registrierte Migrationen sequentiell ausgefuehrt.
-- Migrationen sind idempotent und defensiv: sie pruefen, ob die Migration bereits angewendet wurde.
-- Das `Album`-Interface kann Breaking Changes erhalten, solange eine Migration bestehende Daten ueberfuehrt.
+- A central key `rotation-schema-version` stores the current schema version.
+- On app start, the stored version is compared to the current version.
+- If the stored version is missing or older, registered migrations are executed sequentially.
+- Migrations are idempotent and defensive: they check whether the migration has already been applied.
+- The `Album` interface can receive breaking changes as long as a migration transfers existing data.
 
-## Konsequenzen
+## Consequences
 
-- `src/config/schemaVersion.ts` definiert die aktuelle Version.
-- `src/config/migrations.ts` enthaelt alle registrierten Migrationen.
-- Neue Datenmodell-Aenderungen erfordern immer eine Migration und eine Versionserhoehung.
-- Migrationen muessen rueckwaertskompatibel sein (kein Datenverlust).
-- `ARCHITECTURE.md` dokumentiert das Migrationsframework.
+- `src/config/schemaVersion.ts` defines the current version.
+- `src/config/migrations.ts` contains all registered migrations.
+- New data model changes always require a migration and a version bump.
+- Migrations must be backward-compatible (no data loss).
+- `ARCHITECTURE.md` documents the migration framework.

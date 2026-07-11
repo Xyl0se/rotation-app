@@ -81,7 +81,7 @@ describe("groupByArtist", () => {
         expect(result).toHaveLength(3)
         expect(result[0].title).toBe("Autechre")
         expect(result[1].title).toBe("Zappa")
-        expect(result[2].title).toBe("Unbekannt")
+        expect(result[2].title).toBe("Unknown")
         expect(result[2].albums).toHaveLength(1)
 
     })

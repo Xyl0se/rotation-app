@@ -15,10 +15,10 @@ interface MusicBrainzApiResponse {
 }
 
 /**
- * Sucht nach einem Album über MusicBrainz.
+ * Searches for an album via MusicBrainz.
  *
- * Diese Datei kapselt sämtliche Kommunikation
- * mit der MusicBrainz API.
+ * This file encapsulates all communication
+ * with the MusicBrainz API.
  */
 export async function searchMusicBrainz(
 

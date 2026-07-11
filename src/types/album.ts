@@ -69,7 +69,7 @@ export interface Album {
     category?: RoleId
 
     /**
-     * Verlauf der Rollenzuordnungen.
+     * History of role assignments.
      */
     roleHistory: RoleHistoryEntry[]
 
