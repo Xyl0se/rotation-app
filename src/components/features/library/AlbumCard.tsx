@@ -1,180 +1,155 @@
-import { useRef, useState, useEffect } from "react"
-
 import type { Album } from "../../../types/album"
 
+import type { RoleId } from "../../../domain/roles"
+
 import AlbumCover from "../../ui/AlbumCover"
+import Card from "../../ui/Card"
 import { useI18n } from "../../../i18n/useI18n"
 
+function getRoleLabelClass(roleId: RoleId | undefined): string {
+    if (!roleId) return "album-role-label"
+    return `album-role-label role-${roleId}`
+}
+
 type AlbumCardProps = {
-
     album: Album
-
     isFocus: boolean
-
     onArchive: (id: string) => void
-
     onDelete: (id: string) => void
-
     onEdit: (id: string) => void
-
     onLogListen: (id: string) => void
-
     onReconsider: (id: string) => void
-
     onSetFocus: (id: string) => void
-
+    showRoleLabel?: boolean
 }
 
 function AlbumCard({
-
     album,
-
     isFocus,
-
     onArchive,
-
     onDelete,
-
     onEdit,
-
     onLogListen,
-
     onReconsider,
-
     onSetFocus,
-
+    showRoleLabel = true,
 }: AlbumCardProps) {
     const { t } = useI18n()
 
-    const menuRef = useRef<HTMLDivElement>(null)
+    const isArchived = album.category === "archive"
 
-    const [menuOpen, setMenuOpen] = useState(false)
-
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (
-                menuRef.current &&
-                !menuRef.current.contains(event.target as Node)
-            ) {
-                setMenuOpen(false)
-            }
-        }
-
-        if (menuOpen) {
-            document.addEventListener("mousedown", handleClickOutside)
-        }
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside)
-        }
-    }, [menuOpen])
+    function getRoleTitle(roleId: RoleId | undefined): string | undefined {
+        if (!roleId) return undefined
+        const roleKey = roleId as keyof typeof t.roles
+        return t.roles[roleKey]?.title
+    }
 
     return (
-
-        <div className={`album-card ${isFocus ? "focus" : ""}`}>
-
-            <button
-                className="album-card-cover-button"
-                onClick={() => onSetFocus(album.id)}
-                title={t.albumCard.setFocus}
-            >
+        <Card>
+            <div className="album-card-inner">
                 <AlbumCover
                     coverUrl={album.coverUrl}
                     coverOverride={album.coverOverride}
                     albumId={album.id}
                     title={album.title}
-                    alt={album.title}
-                    className="album-cover library-cover"
+                    alt={t.common.coverOf(album.title)}
+                    className="album-cover-small"
                 />
-            </button>
 
-            <div className="album-card-info">
-
-                <h4>
-                    {album.title}
-                </h4>
-
-                <p>
-                    {album.artist}
-                </p>
-
-                <div className="album-card-meta">
-                    <span>
-                        {album.year || "—"}
-                    </span>
-                    <span>
-                        {t.albumCard.listenCount(album.listenCount)}
-                    </span>
-                </div>
-
-                <div className="album-card-actions">
-                    <button
-                        className="listen-button"
-                        onClick={() => onLogListen(album.id)}
-                    >
-                        {t.albumCard.listened}
-                    </button>
-                    <div className="action-menu" ref={menuRef}>
-                        <button
-                            className="action-menu-toggle"
-                            onClick={() => setMenuOpen(!menuOpen)}
-                            aria-label="Open Action Menu"
-                            aria-expanded={menuOpen}
-                        >
-                            ⋮
-                        </button>
-                        {menuOpen && (
-                            <div className="action-menu-dropdown">
-                                <button
-                                    className="menu-item"
-                                    onClick={() => {
-                                        onEdit(album.id)
-                                        setMenuOpen(false)
-                                    }}
-                                >
-                                    {t.albumCard.edit}
-                                </button>
-                                {album.category === "archive" ? (
-                                    <button
-                                        className="menu-item"
-                                        onClick={() => {
-                                            onReconsider(album.id)
-                                            setMenuOpen(false)
-                                        }}
-                                    >
-                                        {t.albumCard.reconsider}
-                                    </button>
-                                ) : (
-                                    <button
-                                        className="menu-item"
-                                        onClick={() => {
-                                            onArchive(album.id)
-                                            setMenuOpen(false)
-                                        }}
-                                    >
-                                        {t.albumCard.archive}
-                                    </button>
-                                )}
-                                <button
-                                    className="menu-item danger"
-                                    onClick={() => {
-                                        onDelete(album.id)
-                                        setMenuOpen(false)
-                                    }}
-                                >
-                                    {t.albumCard.delete}
-                                </button>
-                            </div>
+                <div className="album-card-body">
+                    <div className="album-card-meta">
+                        {isArchived && (
+                            <span className="album-state">
+                                {t.albumCard.archiveLabel}
+                            </span>
                         )}
+
+                        {showRoleLabel && album.category && !isArchived && (
+                            <span className={getRoleLabelClass(album.category)}>
+                                {getRoleTitle(album.category)}
+                            </span>
+                        )}
+
+                        <h3>{album.title}</h3>
+
+                        <p>{album.artist}</p>
+
+                        <small>{album.year}</small>
+                    </div>
+
+                    <div className="album-card-actions">
+                        <button
+                            className="album-listen-button"
+                            onClick={() => onLogListen(album.id)}
+                            aria-label={`${t.albumCard.listened}: ${album.title}`}
+                        >
+                            {t.albumCard.listened}
+                        </button>
+
+                        <span className="album-listen-summary">
+                            {t.albumCard.listenCount(album.listenCount)}
+                        </span>
                     </div>
                 </div>
 
+                <div className="album-card-tools">
+                    {!isArchived && (
+                        <button
+                            className={
+                                isFocus
+                                    ? "focus-button active"
+                                    : "focus-button"
+                            }
+                            onClick={() => onSetFocus(album.id)}
+                            aria-label={t.albumCard.setFocus}
+                            title={t.albumCard.setFocus}
+                        >
+                            {isFocus ? "★" : "☆"}
+                        </button>
+                    )}
+
+                    <button
+                        className="card-tool-button edit"
+                        onClick={() => onEdit(album.id)}
+                        aria-label={t.albumCard.edit}
+                        title={t.albumCard.edit}
+                    >
+                        ✎
+                    </button>
+
+                    <button
+                        className="archive-button"
+                        onClick={() =>
+                            isArchived
+                                ? onReconsider(album.id)
+                                : onArchive(album.id)
+                        }
+                        aria-label={
+                            isArchived
+                                ? t.albumCard.reconsider
+                                : t.albumCard.archive
+                        }
+                        title={
+                            isArchived
+                                ? t.albumCard.reconsider
+                                : t.albumCard.archive
+                        }
+                    >
+                        {isArchived ? "↩" : "⬇"}
+                    </button>
+
+                    <button
+                        className="card-tool-button delete"
+                        onClick={() => onDelete(album.id)}
+                        aria-label={t.albumCard.delete}
+                        title={t.albumCard.delete}
+                    >
+                        ✕
+                    </button>
+                </div>
             </div>
-
-        </div>
-
+        </Card>
     )
-
 }
 
 export default AlbumCard
