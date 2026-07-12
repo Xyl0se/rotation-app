@@ -68,15 +68,42 @@ Recommendations refer exclusively to this layer.
 
 ---
 
-## Current Data Flow
+## Deployment Architecture
 
-`App.tsx` decides whether to show the welcome page or the HomePage. The onboarding status is stored under `STORAGE.ONBOARDING` in `localStorage`.
+Rotation runs as a multi-service Docker stack:
 
-`HomePage.tsx` is the central container. It composes features and passes data and callbacks through props. Direct `localStorage` access no longer exists in the page component.
+```
+┌─────────────┐
+│   Browser   │
+│  (Client)   │
+└──────┬──────┘
+       │
+┌──────┴──────┐
+│   Caddy     │ ← Reverse Proxy, SPA host
+│  (:3000)    │
+└──────┬──────┘
+       │
+┌──────┴──────┐
+│ rotation-api│ ← Node + Express + SQLite
+│  (:3001)    │
+├─────────────┤
+│ /music:ro   │ ← Original library (read-only)
+│ /rotation-  │ ← SQLite, exports, staging
+│   data:rw   │
+└─────────────┘
+```
+
+### Data Flow
+
+**Client-side (Browser):**
+
+`App.tsx` decides whether to show the welcome page or the HomePage.
+
+`HomePage.tsx` is the central container. It composes features and passes data and callbacks through props.
 
 The library logic lives in `useLibrary.ts` (ADR 004). The hook encapsulates:
 
-- Loading, saving, and normalizing albums
+- Loading, saving, and normalizing albums from `localStorage`
 - CRUD operations (`addAlbum`, `updateAlbum`, `deleteAlbum`)
 - Cover override management
 - Focus Album management
@@ -84,21 +111,30 @@ The library logic lives in `useLibrary.ts` (ADR 004). The hook encapsulates:
 
 The listening history lives in `useListenEvents.ts`.
 
-The hook encapsulates:
-
-- Loading and migrating legacy listening data
-- Recording new listening sessions
-- Normalization of `listenCount` and `lastListened`
-
 The RotationPlan lives in `useRotationPlan.ts`.
 
-The hook encapsulates:
+**Server-side (API):**
 
-- Generating player rotations
-- Accepting and rejecting
-- Modifying
-- Replacement candidate search
-- Dual storage (`draft` / `active`)
+The API handles file-system operations that the browser cannot perform:
+
+- `/bindings` — Album File Binding management (read-only safe)
+- `/scan` — Directory scanning and fuzzy matching (write-protected)
+- `/exports` — Export preview, staging, and apply (write-protected)
+- `/config` — Runtime configuration (read-only)
+- `/health` — Healthcheck
+
+All write operations (`POST/PUT/DELETE`) on scan and exports require the `X-Write-Token` header.
+
+### Album File Binding Domain
+
+A new server-side domain connects Rotation albums to the file system:
+
+- `Binding` — an association between an `albumId` and a `relativePath` within the music library
+- `BindingState` — `proposed` | `confirmed` | `missing`
+- `ScanService` — discovers potential bindings by matching album metadata against directory names
+- `ExportService` — validates bindings, previews exports, stages file copies, and atomically applies exports
+
+Bindings are stored in SQLite and survive container restarts.
 
 ---
 

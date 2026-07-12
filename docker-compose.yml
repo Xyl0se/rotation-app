@@ -1,9 +1,32 @@
 services:
-  rotation:
+  rotation-api:
+    build: ./server
+    container_name: rotation-api
+    volumes:
+      - ./server/data:/rotation-data/data:rw
+      - ${MUSIC_PATH:-./music}:/music:ro
+    environment:
+      - ROTATION_DATA_DIR=/rotation-data/data
+      - ROTATION_MUSIC_PATH=/music
+      - ROTATION_WORKSPACE_PATH=/rotation-data
+      - ROTATION_SYNCTHING_ROOT=/rotation-data/exports/current-rotation
+      - ROTATION_WRITE_TOKEN=${ROTATION_WRITE_TOKEN:-dev-token}
+      - PORT=3001
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  rotation-web:
     build: .
-    container_name: rotation
+    container_name: rotation-web
     ports:
       - "${ROTATION_PORT:-3000}:80"
+    depends_on:
+      rotation-api:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/health"]

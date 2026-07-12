@@ -1,11 +1,17 @@
 :80 {
-    root * /usr/share/caddy
-
+    # Healthcheck endpoint (served directly by Caddy)
     handle /health {
         respond "ok" 200
     }
 
+    # API proxy to backend service
+    handle /api/* {
+        reverse_proxy rotation-api:3001
+    }
+
+    # Static SPA files
     handle {
+        root * /usr/share/caddy
         file_server
         try_files {path} /index.html
     }

@@ -557,10 +557,70 @@ export const en = {
         coverOf: (title: string) => `Cover of ${title}`,
     },
 
+    nav: {
+        home: "Home",
+        bindings: "Bindings",
+        export: "Export",
+    },
+
     language: {
         label: "Language",
         de: "Deutsch",
         en: "English",
+    },
+
+    exportPage: {
+        title: "Export to Device",
+        description:
+            "Export your active rotation plan to the device sync folder. This copies the album folders to the Syncthing-managed directory.",
+        preview: "Preview Export",
+        noRotationPlan: "Generate and accept a rotation plan first.",
+        calculating: "Calculating export preview...",
+        albums: "Albums",
+        totalSize: "Total Size",
+        files: "Files",
+        missingBindings: "Missing bindings:",
+        unconfirmedBindings: "Unconfirmed bindings:",
+        cancel: "Cancel",
+        stage: "Stage Export",
+        copyProgress: (copied: number, total: number) =>
+            `${copied} / ${total} files`,
+        copying: "Copying files...",
+        apply: "Apply Export",
+        applying: "Applying export...",
+        success: "Export applied successfully!",
+        previousExportArchived: (path: string) =>
+            `Previous export archived to: ${path}`,
+        done: "Done",
+        error: (msg: string) => `Error: ${msg}`,
+        reset: "Reset",
+    },
+
+    bindings: {
+        title: "Album Bindings",
+        filters: {
+            all: "All",
+            proposed: "Proposed",
+            confirmed: "Confirmed",
+            missing: "Missing",
+        },
+        state: {
+            proposed: "Proposed",
+            confirmed: "Confirmed",
+            missing: "Missing",
+        },
+        confirm: "Confirm",
+        delete: "Delete",
+        error: "An error occurred. Please try again.",
+        empty: "No bindings found.",
+        confirmDelete: "Are you sure you want to delete this binding?",
+        folderMissing: "Folder not found",
+        verify: "Verify",
+        reconcile: "Reconcile",
+        verifyResult: (ok: number, missing: number) =>
+            `${ok} confirmed, ${missing} missing`,
+        reconcileResult: (count: number) =>
+            `${count} proposed bindings confirmed`,
     },
 }
 

@@ -1,5 +1,47 @@
 # Changelog
 
+## v0.25.0-dev
+
+- **Sprint 70 — Operations & Deployment Polish**
+  - **GitHub Actions Frontend-Image**: Neuer Workflow `.github/workflows/docker-publish-web.yml` baut und pusht `ghcr.io/xyl0se/rotation-web:latest` bei jedem Push auf `main`.
+  - **Syncthing-Dokumentation**: `SELFHOST.md` beschreibt jetzt nur noch den Export-Ordner-Pfad und empfohlene Einstellungen. Kein Docker-Compose-Block für Syncthing mehr — das läuft außerhalb von Rotation.
+  - **Löschverhalten dokumentiert**: Abschnitt "What happens when an album leaves the rotation?" erklärt, wie Syncthing deletions propagiert und wie man sie verhindert (Ignore deletes, `keepRemoved`).
+  - **Roadmap-Tabelle aktualisiert**: Sprints 69A–69C als abgeschlossen markiert, Sprint 70 als In Progress.
+
+## v0.24.0-dev
+
+- **Sprint 69B — Export Safety & Diff**
+  - **Export Lock**: Mutual exclusion via SQLite (acquire/steal-expired/release). Verhindert parallele Exports.
+  - **Export Diff Engine**: Berechnet `added` / `removed` / `unchanged` zwischen neuem Export und aktuellem `current-rotation`. Neuer Endpoint `POST /exports/diff`.
+  - **Apply mit Diff**: `applyExport` gibt jetzt das vollständige Diff zurück. Archivierung erfolgt atomar via `renameSync`.
+  - **Keep-Removed Option**: `applyExport` akzeptiert `keepRemoved` Flag (vorbereitet für UI).
+  - **Manifest-Archivierung**: Jeder Apply archiviert den vorherigen Zustand mit Timestamp.
+  - **Crash Recovery**: Server-Startup erkennt "staged" Exports, führt Rollback durch, räumt verwaiste Staging-Verzeichnisse auf.
+  - **Tests**: `exportLockRepository.test.ts` (7 Tests), `exportDiff.test.ts` (4 Tests). Alle 42 Server-Tests grün.
+
+- **Sprint 68A — Binding Verification, Export Preview & Apply**
+  - **Binding Health Check**: `ScanService` prüft bei jedem Scan, ob gebundene Ordner noch existieren. Nicht mehr existierende Bindings werden auf Status `missing` gesetzt.
+  - **Compilations-Heuristik**: Ordner mit "VA", "Various", "Compilations", "Soundtrack" werden als Compilation erkannt und nicht automatisch zugeordnet (manuelle Bestätigung erforderlich).
+  - **Mehrfache Treffer**: Wenn ein Album-Name mehrfach in der Bibliothek vorkommt, wird kein automatischer Vorschlag gemacht — das UI zeigt alle Kandidaten zur expliziten Auswahl.
+  - **Export Preview & Stage & Apply**: Vollständiger 3-Phasen-Export-Flow über `ExportPage.tsx` mit `useExport.ts` Hook. Preview zeigt Bindings, Größe und fehlende Alben. Stage kopiert in `.staging/<exportId>/`. Apply tauscht atomar mit Archivierung.
+  - **Navigation**: Header zeigt "Bindings" und "Export" Links mit aktiver Routen-Hervorhebung.
+  - **i18n**: Vollständige Übersetzungen für `nav`, `bindings`, `exportPage` in EN/DE.
+  - **CORS**: API-Server akzeptiert Browser-Requests über `cors({ origin: true })` für Frontend-Integration.
+  - **Build & Tests**: Frontend 28 test files / 275 tests, Server 5 test files / 31 tests — alles grün.
+  - Keine neuen Dependencies.
+
+## v0.23.0-dev
+
+- **Sprint 67 — Production Deployment Foundation**
+  - **Multi-Service Docker Compose** (`docker-compose.prod.yml`): `rotation-web` (Caddy + statisches SPA) + `rotation-api` (Node + Express + SQLite) als getrennte Services.
+  - **Caddy als Reverse Proxy**: `/` → Frontend, `/api/*` → `rotation-api:3001`, `/health` → API-Healthcheck. Single Origin, kein CORS nötig.
+  - **Unprivilegierter Container-User**: `USER node` (UID 1001) in `server/Dockerfile` und `Dockerfile` (Frontend). Container laufen nicht als root.
+  - **Volume-Mounts**: `/music:ro` (Originalbibliothek, read-only), `/rotation-data:rw` (SQLite, Exports, Staging, Archive).
+  - **GitHub Actions**: Neuer Workflow `.github/workflows/docker-publish-api.yml` baut und pusht `ghcr.io/xyl0se/rotation-api:latest` bei jedem Push auf `main`.
+  - **`SELFHOST.md`**: Vollständige Synology-Setup-Anleitung mit Verzeichnisstruktur, Permissions (UID 1001), Backup/Restore, Troubleshooting, optionaler Syncthing-Integration.
+  - **Security**: Write-Token (`ROTATION_WRITE_TOKEN`) für alle schreibenden Operationen (Scan, Export, Binding-Bestätigung). PathGuard verhindert Directory Traversal.
+  - **Healthchecks**: Docker-Healthchecks für beide Services alle 30 Sekunden.
+
 ## v0.21.0
 
 - **Sprint 60 — Internationalization (i18n) & Documentation Sprint**

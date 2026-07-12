@@ -559,9 +559,69 @@ export const de: Translation = {
         coverOf: (title: string) => `Cover von ${title}`,
     },
 
+    nav: {
+        home: "Start",
+        bindings: "Bindings",
+        export: "Export",
+    },
+
     language: {
         label: "Sprache",
         de: "Deutsch",
         en: "English",
+    },
+
+    exportPage: {
+        title: "Auf Gerät exportieren",
+        description:
+            "Exportiere deinen aktiven Rotationsplan in den Synchronisations-Ordner. Dies kopiert die Album-Ordner in das Syncthing-Verzeichnis.",
+        preview: "Export-Vorschau",
+        noRotationPlan: "Erzeuge und übernehme zuerst einen Rotationsplan.",
+        calculating: "Export-Vorschau wird berechnet...",
+        albums: "Alben",
+        totalSize: "Gesamtgröße",
+        files: "Dateien",
+        missingBindings: "Fehlende Bindings:",
+        unconfirmedBindings: "Unbestätigte Bindings:",
+        cancel: "Abbrechen",
+        stage: "Export vorbereiten",
+        copyProgress: (copied: number, total: number) =>
+            `${copied} / ${total} Dateien`,
+        copying: "Dateien werden kopiert...",
+        apply: "Export anwenden",
+        applying: "Export wird angewendet...",
+        success: "Export erfolgreich angewendet!",
+        previousExportArchived: (path: string) =>
+            `Vorheriger Export archiviert unter: ${path}`,
+        done: "Fertig",
+        error: (msg: string) => `Fehler: ${msg}`,
+        reset: "Zurücksetzen",
+    },
+
+    bindings: {
+        title: "Album Bindings",
+        filters: {
+            all: "Alle",
+            proposed: "Vorgeschlagen",
+            confirmed: "Bestätigt",
+            missing: "Fehlend",
+        },
+        state: {
+            proposed: "Vorgeschlagen",
+            confirmed: "Bestätigt",
+            missing: "Fehlend",
+        },
+        confirm: "Bestätigen",
+        delete: "Löschen",
+        error: "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
+        empty: "Keine Bindings gefunden.",
+        confirmDelete: "Bist du sicher, dass du dieses Binding löschen möchtest?",
+        folderMissing: "Ordner nicht gefunden",
+        verify: "Überprüfen",
+        reconcile: "Abgleichen",
+        verifyResult: (ok: number, missing: number) =>
+            `${ok} bestätigt, ${missing} fehlend`,
+        reconcileResult: (count: number) =>
+            `${count} vorgeschlagene Bindings bestätigt`,
     },
 }
