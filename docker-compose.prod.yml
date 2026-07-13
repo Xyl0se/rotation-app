@@ -3,7 +3,7 @@ services:
     image: ghcr.io/xyl0se/rotation-api:latest
     container_name: rotation-api
     volumes:
-      - /volume1/rotation-data:/rotation-data:rw
+      - /volume1/docker/rotation:/rotation-data:rw
       - /volume1/music:/music:ro
     environment:
       - ROTATION_DATA_DIR=/rotation-data/data

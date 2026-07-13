@@ -51,9 +51,9 @@
 Log in via SSH or use the Synology Terminal:
 
 ```bash
-sudo mkdir -p /volume1/rotation-data/exports
-sudo mkdir -p /volume1/rotation-data/archive
-sudo chown -R 1001:1001 /volume1/rotation-data
+sudo mkdir -p /volume1/docker/rotation/exports
+sudo mkdir -p /volume1/docker/rotation/archive
+sudo chown -R 1001:1001 /volume1/docker/rotation
 ```
 
 > **Why UID 1001?** The `rotation-api` container runs as an unprivileged user (`node`, UID 1001). The data directory must be writable by this user.
@@ -61,7 +61,7 @@ sudo chown -R 1001:1001 /volume1/rotation-data
 ### 2. Create environment file
 
 ```bash
-cd /volume1/rotation-data
+cd /volume1/docker/rotation
 
 cat > .env << 'EOF'
 ROTATION_WRITE_TOKEN=$(openssl rand -hex 32)
@@ -120,7 +120,7 @@ docker compose -f docker-compose.prod.yml up -d
         Album/
             ...audio files
 
-/volume1/rotation-data/
+/volume1/docker/rotation/
     data/
         rotation.db         ← SQLite database
     exports/
@@ -136,7 +136,7 @@ docker compose -f docker-compose.prod.yml up -d
 | Host path | Container path | Mode | Purpose |
 |-----------|---------------|------|---------|
 | `/volume1/music` | `/music` | `ro` | Original music library |
-| `/volume1/rotation-data` | `/rotation-data` | `rw` | Database, exports, staging, archive |
+| `/volume1/docker/rotation` | `/rotation-data` | `rw` | Database, exports, staging, archive |
 
 ---
 
@@ -178,7 +178,7 @@ docker compose -f docker-compose.prod.yml exec rotation-api \
 ```bash
 # Stop Rotation first to ensure consistency
 docker compose -f docker-compose.prod.yml down
-tar czf rotation-backup-$(date +%Y%m%d).tar.gz /volume1/rotation-data
+tar czf rotation-backup-$(date +%Y%m%d).tar.gz /volume1/docker/rotation
 docker compose -f docker-compose.prod.yml up -d
 ```
 
@@ -189,8 +189,8 @@ docker compose -f docker-compose.prod.yml up -d
 docker compose -f docker-compose.prod.yml down
 
 # Restore database
-rm /volume1/rotation-data/data/rotation.db
-cp rotation-backup-YYYYMMDD.db.bak /volume1/rotation-data/data/rotation.db
+rm /volume1/docker/rotation/data/rotation.db
+cp rotation-backup-YYYYMMDD.db.bak /volume1/docker/rotation/data/rotation.db
 
 # Restart
 docker compose -f docker-compose.prod.yml up -d
@@ -207,7 +207,7 @@ add the export folder as a shared folder.
 
 | Path | Description |
 |------|-------------|
-| `/volume1/rotation-data/exports/current-rotation` | Active export (copied from `/music`) |
+| `/volume1/docker/rotation/exports/current-rotation` | Active export (copied from `/music`) |
 
 ### Recommended settings
 
@@ -274,7 +274,7 @@ ports:
 The container runs as UID 1001. Ensure the host directory is owned by this user:
 
 ```bash
-chown -R 1001:1001 /volume1/rotation-data
+chown -R 1001:1001 /volume1/docker/rotation
 ```
 
 Or on Synology DSM, set the folder permissions via File Station → Properties → Permission.
@@ -308,7 +308,7 @@ SQLite WAL mode is enabled. If the container was force-killed, a `-wal` or `-shm
 ## Update Process
 
 ```bash
-cd /volume1/rotation-data
+cd /volume1/docker/rotation
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```

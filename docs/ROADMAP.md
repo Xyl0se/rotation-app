@@ -800,7 +800,7 @@ Rotation stellt nur den Export-Ordner bereit. Die Syncthing-Einrichtung
 
 ### Syncthing-Dokumentation
 
-- Empfohlener Ordner-Pfad: `/volume1/rotation-data/exports/current-rotation`
+- Empfohlener Ordner-Pfad: `/volume1/docker/rotation/exports/current-rotation`
 - Empfohlene Einstellungen (Send-only, Rescan-Intervall)
 - Löschverhalten dokumentieren: Was passiert, wenn ein Album aus der Rotation fällt?
 
