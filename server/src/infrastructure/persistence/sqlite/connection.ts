@@ -1,6 +1,6 @@
 import Database from "better-sqlite3"
 import { join } from "node:path"
-import { mkdirSync } from "node:fs"
+import { mkdirSync, accessSync, constants } from "node:fs"
 
 const DATA_DIR = process.env.ROTATION_DATA_DIR || "./data"
 const DB_PATH = join(DATA_DIR, "rotation.db")
@@ -9,6 +9,14 @@ export function initDatabase(path?: string): Database.Database {
     const dbPath = path ?? DB_PATH
     if (!path) {
         mkdirSync(DATA_DIR, { recursive: true })
+        try {
+            accessSync(DATA_DIR, constants.W_OK)
+        } catch {
+            throw new Error(
+                `Rotation data directory is not writable: ${DATA_DIR}\n` +
+                `Ensure the container user has write permissions on this path.`
+            )
+        }
     }
     const db = new Database(dbPath)
     db.pragma("journal_mode = WAL")
