@@ -32,11 +32,11 @@ export interface ApplyResult {
 }
 
 export async function createExportPreview(albumIds: string[]): Promise<ExportPreviewResult> {
-    return post<ExportPreviewResult>("/exports/preview", { albumIds })
+    return post<ExportPreviewResult>("/exports/preview", { albumIds }, true)
 }
 
 export async function stageExport(exportId: string, albumIds: string[]): Promise<{ exportId: string; status: string }> {
-    return post<{ exportId: string; status: string }>("/exports/stage", { exportId, albumIds })
+    return post<{ exportId: string; status: string }>("/exports/stage", { exportId, albumIds }, true)
 }
 
 export async function getExportStatus(exportId: string): Promise<StagingProgress> {
@@ -44,5 +44,5 @@ export async function getExportStatus(exportId: string): Promise<StagingProgress
 }
 
 export async function applyExport(exportId: string): Promise<ApplyResult> {
-    return post<ApplyResult>("/exports/apply", { exportId })
+    return post<ApplyResult>("/exports/apply", { exportId }, true)
 }

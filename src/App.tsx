@@ -4,6 +4,7 @@ import HomePage from "./pages/HomePage"
 import WelcomePage from "./pages/WelcomePage"
 import BindingsPage from "./pages/BindingsPage"
 import ExportPage from "./pages/ExportPage"
+import WriteTokenDialog from "./components/features/WriteTokenDialog"
 
 import { STORAGE } from "./config/storage"
 import { createLocalStorageAdapter } from "./adapters/localStorageAdapter"
@@ -22,6 +23,7 @@ function App() {
         return adapter.get(STORAGE.ONBOARDING) !== "true"
     })
     const [page, setPage] = useState<Page>("home")
+    const [showTokenDialog, setShowTokenDialog] = useState(false)
 
     function handleContinue() {
         adapter.set(STORAGE.ONBOARDING, "true")
@@ -57,10 +59,21 @@ function App() {
                 >
                     {t.nav.export}
                 </button>
+                <button
+                    className="app-nav__token"
+                    onClick={() => setShowTokenDialog(true)}
+                    title="Write Token"
+                >
+                    🔒
+                </button>
             </nav>
             {page === "home" && <HomePage adapter={adapter} />}
             {page === "bindings" && <BindingsPage />}
             {page === "export" && <ExportPage />}
+            <WriteTokenDialog
+                open={showTokenDialog}
+                onClose={() => setShowTokenDialog(false)}
+            />
         </>
     )
 }

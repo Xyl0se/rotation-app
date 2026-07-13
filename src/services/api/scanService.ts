@@ -6,5 +6,5 @@ export interface ScanResponse {
 }
 
 export async function triggerScan(): Promise<ScanResponse> {
-    return post<ScanResponse>("/scan")
+    return post<ScanResponse>("/scan", undefined, true)
 }

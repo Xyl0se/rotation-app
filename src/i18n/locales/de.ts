@@ -571,6 +571,16 @@ export const de: Translation = {
         en: "English",
     },
 
+    writeToken: {
+        title: "Write-Token",
+        description:
+            "Gib den ROTATION_WRITE_TOKEN aus deiner Server-Umgebung ein, um Schreiboperationen wie Scans und Exporte zu ermöglichen.",
+        placeholder: "Token hier einfügen...",
+        save: "Speichern",
+        clear: "Löschen",
+        saved: "Gespeichert",
+    },
+
     exportPage: {
         title: "Auf Gerät exportieren",
         description:

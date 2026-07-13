@@ -37,18 +37,18 @@ export async function fetchBindings(state?: "proposed" | "confirmed" | "missing"
 }
 
 export async function confirmBinding(albumId: string): Promise<Binding> {
-    return post<Binding>("/bindings/confirm", { albumId })
+    return post<Binding>("/bindings/confirm", { albumId }, true)
 }
 
 export async function deleteBinding(albumId: string): Promise<void> {
     const encoded = encodeURIComponent(albumId)
-    return del(`/bindings?albumId=${encoded}`)
+    return del(`/bindings?albumId=${encoded}`, true)
 }
 
 export async function verifyBindings(): Promise<VerifyResult> {
-    return post<VerifyResult>("/bindings/verify")
+    return post<VerifyResult>("/bindings/verify", undefined, true)
 }
 
 export async function reconcileBindings(): Promise<ReconcileResult> {
-    return post<ReconcileResult>("/bindings/reconcile")
+    return post<ReconcileResult>("/bindings/reconcile", undefined, true)
 }

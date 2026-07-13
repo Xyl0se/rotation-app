@@ -3,6 +3,8 @@
  * All calls are relative to /api (proxied by Vite dev server).
  */
 
+import { getWriteToken } from "./writeToken.js"
+
 const API_BASE = "/api"
 
 export class ApiError extends Error {
@@ -15,6 +17,19 @@ export class ApiError extends Error {
         this.status = status
         this.body = body
     }
+}
+
+function buildHeaders(requireWrite = false): Record<string, string> {
+    const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+    }
+    if (requireWrite) {
+        const token = getWriteToken()
+        if (token) {
+            headers["x-rotation-write-token"] = token
+        }
+    }
+    return headers
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
@@ -34,20 +49,19 @@ export async function get<T>(path: string): Promise<T> {
     return handleResponse<T>(response)
 }
 
-export async function post<T>(path: string, body?: unknown): Promise<T> {
+export async function post<T>(path: string, body?: unknown, requireWrite = false): Promise<T> {
     const response = await fetch(`${API_BASE}${path}`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
+        headers: buildHeaders(requireWrite),
         body: body ? JSON.stringify(body) : undefined,
     })
     return handleResponse<T>(response)
 }
 
-export async function del(path: string): Promise<void> {
+export async function del(path: string, requireWrite = false): Promise<void> {
     const response = await fetch(`${API_BASE}${path}`, {
         method: "DELETE",
+        headers: requireWrite ? buildHeaders(true) : {},
     })
     if (!response.ok) {
         const body = await response.json().catch(() => null)

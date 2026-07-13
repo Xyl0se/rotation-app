@@ -12,5 +12,11 @@ export function createConfigRouter(cfg: Config): Router {
         })
     })
 
+    router.get("/auth", (_req, res) => {
+        res.json({
+            requiresWriteToken: true,
+        })
+    })
+
     return router
 }
