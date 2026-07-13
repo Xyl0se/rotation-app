@@ -4,7 +4,17 @@
 >
 > Rotation accompanies the relationship between person and album.
 
-Version: v0.22.x-dev
+Version: v0.25.x-dev
+
+---
+
+# ⚠️ Current Focus: Stabilization
+
+**New features are frozen until Sprint 75 is completed.**
+
+Rotation has undergone a massive architectural expansion (Sprints 58–70): server persistence, Docker deployment, album file binding, and the export engine. The system is functional but not yet battle-tested under real-world NAS conditions.
+
+The next sprints are dedicated exclusively to **hardening, bugfixing, and operational reliability**. No new product features will be added.
 
 ---
 
@@ -187,45 +197,6 @@ Internationalization (i18n)
 Documentation Sprint
 
 ---
-
-# Current Architecture
-
-Rotation consists of two clearly separated layers.
-
-## Library
-
-The library describes the entire album collection.
-
-Album roles document relationships.
-
-The library has no target sizes.
-
-It is not evaluated.
-
-It serves as the basis for:
-
-- Reflection
-- Timeline
-- Insights
-- Player Rotation
-
----
-
-## Player Rotation
-
-The Player Rotation is a consciously curated selection.
-
-It may be explained.
-
-It may be reflected upon.
-
-It may later be intelligently supported.
-
-Recommendations refer exclusively to this layer.
-
----
-
-# Next Development Phase
 
 ## Phase VIII
 
@@ -419,16 +390,16 @@ After Sprint 58 Rotation looks approximately like this:
                     │
            Repository Pattern
                     │
-              REST API Layer
+               REST API Layer
                     │
-          Persistence Service
-          ├───────────────┐
-          │               │
-       SQLite        Cover Storage
-                         │
-                  Original Covers
-                  Custom Covers
-                  Cache
+           Persistence Service
+           ├───────────────┐
+           │               │
+        SQLite        Cover Storage
+                          │
+                   Original Covers
+                   Custom Covers
+                   Cache
 
 ⸻
 
@@ -508,6 +479,8 @@ Legacy German strings in the domain layer are identified as a known follow-up it
 ---
 
 # Sprint 61 - Search & Discovery
+
+**Status:** Backlog — frozen until stabilization is complete.
 
 ## Goal
 Better access to large libraries.
@@ -835,12 +808,216 @@ Rotation stellt nur den Export-Ordner bereit. Die Syncthing-Einrichtung
 
 ---
 
-# Phase IX — Platform & Companion (Backlog)
+# Phase VIIIb — Stabilization & Hardening (Active)
 
-Sprints, die ursprünglich als 63–66 geplant waren, werden hier als Backlog geführt.
-Der Fokus liegt aktuell auf der Synology-Integration.
+> **No new features. Only robustness, bugfixing, and operational reliability.**
+
+The system has been deployed but needs to prove itself under real-world conditions on a Synology NAS. This phase is about making Rotation trustworthy before any new product features are added.
 
 ---
+
+## Sprint 71 — Binding & Scan Robustness
+
+**Status:** Planned
+
+**Target version:** `v0.25.1-dev`
+
+### Goal
+
+Bindings and scan are reliable under real-world conditions.
+
+### Architecture Changes
+
+None. Bugfixes and edge-case handling only.
+
+### Affected Components
+
+- `ScanService` — empty directories, special characters in paths, permission denied
+- `BindingRepository` — race conditions during parallel scans
+- `BindingsPage.tsx` — UI feedback for long scans (>30s)
+
+### Risks
+
+- NAS filesystem behavior (NFS, case-sensitivity) differs from local dev setup
+- Large music libraries may cause timeouts
+
+### Definition of Done
+
+- [ ] Scan completes even when `/music` is temporarily unreachable
+- [ ] `missing` bindings are reliably detected
+- [ ] No unhandled rejections in the scan flow
+- [ ] UI shows scan progress instead of only a spinner
+- [ ] Special characters in folder names (umlauts, spaces, brackets) are handled
+- [ ] Scan is idempotent: running twice produces the same result
+
+---
+
+## Sprint 72 — Export Safety & Edge Cases
+
+**Status:** Planned
+
+**Target version:** `v0.25.2-dev`
+
+### Goal
+
+The export flow is safe under all conditions.
+
+### Architecture Changes
+
+None.
+
+### Affected Components
+
+- `ExportService` — what happens when an album is deleted during export?
+- `ExportLock` — what happens on Docker restart during Apply?
+- `PathGuard` — symlink attacks, path traversal
+- `ExportPage.tsx` — better error states and recovery UI
+
+### Risks
+
+- Data loss in the export folder (Syncthing might sync during Apply)
+- Partial copy leaves staging in inconsistent state
+
+### Definition of Done
+
+- [ ] Export can continue when an album is missing (skip + report)
+- [ ] Apply is atomic even on `kill -9` of the container
+- [ ] PathGuard rejects any path manipulation attempts
+- [ ] Archives older than 30 days are automatically cleaned up
+- [ ] Staging directories are cleaned up after failed exports
+- [ ] Export size calculation handles unreadable files gracefully
+
+---
+
+## Sprint 73 — Frontend Resilience
+
+**Status:** Planned
+
+**Target version:** `v0.25.3-dev`
+
+### Goal
+
+The frontend survives API outages, timeouts, and network issues.
+
+### Architecture Changes
+
+None.
+
+### Affected Components
+
+- `ApiStorageAdapter` — retry logic, exponential backoff
+- `useExport.ts` — state machine must not end in dead ends
+- All pages — loading and error states audited
+- `App.tsx` — global error boundary
+
+### Risks
+
+- User confusion from unclear error messages
+- Retry storms overwhelming a recovering API
+
+### Definition of Done
+
+- [ ] API timeout after 10s with retry (max 3x)
+- [ ] Exponential backoff between retries
+- [ ] Offline indicator in header
+- [ ] No infinite loading spinners
+- [ ] Every API call has an error handler
+- [ ] Global error boundary catches React crashes
+- [ ] Toast/notification system for async operation results
+
+---
+
+## Sprint 74 — Data Integrity & Backup
+
+**Status:** Planned
+
+**Target version:** `v0.25.4-dev`
+
+### Goal
+
+Data is safe even in catastrophic failures.
+
+### Architecture Changes
+
+- Automatic SQLite backup (e.g., daily to `/rotation-data/backups/`)
+- Backup rotation (keep only last 7 days)
+
+### Affected Components
+
+- `initDatabase` — WAL checkpoint before backup
+- New `backupService.ts`
+- Docker volume for backups (optional)
+- `SELFHOST.md` — backup and restore procedures
+
+### Risks
+
+- Backup during running export = inconsistent DB
+- Backup file corruption if disk is full
+
+### Definition of Done
+
+- [ ] Daily automatic backup
+- [ ] Backup during export is prevented (lock)
+- [ ] Restore from backup is documented and tested
+- [ ] DB migrations are reversibly documented
+- [ ] Backup rotation: only 7 most recent backups kept
+- [ ] Backup integrity is verified (SQLite PRAGMA integrity_check)
+
+---
+
+## Sprint 75 — Observability & Operations
+
+**Status:** Planned
+
+**Target version:** `v0.25.5-dev`
+
+### Goal
+
+You can see what Rotation is doing without looking at the code.
+
+### Architecture Changes
+
+- Structured logging (not just `console.log`)
+- Healthcheck returns more than just `200 OK`
+- Optional: metrics (export size, scan duration)
+
+### Affected Components
+
+- `logger.ts` — consistent log format
+- `health.ts` — DB connection, volume state, last scan
+- `SELFHOST.md` — troubleshooting extension
+- Docker Compose — log rotation configuration
+
+### Definition of Done
+
+- [ ] Every important operation (scan, export, apply) is logged
+- [ ] Healthcheck shows: DB ok, /music readable, /rotation-data writable
+- [ ] Logs are readable via `docker compose logs -f` and meaningful
+- [ ] `SELFHOST.md` has a troubleshooting section
+- [ ] Log rotation is configured (no unbounded log growth)
+- [ ] Failed operations are logged with enough context to debug
+
+---
+
+# Phase IX — Search & Discovery (Backlog)
+
+**Status:** Frozen until Sprint 75 is completed.
+
+Sprint 61 and 68B (Fuzzy Matching) will be picked up here when stabilization is done.
+
+## Topics
+
+- Search library
+- Intelligent filters
+- Quick navigation
+- Prepared Smart Collections
+- Fuzzy Matching for album→folder binding proposals
+
+---
+
+# Phase X — Platform & Companion (Backlog)
+
+**Status:** No active development. Future vision only.
 
 ## Platform Foundation
 
@@ -852,19 +1029,13 @@ Preparation of a native application.
 - Offline First
 - Prepare synchronization
 
----
-
 ## Native Prototype
 
 First runnable mobile version.
 
----
-
-## Musical Companion (ursprünglich Phase IX)
+## Musical Companion
 
 Rotation evolves from tool to companion.
-
----
 
 ## Weekly Reflection
 
@@ -873,8 +1044,6 @@ Weekly reviews.
 Not statistics.
 
 But stories.
-
----
 
 ## Listening Patterns
 
@@ -887,8 +1056,6 @@ Examples:
 - Your classics change hardly at all.
 
 No evaluation. Only observation.
-
----
 
 ## Explainability 2.0
 
