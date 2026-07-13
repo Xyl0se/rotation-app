@@ -35,6 +35,14 @@ export function createScanRunRepository(db: Database.Database) {
         SELECT * FROM scan_runs WHERE id = ?
     `)
 
+    const updateProgressStmt = db.prepare<[
+        number, number, string
+    ]>(`
+        UPDATE scan_runs
+        SET directories_scanned = ?, directories_skipped = ?
+        WHERE id = ?
+    `)
+
     const findAll = db.prepare<[]>(`
         SELECT * FROM scan_runs ORDER BY started_at DESC
     `)
@@ -79,6 +87,14 @@ export function createScanRunRepository(db: Database.Database) {
 
         findById(id: string): ScanRunRecord | undefined {
             return findById.get(id) as ScanRunRecord | undefined
+        },
+
+        updateProgress(
+            id: string,
+            directoriesScanned: number,
+            directoriesSkipped: number,
+        ): void {
+            updateProgressStmt.run(directoriesScanned, directoriesSkipped, id)
         },
 
         findAll(): ScanRunRecord[] {

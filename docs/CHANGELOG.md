@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.25.3-dev
+
+- **Sprint 73 — Frontend Resilience**
+  - **API Resilience (73A)**: `retryFetch` mit 10s Timeout, 3 Retries und exponentiellem Backoff (1s → 2s → 4s). Offline-Erkennung via `navigator.onLine`. `ApiError` erweitert um `retryable`. `ConnectionContext` mit `isOnline`, `isRetrying`, `retryCount`. Offline-Indikator in der Nav-Leiste. Unit-Tests für Retry-Logik.
+  - **Feedback Systems (73B)**: `ToastContext` mit FIFO-Queue (max 3, Auto-Dismiss 5s), Typen `success/error/info/warning`. `ErrorBoundary` für React-Crashes mit Fallback-UI + Reload-Button. Toasts bei Export-, Binding- und Scan-Operationen.
+  - **Export & Bindings Polish (73C)**: Staging-Polling mit 60s Timeout und Fehlerzustand mit Reset-Option. Verify/Reconcile Buttons mit erklärenden Tooltips (DE/EN). `.bindings-actions` mit visuellem Rahmen, Padding und Hintergrund.
+  - **Scan Real Progress (73D)**: `POST /scan` gibt `scanId` zurück. `GET /scan/:id/progress` liefert `directoriesScanned`, `directoriesSkipped` und `status`. Frontend pollt alle 2s und zeigt Live-Fortschritt im Button-Label. 60s Safety-Timeout.
+  - **Integration & Audit (73E)**: Alle API-Calls geprüft – keine raw `fetch()` außerhalb `apiClient.ts`. Alle Seiten mit Loading- und Error-States. 311 Tests grün, Type-Check clean.
+
 ## v0.27.0
 
 - **Sprint 72 — Export Safety & Edge Cases**

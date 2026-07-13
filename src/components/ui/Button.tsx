@@ -9,6 +9,7 @@ type ButtonProps = {
     variant?: "primary" | "secondary"
 
     disabled?: boolean
+    title?: string
 
 }
 
@@ -21,6 +22,7 @@ function Button({
     variant = "primary",
 
     disabled = false,
+    title,
 
 }: ButtonProps) {
 
@@ -33,6 +35,7 @@ function Button({
             onClick={onClick}
 
             disabled={disabled}
+            title={title}
 
         >
 

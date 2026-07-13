@@ -4,18 +4,21 @@
  */
 
 import { getWriteToken } from "./writeToken.js"
+import { retryFetch } from "./retryFetch.js"
 
 const API_BASE = "/api"
 
 export class ApiError extends Error {
     status: number
     body: unknown
+    retryable: boolean
 
-    constructor(status: number, body: unknown, message: string) {
+    constructor(status: number, body: unknown, message: string, retryable = false) {
         super(message)
         this.name = "ApiError"
         this.status = status
         this.body = body
+        this.retryable = retryable
     }
 }
 
@@ -32,6 +35,10 @@ function buildHeaders(requireWrite = false): Record<string, string> {
     return headers
 }
 
+function isRetryableStatus(status: number): boolean {
+    return status >= 500
+}
+
 async function handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
         const body = await response.json().catch(() => null)
@@ -39,18 +46,19 @@ async function handleResponse<T>(response: Response): Promise<T> {
             response.status,
             body,
             body?.error ?? `HTTP ${response.status}`,
+            isRetryableStatus(response.status),
         )
     }
     return response.json() as Promise<T>
 }
 
 export async function get<T>(path: string): Promise<T> {
-    const response = await fetch(`${API_BASE}${path}`)
+    const response = await retryFetch(`${API_BASE}${path}`)
     return handleResponse<T>(response)
 }
 
 export async function post<T>(path: string, body?: unknown, requireWrite = false): Promise<T> {
-    const response = await fetch(`${API_BASE}${path}`, {
+    const response = await retryFetch(`${API_BASE}${path}`, {
         method: "POST",
         headers: buildHeaders(requireWrite),
         body: body ? JSON.stringify(body) : undefined,
@@ -59,7 +67,7 @@ export async function post<T>(path: string, body?: unknown, requireWrite = false
 }
 
 export async function del(path: string, requireWrite = false): Promise<void> {
-    const response = await fetch(`${API_BASE}${path}`, {
+    const response = await retryFetch(`${API_BASE}${path}`, {
         method: "DELETE",
         headers: requireWrite ? buildHeaders(true) : {},
     })
@@ -69,6 +77,7 @@ export async function del(path: string, requireWrite = false): Promise<void> {
             response.status,
             body,
             body?.error ?? `HTTP ${response.status}`,
+            isRetryableStatus(response.status),
         )
     }
 }

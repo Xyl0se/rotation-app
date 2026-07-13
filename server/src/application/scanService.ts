@@ -28,7 +28,9 @@ export function createScanService(
             })
 
             try {
-                const result = scanner(options)
+                const result = scanner(options, (progress) => {
+                    scanRunRepo.updateProgress(scanId, progress.directoriesScanned, progress.directoriesSkipped)
+                })
                 const scannedPaths = new Set(result.albumFolders.map(f => f.relativePath))
 
                 // 1. Mark existing confirmed bindings as missing if folder no longer found

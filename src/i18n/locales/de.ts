@@ -563,6 +563,8 @@ export const de: Translation = {
         home: "Start",
         bindings: "Bindings",
         export: "Export",
+        offline: "Offline — warte auf Verbindung",
+        retrying: "Wiederhole…",
     },
 
     language: {
@@ -598,6 +600,10 @@ export const de: Translation = {
             `${count} Album(e) konnten nicht kopiert werden.`,
         retryStaging: "Erneut versuchen",
         continueAnyway: "Trotzdem fortfahren",
+        stagingTimeout:
+            "Export-Vorbereitung hat das Zeitlimit überschritten. Bitte erneut versuchen.",
+        retryFromStep: "Von aktuellem Schritt wiederholen",
+        resetAndStartOver: "Zurücksetzen und neu starten",
         recoveryNotice: (info: { recovered: number; cleanedStagingDirs: number; cleanedArchives: number }) =>
             `Ein vorheriger Export wurde automatisch wiederhergestellt (${info.recovered} Operationen, ${info.cleanedStagingDirs} Staging-Verzeichnisse bereinigt, ${info.cleanedArchives} Archive bereinigt).`,
         crashRecoveryDismiss: "Schließen",
@@ -637,6 +643,10 @@ export const de: Translation = {
         folderMissing: "Ordner nicht gefunden",
         verify: "Überprüfen",
         reconcile: "Abgleichen",
+        verifyTooltip:
+            "Prüft alle bestätigten Bindings gegen das Dateisystem und markiert fehlende Ordner",
+        reconcileTooltip:
+            "Hebt vorgeschlagene Bindings zu bestätigten hoch, wenn der Ordner noch existiert",
         verifyResult: (ok: number, missing: number) =>
             `${ok} bestätigt, ${missing} fehlend`,
         reconcileResult: (count: number) =>
@@ -652,6 +662,8 @@ export const de: Translation = {
         refresh: "Aktualisieren",
         scanNow: "Ordner scannen",
         scanning: "Scan läuft…",
+        scanningWithProgress: (scanned: number, skipped: number) =>
+            `Scan läuft… (${scanned} Verzeichnisse gescannt, ${skipped} übersprungen)`,
         scanQueued: "Scan gestartet, bitte warten…",
         database: "Datenbank",
         databaseFail: "Nicht erreichbar",

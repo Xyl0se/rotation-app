@@ -1,5 +1,15 @@
 /* Bindings Page Styles */
 
+.bindings-actions {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fafafa;
+    margin-bottom: 1rem;
+}
+
 .bindings-page {
     padding: 1.5rem;
     max-width: 800px;

@@ -109,10 +109,20 @@ export default function BindingsPage() {
             <h1 className="bindings-title">{t.bindings.title}</h1>
 
             <div className="bindings-actions">
-                <Button variant="secondary" onClick={handleVerify} disabled={loading}>
+                <Button
+                    variant="secondary"
+                    onClick={handleVerify}
+                    disabled={loading}
+                    title={t.bindings.verifyTooltip}
+                >
                     {t.bindings.verify}
                 </Button>
-                <Button variant="secondary" onClick={handleReconcile} disabled={loading}>
+                <Button
+                    variant="secondary"
+                    onClick={handleReconcile}
+                    disabled={loading}
+                    title={t.bindings.reconcileTooltip}
+                >
                     {t.bindings.reconcile}
                 </Button>
             </div>

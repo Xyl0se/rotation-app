@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { fetchDiagnostics, type DiagnosticsResponse } from "../../../services/api/diagnosticsService.js"
-import { triggerScan } from "../../../services/api/scanService.js"
-import { getApiErrorMessage } from "../../../services/api/apiClient.js"
+import { triggerScan, getScanProgress } from "../../../services/api/scanService.js"
+import { getApiErrorMessage, ApiError } from "../../../services/api/apiClient.js"
 import { useI18n } from "../../../i18n/useI18n.js"
 
 type PanelState = "loading" | "error" | "info" | "warning" | "ok"
@@ -51,6 +51,7 @@ export default function DiagnosticsPanel() {
     const [expanded, setExpanded] = useState(false)
     const [scanning, setScanning] = useState(false)
     const [scanQueued, setScanQueued] = useState(false)
+    const [scanProgress, setScanProgress] = useState<{ directoriesScanned: number; directoriesSkipped: number } | null>(null)
 
     const load = useCallback(async () => {
         setLoading(true)
@@ -72,27 +73,66 @@ export default function DiagnosticsPanel() {
     const handleScan = useCallback(async () => {
         setScanning(true)
         setScanQueued(false)
+        setScanProgress(null)
+        let progressPoll: ReturnType<typeof setInterval> | null = null
+
         try {
-            await triggerScan()
+            const response = await triggerScan()
             setScanQueued(true)
-            // Poll for scan completion every 2 seconds
-            const poll = setInterval(async () => {
+
+            // Poll for scan progress every 2 seconds
+            progressPoll = setInterval(async () => {
+                try {
+                    const progress = await getScanProgress(response.scanId)
+                    setScanProgress({
+                        directoriesScanned: progress.directoriesScanned,
+                        directoriesSkipped: progress.directoriesSkipped,
+                    })
+                    if (progress.status !== "running") {
+                        if (progressPoll) clearInterval(progressPoll)
+                        // Final refresh via diagnostics
+                        const d = await fetchDiagnostics()
+                        setDiag(d)
+                        setScanning(false)
+                        setScanProgress(null)
+                    }
+                } catch (e) {
+                    // 404 = older server without progress endpoint, fallback to generic scanning
+                    if (e instanceof ApiError && e.status === 404) {
+                        setScanProgress(null)
+                    } else {
+                        if (progressPoll) clearInterval(progressPoll)
+                        setScanning(false)
+                        setScanProgress(null)
+                    }
+                }
+            }, 2000)
+
+            // Also poll diagnostics for completion (in case progress endpoint fails)
+            const diagPoll = setInterval(async () => {
                 try {
                     const d = await fetchDiagnostics()
                     setDiag(d)
                     if (d.bindings.lastScanStatus && d.bindings.lastScanStatus !== "running") {
-                        clearInterval(poll)
+                        clearInterval(diagPoll)
+                        if (progressPoll) clearInterval(progressPoll)
                         setScanning(false)
+                        setScanProgress(null)
                     }
                 } catch {
-                    clearInterval(poll)
+                    clearInterval(diagPoll)
+                    if (progressPoll) clearInterval(progressPoll)
                     setScanning(false)
+                    setScanProgress(null)
                 }
             }, 2000)
+
             // Safety timeout after 60 seconds
             setTimeout(() => {
-                clearInterval(poll)
+                if (progressPoll) clearInterval(progressPoll)
+                clearInterval(diagPoll)
                 setScanning(false)
+                setScanProgress(null)
             }, 60000)
         } catch (e) {
             setError(getApiErrorMessage(e))
@@ -210,7 +250,11 @@ export default function DiagnosticsPanel() {
                                 onClick={handleScan}
                                 disabled={scanning}
                             >
-                                {scanning ? t.diagnostics.scanning : t.diagnostics.scanNow}
+                                {scanning
+                                    ? scanProgress
+                                        ? t.diagnostics.scanningWithProgress(scanProgress.directoriesScanned, scanProgress.directoriesSkipped)
+                                        : t.diagnostics.scanning
+                                    : t.diagnostics.scanNow}
                             </button>
                             {scanQueued && !scanning && (
                                 <span className="diagnostics-scan-queued">{t.diagnostics.scanQueued}</span>

@@ -26,7 +26,7 @@ function useActiveRotationPlan(): RotationPlan | null {
 export default function ExportPage() {
     const { t } = useI18n()
     const rotationPlan = useActiveRotationPlan()
-    const { state, preview, runStage, runApply, retry, reset, checkStartupRecovery } = useExport()
+    const { state, preview, runStage, runApply, retry, reset, checkStartupRecovery, retryFromStep, resetAndStartOver } = useExport()
     const [recoveryNotice, setRecoveryNotice] = useState<{ recovered: number; cleanedStagingDirs: number; cleanedArchives: number } | null>(null)
 
     useEffect(() => {
@@ -221,9 +221,14 @@ export default function ExportPage() {
                     {state.step === "error" && (
                         <div className="export-error">
                             <p>{t.exportPage.error(state.error ?? "")}</p>
-                            <Button variant="secondary" onClick={reset}>
-                                {t.exportPage.reset}
-                            </Button>
+                            <div className="export-actions">
+                                <Button variant="secondary" onClick={resetAndStartOver}>
+                                    {t.exportPage.resetAndStartOver}
+                                </Button>
+                                <Button onClick={retryFromStep}>
+                                    {t.exportPage.retryFromStep}
+                                </Button>
+                            </div>
                         </div>
                     )}
                 </Card>

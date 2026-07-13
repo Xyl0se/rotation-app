@@ -5,6 +5,8 @@ import WelcomePage from "./pages/WelcomePage"
 import BindingsPage from "./pages/BindingsPage"
 import ExportPage from "./pages/ExportPage"
 import WriteTokenDialog from "./components/features/WriteTokenDialog"
+import OfflineIndicator from "./components/ui/OfflineIndicator"
+import ToastContainer from "./components/ui/Toast"
 
 import { STORAGE } from "./config/storage"
 import { createLocalStorageAdapter } from "./adapters/localStorageAdapter"
@@ -41,6 +43,7 @@ function App() {
     return (
         <>
             <nav className="app-nav">
+                <OfflineIndicator />
                 <button
                     className={page === "home" ? "active" : ""}
                     onClick={() => setPage("home")}
@@ -70,6 +73,7 @@ function App() {
             {page === "home" && <HomePage adapter={adapter} />}
             {page === "bindings" && <BindingsPage />}
             {page === "export" && <ExportPage />}
+            <ToastContainer />
             <WriteTokenDialog
                 open={showTokenDialog}
                 onClose={() => setShowTokenDialog(false)}

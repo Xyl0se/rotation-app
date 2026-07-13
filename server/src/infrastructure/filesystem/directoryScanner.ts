@@ -8,6 +8,11 @@ function normalizeUnicode(value: string): string {
 import { createDefaultScanOptions } from "../../domain/scan/albumFolder.js"
 import type { PathGuard } from "./pathGuard.js"
 
+export interface ScanProgress {
+    directoriesScanned: number
+    directoriesSkipped: number
+}
+
 export interface ScanResult {
     /** Folders that look like Artist/Album */
     albumFolders: AlbumFolder[]
@@ -22,7 +27,10 @@ export interface ScanResult {
 }
 
 export function createDirectoryScanner(musicGuard: PathGuard) {
-    return function scan(options?: ScanOptions): ScanResult {
+    return function scan(
+        options?: ScanOptions,
+        onProgress?: (progress: ScanProgress) => void,
+    ): ScanResult {
         const opts = { ...createDefaultScanOptions(), ...options }
         const ignoreSet = opts.ignoreNames ?? new Set<string>()
         const maxDepth = opts.maxDepth ?? 3
@@ -31,6 +39,30 @@ export function createDirectoryScanner(musicGuard: PathGuard) {
         let directoriesScanned = 0
         let directoriesSkipped = 0
         const startedAt = new Date()
+
+        let progressCounter = 0
+        let lastProgressTime = 0
+        const PROGRESS_DIR_INTERVAL = 10
+        const PROGRESS_TIME_INTERVAL_MS = 500
+
+        function fireProgress(): void {
+            if (onProgress) {
+                onProgress({ directoriesScanned, directoriesSkipped })
+            }
+        }
+
+        function maybeFireProgress(): void {
+            progressCounter++
+            const now = Date.now()
+            if (
+                progressCounter >= PROGRESS_DIR_INTERVAL ||
+                now - lastProgressTime >= PROGRESS_TIME_INTERVAL_MS
+            ) {
+                fireProgress()
+                progressCounter = 0
+                lastProgressTime = now
+            }
+        }
 
         // musicGuard resolves relative "" to the absolute music root
         let musicRoot: string
@@ -66,6 +98,7 @@ export function createDirectoryScanner(musicGuard: PathGuard) {
             }
 
             directoriesScanned++
+            maybeFireProgress()
 
             for (const entry of entries) {
                 if (ignoreSet.has(entry)) continue
@@ -104,6 +137,7 @@ export function createDirectoryScanner(musicGuard: PathGuard) {
         }
 
         scanDir(musicRoot, 0)
+        fireProgress()
 
         return {
             albumFolders,

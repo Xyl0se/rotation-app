@@ -1,10 +1,21 @@
-import { post } from "./apiClient.js"
+import { post, get } from "./apiClient.js"
 
 export interface ScanResponse {
     scanId: string
     status: string
 }
 
+export interface ScanProgressResponse {
+    scanId: string
+    directoriesScanned: number
+    directoriesSkipped: number
+    status: string
+}
+
 export async function triggerScan(): Promise<ScanResponse> {
     return post<ScanResponse>("/scan", undefined, true)
+}
+
+export async function getScanProgress(scanId: string): Promise<ScanProgressResponse> {
+    return get<ScanProgressResponse>(`/scan/${scanId}/progress`)
 }

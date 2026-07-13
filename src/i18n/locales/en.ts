@@ -561,6 +561,8 @@ export const en = {
         home: "Home",
         bindings: "Bindings",
         export: "Export",
+        offline: "Offline — waiting for connection",
+        retrying: "Retrying…",
     },
 
     language: {
@@ -596,6 +598,10 @@ export const en = {
             `${count} album(s) could not be copied.`,
         retryStaging: "Retry",
         continueAnyway: "Continue Anyway",
+        stagingTimeout:
+            "Export staging timed out. Please try again.",
+        retryFromStep: "Retry from current step",
+        resetAndStartOver: "Reset and start over",
         recoveryNotice: (info: { recovered: number; cleanedStagingDirs: number; cleanedArchives: number }) =>
             `A previous export was automatically recovered (${info.recovered} operations, ${info.cleanedStagingDirs} staging dirs cleaned, ${info.cleanedArchives} archives cleaned).`,
         crashRecoveryDismiss: "Dismiss",
@@ -635,6 +641,10 @@ export const en = {
         folderMissing: "Folder not found",
         verify: "Verify",
         reconcile: "Reconcile",
+        verifyTooltip:
+            "Checks all confirmed bindings against the filesystem and marks missing folders",
+        reconcileTooltip:
+            "Promotes proposed bindings to confirmed when the folder still exists",
         verifyResult: (ok: number, missing: number) =>
             `${ok} confirmed, ${missing} missing`,
         reconcileResult: (count: number) =>
@@ -650,6 +660,8 @@ export const en = {
         refresh: "Refresh",
         scanNow: "Scan folders",
         scanning: "Scanning…",
+        scanningWithProgress: (scanned: number, skipped: number) =>
+            `Scanning… (${scanned} directories scanned, ${skipped} skipped)`,
         scanQueued: "Scan started, please wait…",
         database: "Database",
         databaseFail: "Not reachable",

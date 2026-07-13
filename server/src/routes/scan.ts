@@ -51,5 +51,20 @@ export function createScanRouter(
         })
     })
 
+    router.get("/:scanId/progress", (req: Request, res: Response) => {
+        const scanId = req.params.scanId as string
+        const scanRun = scanRunRepo.findById(scanId)
+        if (!scanRun) {
+            res.status(404).json({ error: "Scan not found" })
+            return
+        }
+        res.json({
+            scanId: scanRun.id,
+            directoriesScanned: scanRun.directories_scanned,
+            directoriesSkipped: scanRun.directories_skipped,
+            status: scanRun.status,
+        })
+    })
+
     return router
 }

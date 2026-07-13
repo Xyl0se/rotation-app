@@ -92,9 +92,25 @@ export function useExport() {
             const albumIds = previewResult.sources.map(s => s.albumId)
             await stageExport(previewResult.exportId, albumIds)
 
-            // Start polling
+            // Start polling with timeout
             stopPolling()
+            let elapsed = 0
+            const POLL_INTERVAL_MS = 500
+            const POLL_TIMEOUT_MS = 60000
+
             pollRef.current = setInterval(async () => {
+                elapsed += POLL_INTERVAL_MS
+                if (elapsed >= POLL_TIMEOUT_MS) {
+                    stopPolling()
+                    setState(s => ({
+                        ...s,
+                        step: "error",
+                        error: "Export staging timed out. Please try again.",
+                        warning: null,
+                    }))
+                    return
+                }
+
                 try {
                     const progress = await getExportStatus(previewResult.exportId)
                     const hasSkipped = progress.skippedSources && progress.skippedSources.length > 0
@@ -133,7 +149,7 @@ export function useExport() {
                         warning: null,
                     }))
                 }
-            }, 500)
+            }, POLL_INTERVAL_MS)
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err)
             setState(s => ({
@@ -171,13 +187,6 @@ export function useExport() {
         }
     }, [state.preview])
 
-    const retry = useCallback(async () => {
-        reset()
-        if (lastPlanRef.current) {
-            await preview(lastPlanRef.current)
-        }
-    }, [preview])
-
     const reset = useCallback(() => {
         stopPolling()
         setState({
@@ -189,6 +198,25 @@ export function useExport() {
             warning: null,
         })
     }, [stopPolling])
+
+    const retryFromStep = useCallback(async () => {
+        setState(s => ({ ...s, step: "staging", error: null, warning: null }))
+        await runStage()
+    }, [runStage])
+
+    const resetAndStartOver = useCallback(async () => {
+        reset()
+        if (lastPlanRef.current) {
+            await preview(lastPlanRef.current)
+        }
+    }, [reset, preview])
+
+    const retry = useCallback(async () => {
+        reset()
+        if (lastPlanRef.current) {
+            await preview(lastPlanRef.current)
+        }
+    }, [reset, preview])
 
     const checkStartupRecovery = useCallback(async () => {
         try {
@@ -209,6 +237,8 @@ export function useExport() {
         runApply,
         retry,
         reset,
+        retryFromStep,
+        resetAndStartOver,
         checkStartupRecovery,
     }
 }
