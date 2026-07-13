@@ -6,6 +6,7 @@
 
     # API proxy to backend service
     handle /api/* {
+        uri strip_prefix /api
         reverse_proxy rotation-api:3001
     }
 
