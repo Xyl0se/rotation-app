@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.26.0
+
+- **Sprint 70A — System Diagnostics Panel**
+  - Health-Check Panel im Frontend: DB, Music folder, Workspace, Syncthing, Bindings
+  - Expandable Details mit Refresh-Button
+  - i18n DE/EN
+
+- **Stabilization Bugfixes**
+  - Write-Token Dialog: Token wird persistiert und bei POST/PUT/DELETE automatisch gesendet
+  - Scan-Button: Erscheint jetzt auch wenn letzter Scan 0 Bindings produziert hat
+  - Docker Volume-Mount: Musik auf `/volume1/rotation/music` korrigiert
+  - Synology Permissions: Container-User 1026:100 bekommt Lesezugriff
+
 ## v0.25.0-dev
 
 - **Sprint 70 — Operations & Deployment Polish**

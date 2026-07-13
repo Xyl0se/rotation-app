@@ -820,7 +820,7 @@ The system has been deployed but needs to prove itself under real-world conditio
 
 **Status:** Completed
 
-**Target version:** `v0.25.1-dev`
+**Target version:** `v0.26.0`
 
 ### Goal
 

@@ -6,16 +6,15 @@ Early tags remain as historical markers. Versions are not retroactively added.
 
 ## Current Anchor
 
-`v0.21.0-dev` marks Sprint 60: Internationalization (i18n) & Documentation Sprint.
+`v0.26.0` marks Sprint 70A: System Diagnostics Panel & Stabilization Bugfixes.
 
 Includes:
 
-- Complete i18n system with DE/EN locale files
-- React Context + Hook for type-safe translations
-- Language switcher with persistent preference
-- All UI components internationalized
-- All documentation translated to English
-- No new dependencies — pure TypeScript/React implementation
+- Health-Check Panel im Frontend: DB, Music folder, Workspace, Syncthing, Bindings
+- Expandable Details mit Refresh-Button
+- Write-Token Dialog funktioniert korrekt
+- Scan-Button erscheint auch bei 0 Bindings
+- Docker Volume-Mount und Permissions korrigiert
 
 ## Rule
 
