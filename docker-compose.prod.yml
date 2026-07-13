@@ -5,7 +5,7 @@ services:
     user: "1026:100"
     volumes:
       - /volume1/docker/rotation:/rotation-data:rw
-      - /volume1/music:/music:ro
+      - /volume1/rotation/music:/music:ro
     environment:
       - ROTATION_DATA_DIR=/rotation-data/data
       - ROTATION_MUSIC_PATH=/music
