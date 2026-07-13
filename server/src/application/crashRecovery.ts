@@ -1,4 +1,4 @@
-import { existsSync, rmSync, readdirSync, statSync } from "node:fs"
+import { existsSync, rmSync, readdirSync, statSync, renameSync } from "node:fs"
 import { join } from "node:path"
 import type { ExportOperationRepository } from "../infrastructure/persistence/sqlite/exportOperationRepository.js"
 import type { ExportLockRepository } from "../infrastructure/persistence/sqlite/exportLockRepository.js"
@@ -7,6 +7,20 @@ import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
 const STALE_STAGING_HOURS = 24
 const OLD_ARCHIVE_DAYS = 30
 
+export interface RecoveryResult {
+    recovered: number
+    cleanedStagingDirs: number
+    cleanedArchives: number
+}
+
+let lastRecoveryResult: RecoveryResult | null = null
+
+export function getAndClearLastRecoveryResult(): RecoveryResult | null {
+    const result = lastRecoveryResult
+    lastRecoveryResult = null
+    return result
+}
+
 export function runCrashRecovery(
     exportRepo: ExportOperationRepository,
     lockRepo: ExportLockRepository,
@@ -14,10 +28,24 @@ export function runCrashRecovery(
 ): { recovered: number; cleanedStagingDirs: string[]; cleanedArchives: string[] } {
     const cleanedStagingDirs: string[] = []
     const cleanedArchives: string[] = []
+    let recovered = 0
+
+    // 0. Detect and recover interrupted atomic apply (next-rotation)
+    const nextRotationDir = workspaceGuard("exports/next-rotation")
+    const currentRotationDir = workspaceGuard("exports/current-rotation")
+    if (existsSync(nextRotationDir)) {
+        if (!existsSync(currentRotationDir)) {
+            console.warn(`[CrashRecovery] Detected interrupted apply. Completing: ${nextRotationDir} -> ${currentRotationDir}`)
+            renameSync(nextRotationDir, currentRotationDir)
+            recovered++
+        } else {
+            console.warn(`[CrashRecovery] Both next-rotation and current-rotation exist. Cleaning up orphaned next-rotation.`)
+            rmSync(nextRotationDir, { recursive: true, force: true })
+        }
+    }
 
     // 1. Check for incomplete operations
     const allOps = exportRepo.findAll()
-    let recovered = 0
 
     for (const op of allOps) {
         if (op.status === "staged") {
@@ -79,6 +107,12 @@ export function runCrashRecovery(
                 }
             }
         }
+    }
+
+    lastRecoveryResult = {
+        recovered,
+        cleanedStagingDirs: cleanedStagingDirs.length,
+        cleanedArchives: cleanedArchives.length,
     }
 
     return { recovered, cleanedStagingDirs, cleanedArchives }

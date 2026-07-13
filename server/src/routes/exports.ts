@@ -1,6 +1,7 @@
 import { Router } from "express"
 import type { Request, Response } from "express"
 import type { ExportService } from "../application/exportService.js"
+import { getAndClearLastRecoveryResult } from "../application/crashRecovery.js"
 
 export function createExportsRouter(exportService: ExportService): Router {
     const router = Router()
@@ -80,6 +81,11 @@ export function createExportsRouter(exportService: ExportService): Router {
                 message: err instanceof Error ? err.message : String(err),
             })
         }
+    })
+
+    router.get("/startup-recovery", (_req: Request, res: Response) => {
+        const result = getAndClearLastRecoveryResult()
+        res.json(result ?? { recovered: 0, cleanedStagingDirs: 0, cleanedArchives: 0 })
     })
 
     router.get("/", (_req: Request, res: Response) => {

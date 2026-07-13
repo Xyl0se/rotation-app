@@ -15,6 +15,7 @@ import {
     resolveStagingPath,
     resolveExportTargetDir,
     resolveArchiveDir,
+    resolveNextRotationDir,
 } from "./fileCopier.js"
 
 export interface ExportSource {
@@ -40,6 +41,7 @@ export interface ExportStageResult {
     stagingPath: string
     manifestPath: string
     manifest: ExportManifest
+    skippedSources: ExportSource[]
 }
 
 export interface ExportApplyResult {
@@ -115,18 +117,25 @@ export function stageExport(
     workspaceGuard: PathGuard,
 ): ExportStageResult {
     const stagingPath = resolveStagingPath(exportId, workspaceGuard)
+    const skippedSources: ExportSource[] = []
 
     for (const source of preview.sources) {
+        if (!existsSync(source.absolutePath)) {
+            skippedSources.push(source)
+            continue
+        }
         const destDir = join(stagingPath, source.relativePath)
         copyDirectory(source.absolutePath, destDir)
     }
 
-    const manifestAlbums = preview.sources.map((s) => ({
-        albumId: s.albumId,
-        relativePath: s.relativePath,
-        artistName: s.artistName,
-        albumName: s.albumName,
-    }))
+    const manifestAlbums = preview.sources
+        .filter((s) => !skippedSources.some((skipped) => skipped.albumId === s.albumId))
+        .map((s) => ({
+            albumId: s.albumId,
+            relativePath: s.relativePath,
+            artistName: s.artistName,
+            albumName: s.albumName,
+        }))
 
     const manifest = createManifest(
         exportId,
@@ -139,7 +148,7 @@ export function stageExport(
     const manifestPath = join(stagingPath, "manifest.json")
     writeManifest(manifestPath, manifest)
 
-    return { stagingPath, manifestPath, manifest }
+    return { stagingPath, manifestPath, manifest, skippedSources }
 }
 
 export interface ExportApplyOptions {
@@ -166,6 +175,7 @@ export function applyExport(
 ): ExportApplyResult & { diff: ExportDiff } {
     const stagingPath = resolveStagingPath(exportId, workspaceGuard)
     const exportTargetDir = resolveExportTargetDir(workspaceGuard)
+    const nextRotationDir = resolveNextRotationDir(workspaceGuard)
 
     if (!existsSync(stagingPath)) {
         throw new Error(`Staging directory does not exist: ${stagingPath}`)
@@ -188,30 +198,20 @@ export function applyExport(
 
     const diff = calculateExportDiff(stagedManifest.albums, currentManifest)
 
-    // Archive current export before modifying
-    let archivePath: string | null = null
-    if (existsSync(exportTargetDir)) {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
-        archivePath = resolveArchiveDir(timestamp, workspaceGuard)
-        renameSync(exportTargetDir, archivePath)
-
-        // Recreate target directory (empty)
-        mkdirSync(exportTargetDir, { recursive: true })
-    } else {
-        mkdirSync(exportTargetDir, { recursive: true })
+    // 1. Prepare next-rotation (atomic staging)
+    if (existsSync(nextRotationDir)) {
+        rmSync(nextRotationDir, { recursive: true, force: true })
     }
+    mkdirSync(nextRotationDir, { recursive: true })
 
-    // Copy all albums from staging to target
-    // (even unchanged ones, to keep the target self-contained)
     for (const source of stagedManifest.albums) {
         const srcDir = join(stagingPath, source.relativePath)
-        const destDir = join(exportTargetDir, source.relativePath)
+        const destDir = join(nextRotationDir, source.relativePath)
         if (existsSync(srcDir)) {
             copyDirectory(srcDir, destDir)
         }
     }
 
-    // Write updated manifest to target
     const appliedManifest = createManifest(
         exportId,
         stagedManifest.albums,
@@ -219,9 +219,20 @@ export function applyExport(
         stagedManifest.fileCount,
         "applied",
     )
-    writeManifest(join(exportTargetDir, "manifest.json"), appliedManifest)
+    writeManifest(join(nextRotationDir, "manifest.json"), appliedManifest)
 
-    // Clean up staging
+    // 2. Archive current export before swap
+    let archivePath: string | null = null
+    if (existsSync(exportTargetDir)) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
+        archivePath = resolveArchiveDir(timestamp, workspaceGuard)
+        renameSync(exportTargetDir, archivePath)
+    }
+
+    // 3. Atomic swap
+    renameSync(nextRotationDir, exportTargetDir)
+
+    // 4. Clean up staging
     rmSync(stagingPath, { recursive: true, force: true })
 
     return { exportPath: exportTargetDir, archivePath, diff }

@@ -593,6 +593,14 @@ export const de: Translation = {
         files: "Dateien",
         missingBindings: "Fehlende Bindings:",
         unconfirmedBindings: "Unbestätigte Bindings:",
+        skippedAlbums: "Übersprungene Alben:",
+        skippedAlbumsDescription: (count: number) =>
+            `${count} Album(e) konnten nicht kopiert werden.`,
+        retryStaging: "Erneut versuchen",
+        continueAnyway: "Trotzdem fortfahren",
+        recoveryNotice: (info: { recovered: number; cleanedStagingDirs: number; cleanedArchives: number }) =>
+            `Ein vorheriger Export wurde automatisch wiederhergestellt (${info.recovered} Operationen, ${info.cleanedStagingDirs} Staging-Verzeichnisse bereinigt, ${info.cleanedArchives} Archive bereinigt).`,
+        crashRecoveryDismiss: "Schließen",
         cancel: "Abbrechen",
         stage: "Export vorbereiten",
         copyProgress: (copied: number, total: number) =>

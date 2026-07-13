@@ -1,4 +1,4 @@
-import { readdirSync, statSync, copyFileSync, mkdirSync, writeFileSync } from "node:fs"
+import { readdirSync, statSync, copyFileSync, mkdirSync, writeFileSync, existsSync } from "node:fs"
 import { join, dirname } from "node:path"
 import type { PathGuard } from "../../infrastructure/filesystem/pathGuard.js"
 import type { ExportManifest } from "./manifest.js"
@@ -12,13 +12,23 @@ export class FileCopyError extends Error {
 
 export function calculateDirectorySize(dir: string): number {
     let total = 0
-    const entries = readdirSync(dir, { withFileTypes: true })
+    let entries
+    try {
+        entries = readdirSync(dir, { withFileTypes: true })
+    } catch (err) {
+        console.warn(`[calculateDirectorySize] Cannot read directory ${dir}:`, err)
+        return 0
+    }
     for (const entry of entries) {
         const fullPath = join(dir, entry.name)
         if (entry.isDirectory()) {
             total += calculateDirectorySize(fullPath)
         } else if (entry.isFile()) {
-            total += statSync(fullPath).size
+            try {
+                total += statSync(fullPath).size
+            } catch (err) {
+                console.warn(`[calculateDirectorySize] Cannot stat file ${fullPath}:`, err)
+            }
         }
     }
     return total
@@ -26,7 +36,13 @@ export function calculateDirectorySize(dir: string): number {
 
 export function countFiles(dir: string): number {
     let total = 0
-    const entries = readdirSync(dir, { withFileTypes: true })
+    let entries
+    try {
+        entries = readdirSync(dir, { withFileTypes: true })
+    } catch (err) {
+        console.warn(`[countFiles] Cannot read directory ${dir}:`, err)
+        return 0
+    }
     for (const entry of entries) {
         const fullPath = join(dir, entry.name)
         if (entry.isDirectory()) {
@@ -85,4 +101,8 @@ export function resolveExportTargetDir(workspaceGuard: PathGuard): string {
 
 export function resolveArchiveDir(timestamp: string, workspaceGuard: PathGuard): string {
     return workspaceGuard(`exports/archive/${timestamp}`)
+}
+
+export function resolveNextRotationDir(workspaceGuard: PathGuard): string {
+    return workspaceGuard("exports/next-rotation")
 }

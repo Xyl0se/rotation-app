@@ -17,11 +17,25 @@ export interface ExportPreviewResult {
     canExport: boolean
 }
 
+export interface SkippedSource {
+    albumId: string
+    relativePath: string
+    artistName: string
+    albumName: string
+}
+
 export interface StagingProgress {
     status: "staging" | "staged" | "failed"
     filesCopied?: number
     totalFiles?: number
     error?: string
+    skippedSources?: SkippedSource[]
+}
+
+export interface StartupRecoveryInfo {
+    recovered: number
+    cleanedStagingDirs: number
+    cleanedArchives: number
 }
 
 export interface ApplyResult {
@@ -45,4 +59,8 @@ export async function getExportStatus(exportId: string): Promise<StagingProgress
 
 export async function applyExport(exportId: string): Promise<ApplyResult> {
     return post<ApplyResult>("/exports/apply", { exportId }, true)
+}
+
+export async function getStartupRecoveryInfo(): Promise<StartupRecoveryInfo> {
+    return get<StartupRecoveryInfo>("/exports/startup-recovery")
 }

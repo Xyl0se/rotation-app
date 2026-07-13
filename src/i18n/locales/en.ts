@@ -591,6 +591,14 @@ export const en = {
         files: "Files",
         missingBindings: "Missing bindings:",
         unconfirmedBindings: "Unconfirmed bindings:",
+        skippedAlbums: "Skipped albums:",
+        skippedAlbumsDescription: (count: number) =>
+            `${count} album(s) could not be copied.`,
+        retryStaging: "Retry",
+        continueAnyway: "Continue Anyway",
+        recoveryNotice: (info: { recovered: number; cleanedStagingDirs: number; cleanedArchives: number }) =>
+            `A previous export was automatically recovered (${info.recovered} operations, ${info.cleanedStagingDirs} staging dirs cleaned, ${info.cleanedArchives} archives cleaned).`,
+        crashRecoveryDismiss: "Dismiss",
         cancel: "Cancel",
         stage: "Stage Export",
         copyProgress: (copied: number, total: number) =>

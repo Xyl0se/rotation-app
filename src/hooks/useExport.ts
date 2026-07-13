@@ -6,6 +6,7 @@ import {
     stageExport,
     getExportStatus,
     applyExport,
+    getStartupRecoveryInfo,
 } from "../services/api/exportService"
 
 export type ExportStep = "idle" | "previewing" | "preview" | "staging" | "staged" | "applying" | "applied" | "error"
@@ -16,6 +17,7 @@ export interface ExportState {
     progress: StagingProgress | null
     applyResult: ApplyResult | null
     error: string | null
+    warning: string | null
 }
 
 export function useExport() {
@@ -25,9 +27,11 @@ export function useExport() {
         progress: null,
         applyResult: null,
         error: null,
+        warning: null,
     })
 
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+    const lastPlanRef = useRef<RotationPlan | null>(null)
 
     const stopPolling = useCallback(() => {
         if (pollRef.current) {
@@ -44,11 +48,13 @@ export function useExport() {
                 progress: null,
                 applyResult: null,
                 error: "No active rotation plan found",
+                warning: null,
             })
             return
         }
 
-        setState(s => ({ ...s, step: "previewing", error: null }))
+        lastPlanRef.current = plan
+        setState(s => ({ ...s, step: "previewing", error: null, warning: null }))
 
         try {
             const albumIds = plan.items.map(item => item.albumId)
@@ -59,6 +65,7 @@ export function useExport() {
                 progress: null,
                 applyResult: null,
                 error: null,
+                warning: null,
             })
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err)
@@ -68,12 +75,13 @@ export function useExport() {
                 progress: null,
                 applyResult: null,
                 error: message,
+                warning: null,
             })
         }
     }, [])
 
     const runStage = useCallback(async () => {
-        setState(s => ({ ...s, step: "staging", error: null }))
+        setState(s => ({ ...s, step: "staging", error: null, warning: null }))
 
         try {
             const previewResult = state.preview
@@ -89,6 +97,11 @@ export function useExport() {
             pollRef.current = setInterval(async () => {
                 try {
                     const progress = await getExportStatus(previewResult.exportId)
+                    const hasSkipped = progress.skippedSources && progress.skippedSources.length > 0
+                    const warning = hasSkipped
+                        ? `${progress.skippedSources!.length} album(s) could not be copied`
+                        : null
+
                     if (progress.status === "staged") {
                         stopPolling()
                         setState(s => ({
@@ -96,6 +109,7 @@ export function useExport() {
                             step: "staged",
                             progress,
                             error: null,
+                            warning,
                         }))
                     } else if (progress.status === "failed") {
                         stopPolling()
@@ -104,9 +118,10 @@ export function useExport() {
                             step: "error",
                             progress,
                             error: progress.error ?? "Staging failed",
+                            warning: null,
                         }))
                     } else {
-                        setState(s => ({ ...s, progress }))
+                        setState(s => ({ ...s, progress, warning }))
                     }
                 } catch (err) {
                     stopPolling()
@@ -115,6 +130,7 @@ export function useExport() {
                         ...s,
                         step: "error",
                         error: message,
+                        warning: null,
                     }))
                 }
             }, 500)
@@ -124,6 +140,7 @@ export function useExport() {
                 ...s,
                 step: "error",
                 error: message,
+                warning: null,
             }))
         }
     }, [state.preview, stopPolling])
@@ -154,6 +171,13 @@ export function useExport() {
         }
     }, [state.preview])
 
+    const retry = useCallback(async () => {
+        reset()
+        if (lastPlanRef.current) {
+            await preview(lastPlanRef.current)
+        }
+    }, [preview])
+
     const reset = useCallback(() => {
         stopPolling()
         setState({
@@ -162,14 +186,29 @@ export function useExport() {
             progress: null,
             applyResult: null,
             error: null,
+            warning: null,
         })
     }, [stopPolling])
+
+    const checkStartupRecovery = useCallback(async () => {
+        try {
+            const info = await getStartupRecoveryInfo()
+            if (info.recovered > 0 || info.cleanedStagingDirs > 0 || info.cleanedArchives > 0) {
+                return info
+            }
+            return null
+        } catch {
+            return null
+        }
+    }, [])
 
     return {
         state,
         preview,
         runStage,
         runApply,
+        retry,
         reset,
+        checkStartupRecovery,
     }
 }

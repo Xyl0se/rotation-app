@@ -20,6 +20,7 @@ export interface StagingProgress {
     filesCopied?: number
     totalFiles?: number
     error?: string
+    skippedSources?: Array<{ albumId: string; relativePath: string; artistName: string; albumName: string }>
 }
 
 const stagingJobs = new Map<string, StagingProgress>()
@@ -111,13 +112,24 @@ export function createExportService(
                         status: "staged",
                         filesCopied: preview.fileCount,
                         totalFiles: preview.fileCount,
+                        skippedSources: result.skippedSources.map((s) => ({
+                            albumId: s.albumId,
+                            relativePath: s.relativePath,
+                            artistName: s.artistName,
+                            albumName: s.albumName,
+                        })),
                     })
                 } catch (err) {
                     const message = err instanceof Error ? err.message : String(err)
                     stagingJobs.set(exportId, { status: "failed", error: message })
                     exportRepo.setStatus(exportId, "rolled_back")
-                    rollbackStaging(exportId, workspaceGuard)
-                    lockRepo.release()
+                    try {
+                        rollbackStaging(exportId, workspaceGuard)
+                    } catch (rollbackErr) {
+                        console.error(`Rollback failed for export ${exportId}:`, rollbackErr)
+                    } finally {
+                        lockRepo.release()
+                    }
                 }
             })
         },

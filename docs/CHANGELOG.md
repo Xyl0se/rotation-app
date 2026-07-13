@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.27.0
+
+- **Sprint 72 — Export Safety & Edge Cases**
+  - **Crash Recovery**: Server-Startup erkennt unterbrochene Exports (`next-rotation` ohne `current-rotation`) und stellt sie atomar wieder her. Verwaiste `next-rotation`-Verzeichnisse werden bereinigt.
+  - **Staging-Warnings**: Wenn Alben während Stage fehlen, werden sie übersprungen (`skippedSources`) und der Nutzer wird im Frontend gewarnt.
+  - **Retry & Continue**: `ExportPage` zeigt eine Warn-Box mit "Wiederholen" und "Trotzdem fortfahren" Buttons, wenn einzelne Alben übersprungen wurden.
+  - **Recovery-Banner**: Beim Laden der Export-Seite wird geprüft, ob CrashRecovery einen vorherigen Export wiederhergestellt hat — Banner mit Dismiss-Button.
+  - **PathGuard-Härtung**: Tests für Null-Byte-Injection, Symlink-Races, Unicode-Normalisierung (NFC/NFD), Pfad-Traversal.
+  - **Atomares Apply**: Export nutzt `next-rotation` als Zwischenziel und `renameSync` für atomare Umschaltung.
+  - **i18n**: Alle neuen UI-Texte in DE/EN übersetzt.
+
+- **Sprint 71 — Binding & Scan Robustness**
+  - **Directory Scanner**: Graceful Handling nicht erreichbarer Musik-Ordner, Unicode-NFC-Normalisierung für Cross-Platform-Stabilität.
+  - **Scan-Service**: Idempotenter Scan mit korrektem Error-Handling.
+  - **Binding Repository**: Race-safe Upsert für proposed Bindings.
+
 ## v0.26.0
 
 - **Sprint 70A — System Diagnostics Panel**

@@ -44,8 +44,10 @@ export function resolveSafePath(
     relativePath: string,
     options: PathGuardOptions = DEFAULT_OPTIONS,
 ): string {
-    const resolved = resolve(allowedBase, relativePath)
-    const realBase = realpathSync(allowedBase)
+    // Normalize Unicode to NFC to prevent NFC/NFD canonical equivalence attacks
+    const normalizedPath = relativePath.normalize("NFC")
+    const resolved = resolve(allowedBase, normalizedPath)
+    const realBase = realpathSync(allowedBase).normalize("NFC")
 
     if (options.symlinkPolicy === "reject") {
         // Walk path components from resolved down to base, reject symlinks
@@ -60,11 +62,11 @@ export function resolveSafePath(
 
     let realResolved: string
     try {
-        realResolved = realpathSync(resolved)
+        realResolved = realpathSync(resolved).normalize("NFC")
     } catch {
         // Target does not exist — fallback to resolved path
         // but we must still verify it stays within base
-        realResolved = resolved
+        realResolved = resolved.normalize("NFC")
     }
 
     // Ensure realResolved is strictly inside realBase

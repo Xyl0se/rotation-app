@@ -26,11 +26,31 @@ function useActiveRotationPlan(): RotationPlan | null {
 export default function ExportPage() {
     const { t } = useI18n()
     const rotationPlan = useActiveRotationPlan()
-    const { state, preview, runStage, runApply, reset } = useExport()
+    const { state, preview, runStage, runApply, retry, reset, checkStartupRecovery } = useExport()
+    const [recoveryNotice, setRecoveryNotice] = useState<{ recovered: number; cleanedStagingDirs: number; cleanedArchives: number } | null>(null)
+
+    useEffect(() => {
+        let cancelled = false
+        checkStartupRecovery().then(info => {
+            if (!cancelled && info) {
+                setRecoveryNotice(info)
+            }
+        })
+        return () => { cancelled = true }
+    }, [checkStartupRecovery])
 
     return (
         <div className="page export-page">
             <h2>{t.exportPage.title}</h2>
+
+            {recoveryNotice && (
+                <div className="recovery-banner">
+                    <p>{t.exportPage.recoveryNotice(recoveryNotice)}</p>
+                    <button className="recovery-dismiss" onClick={() => setRecoveryNotice(null)} aria-label="Dismiss">
+                        ×
+                    </button>
+                </div>
+            )}
 
             {state.step === "idle" && (
                 <Card>
@@ -146,7 +166,26 @@ export default function ExportPage() {
                                     </p>
                                 </>
                             )}
-                            {state.step === "staged" && (
+                            {state.warning && state.progress?.skippedSources && state.progress.skippedSources.length > 0 && (
+                                <div className="export-warning">
+                                    <strong>{t.exportPage.skippedAlbums}</strong>
+                                    <p>{t.exportPage.skippedAlbumsDescription(state.progress.skippedSources.length)}</p>
+                                    <ul>
+                                        {state.progress.skippedSources.map(s => (
+                                            <li key={s.albumId}>{s.artistName} — {s.albumName}</li>
+                                        ))}
+                                    </ul>
+                                    <div className="export-actions">
+                                        <Button variant="secondary" onClick={retry}>
+                                            {t.exportPage.retryStaging}
+                                        </Button>
+                                        <Button onClick={runApply}>
+                                            {t.exportPage.continueAnyway}
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                            {state.step === "staged" && !state.warning && (
                                 <div className="export-actions">
                                     <Button
                                         variant="secondary"
