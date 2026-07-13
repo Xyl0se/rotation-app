@@ -3,6 +3,7 @@ services:
     image: ghcr.io/xyl0se/rotation-app-api:latest
     container_name: rotation-api
     user: "1026:100"
+    restart: unless-stopped
     volumes:
       - /volume1/docker/rotation:/rotation-data:rw
       - /volume1/rotation/music:/music:ro
@@ -12,6 +13,9 @@ services:
       - ROTATION_WORKSPACE_PATH=/rotation-data
       - ROTATION_SYNCTHING_ROOT=/rotation-data/exports/current-rotation
       - ROTATION_WRITE_TOKEN=${ROTATION_WRITE_TOKEN}
+      - ROTATION_BACKUP_ENABLED=${ROTATION_BACKUP_ENABLED:-true}
+      - ROTATION_BACKUP_CRON=${ROTATION_BACKUP_CRON:-0 * * * *}
+      - ROTATION_BACKUP_RETENTION_COUNT=${ROTATION_BACKUP_RETENTION_COUNT:-24}
       - PORT=3001
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health',(r)=>process.exit(r.statusCode===200?0:1))"]

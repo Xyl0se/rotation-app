@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.25.4-dev
+
+- **Sprint 74 — Backup System**
+  - **Backup Service Core (74A)**: `backupService.ts` erstellt timestamped SQLite-Backups mit `PRAGMA integrity_check`, rotiert automatisch (`rotateBackups`), listet alle Backups (`listBackups`), und bietet eine sichere Restore-Funktion. 13 Unit-Tests (create, rotate, skip-corrupt, retention, list, metadata, restore safety).
+  - **Export-Lock Integration & Scheduling (74B)**: `backupScheduler.ts` mit `node-cron` für automatische Backups. Prüft vor jedem Backup den Export-Lock — bei aktivem Export wird übersprungen und geloggt. `backupStatusRepository` trackt alle Backup-Runs mit Ergebnis und Fehlern. REST-Endpunkte: `GET /backups/status`, `POST /backups/run`, `GET /backups/history`, `GET /backups/list`.
+  - **Docker & Infrastruktur (74C)**: `docker-compose.yml` und `docker-compose.prod.yml` mit Backup-Env-Variablen (`ROTATION_BACKUP_ENABLED`, `ROTATION_BACKUP_CRON`, `ROTATION_BACKUP_RETENTION_COUNT`) und `restart: unless-stopped`.
+  - **Dokumentation & Restore (74D)**: `SELFHOST.md` aktualisiert mit automatischem Backup (stündlich, 24 Retention), Restore-Prozedur, und API-Beispielen für manuellen Backup-Trigger.
+  - **Tests & Audit (74E)**: Alle 72 Server-Tests grün (9 Testdateien). TypeScript-Build zero errors. Neue Dependency: `node-cron`.
+
 ## v0.25.3-dev
 
 - **Sprint 73 — Frontend Resilience**

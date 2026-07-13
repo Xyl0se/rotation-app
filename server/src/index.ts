@@ -13,6 +13,10 @@ import { createDirectoryScanner } from "./infrastructure/filesystem/directorySca
 import { createScanService } from "./application/scanService.js"
 import { createExportService } from "./application/exportService.js"
 import { runCrashRecovery } from "./application/crashRecovery.js"
+import { createBackupService } from "./application/backupService.js"
+import { createBackupStatusRepository } from "./infrastructure/persistence/sqlite/backupStatusRepository.js"
+import { createBackupScheduler } from "./application/backupScheduler.js"
+import { createBackupsRouter } from "./routes/backups.js"
 
 import { healthRouter } from "./routes/health.js"
 import { createConfigRouter } from "./routes/config.js"
@@ -46,6 +50,21 @@ if (recovery.recovered > 0 || recovery.cleanedStagingDirs.length > 0 || recovery
 
 const requireWriteToken = createRequireWriteToken(config.ROTATION_WRITE_TOKEN)
 
+// --- Backup system ---
+const backupEnabled = config.ROTATION_BACKUP_ENABLED === "true"
+const backupDir = `${config.ROTATION_DATA_DIR}/backups`
+const dbPath = `${config.ROTATION_DATA_DIR}/rotation.db`
+const backupService = createBackupService(dbPath, backupDir, config.ROTATION_BACKUP_RETENTION_COUNT)
+const backupStatusRepo = createBackupStatusRepository(db)
+const backupScheduler = createBackupScheduler(
+    backupService,
+    backupStatusRepo,
+    lockRepo,
+    config.ROTATION_BACKUP_CRON,
+    backupEnabled,
+)
+backupScheduler.start()
+
 const app = express()
 
 app.use(helmet())
@@ -59,6 +78,7 @@ app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo
 
 app.use("/bindings", createBindingsRouter(bindingRepo, musicGuard))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))
+app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))
 
 app.use((_req, res) => {
     res.status(404).json({ error: "Not found" })
@@ -70,4 +90,5 @@ app.listen(port, () => {
     console.log(`Music path: ${config.ROTATION_MUSIC_PATH}`)
     console.log(`Workspace path: ${config.ROTATION_WORKSPACE_PATH}`)
     console.log(`Syncthing root: ${config.ROTATION_SYNCTHING_ROOT}`)
+    console.log(`Backups: ${backupEnabled ? "enabled" : "disabled"} (retention: ${config.ROTATION_BACKUP_RETENTION_COUNT}, cron: ${config.ROTATION_BACKUP_CRON})`)
 })

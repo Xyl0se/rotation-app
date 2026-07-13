@@ -7,6 +7,9 @@ const ConfigSchema = z.object({
     ROTATION_WORKSPACE_PATH: z.string().min(1),
     ROTATION_SYNCTHING_ROOT: z.string().min(1),
     ROTATION_WRITE_TOKEN: z.string().min(1),
+    ROTATION_BACKUP_ENABLED: z.enum(["true", "false"]).default("true"),
+    ROTATION_BACKUP_CRON: z.string().default("0 3 * * *"),
+    ROTATION_BACKUP_RETENTION_COUNT: z.coerce.number().min(1).default(7),
 })
 
 export type Config = z.infer<typeof ConfigSchema>

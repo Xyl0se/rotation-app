@@ -4,7 +4,7 @@
 >
 > Rotation accompanies the relationship between person and album.
 
-Version: v0.25.3-dev
+Version: v0.25.4-dev
 
 ---
 
@@ -46,8 +46,7 @@ All future developments are oriented toward these principles.
 
 | Sprint | Goal | Target | Status |
 |--------|------|--------|--------|
-| [Sprint 74](./sprints/Sprint-74.md) | Data Integrity & Backup | v0.25.4-dev | In Progress |
-| [Sprint 75](./sprints/Sprint-75.md) | Observability & Operations | v0.25.5-dev | Planned |
+| [Sprint 75](./sprints/Sprint-75.md) | Observability & Operations | v0.25.5-dev | In Progress |
 
 ## Completed Sprints
 
@@ -56,6 +55,7 @@ All future developments are oriented toward these principles.
 | [Sprint 71](./sprints/done/Sprint-71.md) | Binding & Scan Robustness | v0.25.2-dev | Done ✅ |
 | [Sprint 72](./sprints/done/Sprint-72.md) | Export Safety & Edge Cases | v0.25.2-dev | Done ✅ |
 | [Sprint 73](./sprints/done/Sprint-73.md) | Frontend Resilience | v0.25.3-dev | Done ✅ |
+| [Sprint 74](./sprints/done/Sprint-74.md) | Backup System | v0.25.4-dev | Done ✅ |
 
 ---
 

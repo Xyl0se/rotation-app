@@ -92,6 +92,9 @@ Save the token somewhere safe. You will need it in the next step.
    | Variable | Value |
    |----------|-------|
    | `ROTATION_WRITE_TOKEN` | `<paste-your-token-here>` |
+   | `ROTATION_BACKUP_ENABLED` | `true` (optional) |
+   | `ROTATION_BACKUP_CRON` | `0 * * * *` (optional, default: hourly) |
+   | `ROTATION_BACKUP_RETENTION_COUNT` | `24` (optional, default: 24 backups) |
 
 5. Click **Deploy the stack**
 
@@ -189,6 +192,8 @@ docker compose -f docker-compose.prod.yml up -d
 /volume1/docker/rotation/
     data/
         rotation.db         ← SQLite database
+        backups/
+            rotation-2026-07-13T20-00-00.db  ← Automatic hourly backups
     exports/
         current-rotation/   ← Active export (Syncthing source)
     archive/
@@ -241,15 +246,30 @@ Docker checks these automatically every 30 seconds.
 
 ## Backup
 
-### Database backup
+### Automatic backups (recommended)
+
+Rotation automatically backs up the SQLite database every hour by default. Backups are stored in `/rotation-data/data/backups/` and older backups are automatically rotated (default: keep 24).
+
+| Setting | Environment Variable | Default |
+|---------|---------------------|---------|
+| Enabled | `ROTATION_BACKUP_ENABLED` | `true` |
+| Schedule | `ROTATION_BACKUP_CRON` | `0 * * * *` (hourly) |
+| Retention | `ROTATION_BACKUP_RETENTION_COUNT` | `24` |
+
+> **Note:** Backups are skipped if an export operation is in progress, to avoid copying the database during active transactions.
+
+### Manual backup trigger
 
 ```bash
-# While Rotation is running
-docker exec rotation-api \
-  cp /rotation-data/data/rotation.db /rotation-data/data/rotation-$(date +%Y%m%d).db.bak
+curl -H "X-Write-Token: <your-token>" \
+  -X POST http://localhost:3000/api/backups/run
 ```
 
-> In Portainer: Go to **Containers** → `rotation-api` → **Console** → `/bin/sh` and run the `cp` command.
+### Check backup status
+
+```bash
+curl http://localhost:3000/api/backups/status
+```
 
 ### Full data backup
 
@@ -260,15 +280,15 @@ tar czf rotation-backup-$(date +%Y%m%d).tar.gz /volume1/docker/rotation
 docker start rotation-api rotation-web
 ```
 
-### Restore
+### Restore from backup
 
 ```bash
 # Stop Rotation
 docker stop rotation-api rotation-web
 
-# Restore database
-rm /volume1/docker/rotation/data/rotation.db
-cp rotation-backup-YYYYMMDD.db.bak /volume1/docker/rotation/data/rotation.db
+# Restore from the most recent automatic backup
+latest=$(ls -t /volume1/docker/rotation/data/backups/rotation-*.db | head -1)
+cp "$latest" /volume1/docker/rotation/data/rotation.db
 
 # Restart
 docker start rotation-api rotation-web

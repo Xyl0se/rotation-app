@@ -2,6 +2,7 @@ services:
   rotation-api:
     build: ./server
     container_name: rotation-api
+    restart: unless-stopped
     volumes:
       - ./server/data:/rotation-data/data:rw
       - ${MUSIC_PATH:-./music}:/music:ro
@@ -11,6 +12,9 @@ services:
       - ROTATION_WORKSPACE_PATH=/rotation-data
       - ROTATION_SYNCTHING_ROOT=/rotation-data/exports/current-rotation
       - ROTATION_WRITE_TOKEN=${ROTATION_WRITE_TOKEN:-dev-token}
+      - ROTATION_BACKUP_ENABLED=${ROTATION_BACKUP_ENABLED:-true}
+      - ROTATION_BACKUP_CRON=${ROTATION_BACKUP_CRON:-0 * * * *}
+      - ROTATION_BACKUP_RETENTION_COUNT=${ROTATION_BACKUP_RETENTION_COUNT:-24}
       - PORT=3001
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/health"]
