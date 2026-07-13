@@ -40,11 +40,14 @@
 
 - Docker + Docker Compose
 - ~500 MB RAM (tested on Synology DS218+ with 2 GB)
-- SSH or terminal access to your NAS/server
+- [Portainer](https://docs.portainer.io/) installed on your NAS/server (recommended)
+- SSH or terminal access for initial directory setup
 
 ---
 
-## Quick Start: Synology NAS
+## Setup via Portainer (Recommended)
+
+This is the recommended deployment method. Portainer pulls the compose file directly from GitHub and can automatically redeploy on updates.
 
 ### 1. Create directories on the NAS
 
@@ -58,6 +61,69 @@ sudo chown -R 1001:1001 /volume1/docker/rotation
 
 > **Why UID 1001?** The `rotation-api` container runs as an unprivileged user (`node`, UID 1001). The data directory must be writable by this user.
 
+### 2. Generate a write token
+
+The token protects all destructive operations (scan, export, binding confirmation).
+
+```bash
+openssl rand -hex 32
+```
+
+Save the token somewhere safe. You will need it in the next step.
+
+### 3. Create the stack in Portainer
+
+1. Open Portainer → **Stacks** → **Add stack**
+2. Under **Build method**, select **Git repository**
+3. Fill in the following:
+
+   | Field | Value |
+   |-------|-------|
+   | Name | `rotation` |
+   | Repository URL | `https://github.com/Xyl0se/rotation-app` |
+   | Repository reference | `refs/heads/main` |
+   | Compose path | `docker-compose.prod.yml` |
+   | Automatic updates | ✅ Enable |
+   | Mechanism | Webhook (recommended) or Polling |
+   | Fetch interval | `5m` (if using Polling) |
+
+4. Under **Environment variables**, add:
+
+   | Variable | Value |
+   |----------|-------|
+   | `ROTATION_WRITE_TOKEN` | `<paste-your-token-here>` |
+
+5. Click **Deploy the stack**
+
+Portainer will pull the images from GitHub Container Registry and start both services.
+
+### 4. Open in browser
+
+```
+http://<synology-ip>:3000
+```
+
+### 5. Automatic updates
+
+With Git repository mode enabled, Portainer monitors the repository. When a new version of `docker-compose.prod.yml` is pushed to `main`, Portainer can automatically redeploy the stack.
+
+- **Webhook**: Copy the webhook URL from the stack settings and add it to your GitHub repository as a push webhook. This triggers an immediate redeploy on every push.
+- **Polling**: Portainer checks the repository at the configured interval and redeploys if the compose file changed.
+
+---
+
+## Setup via Docker Compose (Alternative)
+
+If you prefer not to use Portainer, you can deploy directly via SSH.
+
+### 1. Create directories
+
+```bash
+sudo mkdir -p /volume1/docker/rotation/exports
+sudo mkdir -p /volume1/docker/rotation/archive
+sudo chown -R 1001:1001 /volume1/docker/rotation
+```
+
 ### 2. Create environment file
 
 ```bash
@@ -67,8 +133,6 @@ cat > .env << 'EOF'
 ROTATION_WRITE_TOKEN=$(openssl rand -hex 32)
 EOF
 ```
-
-Save the token somewhere safe. It is required for all write operations (scan, export, binding confirmation).
 
 ### 3. Download compose file
 
@@ -82,15 +146,17 @@ curl -O https://raw.githubusercontent.com/Xyl0se/rotation-app/main/docker-compos
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-### 5. Open in browser
+### 5. Update
 
-```
-http://<synology-ip>:3000
+```bash
+cd /volume1/docker/rotation
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ---
 
-## Quick Start: Generic Docker Host
+## Setup: Generic Docker Host
 
 ```bash
 # 1. Create directories
@@ -140,15 +206,25 @@ docker compose -f docker-compose.prod.yml up -d
 
 ---
 
-## Available Commands
+## Update Process
 
-| Command | Description |
-|---|---|
-| `docker compose -f docker-compose.prod.yml up -d` | Start Rotation |
-| `docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d` | Update to latest version |
-| `docker compose -f docker-compose.prod.yml down` | Stop Rotation |
-| `docker compose -f docker-compose.prod.yml logs -f rotation-api` | Watch API logs |
-| `docker compose -f docker-compose.prod.yml logs -f rotation-web` | Watch web logs |
+### Via Portainer (Recommended)
+
+1. Open Portainer → **Stacks** → `rotation`
+2. Click **Pull and redeploy**
+3. Portainer pulls the latest images and restarts the stack
+
+Or, if automatic updates are enabled, the stack redeploys automatically when `docker-compose.prod.yml` changes on `main`.
+
+### Via Docker Compose
+
+```bash
+cd /volume1/docker/rotation
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Database migrations run automatically on startup. Always back up the database before major version updates.
 
 ---
 
@@ -169,39 +245,40 @@ Docker checks these automatically every 30 seconds.
 
 ```bash
 # While Rotation is running
-docker compose -f docker-compose.prod.yml exec rotation-api \
+docker exec rotation-api \
   cp /rotation-data/data/rotation.db /rotation-data/data/rotation-$(date +%Y%m%d).db.bak
 ```
+
+> In Portainer: Go to **Containers** → `rotation-api` → **Console** → `/bin/sh` and run the `cp` command.
 
 ### Full data backup
 
 ```bash
 # Stop Rotation first to ensure consistency
-docker compose -f docker-compose.prod.yml down
+docker stop rotation-api rotation-web
 tar czf rotation-backup-$(date +%Y%m%d).tar.gz /volume1/docker/rotation
-docker compose -f docker-compose.prod.yml up -d
+docker start rotation-api rotation-web
 ```
 
 ### Restore
 
 ```bash
 # Stop Rotation
-docker compose -f docker-compose.prod.yml down
+docker stop rotation-api rotation-web
 
 # Restore database
 rm /volume1/docker/rotation/data/rotation.db
 cp rotation-backup-YYYYMMDD.db.bak /volume1/docker/rotation/data/rotation.db
 
 # Restart
-docker compose -f docker-compose.prod.yml up -d
+docker start rotation-api rotation-web
 ```
 
 ---
 
 ## Syncthing Integration
 
-Rotation does not manage Syncthing. If you already run Syncthing on your Synology,
-add the export folder as a shared folder.
+Rotation does not manage Syncthing. If you already run Syncthing on your Synology, add the export folder as a shared folder.
 
 ### Folder to share
 
@@ -219,9 +296,7 @@ add the export folder as a shared folder.
 
 ### What happens when an album leaves the rotation?
 
-When you apply a new export, albums that are no longer in the Player Rotation
-are removed from `current-rotation/`. Syncthing propagates this deletion to the
-MP3 player (unless "Ignore deletes" is enabled on the player side).
+When you apply a new export, albums that are no longer in the Player Rotation are removed from `current-rotation/`. Syncthing propagates this deletion to the MP3 player (unless "Ignore deletes" is enabled on the player side).
 
 If you want to keep removed albums on the player, either:
 - Enable "Ignore deletes" on the player folder (Receive Only + Ignore deletes)
@@ -262,12 +337,14 @@ Generate a strong token during setup and keep it secret.
 
 ### Port 3000 already in use
 
-Edit `docker-compose.prod.yml`:
+Edit the compose file in your fork or use Portainer's **Editor** tab to change:
 
 ```yaml
 ports:
   - "8080:80"
 ```
+
+Then redeploy.
 
 ### Permission denied on /rotation-data
 
@@ -281,20 +358,22 @@ Or on Synology DSM, set the folder permissions via File Station → Properties �
 
 ### SPA routes return 404
 
-This should not happen. Check Caddy is running:
+Check Caddy is running. In Portainer, go to **Containers** → `rotation-web` → **Logs**.
 
+Or via SSH:
 ```bash
-docker compose exec rotation-web cat /etc/caddy/Caddyfile
+docker exec rotation-web cat /etc/caddy/Caddyfile
 ```
 
 The line `try_files {path} /index.html` must be present.
 
 ### API not reachable
 
-Check that the API container is healthy:
+Check that the API container is healthy. In Portainer, go to **Containers** and verify `rotation-api` shows `healthy`.
 
+Or via SSH:
 ```bash
-docker compose -f docker-compose.prod.yml ps
+docker ps
 ```
 
 Both services should show `healthy`.
@@ -302,18 +381,6 @@ Both services should show `healthy`.
 ### Database locked
 
 SQLite WAL mode is enabled. If the container was force-killed, a `-wal` or `-shm` file may remain. This is normally harmless. Restart the container.
-
----
-
-## Update Process
-
-```bash
-cd /volume1/docker/rotation
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
-```
-
-Database migrations run automatically on startup. Always back up the database before major version updates.
 
 ---
 
