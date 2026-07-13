@@ -58,3 +58,24 @@ export async function del(path: string): Promise<void> {
         )
     }
 }
+
+export function getApiErrorMessage(error: unknown): string {
+    if (error instanceof ApiError) {
+        switch (error.status) {
+            case 404:
+                return "Backend-Route nicht gefunden. Caddy-Konfiguration prüfen."
+            case 403:
+                return "Schreibzugriff verweigert. Write-Token prüfen."
+            case 500:
+                return "Server-Fehler. Container-Logs prüfen."
+            case 0:
+                return "Verbindung unterbrochen. Netzwerk oder Container prüfen."
+            default:
+                return `Unbekannter Fehler (${error.status})`
+        }
+    }
+    if (error instanceof Error) {
+        return error.message
+    }
+    return "Unbekannter Fehler"
+}

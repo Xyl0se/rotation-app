@@ -622,6 +622,33 @@ export const en = {
         reconcileResult: (count: number) =>
             `${count} proposed bindings confirmed`,
     },
+
+    diagnostics: {
+        error: "Error",
+        loading: "Loading diagnostics...",
+        allOk: "All systems operational",
+        issuesDetected: "Issues detected — show details",
+        refresh: "Refresh",
+        database: "Database",
+        databaseFail: "Not reachable",
+        musicFolder: "Music folder",
+        musicFolderMissing: "Not present",
+        musicFolderNotReadable: "Not readable",
+        workspaceFolder: "Workspace folder",
+        workspaceFolderMissing: "Not present",
+        workspaceFolderNotWritable: "Not writable",
+        syncthingFolder: "Syncthing folder",
+        syncthingFolderMissing: "Not present",
+        syncthingFolderNotWritable: "Not writable",
+        bindings: "Bindings",
+        confirmed: "confirmed",
+        proposed: "proposed",
+        albumFolders: "album folders",
+        ok: "OK",
+        bindingsEmptyAfterScan: "No bindings found after last scan",
+        bindingsNoScan: "No scan performed yet",
+        lastScan: "Last scan",
+    },
 }
 
 type Stringify<T> = {

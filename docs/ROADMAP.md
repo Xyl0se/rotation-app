@@ -816,11 +816,53 @@ The system has been deployed but needs to prove itself under real-world conditio
 
 ---
 
+## Sprint 70A — System Diagnostics Panel
+
+**Status:** Completed
+
+**Target version:** `v0.25.1-dev`
+
+### Goal
+
+Users can see the health of the Rotation system at a glance from the frontend. No more guessing whether the NAS mounts, database, or bindings are working.
+
+### Architecture Changes
+
+- New `/diagnostics` REST endpoint on the API
+- Frontend `DiagnosticsService` + `DiagnosticsPanel` component
+- i18n keys for diagnostics (EN/DE)
+
+### Affected Components
+
+- `server/src/routes/diagnostics.ts` — system health endpoint
+- `server/src/index.ts` — route registration
+- `src/services/api/diagnosticsService.ts` — API client
+- `src/components/features/diagnostics/DiagnosticsPanel.tsx` — collapsible health panel
+- `src/pages/BindingsPage.tsx` — panel embedded at top
+- `src/i18n/locales/{en,de}.ts` — diagnostics translations
+- `src/styles/diagnostics.css` — panel styling
+
+### Risks
+
+- Diagnostics endpoint could leak internal paths if not carefully designed
+- False negatives if Docker volumes are mounted but empty
+
+### Definition of Done
+
+- [x] `/diagnostics` returns: DB status, `/music` readability, `/rotation-data` writability, Syncthing folder status, binding counts, last scan timestamp
+- [x] Frontend panel shows summary (OK / warning / error) with expandable details
+- [x] Manual refresh button works
+- [x] All strings internationalized
+- [x] Panel embedded on Bindings and Export pages
+- [x] Build and tests green
+
+---
+
 ## Sprint 71 — Binding & Scan Robustness
 
 **Status:** Planned
 
-**Target version:** `v0.25.1-dev`
+**Target version:** `v0.25.2-dev`
 
 ### Goal
 

@@ -1,0 +1,116 @@
+.diagnostics {
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.875rem;
+}
+
+.diagnostics--ok {
+    border: 1px solid #10b981;
+    background: #ecfdf5;
+}
+
+.diagnostics--warning {
+    border: 1px solid #f59e0b;
+    background: #fffbeb;
+}
+
+.diagnostics--error {
+    border: 1px solid #ef4444;
+    background: #fef2f2;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.diagnostics--loading {
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.diagnostics-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.diagnostics-summary {
+    flex: 1;
+    font-weight: 500;
+}
+
+.diagnostics-chevron {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.diagnostics-refresh {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 0.25rem;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+}
+
+.diagnostics-refresh:hover:not(:disabled) {
+    opacity: 1;
+}
+
+.diagnostics-refresh:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.diagnostics-details {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.diagnostics-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+}
+
+.diagnostics-row-label {
+    flex: 1;
+    color: #374151;
+}
+
+.diagnostics-row-status {
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+.diagnostics-row-status--ok {
+    color: #059669;
+}
+
+.diagnostics-row-status--fail {
+    color: #dc2626;
+}
+
+.diagnostics-meta {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    padding-top: 0.25rem;
+}

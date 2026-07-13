@@ -9,9 +9,11 @@ import {
     type VerifyResult,
     type ReconcileResult,
 } from "../services/api/bindingsService.js"
+import { getApiErrorMessage } from "../services/api/apiClient.js"
 import { useI18n } from "../i18n/useI18n.js"
 import Button from "../components/ui/Button.js"
 import Card from "../components/ui/Card.js"
+import DiagnosticsPanel from "../components/features/diagnostics/DiagnosticsPanel.js"
 
 export default function BindingsPage() {
     const { t } = useI18n()
@@ -31,7 +33,7 @@ export default function BindingsPage() {
             const response = await fetchBindings(state)
             setBindings(response.bindings)
         } catch (e) {
-            setError(t.bindings.error)
+            setError(getApiErrorMessage(e))
         } finally {
             setLoading(false)
         }
@@ -47,7 +49,7 @@ export default function BindingsPage() {
             await confirmBinding(albumId)
             await load()
         } catch (e) {
-            setError(t.bindings.error)
+            setError(getApiErrorMessage(e))
         } finally {
             setProcessingId(null)
         }
@@ -77,7 +79,7 @@ export default function BindingsPage() {
                 await load()
             }
         } catch (e) {
-            setError(t.bindings.error)
+            setError(getApiErrorMessage(e))
         } finally {
             setLoading(false)
         }
@@ -94,7 +96,7 @@ export default function BindingsPage() {
                 await load()
             }
         } catch (e) {
-            setError(t.bindings.error)
+            setError(getApiErrorMessage(e))
         } finally {
             setLoading(false)
         }
@@ -102,6 +104,8 @@ export default function BindingsPage() {
 
     return (
         <div className="bindings-page">
+            <DiagnosticsPanel />
+
             <h1 className="bindings-title">{t.bindings.title}</h1>
 
             <div className="bindings-actions">

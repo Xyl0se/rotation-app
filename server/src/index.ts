@@ -19,6 +19,7 @@ import { createConfigRouter } from "./routes/config.js"
 import { createScanRouter } from "./routes/scan.js"
 import { createBindingsRouter } from "./routes/bindings.js"
 import { createExportsRouter } from "./routes/exports.js"
+import { createDiagnosticsRouter } from "./routes/diagnostics.js"
 import { createRequireWriteToken } from "./routes/middleware/writeToken.js"
 
 const config = loadConfig()
@@ -54,6 +55,7 @@ app.use(express.json())
 app.use("/health", healthRouter)
 app.use("/config", createConfigRouter(config))
 app.use("/scan", requireWriteToken, createScanRouter(scanService, scanRunRepo, bindingRepo))
+app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo, musicGuard, workspaceGuard, syncthingGuard))
 
 app.use("/bindings", createBindingsRouter(bindingRepo, musicGuard))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))
