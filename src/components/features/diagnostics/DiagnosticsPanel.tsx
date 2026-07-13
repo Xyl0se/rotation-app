@@ -126,7 +126,8 @@ export default function DiagnosticsPanel() {
     }
 
     const showScanButton = !diag?.bindings.lastScanAt ||
-        diag?.bindings.lastScanStatus === "failed"
+        diag?.bindings.lastScanStatus === "failed" ||
+        diag?.bindings.total === 0
 
     return (
         <div className={`diagnostics diagnostics--${state}`}>
