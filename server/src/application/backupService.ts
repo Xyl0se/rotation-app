@@ -1,6 +1,9 @@
 import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs"
 import { join, basename } from "node:path"
 import Database from "better-sqlite3"
+import { createLogger } from "../infrastructure/logger/logger.js"
+
+const backupLog = createLogger("backup-service")
 
 export interface BackupResult {
     success: boolean
@@ -160,7 +163,7 @@ export function createBackupService(
                 try {
                     unlinkSync(backup.path)
                 } catch (err) {
-                    console.error(`Failed to delete old backup ${backup.path}:`, err)
+                    backupLog.error("Failed to delete old backup", { path: backup.path }, err)
                 }
             }
         },

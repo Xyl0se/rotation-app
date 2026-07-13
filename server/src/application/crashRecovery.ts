@@ -1,8 +1,11 @@
 import { existsSync, rmSync, readdirSync, statSync, renameSync } from "node:fs"
 import { join } from "node:path"
+import { createLogger } from "../infrastructure/logger/logger.js"
 import type { ExportOperationRepository } from "../infrastructure/persistence/sqlite/exportOperationRepository.js"
 import type { ExportLockRepository } from "../infrastructure/persistence/sqlite/exportLockRepository.js"
 import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
+
+const crashLog = createLogger("crash-recovery")
 
 const STALE_STAGING_HOURS = 24
 const OLD_ARCHIVE_DAYS = 30
@@ -35,11 +38,11 @@ export function runCrashRecovery(
     const currentRotationDir = workspaceGuard("exports/current-rotation")
     if (existsSync(nextRotationDir)) {
         if (!existsSync(currentRotationDir)) {
-            console.warn(`[CrashRecovery] Detected interrupted apply. Completing: ${nextRotationDir} -> ${currentRotationDir}`)
+            crashLog.warn("Detected interrupted apply, completing recovery", { nextRotationDir, currentRotationDir })
             renameSync(nextRotationDir, currentRotationDir)
             recovered++
         } else {
-            console.warn(`[CrashRecovery] Both next-rotation and current-rotation exist. Cleaning up orphaned next-rotation.`)
+            crashLog.warn("Both next-rotation and current-rotation exist, cleaning up orphaned", { nextRotationDir })
             rmSync(nextRotationDir, { recursive: true, force: true })
         }
     }

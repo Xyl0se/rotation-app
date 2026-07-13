@@ -1,6 +1,6 @@
 # Sprint 75 — Observability & Operations
 
-**Status:** Planned
+**Status:** Done
 
 **Target version:** `v0.25.5-dev`
 
@@ -30,9 +30,10 @@ You can see what Rotation is doing without looking at the code.
 
 ## Definition of Done
 
-- [ ] Every important operation (scan, export, apply) is logged
-- [ ] Healthcheck shows: DB ok, /music readable, /rotation-data writable
-- [ ] Logs are readable via `docker compose logs -f` and meaningful
-- [ ] `SELFHOST.md` has a troubleshooting section
-- [ ] Log rotation is configured (no unbounded log growth)
-- [ ] Failed operations are logged with enough context to debug
+- [x] Every important operation (scan, export, apply) is logged
+- [x] Healthcheck shows: DB ok, /music readable, /rotation-data writable, Syncthing path writable, last scan, metrics
+- [x] Logs are readable via `docker compose logs -f` and meaningful
+- [x] `SELFHOST.md` has a troubleshooting section
+- [x] Log rotation is configured (no unbounded log growth)
+- [x] Failed operations are logged with enough context to debug
+- [x] All `console.log` / `console.error` calls replaced by structured logger

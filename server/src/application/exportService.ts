@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto"
+import { createLogger } from "../infrastructure/logger/logger.js"
 import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
 import type { ExportOperationRepository } from "../infrastructure/persistence/sqlite/exportOperationRepository.js"
 import type { ExportLockRepository } from "../infrastructure/persistence/sqlite/exportLockRepository.js"
@@ -126,7 +127,8 @@ export function createExportService(
                     try {
                         rollbackStaging(exportId, workspaceGuard)
                     } catch (rollbackErr) {
-                        console.error(`Rollback failed for export ${exportId}:`, rollbackErr)
+                        const log = createLogger("export-service")
+                        log.error("Rollback failed for export", { exportId }, rollbackErr)
                     } finally {
                         lockRepo.release()
                     }

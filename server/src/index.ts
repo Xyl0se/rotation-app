@@ -18,15 +18,23 @@ import { createBackupStatusRepository } from "./infrastructure/persistence/sqlit
 import { createBackupScheduler } from "./application/backupScheduler.js"
 import { createBackupsRouter } from "./routes/backups.js"
 
-import { healthRouter } from "./routes/health.js"
+import { createHealthRouter } from "./routes/health.js"
 import { createConfigRouter } from "./routes/config.js"
 import { createScanRouter } from "./routes/scan.js"
 import { createBindingsRouter } from "./routes/bindings.js"
 import { createExportsRouter } from "./routes/exports.js"
 import { createDiagnosticsRouter } from "./routes/diagnostics.js"
 import { createRequireWriteToken } from "./routes/middleware/writeToken.js"
+import { createLogger } from "./infrastructure/logger/logger.js"
+import { getGlobalMetricsStore } from "./infrastructure/metrics/metrics.js"
 
 const config = loadConfig()
+
+// Propagate validated log config to env so logger picks it up
+process.env.ROTATION_LOG_LEVEL = config.ROTATION_LOG_LEVEL
+process.env.ROTATION_LOG_FORMAT = config.ROTATION_LOG_FORMAT
+
+const log = createLogger("startup")
 const db = initDatabase()
 
 const bindingRepo = createBindingRepository(db)
@@ -45,7 +53,7 @@ const exportService = createExportService(bindingRepo, exportRepo, lockRepo, mus
 // Run crash recovery on startup
 const recovery = runCrashRecovery(exportRepo, lockRepo, workspaceGuard)
 if (recovery.recovered > 0 || recovery.cleanedStagingDirs.length > 0 || recovery.cleanedArchives.length > 0) {
-    console.log("Crash recovery completed:", recovery)
+    log.info("Crash recovery completed", recovery as unknown as Record<string, unknown>)
 }
 
 const requireWriteToken = createRequireWriteToken(config.ROTATION_WRITE_TOKEN)
@@ -71,7 +79,7 @@ app.use(helmet())
 app.use(cors({ origin: true }))
 app.use(express.json())
 
-app.use("/health", healthRouter)
+app.use("/health", createHealthRouter(db, config, scanRunRepo))
 app.use("/config", createConfigRouter(config))
 app.use("/scan", requireWriteToken, createScanRouter(scanService, scanRunRepo, bindingRepo))
 app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo, musicGuard, workspaceGuard, syncthingGuard))
@@ -86,9 +94,13 @@ app.use((_req, res) => {
 
 const port = config.PORT
 app.listen(port, () => {
-    console.log(`Rotation API listening on port ${port}`)
-    console.log(`Music path: ${config.ROTATION_MUSIC_PATH}`)
-    console.log(`Workspace path: ${config.ROTATION_WORKSPACE_PATH}`)
-    console.log(`Syncthing root: ${config.ROTATION_SYNCTHING_ROOT}`)
-    console.log(`Backups: ${backupEnabled ? "enabled" : "disabled"} (retention: ${config.ROTATION_BACKUP_RETENTION_COUNT}, cron: ${config.ROTATION_BACKUP_CRON})`)
+    log.info("Rotation API listening", { port })
+    log.info("Music path", { path: config.ROTATION_MUSIC_PATH })
+    log.info("Workspace path", { path: config.ROTATION_WORKSPACE_PATH })
+    log.info("Syncthing root", { path: config.ROTATION_SYNCTHING_ROOT })
+    log.info("Backups enabled", {
+        enabled: backupEnabled,
+        retention: config.ROTATION_BACKUP_RETENTION_COUNT,
+        cron: config.ROTATION_BACKUP_CRON,
+    })
 })

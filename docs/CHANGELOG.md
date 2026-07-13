@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.25.5-dev
+
+- **Sprint 75 — Observability & Operations**
+  - **Structured Logging (75A)**: `createLogger()` mit konfigurierbarem Level (`trace`–`error`) und Format (`pretty`/`json`). Pfad-Sanitization und Token-Redaction im Kontext. Alle `console.log`/`console.error` durch Logger ersetzt. 7 Unit-Tests für Format, Filter, Sanitization, Redaction, Stderr.
+  - **Metrics (75B)**: In-Memory Metrics-Store (`metrics.ts`) mit automatischem Reset nach 24h. Tracked Requests, Errors, Export-Größe, Scan-Dauer. REST-Endpoint `GET /health` liefert Metriken mit. 5 Unit-Tests.
+  - **Erweiterter Healthcheck (75C)**: `/health` prüft jetzt DB-Status, `/music` lesbar, `/rotation-data` beschreibbar, Syncthing-Export-Pfad beschreibbar, letzter Scan (ID, Status, Zeit) und Metriken. Degradierter Status bei fehlenden Pfaden.
+  - **Docker & Infrastruktur (75D)**: `ROTATION_LOG_LEVEL` und `ROTATION_LOG_FORMAT` als Env-Variablen. Docker-Log-Rotation in `docker-compose.yml` und `docker-compose.prod.yml` (max 10 MB, 5/10 Dateien).
+  - **Dokumentation (75E)**: `SELFHOST.md` erweitert um Troubleshooting-Abschnitte: Log-Level/Format, Log-Rotation, Healthcheck-Details, Log-Lesung mit `docker compose logs`. Sprint-75.md als abgeschlossen markiert.
+  - Alle 84 Server-Tests grün, TypeScript-Build zero errors. Keine neuen Dependencies.
+
 ## v0.25.4-dev
 
 - **Sprint 74 — Backup System**

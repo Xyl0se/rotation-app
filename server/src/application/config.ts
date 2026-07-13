@@ -10,6 +10,8 @@ const ConfigSchema = z.object({
     ROTATION_BACKUP_ENABLED: z.enum(["true", "false"]).default("true"),
     ROTATION_BACKUP_CRON: z.string().default("0 3 * * *"),
     ROTATION_BACKUP_RETENTION_COUNT: z.coerce.number().min(1).default(7),
+    ROTATION_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+    ROTATION_LOG_FORMAT: z.enum(["pretty", "json"]).default("pretty"),
 })
 
 export type Config = z.infer<typeof ConfigSchema>

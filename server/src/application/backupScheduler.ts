@@ -1,7 +1,10 @@
 import { schedule } from "node-cron"
+import { createLogger } from "../infrastructure/logger/logger.js"
 import type { BackupService } from "./backupService.js"
 import type { BackupStatusRepository } from "../infrastructure/persistence/sqlite/backupStatusRepository.js"
 import type { ExportLockRepository } from "../infrastructure/persistence/sqlite/exportLockRepository.js"
+
+const schedulerLog = createLogger("backup-scheduler")
 
 export interface BackupScheduler {
     start(): void
@@ -89,23 +92,23 @@ export function createBackupScheduler(
     return {
         start() {
             if (!enabled) {
-                console.log("Scheduled backups are disabled (ROTATION_BACKUP_ENABLED=false)")
+                schedulerLog.info("Scheduled backups are disabled")
                 return
             }
 
             try {
                 task = schedule(cronExpression, async () => {
-                    console.log(`[${new Date().toISOString()}] Running scheduled backup...`)
+                    schedulerLog.info("Running scheduled backup")
                     const result = await executeBackup("cron")
                     if (result.success) {
-                        console.log("Scheduled backup completed successfully")
+                        schedulerLog.info("Scheduled backup completed successfully")
                     } else {
-                        console.error("Scheduled backup failed:", result.error)
+                        schedulerLog.error("Scheduled backup failed", {}, result.error)
                     }
                 })
-                console.log(`Backup scheduler started with cron: ${cronExpression}`)
+                schedulerLog.info("Backup scheduler started", { cronExpression })
             } catch (err) {
-                console.error("Failed to start backup scheduler:", err)
+                schedulerLog.error("Failed to start backup scheduler", {}, err)
             }
         },
 
@@ -113,7 +116,7 @@ export function createBackupScheduler(
             if (task) {
                 task.stop()
                 task = null
-                console.log("Backup scheduler stopped")
+                schedulerLog.info("Backup scheduler stopped")
             }
         },
 

@@ -1,7 +1,10 @@
 import { readdirSync, statSync, copyFileSync, mkdirSync, writeFileSync, existsSync } from "node:fs"
 import { join, dirname } from "node:path"
+import { createLogger } from "../../infrastructure/logger/logger.js"
 import type { PathGuard } from "../../infrastructure/filesystem/pathGuard.js"
 import type { ExportManifest } from "./manifest.js"
+
+const fileLog = createLogger("file-copier")
 
 export class FileCopyError extends Error {
     constructor(message: string, public readonly cause?: unknown) {
@@ -16,7 +19,7 @@ export function calculateDirectorySize(dir: string): number {
     try {
         entries = readdirSync(dir, { withFileTypes: true })
     } catch (err) {
-        console.warn(`[calculateDirectorySize] Cannot read directory ${dir}:`, err)
+        fileLog.warn("Cannot read directory", { dir }, err)
         return 0
     }
     for (const entry of entries) {
@@ -27,7 +30,7 @@ export function calculateDirectorySize(dir: string): number {
             try {
                 total += statSync(fullPath).size
             } catch (err) {
-                console.warn(`[calculateDirectorySize] Cannot stat file ${fullPath}:`, err)
+                fileLog.warn("Cannot stat file", { fullPath }, err)
             }
         }
     }
@@ -40,7 +43,7 @@ export function countFiles(dir: string): number {
     try {
         entries = readdirSync(dir, { withFileTypes: true })
     } catch (err) {
-        console.warn(`[countFiles] Cannot read directory ${dir}:`, err)
+        fileLog.warn("Cannot read directory", { dir }, err)
         return 0
     }
     for (const entry of entries) {

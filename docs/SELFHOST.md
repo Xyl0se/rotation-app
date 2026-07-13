@@ -402,6 +402,69 @@ Both services should show `healthy`.
 
 SQLite WAL mode is enabled. If the container was force-killed, a `-wal` or `-shm` file may remain. This is normally harmless. Restart the container.
 
+### Logs are too verbose or too quiet
+
+Rotation supports two environment variables for log control:
+
+| Variable | Values | Default |
+|----------|--------|---------|
+| `ROTATION_LOG_LEVEL` | `trace`, `debug`, `info`, `warn`, `error`, `silent` | `info` |
+| `ROTATION_LOG_FORMAT` | `pretty` (human-readable), `json` (machine-readable) | `pretty` |
+
+Add them to the compose file or in Portainer:
+
+```yaml
+environment:
+  - ROTATION_LOG_LEVEL=debug
+  - ROTATION_LOG_FORMAT=pretty
+```
+
+### Log files are growing too large
+
+Docker Compose log rotation is already configured in the provided compose files (max 10 MB, 5–10 files kept). If you need to clean up manually:
+
+```bash
+# Truncate logs for the API container
+docker exec rotation-api sh -c "> /proc/1/fd/1"
+
+# Or limit at Docker daemon level (optional)
+docker system prune --volumes
+```
+
+### Healthcheck shows `degraded`
+
+The `/health` endpoint returns detailed checks. Query it directly:
+
+```bash
+curl -s http://localhost:3000/api/health | jq .
+```
+
+You will see:
+
+- `db` — SQLite query response time
+- `musicReadable` — whether `/music` is accessible
+- `dataWritable` — whether `/rotation-data` is writable
+- `syncthingWritable` — whether the Syncthing export path is writable
+- `lastScan` — ID, status, and finish time of the most recent scan
+- `metrics` — basic counters (requests, errors, exports applied)
+
+If any check shows `"status": "fail"`, inspect the `detail` field.
+
+### How to read logs
+
+```bash
+# Follow API logs in real time
+docker compose -f docker-compose.prod.yml logs -f rotation-api
+
+# View the last 100 lines
+docker compose -f docker-compose.prod.yml logs --tail=100 rotation-api
+
+# Filter for errors only
+docker compose -f docker-compose.prod.yml logs -f rotation-api | grep "ERROR"
+```
+
+JSON format (`ROTATION_LOG_FORMAT=json`) is useful for log aggregation systems (e.g., Loki, ELK).
+
 ---
 
 ## Roadmap

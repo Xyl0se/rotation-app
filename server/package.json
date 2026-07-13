@@ -1,6 +1,6 @@
 {
   "name": "rotation-api",
-  "version": "0.25.4-dev",
+  "version": "0.25.5-dev",
   "description": "Rotation backend API",
   "type": "module",
   "scripts": {
