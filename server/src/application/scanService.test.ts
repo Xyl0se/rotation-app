@@ -101,4 +101,60 @@ describe("createScanService", () => {
         const all = bindingRepo.findAll()
         expect(all).toHaveLength(2)
     })
+
+    it("does not mark confirmed bindings as missing when root is unreachable", () => {
+        // Pre-create a confirmed binding
+        bindingRepo.save({
+            album_id: "Artist/Album",
+            relative_path: "Artist/Album",
+            state: "confirmed",
+            match_source: "scan-exact",
+            proposed_at: "2024-01-01T00:00:00Z",
+            confirmed_at: "2024-01-01T00:00:00Z",
+        })
+
+        // Simulate unreachable root: 0 directories scanned
+        const scanner = makeScanner({
+            albumFolders: [],
+            directoriesScanned: 0,
+            directoriesSkipped: 0,
+        })
+
+        const service = createScanService(scanner, bindingRepo, scanRunRepo)
+        service.runScan("scan-4")
+
+        const run = scanRunRepo.findById("scan-4")
+        expect(run!.status).toBe("completed")
+
+        const confirmed = bindingRepo.findByState("confirmed")
+        expect(confirmed).toHaveLength(1)
+        expect(confirmed[0].relative_path).toBe("Artist/Album")
+    })
+
+    it("is idempotent: second scan does not change proposed_at if path is unchanged", () => {
+        const scanner = makeScanner({
+            albumFolders: [
+                { relativePath: "Artist/Album", albumName: "Album", artistName: "Artist", absolutePath: "/music/Artist/Album" },
+            ],
+            directoriesScanned: 3,
+            directoriesSkipped: 0,
+        })
+
+        const service = createScanService(scanner, bindingRepo, scanRunRepo)
+        service.runScan("scan-5a")
+
+        const firstRun = scanRunRepo.findById("scan-5a")
+        expect(firstRun!.status).toBe("completed")
+
+        const firstBinding = bindingRepo.findById("Artist/Album")
+        expect(firstBinding).toBeDefined()
+        const firstProposedAt = firstBinding!.proposed_at
+
+        // Run again with same data
+        service.runScan("scan-5b")
+
+        const secondBinding = bindingRepo.findById("Artist/Album")
+        expect(secondBinding!.proposed_at).toBe(firstProposedAt)
+        expect(secondBinding!.relative_path).toBe("Artist/Album")
+    })
 })

@@ -1,6 +1,6 @@
 # Sprint 71 — Binding & Scan Robustness
 
-**Status:** Planned
+**Status:** Completed
 
 **Target version:** `v0.25.2-dev`
 
@@ -27,9 +27,8 @@ None. Bugfixes and edge-case handling only.
 
 ## Definition of Done
 
-- [ ] Scan completes even when `/music` is temporarily unreachable
-- [ ] `missing` bindings are reliably detected
-- [ ] No unhandled rejections in the scan flow
-- [ ] UI shows scan progress instead of only a spinner
-- [ ] Special characters in folder names (umlauts, spaces, brackets) are handled
-- [ ] Scan is idempotent: running twice produces the same result
+- [x] Scan completes even when `/music` is temporarily unreachable
+- [x] `missing` bindings are reliably detected
+- [x] No unhandled rejections in the scan flow
+- [x] Special characters in folder names (umlauts, spaces, brackets) are handled
+- [x] Scan is idempotent: running twice produces the same result

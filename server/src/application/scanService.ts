@@ -32,14 +32,20 @@ export function createScanService(
                 const scannedPaths = new Set(result.albumFolders.map(f => f.relativePath))
 
                 // 1. Mark existing confirmed bindings as missing if folder no longer found
-                const confirmedBindings = bindingRepo.findByState("confirmed")
-                for (const binding of confirmedBindings) {
-                    if (!scannedPaths.has(binding.relative_path)) {
-                        bindingRepo.updateState(binding.album_id, "missing")
+                // Only do this if the scan actually ran (directoriesScanned > 0).
+                // If the root was unreachable, directoriesScanned is 0 and we must not
+                // mark everything as missing.
+                if (result.directoriesScanned > 0) {
+                    const confirmedBindings = bindingRepo.findByState("confirmed")
+                    for (const binding of confirmedBindings) {
+                        if (!scannedPaths.has(binding.relative_path)) {
+                            bindingRepo.updateState(binding.album_id, "missing")
+                        }
                     }
                 }
 
                 // 2. Propose all scanned folders (safe upsert — preserves confirmed)
+                // albumId == normalized relativePath so Unicode forms (NFC/NFD) converge.
                 for (const folder of result.albumFolders) {
                     bindingRepo.upsertProposed(folder.relativePath, folder.relativePath, nowIso)
                 }

@@ -22,6 +22,7 @@ None.
 - `App.tsx` — global error boundary
 - `BindingsPage.tsx` — tooltips and visual polish
 - `src/styles/bindings.css` — button spacing and borders
+- `DiagnosticsPanel` / Scan flow — real progress indicator instead of spinner
 
 ## Risks
 
@@ -39,3 +40,6 @@ None.
 - [ ] Toast/notification system for async operation results
 - [ ] Verify and Reconcile buttons have explanatory tooltips (EN/DE)
 - [ ] Bindings action buttons have increased spacing and visual borders
+- [ ] Verify tooltip explains: "Checks all confirmed bindings against the filesystem and marks missing folders"
+- [ ] Reconcile tooltip explains: "Promotes proposed bindings to confirmed when the folder still exists"
+- [ ] Scan shows real progress (directories scanned / total) instead of only a spinner

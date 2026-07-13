@@ -83,7 +83,9 @@ export function createBindingRepository(db: Database.Database) {
             END,
             proposed_at = CASE
                 WHEN bindings.state = 'confirmed' THEN bindings.proposed_at
-                ELSE excluded.proposed_at
+                WHEN bindings.relative_path != excluded.relative_path THEN excluded.proposed_at
+                WHEN bindings.proposed_at IS NULL THEN excluded.proposed_at
+                ELSE bindings.proposed_at
             END,
             confirmed_at = CASE
                 WHEN bindings.state = 'confirmed' THEN bindings.confirmed_at

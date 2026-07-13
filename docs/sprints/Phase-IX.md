@@ -1,6 +1,6 @@
 # Phase IX — Search & Discovery
 
-**Status:** Frozen until Sprint 75 is completed.
+**Status:** Frozen until Sprint 76 is completed.
 
 ---
 

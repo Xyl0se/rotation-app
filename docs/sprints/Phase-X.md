@@ -30,6 +30,19 @@ Not statistics.
 
 But stories.
 
+## Asynchronous Scan Engine
+
+The current scan is synchronous and blocking. For large libraries (10,000+ albums) or slow NAS filesystems (NFS, CIFS), a scan can take minutes.
+
+Future direction:
+
+- Streaming scanner: processes directories incrementally, writes intermediate progress to the database
+- Progress events: frontend receives real-time updates (WebSocket or SSE) instead of polling
+- Background worker: scan runs in a separate process/thread, HTTP request returns immediately with a job ID
+- Resumable scans: if the server restarts mid-scan, the scan can resume from the last checkpoint
+
+This makes Rotation usable for real-world music collections without UI freezes or timeouts.
+
 ## Listening Patterns
 
 Rotation recognizes long-term developments.

@@ -48,5 +48,6 @@ Bindings and Library become visibly connected. A binding is no longer an isolate
 - [ ] Library shows a visual indicator when an album has a confirmed binding
 - [ ] Bindings list shows a clear "not in Library" / orphan state for missing albums
 - [ ] When a scan produces a confirmed binding without a Library entry, the Album Coach offers to start discovery
+- [ ] Album Coach orphan prompt is dismissible and non-intrusive
 - [ ] All new UI strings are internationalized (EN/DE)
 - [ ] No regression in scan or export performance

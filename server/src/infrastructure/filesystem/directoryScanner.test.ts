@@ -86,4 +86,47 @@ describe("createDirectoryScanner", () => {
         expect(result.albumFolders).toHaveLength(0)
         expect(result.directoriesScanned).toBe(1)
     })
+
+    it("returns empty result when music root is unreachable", () => {
+        const nonExistentRoot = join(tmpdir(), "rotation-nonexistent-" + Date.now())
+        const guard = createPathGuard(nonExistentRoot)
+        const scan = createDirectoryScanner(guard)
+        const result = scan()
+
+        expect(result.albumFolders).toHaveLength(0)
+        expect(result.directoriesScanned).toBe(0)
+    })
+
+    it("normalizes Unicode in folder names (NFC)", () => {
+        // macOS APFS/HFS+ stores filenames in NFD (decomposed).
+        // We normalize to NFC so albumIds stay stable across platforms.
+        // NFD: e + combining acute accent; NFC: precomposed é
+        const nfdAlbum = "caf\u0065\u0301" // "café" in NFD
+        const nfcAlbum = "caf\u00e9"       // "café" in NFC
+        const artistDir = join(musicRoot, "Artist")
+        const albumDir = join(artistDir, nfdAlbum)
+        mkdirSync(albumDir, { recursive: true })
+        writeFileSync(join(albumDir, "01-track.mp3"), "dummy")
+
+        const guard = createPathGuard(musicRoot)
+        const scan = createDirectoryScanner(guard)
+        const result = scan()
+
+        const paths = result.albumFolders.map((f) => f.relativePath)
+        expect(paths).toContain(join("Artist", nfcAlbum))
+        expect(paths).not.toContain(join("Artist", nfdAlbum))
+    })
+
+    it("handles spaces and brackets in folder names", () => {
+        createAlbum("Artist (Remix)", "Album [Deluxe Edition]")
+
+        const guard = createPathGuard(musicRoot)
+        const scan = createDirectoryScanner(guard)
+        const result = scan()
+
+        expect(result.albumFolders).toHaveLength(1)
+        expect(result.albumFolders[0].relativePath).toBe(
+            join("Artist (Remix)", "Album [Deluxe Edition]"),
+        )
+    })
 })

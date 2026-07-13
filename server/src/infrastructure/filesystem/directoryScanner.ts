@@ -1,6 +1,10 @@
 import { readdirSync, statSync } from "node:fs"
 import { join, relative, sep } from "node:path"
 import type { AlbumFolder, ScanOptions } from "../../domain/scan/albumFolder.js"
+
+function normalizeUnicode(value: string): string {
+    return value.normalize("NFC")
+}
 import { createDefaultScanOptions } from "../../domain/scan/albumFolder.js"
 import type { PathGuard } from "./pathGuard.js"
 
@@ -29,7 +33,19 @@ export function createDirectoryScanner(musicGuard: PathGuard) {
         const startedAt = new Date()
 
         // musicGuard resolves relative "" to the absolute music root
-        const musicRoot = musicGuard("")
+        let musicRoot: string
+        try {
+            musicRoot = musicGuard("")
+        } catch {
+            // Root directory does not exist or is unreachable
+            return {
+                albumFolders,
+                directoriesScanned: 0,
+                directoriesSkipped: 0,
+                startedAt,
+                finishedAt: new Date(),
+            }
+        }
 
         function scanDir(absoluteDir: string, depth: number): void {
             if (depth > maxDepth) {
@@ -41,6 +57,10 @@ export function createDirectoryScanner(musicGuard: PathGuard) {
             try {
                 entries = readdirSync(absoluteDir)
             } catch {
+                if (absoluteDir === musicRoot) {
+                    // Root directory unreachable — return empty scan gracefully
+                    return
+                }
                 directoriesSkipped++
                 return
             }
@@ -70,9 +90,9 @@ export function createDirectoryScanner(musicGuard: PathGuard) {
                     const relPath = relative(musicRoot, entryPath)
 
                     albumFolders.push({
-                        relativePath: relPath,
-                        albumName: entry,
-                        artistName: parentName,
+                        relativePath: normalizeUnicode(relPath),
+                        albumName: normalizeUnicode(entry),
+                        artistName: normalizeUnicode(parentName),
                         absolutePath: entryPath,
                     })
                 } else if (entryDepth < maxDepth - 1) {
