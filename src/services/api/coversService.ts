@@ -2,7 +2,7 @@
  * Cover API service for server-side cover storage.
  */
 
-import { get, postRaw, del } from "./apiClient.js"
+import { postRaw, del } from "./apiClient.js"
 
 export async function fetchCoverUrl(albumId: string): Promise<string | null> {
     try {
