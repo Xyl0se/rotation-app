@@ -12,6 +12,7 @@ export interface Binding {
     matchSource: string | null
     proposedAt: string | null
     confirmedAt: string | null
+    libraryAlbumId: string | null
     folderExists: boolean
     libraryExists: boolean
     albumTitle?: string
@@ -39,8 +40,20 @@ export async function fetchBindings(state?: "proposed" | "confirmed" | "missing"
     return get<BindingsListResponse>(`/bindings${qs}`)
 }
 
+export async function fetchBindingByLibraryAlbumId(libraryAlbumId: string): Promise<Binding> {
+    return get<Binding>(`/bindings/by-library-album/${encodeURIComponent(libraryAlbumId)}`)
+}
+
 export async function confirmBinding(albumId: string): Promise<Binding> {
     return post<Binding>("/bindings/confirm", { albumId }, true)
+}
+
+export async function linkBinding(albumId: string, libraryAlbumId: string): Promise<Binding> {
+    return post<Binding>("/bindings/link", { albumId, libraryAlbumId }, true)
+}
+
+export async function unlinkBinding(albumId: string): Promise<Binding> {
+    return post<Binding>("/bindings/unlink", { albumId }, true)
 }
 
 export async function deleteBinding(albumId: string): Promise<void> {

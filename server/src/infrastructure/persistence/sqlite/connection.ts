@@ -33,7 +33,8 @@ function migrate(db: Database.Database): void {
             state TEXT CHECK(state IN ('unbound', 'proposed', 'confirmed', 'missing')) NOT NULL DEFAULT 'unbound',
             match_source TEXT CHECK(match_source IN ('scan-exact', 'manual')),
             proposed_at TEXT,
-            confirmed_at TEXT
+            confirmed_at TEXT,
+            library_album_id TEXT
         );
 
         CREATE TABLE IF NOT EXISTS albums (
@@ -76,6 +77,7 @@ function migrate(db: Database.Database): void {
         );
 
         CREATE INDEX IF NOT EXISTS idx_bindings_album_id ON bindings(album_id);
+        CREATE INDEX IF NOT EXISTS idx_bindings_library_album_id ON bindings(library_album_id);
 
         CREATE TABLE IF NOT EXISTS export_locks (
             id INTEGER PRIMARY KEY CHECK (id = 1),

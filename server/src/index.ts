@@ -52,7 +52,7 @@ const workspaceGuard = createPathGuard(config.ROTATION_WORKSPACE_PATH)
 const syncthingGuard = createPathGuard(config.ROTATION_SYNCTHING_ROOT)
 
 const scanner = createDirectoryScanner(musicGuard)
-const scanService = createScanService(scanner, bindingRepo, scanRunRepo)
+const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo)
 const lockRepo = createExportLockRepository(db)
 const exportService = createExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard)
 

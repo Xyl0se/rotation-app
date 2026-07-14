@@ -21,10 +21,14 @@ export interface UseBindingsResult {
     error: string | null
     /** Refresh bindings and orphans */
     refresh: () => void
-    /** Check if a given album has a confirmed binding */
+    /** Check if a given binding (by file albumId) has confirmed state */
     isAlbumBound: (albumId: string) => boolean
-    /** Get the binding record for an album (if any) */
+    /** Get the binding record for a file albumId (if any) */
     getBindingForAlbum: (albumId: string) => Binding | undefined
+    /** Check if a library album (by UUID) has a confirmed binding */
+    isLibraryAlbumBound: (libraryAlbumId: string) => boolean
+    /** Get the binding record for a library album UUID (if any) */
+    getBindingForLibraryAlbum: (libraryAlbumId: string) => Binding | undefined
 }
 
 export function useBindings(): UseBindingsResult {
@@ -66,6 +70,16 @@ export function useBindings(): UseBindingsResult {
         return map
     }, [bindings])
 
+    const libraryAlbumBindingMap = useMemo(() => {
+        const map = new Map<string, Binding>()
+        for (const b of bindings) {
+            if (b.libraryAlbumId) {
+                map.set(b.libraryAlbumId, b)
+            }
+        }
+        return map
+    }, [bindings])
+
     const isAlbumBound = useCallback(
         (albumId: string): boolean => {
             const binding = bindingMap.get(albumId)
@@ -81,6 +95,21 @@ export function useBindings(): UseBindingsResult {
         [bindingMap],
     )
 
+    const isLibraryAlbumBound = useCallback(
+        (libraryAlbumId: string): boolean => {
+            const binding = libraryAlbumBindingMap.get(libraryAlbumId)
+            return binding !== undefined && binding.state === "confirmed"
+        },
+        [libraryAlbumBindingMap],
+    )
+
+    const getBindingForLibraryAlbum = useCallback(
+        (libraryAlbumId: string): Binding | undefined => {
+            return libraryAlbumBindingMap.get(libraryAlbumId)
+        },
+        [libraryAlbumBindingMap],
+    )
+
     return {
         bindings,
         orphans,
@@ -89,5 +118,7 @@ export function useBindings(): UseBindingsResult {
         refresh,
         isAlbumBound,
         getBindingForAlbum,
+        isLibraryAlbumBound,
+        getBindingForLibraryAlbum,
     }
 }

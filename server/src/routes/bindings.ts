@@ -11,6 +11,7 @@ export interface BindingDTO {
     matchSource: string | null
     proposedAt: string | null
     confirmedAt: string | null
+    libraryAlbumId: string | null
     folderExists: boolean
     libraryExists: boolean
     albumTitle?: string
@@ -28,7 +29,7 @@ function toDTO(
     } catch {
         folderExists = false
     }
-    const libraryExists = record.title !== null && record.title !== undefined
+    const libraryExists = record.library_album_id !== null
     return {
         albumId: record.album_id,
         relativePath: record.relative_path,
@@ -36,6 +37,7 @@ function toDTO(
         matchSource: record.match_source,
         proposedAt: record.proposed_at,
         confirmedAt: record.confirmed_at,
+        libraryAlbumId: record.library_album_id,
         folderExists,
         libraryExists,
         ...(libraryExists
@@ -78,9 +80,21 @@ export function createBindingsRouter(bindingRepo: BindingRepository, musicGuard:
     router.get("/orphans", (_req: Request, res: Response) => {
         const records = bindingRepo.findOrphans()
         const dtos = records
-            .map((r) => toDTO(r as ReturnType<BindingRepository["findWithAlbumDataById"]>, musicGuard))
+            .map((r) => toDTO(r, musicGuard))
             .filter((dto): dto is BindingDTO => dto !== null)
         res.json({ bindings: dtos, count: dtos.length })
+    })
+
+    // GET /bindings/by-library-album/:libraryAlbumId – find binding by library album UUID
+    router.get("/by-library-album/:libraryAlbumId", (req: Request, res: Response) => {
+        const libraryAlbumId = req.params.libraryAlbumId as string
+        const record = bindingRepo.findByLibraryAlbumId(libraryAlbumId)
+        if (!record) {
+            res.status(404).json({ error: "Binding not found" })
+            return
+        }
+        const fullRecord = bindingRepo.findWithAlbumDataById(record.album_id)
+        res.json(toDTO(fullRecord, musicGuard))
     })
 
     // POST /bindings/confirm – confirm a binding by albumId
@@ -100,6 +114,41 @@ export function createBindingsRouter(bindingRepo: BindingRepository, musicGuard:
             res.status(500).json({ error: "Failed to confirm binding" })
             return
         }
+        const updated = bindingRepo.findWithAlbumDataById(albumId)!
+        res.json(toDTO(updated, musicGuard))
+    })
+
+    // POST /bindings/link – manually link a binding to a library album
+    router.post("/link", (req: Request, res: Response) => {
+        const albumId = req.body.albumId as string | undefined
+        const libraryAlbumId = req.body.libraryAlbumId as string | undefined
+        if (!albumId) {
+            res.status(400).json({ error: "albumId is required" })
+            return
+        }
+        const record = bindingRepo.findById(albumId)
+        if (!record) {
+            res.status(404).json({ error: "Binding not found" })
+            return
+        }
+        bindingRepo.updateLibraryAlbumId(albumId, libraryAlbumId ?? null)
+        const updated = bindingRepo.findWithAlbumDataById(albumId)!
+        res.json(toDTO(updated, musicGuard))
+    })
+
+    // POST /bindings/unlink – remove library album link from a binding
+    router.post("/unlink", (req: Request, res: Response) => {
+        const albumId = req.body.albumId as string | undefined
+        if (!albumId) {
+            res.status(400).json({ error: "albumId is required" })
+            return
+        }
+        const record = bindingRepo.findById(albumId)
+        if (!record) {
+            res.status(404).json({ error: "Binding not found" })
+            return
+        }
+        bindingRepo.updateLibraryAlbumId(albumId, null)
         const updated = bindingRepo.findWithAlbumDataById(albumId)!
         res.json(toDTO(updated, musicGuard))
     })

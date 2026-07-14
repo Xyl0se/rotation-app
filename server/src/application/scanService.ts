@@ -1,7 +1,9 @@
 import type { DirectoryScanner } from "../infrastructure/filesystem/directoryScanner.js"
 import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
+import type { AlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
 import type { ScanRunRepository } from "../infrastructure/persistence/sqlite/scanRunRepository.js"
 import type { ScanOptions } from "../domain/scan/albumFolder.js"
+import { suggestBindings } from "../domain/binding/albumMatcher.js"
 
 export interface ScanService {
     runScan(scanId: string, options?: ScanOptions): void
@@ -10,6 +12,7 @@ export interface ScanService {
 export function createScanService(
     scanner: DirectoryScanner,
     bindingRepo: BindingRepository,
+    albumRepo: AlbumRepository,
     scanRunRepo: ScanRunRepository,
 ): ScanService {
     return {
@@ -50,6 +53,28 @@ export function createScanService(
                 // albumId == normalized relativePath so Unicode forms (NFC/NFD) converge.
                 for (const folder of result.albumFolders) {
                     bindingRepo.upsertProposed(folder.relativePath, folder.relativePath, nowIso)
+                }
+
+                // 3. Try to match proposed folders with library albums
+                const albums = albumRepo.findAll()
+                if (albums.length > 0) {
+                    const candidates = result.albumFolders.map(f => ({
+                        albumId: f.relativePath,
+                        relativePath: f.relativePath,
+                        artistName: f.artistName,
+                        albumName: f.albumName,
+                    }))
+
+                    const matches = suggestBindings(
+                        albums.map(a => ({ id: a.id, title: a.title, artist: a.artist })),
+                        candidates,
+                    )
+
+                    for (const match of matches) {
+                        // match.relativePath == binding.album_id (the path)
+                        // match.libraryAlbumId == the actual library album UUID
+                        bindingRepo.updateLibraryAlbumId(match.relativePath, match.libraryAlbumId)
+                    }
                 }
 
                 scanRunRepo.updateResult(

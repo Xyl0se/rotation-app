@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest"
 import Database from "better-sqlite3"
 import { initDatabase } from "../infrastructure/persistence/sqlite/connection.js"
 import { createBindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
+import { createAlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
 import { createScanRunRepository } from "../infrastructure/persistence/sqlite/scanRunRepository.js"
 import { createScanService } from "./scanService.js"
 import type { DirectoryScanner } from "../infrastructure/filesystem/directoryScanner.js"
@@ -9,6 +10,7 @@ import type { DirectoryScanner } from "../infrastructure/filesystem/directorySca
 describe("createScanService", () => {
     let db: Database.Database
     let bindingRepo: ReturnType<typeof createBindingRepository>
+    let albumRepo: ReturnType<typeof createAlbumRepository>
     let scanRunRepo: ReturnType<typeof createScanRunRepository>
 
     beforeEach(() => {
@@ -19,8 +21,13 @@ describe("createScanService", () => {
                 title TEXT NOT NULL,
                 artist TEXT NOT NULL,
                 year TEXT,
+                category TEXT,
                 cover_url TEXT,
-                role TEXT NOT NULL DEFAULT 'new',
+                cover_override TEXT,
+                role_history TEXT NOT NULL DEFAULT '[]',
+                listen_count INTEGER NOT NULL DEFAULT 0,
+                last_listened TEXT,
+                story TEXT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             );
@@ -30,8 +37,11 @@ describe("createScanService", () => {
                 state TEXT CHECK(state IN ('unbound', 'proposed', 'confirmed', 'missing')) NOT NULL DEFAULT 'unbound',
                 match_source TEXT CHECK(match_source IN ('scan-exact', 'manual')),
                 proposed_at TEXT,
-                confirmed_at TEXT
+                confirmed_at TEXT,
+                library_album_id TEXT,
+                FOREIGN KEY(library_album_id) REFERENCES albums(id) ON DELETE SET NULL
             );
+            CREATE INDEX IF NOT EXISTS idx_bindings_library_album_id ON bindings(library_album_id);
             CREATE TABLE IF NOT EXISTS scan_runs (
                 id TEXT PRIMARY KEY,
                 started_at TEXT NOT NULL,
@@ -44,6 +54,7 @@ describe("createScanService", () => {
             );
         `)
         bindingRepo = createBindingRepository(db)
+        albumRepo = createAlbumRepository(db)
         scanRunRepo = createScanRunRepository(db)
     })
 
@@ -66,7 +77,7 @@ describe("createScanService", () => {
             directoriesSkipped: 0,
         })
 
-        const service = createScanService(scanner, bindingRepo, scanRunRepo)
+        const service = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo)
         service.runScan("scan-1")
 
         const run = scanRunRepo.findById("scan-1")
@@ -86,7 +97,7 @@ describe("createScanService", () => {
             throw new Error("disk error")
         }
 
-        const service = createScanService(failingScanner, bindingRepo, scanRunRepo)
+        const service = createScanService(failingScanner, bindingRepo, albumRepo, scanRunRepo)
         expect(() => service.runScan("scan-2")).toThrow("disk error")
 
         const run = scanRunRepo.findById("scan-2")
@@ -105,7 +116,7 @@ describe("createScanService", () => {
             directoriesSkipped: 1,
         })
 
-        const service = createScanService(scanner, bindingRepo, scanRunRepo)
+        const service = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo)
         service.runScan("scan-3")
 
         const all = bindingRepo.findAll()
@@ -121,6 +132,7 @@ describe("createScanService", () => {
             match_source: "scan-exact",
             proposed_at: "2024-01-01T00:00:00Z",
             confirmed_at: "2024-01-01T00:00:00Z",
+            library_album_id: null,
         })
 
         // Simulate unreachable root: 0 directories scanned
@@ -130,7 +142,7 @@ describe("createScanService", () => {
             directoriesSkipped: 0,
         })
 
-        const service = createScanService(scanner, bindingRepo, scanRunRepo)
+        const service = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo)
         service.runScan("scan-4")
 
         const run = scanRunRepo.findById("scan-4")
@@ -150,7 +162,7 @@ describe("createScanService", () => {
             directoriesSkipped: 0,
         })
 
-        const service = createScanService(scanner, bindingRepo, scanRunRepo)
+        const service = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo)
         service.runScan("scan-5a")
 
         const firstRun = scanRunRepo.findById("scan-5a")
@@ -166,5 +178,61 @@ describe("createScanService", () => {
         const secondBinding = bindingRepo.findById("Artist/Album")
         expect(secondBinding!.proposed_at).toBe(firstProposedAt)
         expect(secondBinding!.relative_path).toBe("Artist/Album")
+    })
+
+    it("links proposed binding to a matching library album via fuzzy matching", () => {
+        // Pre-create a library album
+        albumRepo.save({
+            id: "album-uuid-1",
+            title: "Dark Side of the Moon",
+            artist: "Pink Floyd",
+            year: "1973",
+            roleHistory: [],
+            listenCount: 0,
+            lastListened: null,
+        })
+
+        const scanner = makeScanner({
+            albumFolders: [
+                { relativePath: "Pink Floyd/Dark Side of the Moon", albumName: "Dark Side of the Moon", artistName: "Pink Floyd", absolutePath: "/music/Pink Floyd/Dark Side of the Moon" },
+            ],
+            directoriesScanned: 3,
+            directoriesSkipped: 0,
+        })
+
+        const service = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo)
+        service.runScan("scan-6")
+
+        const binding = bindingRepo.findById("Pink Floyd/Dark Side of the Moon")
+        expect(binding).toBeDefined()
+        expect(binding!.state).toBe("proposed")
+        expect(binding!.library_album_id).toBe("album-uuid-1")
+    })
+
+    it("matches fuzzy when album name is slightly different", () => {
+        albumRepo.save({
+            id: "album-uuid-2",
+            title: "OK Computer",
+            artist: "Radiohead",
+            year: "1997",
+            roleHistory: [],
+            listenCount: 0,
+            lastListened: null,
+        })
+
+        const scanner = makeScanner({
+            albumFolders: [
+                { relativePath: "Radiohead/OK Computer", albumName: "OK Computer", artistName: "Radiohead", absolutePath: "/music/Radiohead/OK Computer" },
+            ],
+            directoriesScanned: 3,
+            directoriesSkipped: 0,
+        })
+
+        const service = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo)
+        service.runScan("scan-7")
+
+        const binding = bindingRepo.findById("Radiohead/OK Computer")
+        expect(binding).toBeDefined()
+        expect(binding!.library_album_id).toBe("album-uuid-2")
     })
 })

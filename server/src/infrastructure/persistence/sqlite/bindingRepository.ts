@@ -10,6 +10,7 @@ export interface BindingRecord {
     match_source: MatchSource
     proposed_at: string | null
     confirmed_at: string | null
+    library_album_id: string | null
 }
 
 export interface BindingWithAlbumRecord extends BindingRecord {
@@ -19,10 +20,10 @@ export interface BindingWithAlbumRecord extends BindingRecord {
 
 export function createBindingRepository(db: Database.Database) {
     const insert = db.prepare<[
-        string, string, string, string | null, string | null, string | null
+        string, string, string, string | null, string | null, string | null, string | null
     ]>(`
-        INSERT INTO bindings (album_id, relative_path, state, match_source, proposed_at, confirmed_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO bindings (album_id, relative_path, state, match_source, proposed_at, confirmed_at, library_album_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(album_id) DO UPDATE SET
             relative_path = excluded.relative_path,
             state = CASE
@@ -40,6 +41,10 @@ export function createBindingRepository(db: Database.Database) {
             confirmed_at = CASE
                 WHEN bindings.state = 'confirmed' THEN bindings.confirmed_at
                 ELSE excluded.confirmed_at
+            END,
+            library_album_id = CASE
+                WHEN excluded.library_album_id IS NOT NULL THEN excluded.library_album_id
+                ELSE bindings.library_album_id
             END
     `)
 
@@ -59,6 +64,10 @@ export function createBindingRepository(db: Database.Database) {
         SELECT * FROM bindings WHERE relative_path = ?
     `)
 
+    const findByLibraryAlbumId = db.prepare<[string]>(`
+        SELECT * FROM bindings WHERE library_album_id = ?
+    `)
+
     const confirm = db.prepare<[string, string, string]>(`
         UPDATE bindings
         SET state = 'confirmed', match_source = ?, confirmed_at = ?
@@ -71,11 +80,17 @@ export function createBindingRepository(db: Database.Database) {
         WHERE album_id = ?
     `)
 
+    const updateLibraryAlbumId = db.prepare<[string | null, string]>(`
+        UPDATE bindings
+        SET library_album_id = ?
+        WHERE album_id = ?
+    `)
+
     const upsertProposed = db.prepare<[
-        string, string, string, string | null, string | null, string | null
+        string, string, string, string | null, string | null, string | null, string | null
     ]>(`
-        INSERT INTO bindings (album_id, relative_path, state, match_source, proposed_at, confirmed_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO bindings (album_id, relative_path, state, match_source, proposed_at, confirmed_at, library_album_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(album_id) DO UPDATE SET
             relative_path = excluded.relative_path,
             state = CASE
@@ -95,6 +110,10 @@ export function createBindingRepository(db: Database.Database) {
             confirmed_at = CASE
                 WHEN bindings.state = 'confirmed' THEN bindings.confirmed_at
                 ELSE excluded.confirmed_at
+            END,
+            library_album_id = CASE
+                WHEN excluded.library_album_id IS NOT NULL THEN excluded.library_album_id
+                ELSE bindings.library_album_id
             END
     `)
 
@@ -103,8 +122,18 @@ export function createBindingRepository(db: Database.Database) {
     `)
 
     const findOrphans = db.prepare<[]>(`
-        SELECT b.* FROM bindings b
-        LEFT JOIN albums a ON b.album_id = a.id
+        SELECT
+            b.album_id,
+            b.relative_path,
+            b.state,
+            b.match_source,
+            b.proposed_at,
+            b.confirmed_at,
+            b.library_album_id,
+            a.title,
+            a.artist
+        FROM bindings b
+        LEFT JOIN albums a ON b.library_album_id = a.id
         WHERE a.id IS NULL
         ORDER BY b.album_id
     `)
@@ -117,10 +146,11 @@ export function createBindingRepository(db: Database.Database) {
             b.match_source,
             b.proposed_at,
             b.confirmed_at,
+            b.library_album_id,
             a.title,
             a.artist
         FROM bindings b
-        LEFT JOIN albums a ON b.album_id = a.id
+        LEFT JOIN albums a ON b.library_album_id = a.id
         ORDER BY b.album_id
     `)
 
@@ -132,10 +162,11 @@ export function createBindingRepository(db: Database.Database) {
             b.match_source,
             b.proposed_at,
             b.confirmed_at,
+            b.library_album_id,
             a.title,
             a.artist
         FROM bindings b
-        LEFT JOIN albums a ON b.album_id = a.id
+        LEFT JOIN albums a ON b.library_album_id = a.id
         WHERE b.album_id = ?
     `)
 
@@ -147,10 +178,11 @@ export function createBindingRepository(db: Database.Database) {
             b.match_source,
             b.proposed_at,
             b.confirmed_at,
+            b.library_album_id,
             a.title,
             a.artist
         FROM bindings b
-        LEFT JOIN albums a ON b.album_id = a.id
+        LEFT JOIN albums a ON b.library_album_id = a.id
         WHERE b.state = ?
         ORDER BY b.album_id
     `)
@@ -164,6 +196,7 @@ export function createBindingRepository(db: Database.Database) {
                 record.match_source,
                 record.proposed_at,
                 record.confirmed_at,
+                record.library_album_id,
             )
         },
 
@@ -183,6 +216,10 @@ export function createBindingRepository(db: Database.Database) {
             return findByPath.get(relativePath) as BindingRecord | undefined
         },
 
+        findByLibraryAlbumId(libraryAlbumId: string): BindingRecord | undefined {
+            return findByLibraryAlbumId.get(libraryAlbumId) as BindingRecord | undefined
+        },
+
         confirm(albumId: string, matchSource: MatchSource, confirmedAt: string): boolean {
             const info = confirm.run(matchSource as string, confirmedAt, albumId)
             return info.changes > 0
@@ -193,12 +230,17 @@ export function createBindingRepository(db: Database.Database) {
             return info.changes > 0
         },
 
+        updateLibraryAlbumId(albumId: string, libraryAlbumId: string | null): boolean {
+            const info = updateLibraryAlbumId.run(libraryAlbumId, albumId)
+            return info.changes > 0
+        },
+
         delete(albumId: string): boolean {
             const info = remove.run(albumId)
             return info.changes > 0
         },
 
-        upsertProposed(albumId: string, relativePath: string, proposedAt: string): boolean {
+        upsertProposed(albumId: string, relativePath: string, proposedAt: string, libraryAlbumId?: string): boolean {
             const info = upsertProposed.run(
                 albumId,
                 relativePath,
@@ -206,12 +248,13 @@ export function createBindingRepository(db: Database.Database) {
                 "scan-exact",
                 proposedAt,
                 null,
+                libraryAlbumId ?? null,
             )
             return info.changes > 0
         },
 
-        findOrphans(): BindingRecord[] {
-            return findOrphans.all() as BindingRecord[]
+        findOrphans(): BindingWithAlbumRecord[] {
+            return findOrphans.all() as BindingWithAlbumRecord[]
         },
 
         findWithAlbumData(): BindingWithAlbumRecord[] {
