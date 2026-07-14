@@ -232,6 +232,12 @@ export const de: Translation = {
                 `Die Rolle "${roleTitle}" passt gut zu diesem Album.`,
             accept: "Rolle übernehmen",
         },
+        orphanPrompt: {
+            title: "Dieses Album ist noch nicht in deiner Bibliothek",
+            description: "Möchtest du es erfassen?",
+            dismiss: "Nicht jetzt",
+            capture: "Album erfassen",
+        },
     },
 
     archive: {
@@ -651,6 +657,9 @@ export const de: Translation = {
             `${ok} bestätigt, ${missing} fehlend`,
         reconcileResult: (count: number) =>
             `${count} vorgeschlagene Bindings bestätigt`,
+        orphanBadge: "Nicht in Bibliothek",
+        albumPreview: (title: string, artist: string) =>
+            `${title} von ${artist}`,
     },
 
     diagnostics: {

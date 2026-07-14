@@ -12,6 +12,11 @@ export interface BindingRecord {
     confirmed_at: string | null
 }
 
+export interface BindingWithAlbumRecord extends BindingRecord {
+    title: string | null
+    artist: string | null
+}
+
 export function createBindingRepository(db: Database.Database) {
     const insert = db.prepare<[
         string, string, string, string | null, string | null, string | null
@@ -97,6 +102,59 @@ export function createBindingRepository(db: Database.Database) {
         DELETE FROM bindings WHERE album_id = ?
     `)
 
+    const findOrphans = db.prepare<[]>(`
+        SELECT b.* FROM bindings b
+        LEFT JOIN albums a ON b.album_id = a.id
+        WHERE a.id IS NULL
+        ORDER BY b.album_id
+    `)
+
+    const findWithAlbumData = db.prepare<[]>(`
+        SELECT
+            b.album_id,
+            b.relative_path,
+            b.state,
+            b.match_source,
+            b.proposed_at,
+            b.confirmed_at,
+            a.title,
+            a.artist
+        FROM bindings b
+        LEFT JOIN albums a ON b.album_id = a.id
+        ORDER BY b.album_id
+    `)
+
+    const findWithAlbumDataById = db.prepare<[string]>(`
+        SELECT
+            b.album_id,
+            b.relative_path,
+            b.state,
+            b.match_source,
+            b.proposed_at,
+            b.confirmed_at,
+            a.title,
+            a.artist
+        FROM bindings b
+        LEFT JOIN albums a ON b.album_id = a.id
+        WHERE b.album_id = ?
+    `)
+
+    const findWithAlbumDataByState = db.prepare<[string]>(`
+        SELECT
+            b.album_id,
+            b.relative_path,
+            b.state,
+            b.match_source,
+            b.proposed_at,
+            b.confirmed_at,
+            a.title,
+            a.artist
+        FROM bindings b
+        LEFT JOIN albums a ON b.album_id = a.id
+        WHERE b.state = ?
+        ORDER BY b.album_id
+    `)
+
     return {
         save(record: BindingRecord): void {
             insert.run(
@@ -150,6 +208,22 @@ export function createBindingRepository(db: Database.Database) {
                 null,
             )
             return info.changes > 0
+        },
+
+        findOrphans(): BindingRecord[] {
+            return findOrphans.all() as BindingRecord[]
+        },
+
+        findWithAlbumData(): BindingWithAlbumRecord[] {
+            return findWithAlbumData.all() as BindingWithAlbumRecord[]
+        },
+
+        findWithAlbumDataById(albumId: string): BindingWithAlbumRecord | undefined {
+            return findWithAlbumDataById.get(albumId) as BindingWithAlbumRecord | undefined
+        },
+
+        findWithAlbumDataByState(state: BindingState): BindingWithAlbumRecord[] {
+            return findWithAlbumDataByState.all(state) as BindingWithAlbumRecord[]
         },
     }
 }

@@ -230,6 +230,12 @@ export const en = {
                 `The role "${roleTitle}" fits this album well.`,
             accept: "Accept Role",
         },
+        orphanPrompt: {
+            title: "This album is not in your Library yet",
+            description: "Would you like to capture it?",
+            dismiss: "Not now",
+            capture: "Capture album",
+        },
     },
 
     archive: {
@@ -649,6 +655,9 @@ export const en = {
             `${ok} confirmed, ${missing} missing`,
         reconcileResult: (count: number) =>
             `${count} proposed bindings confirmed`,
+        orphanBadge: "Not in Library",
+        albumPreview: (title: string, artist: string) =>
+            `${title} by ${artist}`,
     },
 
     diagnostics: {

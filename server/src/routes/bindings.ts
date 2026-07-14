@@ -12,9 +12,15 @@ export interface BindingDTO {
     proposedAt: string | null
     confirmedAt: string | null
     folderExists: boolean
+    libraryExists: boolean
+    albumTitle?: string
+    albumArtist?: string
 }
 
-function toDTO(record: ReturnType<BindingRepository["findById"]>, guard: PathGuard): BindingDTO | null {
+function toDTO(
+    record: ReturnType<BindingRepository["findWithAlbumDataById"]>,
+    guard: PathGuard,
+): BindingDTO | null {
     if (!record) return null
     let folderExists = false
     try {
@@ -22,6 +28,7 @@ function toDTO(record: ReturnType<BindingRepository["findById"]>, guard: PathGua
     } catch {
         folderExists = false
     }
+    const libraryExists = record.title !== null && record.title !== undefined
     return {
         albumId: record.album_id,
         relativePath: record.relative_path,
@@ -30,6 +37,13 @@ function toDTO(record: ReturnType<BindingRepository["findById"]>, guard: PathGua
         proposedAt: record.proposed_at,
         confirmedAt: record.confirmed_at,
         folderExists,
+        libraryExists,
+        ...(libraryExists
+            ? {
+                  albumTitle: record.title ?? undefined,
+                  albumArtist: record.artist ?? undefined,
+              }
+            : {}),
     }
 }
 
@@ -42,7 +56,7 @@ export function createBindingsRouter(bindingRepo: BindingRepository, musicGuard:
         const state = req.query.state as string | undefined
 
         if (albumId) {
-            const record = bindingRepo.findById(albumId)
+            const record = bindingRepo.findWithAlbumDataById(albumId)
             if (!record) {
                 res.status(404).json({ error: "Binding not found" })
                 return
@@ -52,10 +66,19 @@ export function createBindingsRouter(bindingRepo: BindingRepository, musicGuard:
         }
 
         const records = state
-            ? bindingRepo.findByState(state as "unbound" | "proposed" | "confirmed" | "missing")
-            : bindingRepo.findAll()
+            ? bindingRepo.findWithAlbumDataByState(state as "unbound" | "proposed" | "confirmed" | "missing")
+            : bindingRepo.findWithAlbumData()
         const dtos = records
             .map((r) => toDTO(r, musicGuard))
+            .filter((dto): dto is BindingDTO => dto !== null)
+        res.json({ bindings: dtos, count: dtos.length })
+    })
+
+    // GET /bindings/orphans – bindings without a matching library album
+    router.get("/orphans", (_req: Request, res: Response) => {
+        const records = bindingRepo.findOrphans()
+        const dtos = records
+            .map((r) => toDTO(r as ReturnType<BindingRepository["findWithAlbumDataById"]>, musicGuard))
             .filter((dto): dto is BindingDTO => dto !== null)
         res.json({ bindings: dtos, count: dtos.length })
     })
@@ -77,7 +100,7 @@ export function createBindingsRouter(bindingRepo: BindingRepository, musicGuard:
             res.status(500).json({ error: "Failed to confirm binding" })
             return
         }
-        const updated = bindingRepo.findById(albumId)!
+        const updated = bindingRepo.findWithAlbumDataById(albumId)!
         res.json(toDTO(updated, musicGuard))
     })
 

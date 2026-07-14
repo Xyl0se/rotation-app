@@ -75,6 +75,8 @@ function migrate(db: Database.Database): void {
             error_message TEXT
         );
 
+        CREATE INDEX IF NOT EXISTS idx_bindings_album_id ON bindings(album_id);
+
         CREATE TABLE IF NOT EXISTS export_locks (
             id INTEGER PRIMARY KEY CHECK (id = 1),
             export_id TEXT,

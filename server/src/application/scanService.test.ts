@@ -14,6 +14,16 @@ describe("createScanService", () => {
     beforeEach(() => {
         db = new Database(":memory:")
         db.exec(`
+            CREATE TABLE IF NOT EXISTS albums (
+                id TEXT PRIMARY KEY,
+                title TEXT NOT NULL,
+                artist TEXT NOT NULL,
+                year TEXT,
+                cover_url TEXT,
+                role TEXT NOT NULL DEFAULT 'new',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );
             CREATE TABLE IF NOT EXISTS bindings (
                 album_id TEXT PRIMARY KEY,
                 relative_path TEXT NOT NULL,

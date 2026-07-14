@@ -13,6 +13,9 @@ export interface Binding {
     proposedAt: string | null
     confirmedAt: string | null
     folderExists: boolean
+    libraryExists: boolean
+    albumTitle?: string
+    albumArtist?: string
 }
 
 export interface BindingsListResponse {
@@ -51,4 +54,8 @@ export async function verifyBindings(): Promise<VerifyResult> {
 
 export async function reconcileBindings(): Promise<ReconcileResult> {
     return post<ReconcileResult>("/bindings/reconcile", undefined, true)
+}
+
+export async function fetchOrphans(): Promise<BindingsListResponse> {
+    return get<BindingsListResponse>("/bindings/orphans")
 }
