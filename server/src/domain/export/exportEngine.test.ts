@@ -17,6 +17,7 @@ function makeBinding(overrides: Partial<BindingRecord> = {}): BindingRecord {
         match_source: "scan-exact",
         proposed_at: "2026-01-01T00:00:00Z",
         confirmed_at: "2026-01-02T00:00:00Z",
+        library_album_id: null,
         ...overrides,
     }
 }
