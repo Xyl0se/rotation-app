@@ -1,6 +1,7 @@
 import { useState, useRef } from "react"
 
 import type { Album, AlbumAcquisitionReason, AlbumLifePhase } from "../../../types/album"
+import type { Binding } from "../../../services/api/bindingsService"
 
 import Button from "../../ui/Button"
 import Dialog from "../../ui/Dialog"
@@ -37,6 +38,7 @@ const LIFE_PHASE_OPTIONS: AlbumLifePhase[] = [
 
 type EditAlbumDialogProps = {
     album: Album
+    binding?: Binding
     onClose: () => void
     onSave: (album: Album) => void
     onUpdateCoverOverride: (
@@ -53,6 +55,7 @@ type EditAlbumDialogProps = {
 
 function EditAlbumDialog({
     album,
+    binding,
     onClose,
     onSave,
     onUpdateCoverOverride,
@@ -245,6 +248,29 @@ function EditAlbumDialog({
                         }
                     />
                 </label>
+
+                <div className="edit-binding-info">
+                    <span className="edit-binding-label">{t.editDialog.boundFolder}</span>
+                    {binding ? (
+                        binding.state === "missing" ? (
+                            <span
+                                className="edit-binding-missing"
+                                title={t.albumCard.missingFolderTooltip(binding.relativePath)}
+                            >
+                                {t.editDialog.folderMissing}
+                            </span>
+                        ) : (
+                            <span
+                                className="edit-binding-path"
+                                title={t.albumCard.boundTooltip(binding.relativePath)}
+                            >
+                                {binding.relativePath}
+                            </span>
+                        )
+                    ) : (
+                        <span className="edit-binding-none">{t.editDialog.notBound}</span>
+                    )}
+                </div>
 
                 <div className="edit-cover-section">
                     <h3>{t.common.coverOf("")}</h3>

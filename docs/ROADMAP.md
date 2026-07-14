@@ -4,7 +4,7 @@
 >
 > Rotation accompanies the relationship between person and album.
 
-Version: v0.25.4-dev
+Version: v0.25.8-dev
 
 ---
 
@@ -46,7 +46,6 @@ All future developments are oriented toward these principles.
 
 | Sprint | Goal | Target | Status |
 |--------|------|--------|--------|
-| [Sprint 75.1](./sprints/Sprint-75.1.md) | Server-Side Library & Cover Storage | v0.25.6-dev | Backlog |
 | [Sprint 76](./sprints/Sprint-76.md) | Library-Bindings Integration | v0.26.0-dev | Backlog |
 
 ## Completed Sprints
@@ -58,6 +57,9 @@ All future developments are oriented toward these principles.
 | [Sprint 73](./sprints/done/Sprint-73.md) | Frontend Resilience | v0.25.3-dev | Done ✅ |
 | [Sprint 74](./sprints/done/Sprint-74.md) | Backup System | v0.25.4-dev | Done ✅ |
 | [Sprint 75](./sprints/done/Sprint-75.md) | Observability & Operations | v0.25.5-dev | Done ✅ |
+| [Sprint 75.1](./sprints/done/Sprint-75.1.md) | Server-Side Library & Cover Storage | v0.25.6-dev | Done ✅ |
+| [Sprint 75.2](./sprints/done/Sprint-75.2.md) | Library-Bindings Enabler | v0.25.7-dev | Done ✅ |
+| [Sprint 75.3](./sprints/done/Sprint-75.3.md) | Library-Bindings UI Bridge | v0.25.8-dev | Done ✅ |
 
 ---
 

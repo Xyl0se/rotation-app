@@ -377,6 +377,10 @@ export const en = {
         archive: "Move to Archive",
         reconsider: "Check Rediscovery",
         delete: "Delete Album",
+        bound: "Bound",
+        unbound: "Unbound",
+        boundTooltip: (path: string) => `Files at: ${path}`,
+        missingFolderTooltip: (path: string) => `Folder missing: ${path}`,
     },
 
     deleteDialog: {
@@ -409,6 +413,9 @@ export const en = {
         coverLabelAlternative: "Alternative Cover",
         coverLabelUrl: "URL Override",
         selectPlaceholder: "Please select...",
+        boundFolder: "Bound folder",
+        notBound: "Not bound to any folder",
+        folderMissing: "Folder no longer exists on disk",
         errors: {
             invalidUrl: "Please enter a valid URL.",
             invalidImageFormat: "Please upload an image in JPG, PNG or WebP format.",
@@ -658,6 +665,10 @@ export const en = {
         orphanBadge: "Not in Library",
         albumPreview: (title: string, artist: string) =>
             `${title} by ${artist}`,
+        orphanBanner: (count: number) =>
+            count === 1
+                ? "1 orphaned folder detected — review on Bindings page."
+                : `${count} orphaned folders detected — review on Bindings page.`,
     },
 
     diagnostics: {

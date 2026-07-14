@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.25.8-dev
+
+- **Sprint 75.3 — Library-Bindings UI Bridge**
+  - **AlbumCard Binding-Badge**: Kleines Status-Badge pro Album (Bound / Unbound / Missing) mit farbcodiertem Hintergrund. Tooltips zeigen Dateipfad oder fehlenden Ordner an. i18n DE/EN.
+  - **EditAlbumDialog Bound-Folder**: Readonly-Anzeige des gebundenen Ordners im Dialog. Warnung bei fehlendem Ordner. Nutzt `useBindings` + `getBindingForLibraryAlbum`.
+  - **Library-Views Binding-Map**: `Library`, `GroupedLibraryView` und `RoleDetail` erhalten je einen `bindingMap` über `useBindings` und übergeben das passende Binding an jeden `AlbumCard`.
+  - **BindingsPage Album-Preview & Orphan-Badge**: Pro Binding-Zeile wird Album-Titel/Künstler als Vorschau angezeigt. Orphan-Bindings erhalten ein "Not in Library"-Badge.
+  - **HomePage Orphan-Banner**: Gelber Banner auf der Startseite, wenn verwaiste Ordner existieren. Verweist auf die Bindings-Seite.
+  - Alle neuen UI-Texte in DE/EN übersetzt. Build clean, 338 Tests grün.
+
 ## v0.25.5-dev
 
 - **Sprint 75 — Observability & Operations**

@@ -117,10 +117,37 @@
     font-weight: 500;
 }
 
+.binding-preview {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary, #1a1a1a);
+    word-break: break-word;
+}
+
+.binding-orphan {
+    font-size: 0.75rem;
+    color: #c00;
+    font-weight: 600;
+    background: #fee;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    width: fit-content;
+}
+
 .binding-actions {
     display: flex;
     gap: 0.5rem;
     flex-shrink: 0;
+}
+
+.orphan-banner {
+    padding: 0.75rem 1rem;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    color: #856404;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
 }
 
 /* App Navigation */

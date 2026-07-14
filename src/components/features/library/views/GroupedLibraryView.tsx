@@ -1,8 +1,12 @@
+import { useMemo } from "react"
+
 import type { Album } from "../../../../types/album"
 
 import type { LibraryGroup } from "../../../../domain/library-views/libraryGroup"
 
 import AlbumCard from "../AlbumCard"
+import { useBindings } from "../../../../hooks/useBindings"
+import type { Binding } from "../../../../services/api/bindingsService"
 
 type GroupedLibraryViewProps = {
     groups: LibraryGroup[]
@@ -27,6 +31,18 @@ function GroupedLibraryView({
     onSetFocus,
     emptyMessage = "In dieser Ansicht sind noch keine Alben sichtbar.",
 }: GroupedLibraryViewProps) {
+    const { bindings } = useBindings()
+
+    const bindingMap = useMemo(() => {
+        const map = new Map<string, Binding>()
+        for (const b of bindings) {
+            if (b.libraryAlbumId) {
+                map.set(b.libraryAlbumId, b)
+            }
+        }
+        return map
+    }, [bindings])
+
 
     if (groups.length === 0) {
         return (
@@ -60,6 +76,7 @@ function GroupedLibraryView({
                                 key={album.id}
                                 album={album}
                                 isFocus={album.id === focusAlbumId}
+                                binding={bindingMap.get(album.id) ?? null}
                                 onArchive={onArchive}
                                 onDelete={onDelete}
                                 onEdit={onEdit}

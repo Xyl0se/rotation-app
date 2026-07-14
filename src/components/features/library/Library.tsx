@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 
 import type { Album } from "../../../types/album"
 
@@ -17,6 +17,8 @@ import RoleChangeView from "./views/RoleChangeView"
 
 import type { MainViewMode, PerspectiveMode } from "./LibraryViewSwitcher"
 import { useI18n } from "../../../i18n/useI18n"
+import { useBindings } from "../../../hooks/useBindings"
+import type { Binding } from "../../../services/api/bindingsService"
 
 type LibraryProps = {
     albums: Album[]
@@ -52,6 +54,17 @@ function Library({
 
 }: LibraryProps) {
     const { t } = useI18n()
+    const { bindings } = useBindings()
+
+    const bindingMap = useMemo(() => {
+        const map = new Map<string, Binding>()
+        for (const b of bindings) {
+            if (b.libraryAlbumId) {
+                map.set(b.libraryAlbumId, b)
+            }
+        }
+        return map
+    }, [bindings])
 
     const [viewMode, setViewMode] = useState<MainViewMode>("all")
 
@@ -109,6 +122,8 @@ function Library({
                                 album={album}
 
                                 isFocus={album.id === focusAlbumId}
+
+                                binding={bindingMap.get(album.id) ?? null}
 
                                 onArchive={onArchive}
 

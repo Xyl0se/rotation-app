@@ -7,6 +7,7 @@ import type { StorageAdapter } from "../adapters/storageAdapter"
 import { useLibrary } from "../hooks/useLibrary"
 import { useRotationPlan } from "../hooks/useRotationPlan"
 import { useListenEvents } from "../hooks/useListenEvents"
+import { useBindings } from "../hooks/useBindings"
 import { createRepositories } from "../repositories/factory"
 import { useConnection } from "../contexts/ConnectionContext"
 
@@ -87,6 +88,8 @@ function HomePage({ adapter }: HomePageProps) {
         logListen,
     } = useListenEvents(repositories.listenEvents, albums, adapter)
 
+    const { orphans } = useBindings()
+
     function handleNewAlbum() {
         setAlbum(createEmptyAlbum())
         setDialogOpen(true)
@@ -156,6 +159,13 @@ function HomePage({ adapter }: HomePageProps) {
     return (
         <main className="container">
             <Header />
+            {
+                orphans.length > 0 && (
+                    <div className="orphan-banner">
+                        {t.bindings.orphanBanner(orphans.length)}
+                    </div>
+                )
+            }
             {
                 albums.length === 0
                     ? (

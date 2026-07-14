@@ -2,6 +2,8 @@ import type { Album } from "../../../types/album"
 
 import type { RoleId } from "../../../domain/roles"
 
+import type { Binding } from "../../../services/api/bindingsService"
+
 import AlbumCover from "../../ui/AlbumCover"
 import Card from "../../ui/Card"
 import { useI18n } from "../../../i18n/useI18n"
@@ -21,6 +23,7 @@ type AlbumCardProps = {
     onReconsider: (id: string) => void
     onSetFocus: (id: string) => void
     showRoleLabel?: boolean
+    binding?: Binding | null
 }
 
 function AlbumCard({
@@ -33,6 +36,7 @@ function AlbumCard({
     onReconsider,
     onSetFocus,
     showRoleLabel = true,
+    binding = null,
 }: AlbumCardProps) {
     const { t } = useI18n()
 
@@ -43,6 +47,9 @@ function AlbumCard({
         const roleKey = roleId as keyof typeof t.roles
         return t.roles[roleKey]?.title
     }
+
+    const isBound = binding !== undefined && binding !== null && binding.state === "confirmed"
+    const isMissing = isBound && !binding.folderExists
 
     return (
         <Card>
@@ -75,6 +82,23 @@ function AlbumCard({
                         <p>{album.artist}</p>
 
                         <small>{album.year}</small>
+
+                        <span
+                            className={`album-binding-badge ${isBound ? "bound" : "unbound"} ${isMissing ? "missing" : ""}`}
+                            title={
+                                isMissing && binding
+                                    ? t.albumCard.missingFolderTooltip(binding.relativePath)
+                                    : isBound && binding
+                                        ? t.albumCard.boundTooltip(binding.relativePath)
+                                        : undefined
+                            }
+                        >
+                            {isMissing
+                                ? t.albumCard.unbound
+                                : isBound
+                                    ? t.albumCard.bound
+                                    : t.albumCard.unbound}
+                        </span>
                     </div>
 
                     <div className="album-card-actions">

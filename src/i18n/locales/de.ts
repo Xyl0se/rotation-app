@@ -379,6 +379,10 @@ export const de: Translation = {
         archive: "Im Archiv ablegen",
         reconsider: "Wiederentdeckung prüfen",
         delete: "Album löschen",
+        bound: "Verbunden",
+        unbound: "Nicht verbunden",
+        boundTooltip: (path: string) => `Dateien unter: ${path}`,
+        missingFolderTooltip: (path: string) => `Ordner fehlt: ${path}`,
     },
 
     deleteDialog: {
@@ -411,6 +415,9 @@ export const de: Translation = {
         coverLabelAlternative: "Alternatives Cover",
         coverLabelUrl: "URL-Override",
         selectPlaceholder: "Bitte wählen...",
+        boundFolder: "Gebundener Ordner",
+        notBound: "Nicht an einen Ordner gebunden",
+        folderMissing: "Ordner existiert nicht mehr auf dem Datenträger",
         errors: {
             invalidUrl: "Bitte gib eine gültige URL ein.",
             invalidImageFormat: "Bitte ein Bild im Format JPG, PNG oder WebP hochladen.",
@@ -660,6 +667,10 @@ export const de: Translation = {
         orphanBadge: "Nicht in Bibliothek",
         albumPreview: (title: string, artist: string) =>
             `${title} von ${artist}`,
+        orphanBanner: (count: number) =>
+            count === 1
+                ? "1 verwaister Ordner erkannt – prüfe auf der Bindings-Seite."
+                : `${count} verwaiste Ordner erkannt – prüfe auf der Bindings-Seite.`,
     },
 
     diagnostics: {

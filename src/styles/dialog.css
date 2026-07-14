@@ -243,6 +243,42 @@
     margin: 0;
 }
 
+/* ---- Edit Binding Info Section ---- */
+
+.edit-binding-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    border-radius: var(--radius-medium);
+    background: var(--color-sand);
+}
+
+.edit-binding-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-smoke);
+}
+
+.edit-binding-path {
+    font-size: 0.85rem;
+    font-family: var(--font-mono, monospace);
+    color: var(--color-text);
+    word-break: break-all;
+}
+
+.edit-binding-missing {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #ef4444;
+}
+
+.edit-binding-none {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--color-smoke);
+}
+
 /* ---- Edit Album Story Section ---- */
 
 .edit-story-section {

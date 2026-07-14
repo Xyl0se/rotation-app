@@ -1,3 +1,5 @@
+import { useMemo } from "react"
+
 import type { Album } from "../../../types/album"
 
 import type { RoleId } from "../../../domain/roles"
@@ -11,6 +13,8 @@ import { getRoleEmptyMessage } from "../../../domain/roles/roleEmptyMessages"
 import AlbumCard from "../library/AlbumCard"
 
 import { useI18n } from "../../../i18n/useI18n"
+import { useBindings } from "../../../hooks/useBindings"
+import type { Binding } from "../../../services/api/bindingsService"
 
 type RoleDetailProps = {
     roleId: RoleId
@@ -38,6 +42,17 @@ function RoleDetail({
     onBack,
 }: RoleDetailProps) {
     const { t } = useI18n()
+    const { bindings } = useBindings()
+
+    const bindingMap = useMemo(() => {
+        const map = new Map<string, Binding>()
+        for (const b of bindings) {
+            if (b.libraryAlbumId) {
+                map.set(b.libraryAlbumId, b)
+            }
+        }
+        return map
+    }, [bindings])
 
     const role = roles.find(r => r.id === roleId)
 
@@ -91,6 +106,7 @@ function RoleDetail({
                             key={album.id}
                             album={album}
                             isFocus={album.id === focusAlbumId}
+                            binding={bindingMap.get(album.id) ?? null}
                             onArchive={onArchive}
                             onDelete={onDelete}
                             onEdit={onEdit}

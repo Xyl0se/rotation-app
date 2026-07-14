@@ -162,10 +162,19 @@ export default function BindingsPage() {
                     <Card key={b.albumId}>
                         <div className="binding-row">
                             <div className="binding-info">
-                                <span className="binding-path">{b.relativePath}</span>
+                                {b.albumTitle && b.albumArtist ? (
+                                    <span className="binding-preview">
+                                        {t.bindings.albumPreview(b.albumTitle, b.albumArtist)}
+                                    </span>
+                                ) : (
+                                    <span className="binding-path">{b.relativePath}</span>
+                                )}
                                 <span className={`binding-state binding-state--${b.state}`}>
                                     {t.bindings.state[b.state]}
                                 </span>
+                                {!b.libraryExists && (
+                                    <span className="binding-orphan">{t.bindings.orphanBadge}</span>
+                                )}
                                 {!b.folderExists && (
                                     <span className="binding-missing">{t.bindings.folderMissing}</span>
                                 )}
