@@ -16,6 +16,19 @@ vi.mock("../repositories/coverCache", () => ({
     })),
     removeCustomCover: vi.fn(async () => { }),
     clearCoverCache: vi.fn(async () => { }),
+    resolveCoverUrl: vi.fn(async () => null),
+}))
+
+vi.mock("../services/api/albumsService", () => ({
+    createAlbum: vi.fn(async (album: Album) => album),
+    updateAlbum: vi.fn(async (album: Album) => album),
+    deleteAlbum: vi.fn(async () => { }),
+}))
+
+vi.mock("../services/api/coversService", () => ({
+    uploadCover: vi.fn(async () => { }),
+    deleteCover: vi.fn(async () => { }),
+    fetchCoverUrl: vi.fn(async () => null),
 }))
 
 describe("useLibrary", () => {

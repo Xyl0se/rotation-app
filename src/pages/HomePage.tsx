@@ -8,6 +8,7 @@ import { useLibrary } from "../hooks/useLibrary"
 import { useRotationPlan } from "../hooks/useRotationPlan"
 import { useListenEvents } from "../hooks/useListenEvents"
 import { createRepositories } from "../repositories/factory"
+import { useConnection } from "../contexts/ConnectionContext"
 
 import Header from "../components/features/Header"
 import EmptyLibrary from "../components/features/EmptyLibrary"
@@ -55,6 +56,7 @@ function HomePage({ adapter }: HomePageProps) {
     const [editingAlbumId, setEditingAlbumId] = useState<string | null>(null)
     const [album, setAlbum] = useState(createEmptyAlbum)
 
+    const { isOnline } = useConnection()
     const repositories = createRepositories(adapter)
 
     const {
@@ -69,7 +71,7 @@ function HomePage({ adapter }: HomePageProps) {
         updateAlbumCoverOverride,
         setCoverUrlOverride,
         removeAlbumCoverOverride,
-    } = useLibrary(repositories.album, adapter)
+    } = useLibrary(repositories.album, adapter, isOnline)
 
     const {
         rotationPlan,

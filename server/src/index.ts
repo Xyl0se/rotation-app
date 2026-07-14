@@ -5,6 +5,7 @@ import cors from "cors"
 import { loadConfig } from "./application/config.js"
 import { initDatabase } from "./infrastructure/persistence/sqlite/connection.js"
 import { createBindingRepository } from "./infrastructure/persistence/sqlite/bindingRepository.js"
+import { createAlbumRepository } from "./infrastructure/persistence/sqlite/albumRepository.js"
 import { createExportOperationRepository } from "./infrastructure/persistence/sqlite/exportOperationRepository.js"
 import { createExportLockRepository } from "./infrastructure/persistence/sqlite/exportLockRepository.js"
 import { createScanRunRepository } from "./infrastructure/persistence/sqlite/scanRunRepository.js"
@@ -12,6 +13,7 @@ import { createPathGuard } from "./infrastructure/filesystem/pathGuard.js"
 import { createDirectoryScanner } from "./infrastructure/filesystem/directoryScanner.js"
 import { createScanService } from "./application/scanService.js"
 import { createExportService } from "./application/exportService.js"
+import { createCoverService } from "./application/coverService.js"
 import { runCrashRecovery } from "./application/crashRecovery.js"
 import { createBackupService } from "./application/backupService.js"
 import { createBackupStatusRepository } from "./infrastructure/persistence/sqlite/backupStatusRepository.js"
@@ -22,6 +24,8 @@ import { createHealthRouter } from "./routes/health.js"
 import { createConfigRouter } from "./routes/config.js"
 import { createScanRouter } from "./routes/scan.js"
 import { createBindingsRouter } from "./routes/bindings.js"
+import { createAlbumsRouter } from "./routes/albums.js"
+import { createCoversRouter } from "./routes/covers.js"
 import { createExportsRouter } from "./routes/exports.js"
 import { createDiagnosticsRouter } from "./routes/diagnostics.js"
 import { createRequireWriteToken } from "./routes/middleware/writeToken.js"
@@ -38,8 +42,10 @@ const log = createLogger("startup")
 const db = initDatabase()
 
 const bindingRepo = createBindingRepository(db)
+const albumRepo = createAlbumRepository(db)
 const exportRepo = createExportOperationRepository(db)
 const scanRunRepo = createScanRunRepository(db)
+const coverService = createCoverService(config.ROTATION_DATA_DIR)
 
 const musicGuard = createPathGuard(config.ROTATION_MUSIC_PATH)
 const workspaceGuard = createPathGuard(config.ROTATION_WORKSPACE_PATH)
@@ -77,6 +83,10 @@ const app = express()
 
 app.use(helmet())
 app.use(cors({ origin: true }))
+
+// Raw body parser for cover uploads (must come before express.json())
+app.use("/covers", express.raw({ type: "*/*", limit: "5mb" }))
+
 app.use(express.json())
 
 app.use("/health", createHealthRouter(db, config, scanRunRepo))
@@ -85,6 +95,8 @@ app.use("/scan", requireWriteToken, createScanRouter(scanService, scanRunRepo, b
 app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo, musicGuard, workspaceGuard, syncthingGuard))
 
 app.use("/bindings", createBindingsRouter(bindingRepo, musicGuard))
+app.use("/albums", createAlbumsRouter(albumRepo))
+app.use("/covers", createCoversRouter(coverService))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))
 app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))
 

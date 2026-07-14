@@ -36,6 +36,22 @@ function migrate(db: Database.Database): void {
             confirmed_at TEXT
         );
 
+        CREATE TABLE IF NOT EXISTS albums (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            artist TEXT NOT NULL,
+            year TEXT,
+            category TEXT,
+            cover_url TEXT,
+            cover_override TEXT,
+            role_history TEXT NOT NULL DEFAULT '[]',
+            listen_count INTEGER NOT NULL DEFAULT 0,
+            last_listened TEXT,
+            story TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS export_operations (
             id TEXT PRIMARY KEY,
             rotation_plan_id TEXT,

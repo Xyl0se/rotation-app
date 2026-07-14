@@ -1,3 +1,5 @@
+import { fetchCoverUrl } from "../services/api/coversService.js"
+
 const DB_NAME = "rotation-cover-cache"
 const DB_VERSION = 2
 const STORE_NAME = "covers"
@@ -131,6 +133,44 @@ export async function hasCachedCover(albumId: string): Promise<boolean> {
         return true
     }
     return false
+}
+
+/**
+ * Resolves the best available cover URL for an album.
+ *
+ * Priority:
+ * 1. Server-side cover (if connected)
+ * 2. Local IndexedDB cache
+ * 3. Original source URL (fetch and cache)
+ *
+ * Returns `null` if no cover is available.
+ */
+export async function resolveCoverUrl(
+    albumId: string,
+    sourceUrl: string | undefined,
+    isConnected: boolean,
+): Promise<string | null> {
+    if (isConnected) {
+        const serverUrl = await fetchCoverUrl(albumId)
+        if (serverUrl) {
+            return serverUrl
+        }
+    }
+
+    const cached = await getCachedCover(albumId)
+    if (cached) {
+        return cached.blobUrl
+    }
+
+    if (sourceUrl) {
+        try {
+            return await cacheCover(albumId, sourceUrl)
+        } catch {
+            return null
+        }
+    }
+
+    return null
 }
 
 /**

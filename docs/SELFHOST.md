@@ -194,6 +194,9 @@ docker compose -f docker-compose.prod.yml up -d
         rotation.db         ← SQLite database
         backups/
             rotation-2026-07-13T20-00-00.db  ← Automatic hourly backups
+    covers/
+        <album-id>.jpg      ← Album cover images (server-side cover storage)
+        <album-id>.json     ← Cover metadata (content type, uploadedAt)
     exports/
         current-rotation/   ← Active export (Syncthing source)
     archive/

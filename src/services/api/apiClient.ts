@@ -66,6 +66,32 @@ export async function post<T>(path: string, body?: unknown, requireWrite = false
     return handleResponse<T>(response)
 }
 
+export async function put<T>(path: string, body?: unknown, requireWrite = false): Promise<T> {
+    const response = await retryFetch(`${API_BASE}${path}`, {
+        method: "PUT",
+        headers: buildHeaders(requireWrite),
+        body: body ? JSON.stringify(body) : undefined,
+    })
+    return handleResponse<T>(response)
+}
+
+export async function postRaw(path: string, body: ArrayBuffer, contentType: string): Promise<void> {
+    const response = await retryFetch(`${API_BASE}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": contentType },
+        body,
+    })
+    if (!response.ok) {
+        const errBody = await response.json().catch(() => null)
+        throw new ApiError(
+            response.status,
+            errBody,
+            errBody?.error ?? `HTTP ${response.status}`,
+            isRetryableStatus(response.status),
+        )
+    }
+}
+
 export async function del(path: string, requireWrite = false): Promise<void> {
     const response = await retryFetch(`${API_BASE}${path}`, {
         method: "DELETE",

@@ -12,6 +12,17 @@ import {
     clearCoverCache,
 } from "../repositories/coverCache"
 
+import {
+    createAlbum as apiCreateAlbum,
+    updateAlbum as apiUpdateAlbum,
+    deleteAlbum as apiDeleteAlbum,
+} from "../services/api/albumsService"
+
+import {
+    uploadCover as apiUploadCover,
+    deleteCover as apiDeleteCover,
+} from "../services/api/coversService"
+
 function normalizeAlbum(album: Album): Album {
     return {
         ...album,
@@ -25,6 +36,7 @@ function normalizeAlbum(album: Album): Album {
 export function useLibrary(
     repository: AlbumRepository,
     adapter: { get(key: string): string | null; set(key: string, value: string): void; remove(key: string): void },
+    isConnected: boolean = false,
 ) {
     const [albums, setAlbums] = useState<Album[]>(() => {
         const loaded = repository.load()
@@ -48,9 +60,23 @@ export function useLibrary(
         }
     }, [focusAlbumId, adapter])
 
+    const pushAlbumToServer = useCallback(async (album: Album) => {
+        if (!isConnected) return
+        try {
+            await apiUpdateAlbum(album)
+        } catch {
+            // Silent fail – local is source of truth
+        }
+    }, [isConnected])
+
     const addAlbum = useCallback((album: Album) => {
         setAlbums(previous => [...previous, album])
-    }, [])
+        if (isConnected) {
+            apiCreateAlbum(album).catch(() => {
+                // Silent fail – local is source of truth
+            })
+        }
+    }, [isConnected])
 
     const deleteAlbum = useCallback(async (id: string) => {
         try {
@@ -58,10 +84,14 @@ export function useLibrary(
         } catch {
             // Ignore – cover deletion is not critical
         }
+        if (isConnected) {
+            apiDeleteCover(id).catch(() => {})
+            apiDeleteAlbum(id).catch(() => {})
+        }
         setAlbums(previous =>
             previous.filter(album => album.id !== id)
         )
-    }, [])
+    }, [isConnected])
 
     const updateAlbum = useCallback((updatedAlbum: Album) => {
         setAlbums(previous => {
@@ -82,7 +112,8 @@ export function useLibrary(
                     : album
             )
         })
-    }, [])
+        pushAlbumToServer(updatedAlbum)
+    }, [pushAlbumToServer])
 
     const updateAlbumRole = useCallback((
         id: string,
@@ -90,8 +121,8 @@ export function useLibrary(
         source: "reflection" | "archive",
     ) => {
         const recordedAt = new Date().toISOString()
-        setAlbums(previous =>
-            previous.map(album => {
+        setAlbums(previous => {
+            const next = previous.map(album => {
                 if (album.id !== id) {
                     return album
                 }
@@ -108,13 +139,18 @@ export function useLibrary(
                     ],
                 }
             })
-        )
-    }, [])
+            const updated = next.find(a => a.id === id)
+            if (updated) {
+                pushAlbumToServer(updated)
+            }
+            return next
+        })
+    }, [pushAlbumToServer])
 
     const logListenForAlbum = useCallback((id: string) => {
         const today = new Date().toISOString()
-        setAlbums(previous =>
-            previous.map(album => {
+        setAlbums(previous => {
+            const next = previous.map(album => {
                 if (album.id !== id) {
                     return album
                 }
@@ -124,8 +160,13 @@ export function useLibrary(
                     lastListened: today,
                 }
             })
-        )
-    }, [])
+            const updated = next.find(a => a.id === id)
+            if (updated) {
+                pushAlbumToServer(updated)
+            }
+            return next
+        })
+    }, [pushAlbumToServer])
 
     const updateAlbumCoverOverride = useCallback(async (
         id: string,
@@ -137,8 +178,11 @@ export function useLibrary(
         clearCoverCache(id).catch(() => {
             // Ignore – cache invalidation is not critical
         })
-        setAlbums(previous =>
-            previous.map(album => {
+        if (isConnected) {
+            apiUploadCover(id, await blob.arrayBuffer(), blob.type).catch(() => {})
+        }
+        setAlbums(previous => {
+            const next = previous.map(album => {
                 if (album.id !== id) {
                     return album
                 }
@@ -153,8 +197,13 @@ export function useLibrary(
                     },
                 }
             })
-        )
-    }, [])
+            const updated = next.find(a => a.id === id)
+            if (updated) {
+                pushAlbumToServer(updated)
+            }
+            return next
+        })
+    }, [isConnected, pushAlbumToServer])
 
     const setCoverUrlOverride = useCallback(async (
         id: string,
@@ -163,8 +212,8 @@ export function useLibrary(
         clearCoverCache(id).catch(() => {
             // Ignore – cache invalidation is not critical
         })
-        setAlbums(previous =>
-            previous.map(album => {
+        setAlbums(previous => {
+            const next = previous.map(album => {
                 if (album.id !== id) {
                     return album
                 }
@@ -178,16 +227,24 @@ export function useLibrary(
                     },
                 }
             })
-        )
-    }, [])
+            const updated = next.find(a => a.id === id)
+            if (updated) {
+                pushAlbumToServer(updated)
+            }
+            return next
+        })
+    }, [pushAlbumToServer])
 
     const removeAlbumCoverOverride = useCallback(async (id: string) => {
         await removeCustomCover(id)
         clearCoverCache(id).catch(() => {
             // Ignore – cache invalidation is not critical
         })
-        setAlbums(previous =>
-            previous.map(album => {
+        if (isConnected) {
+            apiDeleteCover(id).catch(() => {})
+        }
+        setAlbums(previous => {
+            const next = previous.map(album => {
                 if (album.id !== id) {
                     return album
                 }
@@ -196,8 +253,13 @@ export function useLibrary(
                     coverOverride: undefined,
                 }
             })
-        )
-    }, [])
+            const updated = next.find(a => a.id === id)
+            if (updated) {
+                pushAlbumToServer(updated)
+            }
+            return next
+        })
+    }, [isConnected, pushAlbumToServer])
 
     return {
         albums,
