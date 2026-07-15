@@ -164,6 +164,19 @@ function createFakeBlob(): Blob {
     return new Blob(["fake-image-data"], { type: "image/jpeg" })
 }
 
+function createFetchResponse(
+    blob: Blob | null,
+    { status = 200, statusText = "OK" }: { status?: number; statusText?: string } = {},
+): Response {
+    return {
+        ok: status >= 200 && status < 300,
+        status,
+        statusText,
+        headers: new Headers(blob ? { "content-type": blob.type } : undefined),
+        blob: async () => blob ?? new Blob([]),
+    } as Response
+}
+
 describe("coverCache", () => {
     describe("getCachedCover", () => {
         it("returns null when no cover is cached", async () => {
@@ -176,13 +189,7 @@ describe("coverCache", () => {
         it("fetches and caches a cover", async () => {
             const blob = createFakeBlob()
 
-            globalThis.fetch = () =>
-                Promise.resolve(
-                    new Response(blob, {
-                        status: 200,
-                        headers: { "content-type": "image/jpeg" },
-                    }),
-                )
+            globalThis.fetch = () => Promise.resolve(createFetchResponse(blob))
 
             const blobUrl = await cacheCover(
                 "album-1",
@@ -198,13 +205,10 @@ describe("coverCache", () => {
         })
 
         it("throws on failed download", async () => {
-            globalThis.fetch = () =>
-                Promise.resolve(
-                    new Response(null, {
-                        status: 404,
-                        statusText: "Not Found",
-                    }),
-                )
+            globalThis.fetch = () => Promise.resolve(createFetchResponse(null, {
+                status: 404,
+                statusText: "Not Found",
+            }))
 
             await expect(
                 cacheCover("album-2", "https://example.com/missing.jpg"),
@@ -221,13 +225,7 @@ describe("coverCache", () => {
         it("returns true when cover is cached", async () => {
             const blob = createFakeBlob()
 
-            globalThis.fetch = () =>
-                Promise.resolve(
-                    new Response(blob, {
-                        status: 200,
-                        headers: { "content-type": "image/jpeg" },
-                    }),
-                )
+            globalThis.fetch = () => Promise.resolve(createFetchResponse(blob))
 
             await cacheCover("album-4", "https://example.com/cover.jpg")
 
@@ -240,13 +238,7 @@ describe("coverCache", () => {
         it("clears a single album cover", async () => {
             const blob = createFakeBlob()
 
-            globalThis.fetch = () =>
-                Promise.resolve(
-                    new Response(blob, {
-                        status: 200,
-                        headers: { "content-type": "image/jpeg" },
-                    }),
-                )
+            globalThis.fetch = () => Promise.resolve(createFetchResponse(blob))
 
             await cacheCover("album-a", "https://example.com/a.jpg")
             await cacheCover("album-b", "https://example.com/b.jpg")
@@ -260,13 +252,7 @@ describe("coverCache", () => {
         it("clears all covers when no albumId is given", async () => {
             const blob = createFakeBlob()
 
-            globalThis.fetch = () =>
-                Promise.resolve(
-                    new Response(blob, {
-                        status: 200,
-                        headers: { "content-type": "image/jpeg" },
-                    }),
-                )
+            globalThis.fetch = () => Promise.resolve(createFetchResponse(blob))
 
             await cacheCover("album-x", "https://example.com/x.jpg")
             await cacheCover("album-y", "https://example.com/y.jpg")
