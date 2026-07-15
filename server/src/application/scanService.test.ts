@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import Database from "better-sqlite3"
-import { initDatabase } from "../infrastructure/persistence/sqlite/connection.js"
 import { createBindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
 import { createAlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
 import { createScanRunRepository } from "../infrastructure/persistence/sqlite/scanRunRepository.js"

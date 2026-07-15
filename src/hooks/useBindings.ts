@@ -55,7 +55,7 @@ export function useBindings(): UseBindingsResult {
     }, [])
 
     useEffect(() => {
-        load()
+        void Promise.resolve().then(load)
     }, [load])
 
     const refresh = useCallback(() => {

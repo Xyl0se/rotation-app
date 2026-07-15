@@ -1,11 +1,11 @@
-import { useConnection } from "../../contexts/ConnectionContext"
+import { useConnection } from "../../contexts/connectionState"
 import { useI18n } from "../../i18n/useI18n"
 
 export default function OfflineIndicator() {
-    const { isOnline, isRetrying } = useConnection()
+    const { isOnline, apiReachable, isRetrying } = useConnection()
     const { t } = useI18n()
 
-    if (isOnline && !isRetrying) {
+    if (isOnline && apiReachable !== false && !isRetrying) {
         return null
     }
 
@@ -14,6 +14,15 @@ export default function OfflineIndicator() {
             <span className="offline-indicator offline-indicator--offline">
                 <span className="offline-indicator__dot" />
                 {t.nav.offline}
+            </span>
+        )
+    }
+
+    if (apiReachable === false && !isRetrying) {
+        return (
+            <span className="offline-indicator offline-indicator--offline">
+                <span className="offline-indicator__dot" />
+                {t.nav.apiUnavailable}
             </span>
         )
     }

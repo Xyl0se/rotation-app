@@ -24,7 +24,7 @@ Recommendations refer exclusively to the active Player Rotation or to the reflec
 
 ## Current Product State
 
-Rotation is a local React application for a conscious album collection.
+Rotation is a self-hosted client/server application for a conscious album collection.
 
 The user first goes through a short welcome page. After that, the application lives on the HomePage: collection, Focus Album, Dashboard, Player Rotation, and the dialog for discovering a new album.
 
@@ -95,8 +95,10 @@ Rotation does not assign points or scores to a collection.
 ## Product Limits
 
 - Rotation knows only albums, not songs.
-- Rotation is currently local-first and stores data in the browser's `localStorage` and IndexedDB.
-- There are no user accounts, synchronization, or complete listening session history yet.
+- The Library, covers, bindings, scans, and export operations are server-backed. The browser keeps a last-known-good Library cache and durable pending mutations.
+- Listening History, RotationPlan, and Focus Album remain canonical browser-local data until their planned server migration.
+- Language, onboarding state, dismissed prompts, and the write token are intentionally device-local.
+- There are no user accounts or multi-user conflict semantics yet.
 - The Metadata Lookup is a helper, but not a prerequisite for saving an album.
 - Rotation does not try to create a "perfect" library.
 - Rotation does not optimize role distribution.

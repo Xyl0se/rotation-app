@@ -9,16 +9,12 @@ import { createLocalStorageAdapter } from "../adapters/localStorageAdapter"
 import { useI18n } from "../i18n/useI18n"
 
 function useActiveRotationPlan(): RotationPlan | null {
-    const [plan, setPlan] = useState<RotationPlan | null>(null)
-
-    useEffect(() => {
+    const [plan] = useState<RotationPlan | null>(() => {
         const adapter = createLocalStorageAdapter()
         const repo = createRotationPlanRepository(adapter)
         const active = repo.loadActive()
-        if (active && Array.isArray(active.items)) {
-            setPlan(active)
-        }
-    }, [])
+        return active && Array.isArray(active.items) ? active : null
+    })
 
     return plan
 }

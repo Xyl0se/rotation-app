@@ -1,3 +1,5 @@
+import { APP_VERSION } from "../../config/appVersion"
+
 export const en = {
     roles: {
         new: {
@@ -48,7 +50,7 @@ export const en = {
         description:
             "Rotation helps you listen to albums consciously, rediscover them, and let your personal library grow over many years.",
         cta: "Start My Library",
-        version: "Version 0.1",
+        version: `Version ${APP_VERSION}`,
     },
 
     header: {
@@ -58,6 +60,10 @@ export const en = {
     home: {
         suggestFocusAlbum: "Suggest New Focus Album",
         discoverAlbum: "Discover New Album",
+        syncingLibrary: "Synchronizing Library…",
+        pendingChanges: "Library changes are saved locally and waiting to synchronize.",
+        syncFailed: "Library synchronization failed. Your local changes are safe.",
+        retrySync: "Retry synchronization",
     },
 
     emptyLibrary: {
@@ -575,6 +581,7 @@ export const en = {
         bindings: "Bindings",
         export: "Export",
         offline: "Offline — waiting for connection",
+        apiUnavailable: "Server unavailable — using local cache",
         retrying: "Retrying…",
     },
 

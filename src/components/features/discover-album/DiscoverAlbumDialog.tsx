@@ -37,16 +37,18 @@ function DiscoverAlbumDialog({
 
     useEffect(() => {
         if (open && prefill) {
-            setAlbum(prev => ({
-                ...prev,
-                ...(prefill.title && { title: prefill.title }),
-                ...(prefill.artist && { artist: prefill.artist }),
-            }))
-            if (prefill.title && prefill.artist) {
-                setCurrentStepIndex(2) // skip to metadata step
-            } else if (prefill.title) {
-                setCurrentStepIndex(1) // skip to artist step
-            }
+            queueMicrotask(() => {
+                setAlbum(prev => ({
+                    ...prev,
+                    ...(prefill.title && { title: prefill.title }),
+                    ...(prefill.artist && { artist: prefill.artist }),
+                }))
+                if (prefill.title && prefill.artist) {
+                    setCurrentStepIndex(2) // skip to metadata step
+                } else if (prefill.title) {
+                    setCurrentStepIndex(1) // skip to artist step
+                }
+            })
         }
     }, [open, prefill, setAlbum])
 

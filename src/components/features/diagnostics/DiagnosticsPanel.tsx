@@ -67,7 +67,7 @@ export default function DiagnosticsPanel() {
     }, [])
 
     useEffect(() => {
-        load()
+        void Promise.resolve().then(load)
     }, [load])
 
     const handleScan = useCallback(async () => {

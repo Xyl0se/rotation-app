@@ -2,16 +2,20 @@ import { Router } from "express"
 import type { Request, Response } from "express"
 import type { ExportService } from "../application/exportService.js"
 import { getAndClearLastRecoveryResult } from "../application/crashRecovery.js"
+import {
+    ApplyExportSchema,
+    ExportAlbumIdsSchema,
+    StageExportSchema,
+    parseRequest,
+} from "./validation.js"
 
 export function createExportsRouter(exportService: ExportService): Router {
     const router = Router()
 
     router.post("/preview", (req: Request, res: Response) => {
-        const { albumIds } = req.body as { albumIds?: string[] }
-        if (!Array.isArray(albumIds)) {
-            res.status(400).json({ error: "albumIds must be an array" })
-            return
-        }
+        const body = parseRequest(ExportAlbumIdsSchema, req.body, res)
+        if (!body) return
+        const { albumIds } = body
         try {
             const result = exportService.createPreview(albumIds)
             res.json(result)
@@ -24,11 +28,9 @@ export function createExportsRouter(exportService: ExportService): Router {
     })
 
     router.post("/diff", (req: Request, res: Response) => {
-        const { albumIds } = req.body as { albumIds?: string[] }
-        if (!Array.isArray(albumIds)) {
-            res.status(400).json({ error: "albumIds must be an array" })
-            return
-        }
+        const body = parseRequest(ExportAlbumIdsSchema, req.body, res)
+        if (!body) return
+        const { albumIds } = body
         try {
             const diff = exportService.calculateDiff(albumIds)
             res.json(diff)
@@ -41,11 +43,9 @@ export function createExportsRouter(exportService: ExportService): Router {
     })
 
     router.post("/stage", (req: Request, res: Response) => {
-        const { exportId, albumIds } = req.body as { exportId?: string; albumIds?: string[] }
-        if (!exportId || !Array.isArray(albumIds)) {
-            res.status(400).json({ error: "exportId and albumIds are required" })
-            return
-        }
+        const body = parseRequest(StageExportSchema, req.body, res)
+        if (!body) return
+        const { exportId, albumIds } = body
         try {
             exportService.runStage(exportId, albumIds)
             res.status(202).json({ exportId, status: "staging" })
@@ -67,11 +67,9 @@ export function createExportsRouter(exportService: ExportService): Router {
     })
 
     router.post("/apply", (req: Request, res: Response) => {
-        const { exportId } = req.body as { exportId?: string }
-        if (!exportId) {
-            res.status(400).json({ error: "exportId is required" })
-            return
-        }
+        const body = parseRequest(ApplyExportSchema, req.body, res)
+        if (!body) return
+        const { exportId } = body
         try {
             const result = exportService.runApply(exportId)
             res.json({ exportId, status: "applied", ...result })

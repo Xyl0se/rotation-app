@@ -152,3 +152,17 @@
     width: 100%;
     color: var(--color-ink);
 }
+.sync-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--color-surface, #f5f1e8);
+}
+
+.sync-status--warning {
+    border: 1px solid var(--color-warning, #b7791f);
+}

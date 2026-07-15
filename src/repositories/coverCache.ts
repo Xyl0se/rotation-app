@@ -260,7 +260,7 @@ export async function saveCustomCover(
  */
 export async function getCustomCover(
     albumId: string,
-): Promise<{ blobUrl: string; source?: string } | null> {
+): Promise<{ blob: Blob; blobUrl: string; source?: string } | null> {
     const db = await openCoverDb()
 
     return new Promise((resolve, reject) => {
@@ -286,6 +286,7 @@ export async function getCustomCover(
             const blobUrl = URL.createObjectURL(blob)
             db.close()
             resolve({
+                blob,
                 blobUrl,
                 source: result.source as string | undefined,
             })

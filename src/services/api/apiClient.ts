@@ -8,6 +8,15 @@ import { retryFetch } from "./retryFetch.js"
 
 const API_BASE = "/api"
 
+export async function probeApi(signal?: AbortSignal): Promise<boolean> {
+    const response = await fetch(`${API_BASE}/health`, {
+        method: "GET",
+        cache: "no-store",
+        signal,
+    })
+    return response.status > 0
+}
+
 export class ApiError extends Error {
     status: number
     body: unknown
@@ -75,10 +84,17 @@ export async function put<T>(path: string, body?: unknown, requireWrite = false)
     return handleResponse<T>(response)
 }
 
-export async function postRaw(path: string, body: ArrayBuffer, contentType: string): Promise<void> {
+export async function postRaw(
+    path: string,
+    body: ArrayBuffer,
+    contentType: string,
+    requireWrite = false,
+): Promise<void> {
+    const headers = requireWrite ? buildHeaders(true) : {}
+    headers["Content-Type"] = contentType
     const response = await retryFetch(`${API_BASE}${path}`, {
         method: "POST",
-        headers: { "Content-Type": contentType },
+        headers,
         body,
     })
     if (!response.ok) {

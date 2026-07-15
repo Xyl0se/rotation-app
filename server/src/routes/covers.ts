@@ -1,6 +1,7 @@
 import { Router } from "express"
 import type { Request, Response } from "express"
 import type { CoverService } from "../application/coverService.js"
+import { CoverAlbumIdSchema, parseRequest } from "./validation.js"
 
 const MAX_COVER_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
 
@@ -10,7 +11,14 @@ export function createCoversRouter(coverService: CoverService): Router {
     // GET /covers/:albumId — serve cover image
     router.get("/:albumId", (req: Request, res: Response) => {
         const albumId = req.params.albumId as string
-        const coverPath = coverService.getCoverPath(albumId)
+        if (!parseRequest(CoverAlbumIdSchema, { albumId }, res)) return
+        let coverPath: string | null
+        try {
+            coverPath = coverService.getCoverPath(albumId)
+        } catch {
+            res.status(400).json({ error: "Invalid album ID" })
+            return
+        }
 
         if (!coverPath) {
             res.status(404).json({ error: "Cover not found" })
@@ -27,6 +35,7 @@ export function createCoversRouter(coverService: CoverService): Router {
     // POST /covers/:albumId — upload cover
     router.post("/:albumId", (req: Request, res: Response) => {
         const albumId = req.params.albumId as string
+        if (!parseRequest(CoverAlbumIdSchema, { albumId }, res)) return
 
         // Express raw body handler should be configured for this route
         // We'll handle the raw buffer directly
@@ -57,7 +66,14 @@ export function createCoversRouter(coverService: CoverService): Router {
     // DELETE /covers/:albumId — delete cover
     router.delete("/:albumId", (req: Request, res: Response) => {
         const albumId = req.params.albumId as string
-        const deleted = coverService.deleteCover(albumId)
+        if (!parseRequest(CoverAlbumIdSchema, { albumId }, res)) return
+        let deleted: boolean
+        try {
+            deleted = coverService.deleteCover(albumId)
+        } catch {
+            res.status(400).json({ error: "Invalid album ID" })
+            return
+        }
         if (!deleted) {
             res.status(404).json({ error: "Cover not found" })
             return

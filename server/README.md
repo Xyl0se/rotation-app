@@ -4,7 +4,8 @@ Node.js + Express backend for Rotation.
 
 ## Responsibilities
 
-- SQLite persistence (albums, listen events, rotation plans, bindings, export locks)
+- SQLite persistence (albums, bindings, scans, exports, backup state)
+- Server cover storage and scheduled SQLite backups
 - File system operations (scanning, export staging, path guarding)
 - REST API consumed by the React frontend
 
@@ -28,3 +29,5 @@ npm run build  # TypeScript compilation
 | `ROTATION_SYNCTHING_ROOT` | — | Syncthing export target path |
 | `ROTATION_WRITE_TOKEN` | — | Token required for all write operations |
 | `PORT` | `3001` | HTTP server port |
+
+The production container runs unprivileged as numeric UID/GID `1026:100`. The mounted host data directory must have the same ownership. Startup creates and checks `${ROTATION_DATA_DIR}/{backups,covers}`, workspace staging/archive/export directories, and the Syncthing root. `ROTATION_WRITE_TOKEN` is trimmed and blank values fail startup.

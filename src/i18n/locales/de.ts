@@ -1,4 +1,5 @@
 import type { Translation } from "./en"
+import { APP_VERSION } from "../../config/appVersion"
 
 export const de: Translation = {
     roles: {
@@ -50,7 +51,7 @@ export const de: Translation = {
         description:
             "Rotation hilft dir dabei, Alben bewusst zu hören, sie wiederzuentdecken und deine persönliche Bibliothek über viele Jahre wachsen zu lassen.",
         cta: "Meine Bibliothek beginnen",
-        version: "Version 0.1",
+        version: `Version ${APP_VERSION}`,
     },
 
     header: {
@@ -60,6 +61,10 @@ export const de: Translation = {
     home: {
         suggestFocusAlbum: "Neues Fokusalbum vorschlagen",
         discoverAlbum: "Neues Album entdecken",
+        syncingLibrary: "Bibliothek wird synchronisiert…",
+        pendingChanges: "Änderungen sind lokal gespeichert und warten auf Synchronisierung.",
+        syncFailed: "Die Bibliothek konnte nicht synchronisiert werden. Deine lokalen Änderungen sind sicher.",
+        retrySync: "Synchronisierung wiederholen",
     },
 
     emptyLibrary: {
@@ -577,6 +582,7 @@ export const de: Translation = {
         bindings: "Bindings",
         export: "Export",
         offline: "Offline — warte auf Verbindung",
+        apiUnavailable: "Server nicht erreichbar — lokaler Cache aktiv",
         retrying: "Wiederhole…",
     },
 

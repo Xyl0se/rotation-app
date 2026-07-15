@@ -1,5 +1,6 @@
-import { writeFileSync, readFileSync, existsSync, unlinkSync, mkdirSync } from "node:fs"
-import { join, extname } from "node:path"
+import { writeFileSync, readFileSync, existsSync, unlinkSync, mkdirSync, renameSync } from "node:fs"
+import { join, extname, relative, resolve } from "node:path"
+import { randomUUID } from "node:crypto"
 
 export interface CoverMeta {
     contentType: string
@@ -16,13 +17,51 @@ const VALID_IMAGE_TYPES = new Set([
     "image/gif",
 ])
 
+const ALBUM_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+function assertValidAlbumId(albumId: string): void {
+    if (!ALBUM_ID_PATTERN.test(albumId)) {
+        throw new Error("Invalid album ID")
+    }
+}
+
+function hasExpectedSignature(buffer: Buffer, contentType: string): boolean {
+    switch (contentType) {
+        case "image/jpeg":
+            return buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff
+        case "image/png":
+            return buffer.length >= 8 && buffer.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
+        case "image/webp":
+            return buffer.length >= 12
+                && buffer.subarray(0, 4).toString("ascii") === "RIFF"
+                && buffer.subarray(8, 12).toString("ascii") === "WEBP"
+        case "image/gif": {
+            const signature = buffer.subarray(0, 6).toString("ascii")
+            return signature === "GIF87a" || signature === "GIF89a"
+        }
+        default:
+            return false
+    }
+}
+
 export function createCoverService(dataDir: string) {
     const coversDir = join(dataDir, "covers")
     mkdirSync(coversDir, { recursive: true })
 
+    function safeCoverPath(filename: string): string {
+        const base = resolve(coversDir)
+        const target = resolve(base, filename)
+        const pathFromBase = relative(base, target)
+        if (pathFromBase.startsWith("..") || pathFromBase.includes("\0")) {
+            throw new Error("Invalid cover path")
+        }
+        return target
+    }
+
     function getCoverPath(albumId: string): string | null {
+        assertValidAlbumId(albumId)
         for (const ext of [".jpg", ".jpeg", ".png", ".webp", ".gif"]) {
-            const path = join(coversDir, `${albumId}${ext}`)
+            const path = safeCoverPath(`${albumId}${ext}`)
             if (existsSync(path)) {
                 return path
             }
@@ -31,7 +70,8 @@ export function createCoverService(dataDir: string) {
     }
 
     function getMetaPath(albumId: string): string {
-        return join(coversDir, `${albumId}.json`)
+        assertValidAlbumId(albumId)
+        return safeCoverPath(`${albumId}.json`)
     }
 
     function getContentTypeFromExtension(filePath: string): string {
@@ -55,6 +95,7 @@ export function createCoverService(dataDir: string) {
         coversDir,
 
         saveCover(albumId: string, buffer: Buffer, contentType: string, source?: "upload" | "url" | "alternative"): void {
+            assertValidAlbumId(albumId)
             if (buffer.length > MAX_COVER_SIZE_BYTES) {
                 throw new Error(`Cover exceeds maximum size of ${MAX_COVER_SIZE_BYTES} bytes`)
             }
@@ -63,8 +104,9 @@ export function createCoverService(dataDir: string) {
                 throw new Error(`Invalid content type: ${contentType}. Must be an image.`)
             }
 
-            // Delete existing cover for this album
-            this.deleteCover(albumId)
+            if (!hasExpectedSignature(buffer, contentType)) {
+                throw new Error("Image content does not match its content type")
+            }
 
             // Determine extension from content type
             let ext = ".jpg"
@@ -83,15 +125,30 @@ export function createCoverService(dataDir: string) {
                     break
             }
 
-            const filePath = join(coversDir, `${albumId}${ext}`)
-            writeFileSync(filePath, buffer)
+            const filePath = safeCoverPath(`${albumId}${ext}`)
+            const temporarySuffix = `.tmp-${randomUUID()}`
+            const temporaryCoverPath = safeCoverPath(`${albumId}${ext}${temporarySuffix}`)
+            const temporaryMetaPath = safeCoverPath(`${albumId}.json${temporarySuffix}`)
 
             const meta: CoverMeta = {
                 contentType,
                 uploadedAt: new Date().toISOString(),
                 source,
             }
-            writeFileSync(getMetaPath(albumId), JSON.stringify(meta))
+            try {
+                writeFileSync(temporaryCoverPath, buffer, { flag: "wx" })
+                writeFileSync(temporaryMetaPath, JSON.stringify(meta), { flag: "wx" })
+                renameSync(temporaryCoverPath, filePath)
+                renameSync(temporaryMetaPath, getMetaPath(albumId))
+                for (const oldExt of [".jpg", ".jpeg", ".png", ".webp", ".gif"]) {
+                    if (oldExt === ext) continue
+                    const oldPath = safeCoverPath(`${albumId}${oldExt}`)
+                    if (existsSync(oldPath)) unlinkSync(oldPath)
+                }
+            } finally {
+                if (existsSync(temporaryCoverPath)) unlinkSync(temporaryCoverPath)
+                if (existsSync(temporaryMetaPath)) unlinkSync(temporaryMetaPath)
+            }
         },
 
         getCoverPath(albumId: string): string | null {
@@ -99,9 +156,10 @@ export function createCoverService(dataDir: string) {
         },
 
         deleteCover(albumId: string): boolean {
+            assertValidAlbumId(albumId)
             let deleted = false
             for (const ext of [".jpg", ".jpeg", ".png", ".webp", ".gif"]) {
-                const path = join(coversDir, `${albumId}${ext}`)
+                const path = safeCoverPath(`${albumId}${ext}`)
                 if (existsSync(path)) {
                     unlinkSync(path)
                     deleted = true

@@ -35,6 +35,8 @@ Rotation is a calm, self-hosted React application for a conscious album collecti
 ## Quick Start
 
 ```bash
+export ROTATION_HOST_MUSIC_PATH=/absolute/path/to/music
+export ROTATION_WRITE_TOKEN="$(openssl rand -hex 32)"
 docker compose -f docker-compose.prod.yml up -d
 ```
 
@@ -67,6 +69,6 @@ Rotation has a binding design system (`docs/DESIGN_SYSTEM.md`). The visual ident
 
 ## Status
 
-Current version: `v0.26.0`
+Current version: `v0.26.1-dev`
 
 Rotation is in active development. The domain is stable, the infrastructure is being hardened for production use on home servers. The roadmap is in `docs/ROADMAP.md`.

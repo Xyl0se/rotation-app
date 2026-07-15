@@ -4,6 +4,8 @@
 
 **Target version:** `v0.25.6-dev`
 
+> **Correction note (Sprint 76.1 audit):** The initial implementation did not fully enforce server authority during startup/offline failure and documented server-generated album IDs. Sprint 76.1 established verified server-first loading, durable pending operations, and client-generated stable UUIDs preserved by the server.
+
 ---
 
 ## Goal

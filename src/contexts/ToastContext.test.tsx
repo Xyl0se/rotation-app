@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest"
 import { renderHook, act } from "@testing-library/react"
-import { ToastProvider, useToastContext } from "./ToastContext"
+import { ToastProvider } from "./ToastContext"
+import { useToastContext } from "./toastState"
 
 describe("ToastContext", () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (

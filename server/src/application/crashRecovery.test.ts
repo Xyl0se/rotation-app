@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, utimesSync } from "node:fs"
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, utimesSync, existsSync, readFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { runCrashRecovery } from "./crashRecovery.js"
@@ -79,10 +79,9 @@ describe("runCrashRecovery", () => {
         expect(result.recovered).toBe(1)
         expect(currentDir).toContain("current-rotation")
         // After rename, next-rotation should be gone and current-rotation should contain the file
-        const fs = require("node:fs")
-        expect(fs.existsSync(currentDir)).toBe(true)
-        expect(fs.existsSync(nextDir)).toBe(false)
-        expect(fs.readFileSync(join(currentDir, "album.txt"), "utf-8")).toBe("test")
+        expect(existsSync(currentDir)).toBe(true)
+        expect(existsSync(nextDir)).toBe(false)
+        expect(readFileSync(join(currentDir, "album.txt"), "utf-8")).toBe("test")
     })
 
     it("cleans up orphaned next-rotation when both next-rotation and current-rotation exist", () => {
@@ -95,9 +94,8 @@ describe("runCrashRecovery", () => {
         const result = runCrashRecovery(repo, lockRepo, guard)
 
         expect(result.recovered).toBe(0)
-        const fs = require("node:fs")
-        expect(fs.existsSync(nextDir)).toBe(false)
-        expect(fs.existsSync(currentDir)).toBe(true)
+        expect(existsSync(nextDir)).toBe(false)
+        expect(existsSync(currentDir)).toBe(true)
     })
 
     it("marks staged operations as rolled_back when staging dir is missing", () => {
@@ -141,7 +139,7 @@ describe("runCrashRecovery", () => {
     it("releases expired locks", () => {
         lockRepo.acquire("exp-3", 0) // timeout 0 minutes → immediately expired
 
-        const result = runCrashRecovery(repo, lockRepo, guard)
+        runCrashRecovery(repo, lockRepo, guard)
 
         expect(lockRepo.getCurrent()?.export_id).toBeUndefined()
     })
@@ -159,8 +157,7 @@ describe("runCrashRecovery", () => {
         const result = runCrashRecovery(repo, lockRepo, guard)
 
         expect(result.cleanedStagingDirs).toContain(oldDir)
-        const fs = require("node:fs")
-        expect(fs.existsSync(oldDir)).toBe(false)
+        expect(existsSync(oldDir)).toBe(false)
     })
 
     it("cleans up archives older than 30 days", () => {
@@ -175,8 +172,7 @@ describe("runCrashRecovery", () => {
         const result = runCrashRecovery(repo, lockRepo, guard)
 
         expect(result.cleanedArchives).toContain(oldDir)
-        const fs = require("node:fs")
-        expect(fs.existsSync(oldDir)).toBe(false)
+        expect(existsSync(oldDir)).toBe(false)
     })
 
     it("does not clean recent staging or archive directories", () => {
@@ -195,8 +191,7 @@ describe("runCrashRecovery", () => {
 
         expect(result.cleanedStagingDirs).toHaveLength(0)
         expect(result.cleanedArchives).toHaveLength(0)
-        const fs = require("node:fs")
-        expect(fs.existsSync(recentStaging)).toBe(true)
-        expect(fs.existsSync(recentArchive)).toBe(true)
+        expect(existsSync(recentStaging)).toBe(true)
+        expect(existsSync(recentArchive)).toBe(true)
     })
 })

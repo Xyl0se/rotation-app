@@ -46,7 +46,7 @@ describe("retryFetch", () => {
 
         expect(response.status).toBe(200)
         expect(fetch).toHaveBeenCalledTimes(2)
-        expect(reporter.onRetrying).toHaveBeenCalledWith(1, 3)
+        expect(reporter.onRetrying).toHaveBeenCalledWith(expect.any(Number), 1, 3)
     })
 
     it("does not retry on 4xx", async () => {
@@ -101,9 +101,10 @@ describe("retryFetch", () => {
         )
 
         const promise = retryFetch("/api/test")
+        const rejection = expect(promise).rejects.toThrow("Request failed after 3 retries")
         await vi.advanceTimersByTimeAsync(8000)
 
-        await expect(promise).rejects.toThrow("Request failed after 3 retries")
+        await rejection
         expect(fetch).toHaveBeenCalledTimes(4)
     })
 
@@ -137,10 +138,11 @@ describe("retryFetch", () => {
         })
 
         const promise = retryFetch("/api/test")
+        const rejection = expect(promise).rejects.toThrow()
         online = false
         await vi.advanceTimersByTimeAsync(1000)
 
-        await expect(promise).rejects.toThrow()
+        await rejection
 
         Object.defineProperty(navigator, "onLine", { value: true, writable: true, configurable: true })
     })

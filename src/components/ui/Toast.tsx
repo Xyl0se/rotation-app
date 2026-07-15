@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from "react"
-import { useToastContext } from "../../contexts/ToastContext"
-import type { ToastType } from "../../contexts/ToastContext"
+import { useToastContext } from "../../contexts/toastState"
+import type { ToastType } from "../../contexts/toastState"
 
 interface ToastItemProps {
     id: string

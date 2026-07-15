@@ -15,11 +15,11 @@ import { useI18n } from "./i18n/useI18n"
 
 type Page = "home" | "bindings" | "export"
 
-function App() {
-    const adapter = createLocalStorageAdapter()
-    const { t } = useI18n()
+const adapter = createLocalStorageAdapter()
+runMigrations(adapter)
 
-    runMigrations(adapter)
+function App() {
+    const { t } = useI18n()
 
     const [showWelcome, setShowWelcome] = useState(() => {
         return adapter.get(STORAGE.ONBOARDING) !== "true"

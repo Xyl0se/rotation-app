@@ -3,16 +3,18 @@ name: Docker Publish API
 on:
   push:
     branches: [main]
-    paths:
-      - "server/**"
-      - ".github/workflows/docker-publish-api.yml"
+    tags: ["v*"]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}-api
 
 jobs:
+  validate:
+    uses: ./.github/workflows/validate.yml
+
   build-and-push:
+    needs: validate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -40,9 +42,10 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=,format=short
+            type=ref,event=tag
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./server
           push: true

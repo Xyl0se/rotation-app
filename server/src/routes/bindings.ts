@@ -3,6 +3,12 @@ import type { Request, Response } from "express"
 import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
 import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
 import { existsSync } from "node:fs"
+import {
+    BindingAlbumIdBodySchema,
+    DeleteBindingQuerySchema,
+    LinkBindingBodySchema,
+    parseRequest,
+} from "./validation.js"
 
 export interface BindingDTO {
     albumId: string
@@ -39,7 +45,7 @@ function toDTO(
     guard: PathGuard,
 ): BindingDTO | null {
     if (!record) return null
-    let folderExists = false
+    let folderExists: boolean
     try {
         folderExists = existsSync(guard(record.relative_path))
     } catch {
@@ -122,11 +128,9 @@ export function createBindingsRouter(bindingRepo: BindingRepository, musicGuard:
 
     // POST /bindings/confirm – confirm a binding by albumId
     router.post("/confirm", (req: Request, res: Response) => {
-        const albumId = req.body.albumId as string | undefined
-        if (!albumId) {
-            res.status(400).json({ error: "albumId is required" })
-            return
-        }
+        const body = parseRequest(BindingAlbumIdBodySchema, req.body, res)
+        if (!body) return
+        const { albumId } = body
         const record = bindingRepo.findById(albumId)
         if (!record) {
             res.status(404).json({ error: "Binding not found" })
@@ -143,29 +147,33 @@ export function createBindingsRouter(bindingRepo: BindingRepository, musicGuard:
 
     // POST /bindings/link – manually link a binding to a library album
     router.post("/link", (req: Request, res: Response) => {
-        const albumId = req.body.albumId as string | undefined
-        const libraryAlbumId = req.body.libraryAlbumId as string | undefined
-        if (!albumId) {
-            res.status(400).json({ error: "albumId is required" })
-            return
-        }
+        const body = parseRequest(LinkBindingBodySchema, req.body, res)
+        if (!body) return
+        const { albumId, libraryAlbumId } = body
         const record = bindingRepo.findById(albumId)
         if (!record) {
             res.status(404).json({ error: "Binding not found" })
             return
         }
-        bindingRepo.updateLibraryAlbumId(albumId, libraryAlbumId ?? null)
+        try {
+            bindingRepo.updateLibraryAlbumId(albumId, libraryAlbumId)
+        } catch {
+            res.status(400).json({
+                code: "VALIDATION_ERROR",
+                error: "Invalid request",
+                issues: [{ path: "libraryAlbumId", message: "Library album does not exist" }],
+            })
+            return
+        }
         const updated = bindingRepo.findWithAlbumDataById(albumId)!
         res.json(toDTO(updated, musicGuard))
     })
 
     // POST /bindings/unlink – remove library album link from a binding
     router.post("/unlink", (req: Request, res: Response) => {
-        const albumId = req.body.albumId as string | undefined
-        if (!albumId) {
-            res.status(400).json({ error: "albumId is required" })
-            return
-        }
+        const body = parseRequest(BindingAlbumIdBodySchema, req.body, res)
+        if (!body) return
+        const { albumId } = body
         const record = bindingRepo.findById(albumId)
         if (!record) {
             res.status(404).json({ error: "Binding not found" })
@@ -211,11 +219,9 @@ export function createBindingsRouter(bindingRepo: BindingRepository, musicGuard:
 
     // DELETE /bindings?albumId=... – delete a binding
     router.delete("/", (req: Request, res: Response) => {
-        const albumId = req.query.albumId as string | undefined
-        if (!albumId) {
-            res.status(400).json({ error: "albumId query parameter is required" })
-            return
-        }
+        const query = parseRequest(DeleteBindingQuerySchema, req.query, res)
+        if (!query) return
+        const { albumId } = query
         const record = bindingRepo.findById(albumId)
         if (!record) {
             res.status(404).json({ error: "Binding not found" })

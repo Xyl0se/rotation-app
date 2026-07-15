@@ -11,7 +11,6 @@ import {
     rollbackStaging,
     calculateExportDiffForPreview,
     type ExportPreviewResult,
-    type ExportStageResult,
     type ExportApplyResult,
 } from "../domain/export/exportEngine.js"
 import type { ExportDiff } from "../domain/export/exportDiff.js"
@@ -149,8 +148,7 @@ export function createExportService(
                 )
             }
 
-            try {
-                const result = applyExport(exportId, workspaceGuard)
+            const result = applyExport(exportId, workspaceGuard)
                 exportRepo.save({
                     id: exportId,
                     rotation_plan_id: null,
@@ -164,11 +162,7 @@ export function createExportService(
                 })
                 stagingJobs.delete(exportId)
                 lockRepo.release()
-                return result
-            } catch (err) {
-                // On failure, keep the lock so the user can investigate
-                throw err
-            }
+            return result
         },
 
         listOperations() {

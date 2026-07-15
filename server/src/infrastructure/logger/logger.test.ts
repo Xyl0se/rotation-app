@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
-import { createLogger, type LogLevel, type LogFormat } from "./logger.js"
+import { type LogLevel, type LogFormat } from "./logger.js"
 
 describe("logger", () => {
     let stdoutLines: string[] = []
@@ -15,11 +15,11 @@ describe("logger", () => {
         stdoutLines = []
         stderrLines = []
 
-        process.stdout.write = (chunk: string | Uint8Array, ..._args: unknown[]) => {
+        process.stdout.write = (chunk: string | Uint8Array) => {
             stdoutLines.push(chunk.toString().trim())
             return true
         }
-        process.stderr.write = (chunk: string | Uint8Array, ..._args: unknown[]) => {
+        process.stderr.write = (chunk: string | Uint8Array) => {
             stderrLines.push(chunk.toString().trim())
             return true
         }
@@ -42,7 +42,7 @@ describe("logger", () => {
         const { createLogger: create } = await import("./logger.js")
         const log = create("test")
         log.info("hello")
-        expect(stdoutLines[0]).toMatch(/\[\d{2}:\d{2}:\d{2}\.\d{3}\] INFO  \[test\] hello/)
+        expect(stdoutLines[0]).toMatch(/\[\d{2}:\d{2}:\d{2}\.\d{3}\] INFO {2}\[test\] hello/)
     })
 
     it("formats json output when configured", async () => {

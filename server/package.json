@@ -1,11 +1,12 @@
 {
   "name": "rotation-api",
-  "version": "0.25.8-dev",
+  "version": "0.26.1-dev",
   "description": "Rotation backend API",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "lint": "eslint --config ../eslint.config.js src",
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest"

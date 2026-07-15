@@ -158,7 +158,9 @@ musicGuard.resolve("../../../etc/passwd")
 
 ### 9. Write-Token: Destruktive Operationen geschützt
 
-**Entscheidung:** Alle schreibenden Operationen (Scan, Export, Binding-Bestätigung) erfordern einen `X-Write-Token`-Header.
+**Entscheidung:** Alle schreibenden Operationen (Scan, Export, Binding-Bestätigung) erfordern einen Write-Token-Header.
+
+**Implementation note (Sprint 76.1):** The canonical header name is `X-Rotation-Write-Token`, and protection now covers all mutating API routes.
 
 **Begründung:**
 - Selbst wenn jemand unbefugt auf die Rotation-Oberfläche zugreift, können keine Dateien kopiert oder Ordner verändert werden

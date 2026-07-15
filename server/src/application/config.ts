@@ -2,11 +2,12 @@ import { z } from "zod"
 
 const ConfigSchema = z.object({
     PORT: z.coerce.number().default(3001),
-    ROTATION_DATA_DIR: z.string().default("/rotation-data/data"),
-    ROTATION_MUSIC_PATH: z.string().min(1),
-    ROTATION_WORKSPACE_PATH: z.string().min(1),
-    ROTATION_SYNCTHING_ROOT: z.string().min(1),
-    ROTATION_WRITE_TOKEN: z.string().min(1),
+    ROTATION_DATA_DIR: z.string().trim().min(1).default("/rotation-data/data"),
+    ROTATION_MUSIC_PATH: z.string().trim().min(1),
+    ROTATION_WORKSPACE_PATH: z.string().trim().min(1),
+    ROTATION_SYNCTHING_ROOT: z.string().trim().min(1),
+    ROTATION_WRITE_TOKEN: z.string().trim().min(1, "must be set to a non-blank secret"),
+    ROTATION_CORS_ORIGINS: z.string().default(""),
     ROTATION_BACKUP_ENABLED: z.enum(["true", "false"]).default("true"),
     ROTATION_BACKUP_CRON: z.string().default("0 3 * * *"),
     ROTATION_BACKUP_RETENTION_COUNT: z.coerce.number().min(1).default(7),

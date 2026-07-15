@@ -1,8 +1,8 @@
 export type RetryReporter = {
-    onRetrying: (attempt: number, max: number) => void
-    onOnline: () => void
-    onOffline: () => void
-    onError: (message: string) => void
+    onRetrying: (requestId: number, attempt: number, max: number) => void
+    onOnline: (requestId: number) => void
+    onOffline: (requestId: number) => void
+    onError: (requestId: number, message: string) => void
 }
 
 let globalReporter: RetryReporter | null = null
@@ -14,6 +14,7 @@ export function setRetryReporter(reporter: RetryReporter | null): void {
 const DEFAULT_TIMEOUT_MS = 10000
 const MAX_RETRIES = 3
 const BACKOFF_DELAYS_MS = [1000, 2000, 4000]
+let nextRequestId = 1
 
 function isRetryable(error: unknown, status?: number): boolean {
     if (typeof status === "number") {
@@ -35,12 +36,13 @@ export async function retryFetch(
     input: RequestInfo,
     init?: RequestInit,
 ): Promise<Response> {
+    const requestId = nextRequestId++
     let lastError: unknown = null
 
     if (!navigator.onLine) {
         const message = "Offline. No network connection."
-        globalReporter?.onOffline()
-        globalReporter?.onError(message)
+        globalReporter?.onOffline(requestId)
+        globalReporter?.onError(requestId, message)
         throw new Error(message)
     }
 
@@ -56,7 +58,7 @@ export async function retryFetch(
             clearTimeout(timeoutId)
 
             if (response.ok || (response.status >= 400 && response.status < 500)) {
-                globalReporter?.onOnline()
+                globalReporter?.onOnline(requestId)
                 return response
             }
 
@@ -65,7 +67,7 @@ export async function retryFetch(
             }
 
             if (attempt < MAX_RETRIES) {
-                globalReporter?.onRetrying(attempt + 1, MAX_RETRIES)
+                globalReporter?.onRetrying(requestId, attempt + 1, MAX_RETRIES)
                 await sleep(BACKOFF_DELAYS_MS[attempt])
             }
         } catch (error) {
@@ -73,8 +75,8 @@ export async function retryFetch(
             lastError = error
 
             if (!navigator.onLine) {
-                globalReporter?.onOffline()
-                globalReporter?.onError("Offline. No network connection.")
+                globalReporter?.onOffline(requestId)
+                globalReporter?.onError(requestId, "Offline. No network connection.")
                 throw error
             }
 
@@ -83,13 +85,14 @@ export async function retryFetch(
             }
 
             if (attempt < MAX_RETRIES) {
-                globalReporter?.onRetrying(attempt + 1, MAX_RETRIES)
+                globalReporter?.onRetrying(requestId, attempt + 1, MAX_RETRIES)
                 await sleep(BACKOFF_DELAYS_MS[attempt])
             }
         }
     }
 
     globalReporter?.onError(
+        requestId,
         lastError instanceof Error
             ? lastError.message
             : `Request failed after ${MAX_RETRIES} retries`,

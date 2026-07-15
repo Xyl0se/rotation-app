@@ -3,7 +3,7 @@
 > Rotation runs as a multi-service Docker stack on your NAS or home server.
 > The stack consists of a React frontend and a Node.js API.
 > Syncthing (not part of this stack) syncs the export folder to your MP3 player.
-> All album data, listening history, and bindings live in a SQLite database.
+> The Album Library and bindings live in SQLite; server cover files live in the data directory. Listening History, RotationPlan, and Focus Album remain browser-local until their dedicated server migration.
 > The original music library is **never modified** — it is mounted read-only.
 
 ---
@@ -54,16 +54,15 @@ This is the recommended deployment method. Portainer pulls the compose file dire
 Log in via SSH or use the Synology Terminal:
 
 ```bash
-sudo mkdir -p /volume1/docker/rotation/exports
-sudo mkdir -p /volume1/docker/rotation/archive
-sudo chown -R 1001:1001 /volume1/docker/rotation
+sudo mkdir -p /volume1/docker/rotation
+sudo chown -R 1026:100 /volume1/docker/rotation
 ```
 
-> **Why UID 1001?** The `rotation-api` container runs as an unprivileged user (`node`, UID 1001). The data directory must be writable by this user.
+Rotation runs unprivileged as numeric UID/GID `1026:100`. This identity is required by the supported Synology volume setup and is also used by the container image. The host data directory must have matching ownership.
 
 ### 2. Generate a write token
 
-The token protects all destructive operations (scan, export, binding confirmation).
+The token protects all mutating operations, including albums, covers, bindings, scans, exports, and manual backups.
 
 ```bash
 openssl rand -hex 32
@@ -92,9 +91,12 @@ Save the token somewhere safe. You will need it in the next step.
    | Variable | Value |
    |----------|-------|
    | `ROTATION_WRITE_TOKEN` | `<paste-your-token-here>` |
+   | `ROTATION_HOST_DATA_PATH` | `/volume1/docker/rotation` |
+   | `ROTATION_HOST_MUSIC_PATH` | `/volume1/music` (or the actual absolute music path) |
    | `ROTATION_BACKUP_ENABLED` | `true` (optional) |
    | `ROTATION_BACKUP_CRON` | `0 * * * *` (optional, default: hourly) |
    | `ROTATION_BACKUP_RETENTION_COUNT` | `24` (optional, default: 24 backups) |
+   | `ROTATION_CORS_ORIGINS` | Comma-separated direct API origins (optional; empty for normal Caddy deployment) |
 
 5. Click **Deploy the stack**
 
@@ -122,9 +124,8 @@ If you prefer not to use Portainer, you can deploy directly via SSH.
 ### 1. Create directories
 
 ```bash
-sudo mkdir -p /volume1/docker/rotation/exports
-sudo mkdir -p /volume1/docker/rotation/archive
-sudo chown -R 1001:1001 /volume1/docker/rotation
+sudo mkdir -p /volume1/docker/rotation
+sudo chown -R 1026:100 /volume1/docker/rotation
 ```
 
 ### 2. Create environment file
@@ -132,9 +133,11 @@ sudo chown -R 1001:1001 /volume1/docker/rotation
 ```bash
 cd /volume1/docker/rotation
 
-cat > .env << 'EOF'
-ROTATION_WRITE_TOKEN=$(openssl rand -hex 32)
-EOF
+token="$(openssl rand -hex 32)"
+printf '%s\n' \
+  "ROTATION_WRITE_TOKEN=$token" \
+  "ROTATION_HOST_DATA_PATH=/volume1/docker/rotation" \
+  "ROTATION_HOST_MUSIC_PATH=/volume1/music" > .env
 ```
 
 ### 3. Download compose file
@@ -163,14 +166,17 @@ docker compose -f docker-compose.prod.yml up -d
 
 ```bash
 # 1. Create directories
-mkdir -p /opt/rotation-data/exports
-mkdir -p /opt/rotation-data/archive
+sudo mkdir -p /opt/rotation
 
 # 2. Set permissions for unprivileged container user
-chown -R 1001:1001 /opt/rotation-data
+sudo chown -R 1026:100 /opt/rotation
 
 # 3. Create .env
-export ROTATION_WRITE_TOKEN=$(openssl rand -hex 32)
+token="$(openssl rand -hex 32)"
+printf '%s\n' \
+  "ROTATION_WRITE_TOKEN=$token" \
+  "ROTATION_HOST_DATA_PATH=/opt/rotation" \
+  "ROTATION_HOST_MUSIC_PATH=/absolute/path/to/music" > .env
 
 # 4. Download and start
 curl -O https://raw.githubusercontent.com/Xyl0se/rotation-app/main/docker-compose.prod.yml
@@ -194,14 +200,14 @@ docker compose -f docker-compose.prod.yml up -d
         rotation.db         ← SQLite database
         backups/
             rotation-2026-07-13T20-00-00.db  ← Automatic hourly backups
-    covers/
-        <album-id>.jpg      ← Album cover images (server-side cover storage)
-        <album-id>.json     ← Cover metadata (content type, uploadedAt)
+        covers/
+            <album-id>      ← Album cover image
+            <album-id>.json ← Cover metadata
     exports/
         current-rotation/   ← Active export (Syncthing source)
-    archive/
-        2025-07-12T10-30-00/  ← Previous exports
-    .staging/
+        archive/
+            2025-07-12T10-30-00/  ← Previous exports
+    staging-exports/
         <export-id>/        ← Temporary staging during export
 ```
 
@@ -209,8 +215,8 @@ docker compose -f docker-compose.prod.yml up -d
 
 | Host path | Container path | Mode | Purpose |
 |-----------|---------------|------|---------|
-| `/volume1/music` | `/music` | `ro` | Original music library |
-| `/volume1/docker/rotation` | `/rotation-data` | `rw` | Database, exports, staging, archive |
+| `${ROTATION_HOST_MUSIC_PATH}` | `/music` | `ro` | Original music library |
+| `${ROTATION_HOST_DATA_PATH}` | `/rotation-data` | `rw` | Database, covers, backups, exports, staging, archive |
 
 ---
 
@@ -241,7 +247,7 @@ Database migrations run automatically on startup. Always back up the database be
 | Endpoint | Service | Expected |
 |----------|---------|----------|
 | `http://localhost:3000/health` | Caddy / Frontend | `ok` |
-| `http://localhost:3001/health` | API (internal) | `ok` |
+| `http://localhost:3000/api/health` | API through Caddy | JSON with `status` |
 
 Docker checks these automatically every 30 seconds.
 
@@ -264,7 +270,7 @@ Rotation automatically backs up the SQLite database every hour by default. Backu
 ### Manual backup trigger
 
 ```bash
-curl -H "X-Write-Token: <your-token>" \
+curl -H "X-Rotation-Write-Token: <your-token>" \
   -X POST http://localhost:3000/api/backups/run
 ```
 
@@ -276,10 +282,12 @@ curl http://localhost:3000/api/backups/status
 
 ### Full data backup
 
+A full server backup covers SQLite, server covers, exports, and operational files. It does not currently include browser-local Listening History, RotationPlan, or Focus Album; use the in-app browser backup for those values until their server migration is implemented.
+
 ```bash
 # Stop Rotation first to ensure consistency
 docker stop rotation-api rotation-web
-tar czf rotation-backup-$(date +%Y%m%d).tar.gz /volume1/docker/rotation
+tar czf rotation-backup-$(date +%Y%m%d).tar.gz "${ROTATION_HOST_DATA_PATH:-/volume1/docker/rotation}"
 docker start rotation-api rotation-web
 ```
 
@@ -290,8 +298,9 @@ docker start rotation-api rotation-web
 docker stop rotation-api rotation-web
 
 # Restore from the most recent automatic backup
-latest=$(ls -t /volume1/docker/rotation/data/backups/rotation-*.db | head -1)
-cp "$latest" /volume1/docker/rotation/data/rotation.db
+data_root="${ROTATION_HOST_DATA_PATH:-/volume1/docker/rotation}"
+latest=$(ls -t "$data_root"/data/backups/rotation-*.db | head -1)
+cp "$latest" "$data_root/data/rotation.db"
 
 # Restart
 docker start rotation-api rotation-web
@@ -307,7 +316,7 @@ Rotation does not manage Syncthing. If you already run Syncthing on your Synolog
 
 | Path | Description |
 |------|-------------|
-| `/volume1/docker/rotation/exports/current-rotation` | Active export (copied from `/music`) |
+| `${ROTATION_HOST_DATA_PATH}/exports/current-rotation` | Active export (copied from `/music`) |
 
 ### Recommended settings
 
@@ -348,11 +357,13 @@ If you want to keep removed albums on the player, either:
 All destructive operations (scan, export, binding confirmation) require the `ROTATION_WRITE_TOKEN` header:
 
 ```bash
-curl -H "X-Write-Token: <your-token>" \
+curl -H "X-Rotation-Write-Token: <your-token>" \
   http://localhost:3000/api/scan
 ```
 
 Generate a strong token during setup and keep it secret.
+
+The `dev-token` fallback exists only in `docker-compose.yml` for an isolated local development stack. `docker-compose.prod.yml` has no default and refuses to render when `ROTATION_WRITE_TOKEN` or `ROTATION_HOST_MUSIC_PATH` is missing. Never use `dev-token` in a deployed instance.
 
 ---
 
@@ -371,10 +382,10 @@ Then redeploy.
 
 ### Permission denied on /rotation-data
 
-The container runs as UID 1001. Ensure the host directory is owned by this user:
+The container runs as `1026:100`. Ensure the host directory has the same numeric owner:
 
 ```bash
-chown -R 1001:1001 /volume1/docker/rotation
+chown -R 1026:100 "${ROTATION_HOST_DATA_PATH:-/volume1/docker/rotation}"
 ```
 
 Or on Synology DSM, set the folder permissions via File Station → Properties → Permission.

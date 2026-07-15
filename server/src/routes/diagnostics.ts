@@ -58,14 +58,16 @@ export function createDiagnosticsRouter(
     bindingRepo: BindingRepository,
     scanRunRepo: ScanRunRepository,
     musicGuard: PathGuard,
-    workspaceGuard: PathGuard,
-    syncthingGuard: PathGuard,
+    _workspaceGuard: PathGuard,
+    _syncthingGuard: PathGuard,
 ): Router {
+    void _workspaceGuard
+    void _syncthingGuard
     const router = Router()
     const scanner = createDirectoryScanner(musicGuard)
 
     router.get("/", (_req: Request, res: Response) => {
-        let databaseOk = false
+        let databaseOk: boolean
         try {
             bindingRepo.findAll()
             databaseOk = true

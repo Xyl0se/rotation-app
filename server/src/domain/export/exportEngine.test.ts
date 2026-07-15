@@ -7,7 +7,7 @@ function mockGuard(root: string): PathGuard {
     return (relative: string) => `${root}/${relative}`
 }
 
-const mockSizeCalculator: SizeCalculator = (_dir) => ({ sizeBytes: 100_000, fileCount: 10 })
+const mockSizeCalculator: SizeCalculator = () => ({ sizeBytes: 100_000, fileCount: 10 })
 
 function makeBinding(overrides: Partial<BindingRecord> = {}): BindingRecord {
     return {

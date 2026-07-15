@@ -6,6 +6,8 @@
 
 **Completed:** 2026-07-15
 
+> **Correction note (Sprint 76.1 audit):** The original completion established the UI bridge but did not yet provide complete mutation authentication, server-first persistence semantics, runtime validation, or release quality gates. Sprint 76.1 added those missing production guarantees without rewriting this historical scope.
+
 ---
 
 ## Goal

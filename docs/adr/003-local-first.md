@@ -22,3 +22,5 @@ Early product value emerges without user account, server, or synchronization. Lo
 Later migrations to IndexedDB, export/import, or cloud sync must respect the local library and keep it migratable.
 
 > **Update Sprint 58:** The deployment foundation uses Docker with Caddy as a static web server. The app remains local-first in the browser — there is still no server-side backend or database.
+
+> **Correction Sprint 76.1:** This historical statement was superseded by the SQLite/API architecture. ADR 013 now defines server-authoritative, browser-cache, temporarily browser-owned, and device-local data explicitly.

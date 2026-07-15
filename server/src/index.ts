@@ -28,9 +28,13 @@ import { createAlbumsRouter } from "./routes/albums.js"
 import { createCoversRouter } from "./routes/covers.js"
 import { createExportsRouter } from "./routes/exports.js"
 import { createDiagnosticsRouter } from "./routes/diagnostics.js"
-import { createRequireWriteToken } from "./routes/middleware/writeToken.js"
+import {
+    createRequireWriteToken,
+    createRequireWriteTokenForMutations,
+} from "./routes/middleware/writeToken.js"
+import { createApiErrorHandler } from "./routes/middleware/apiError.js"
 import { createLogger } from "./infrastructure/logger/logger.js"
-import { getGlobalMetricsStore } from "./infrastructure/metrics/metrics.js"
+import { prepareRuntimeDirectories } from "./application/runtimeDirectories.js"
 
 const config = loadConfig()
 
@@ -39,6 +43,11 @@ process.env.ROTATION_LOG_LEVEL = config.ROTATION_LOG_LEVEL
 process.env.ROTATION_LOG_FORMAT = config.ROTATION_LOG_FORMAT
 
 const log = createLogger("startup")
+prepareRuntimeDirectories({
+    dataDir: config.ROTATION_DATA_DIR,
+    workspacePath: config.ROTATION_WORKSPACE_PATH,
+    syncthingRoot: config.ROTATION_SYNCTHING_ROOT,
+})
 const db = initDatabase()
 
 const bindingRepo = createBindingRepository(db)
@@ -63,6 +72,7 @@ if (recovery.recovered > 0 || recovery.cleanedStagingDirs.length > 0 || recovery
 }
 
 const requireWriteToken = createRequireWriteToken(config.ROTATION_WRITE_TOKEN)
+const requireWriteTokenForMutations = createRequireWriteTokenForMutations(config.ROTATION_WRITE_TOKEN)
 
 // --- Backup system ---
 const backupEnabled = config.ROTATION_BACKUP_ENABLED === "true"
@@ -82,7 +92,21 @@ backupScheduler.start()
 const app = express()
 
 app.use(helmet())
-app.use(cors({ origin: true }))
+const allowedOrigins = config.ROTATION_CORS_ORIGINS
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+if (allowedOrigins.length > 0) {
+    app.use(cors({
+        origin(origin, callback) {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true)
+                return
+            }
+            callback(new Error("Origin not allowed"))
+        },
+    }))
+}
 
 // Raw body parser for cover uploads (must come before express.json())
 app.use("/covers", express.raw({ type: "*/*", limit: "5mb" }))
@@ -94,15 +118,22 @@ app.use("/config", createConfigRouter(config))
 app.use("/scan", requireWriteToken, createScanRouter(scanService, scanRunRepo, bindingRepo))
 app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo, musicGuard, workspaceGuard, syncthingGuard))
 
-app.use("/bindings", createBindingsRouter(bindingRepo, musicGuard))
-app.use("/albums", createAlbumsRouter(albumRepo))
-app.use("/covers", createCoversRouter(coverService))
+app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard))
+app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo))
+app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))
 app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))
 
 app.use((_req, res) => {
     res.status(404).json({ error: "Not found" })
 })
+
+const handleUnexpectedError = createApiErrorHandler((error) => {
+    log.error("Unhandled API error", {
+        name: error instanceof Error ? error.name : "UnknownError",
+    })
+})
+app.use(handleUnexpectedError)
 
 const port = config.PORT
 app.listen(port, () => {

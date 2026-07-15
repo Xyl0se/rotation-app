@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.26.1-dev
+
+- **Sprint 76.1 — Pre-Release Integrity & Hardening Supersprint**
+  - Protected every mutating API route, hardened cover paths/uploads, standardized sanitized API failures, and added route-level security coverage.
+  - Made SQLite/API authoritative for the Library, added durable offline mutation replay, stable client-generated album identities, transactional imports, runtime request validation, and versioned database migrations.
+  - Stabilized frontend repository lifetimes, separated browser connectivity from API health, and made concurrent retry reporting cancellation-safe.
+  - Split frontend/server test and lint environments and introduced required CI validation, Compose checks, container smoke checks, gated image publishing, and dependency update automation.
+  - Reconciled the required `1026:100` runtime ownership, host paths, write-token setup, backup/cover locations, version reporting, and data-ownership documentation. Startup now verifies all writable runtime directories before serving requests.
+
 ## v0.26.0-dev
 
 - **Sprint 76 — Library-Bindings Integration**

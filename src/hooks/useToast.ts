@@ -1,6 +1,6 @@
 import { useCallback } from "react"
-import { useToastContext } from "../contexts/ToastContext"
-import type { ToastType } from "../contexts/ToastContext"
+import { useToastContext } from "../contexts/toastState"
+import type { ToastType } from "../contexts/toastState"
 
 export function useToast() {
     const { addToast } = useToastContext()

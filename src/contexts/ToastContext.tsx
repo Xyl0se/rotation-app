@@ -1,29 +1,6 @@
-import { createContext, useCallback, useContext, useState } from "react"
+import { useCallback, useState } from "react"
 import type { ReactNode } from "react"
-
-export type ToastType = "success" | "error" | "info" | "warning"
-
-export interface Toast {
-    id: string
-    type: ToastType
-    message: string
-}
-
-interface ToastContextValue {
-    toasts: Toast[]
-    addToast: (type: ToastType, message: string) => void
-    removeToast: (id: string) => void
-}
-
-const ToastContext = createContext<ToastContextValue>({
-    toasts: [],
-    addToast: () => {},
-    removeToast: () => {},
-})
-
-export function useToastContext() {
-    return useContext(ToastContext)
-}
+import { ToastContext, type Toast, type ToastType } from "./toastState"
 
 const MAX_VISIBLE_TOASTS = 3
 const AUTO_DISMISS_MS = 5000

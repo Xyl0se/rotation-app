@@ -4,12 +4,12 @@
  */
 
 export type RoleId =
-    | "keeper"
-    | "player"
-    | "explorer"
-    | "candidate"
-    | "archived"
     | "new"
+    | "growing"
+    | "comfort-food"
+    | "classic"
+    | "admire"
+    | "archive"
 
 export type CoverOverride =
     | {

@@ -25,8 +25,19 @@ export function initDatabase(path?: string): Database.Database {
     return db
 }
 
-function migrate(db: Database.Database): void {
-    db.exec(`
+interface Migration {
+    version: number
+    name: string
+    disableForeignKeys?: boolean
+    run: (db: Database.Database) => void
+}
+
+const migrations: Migration[] = [
+    {
+        version: 1,
+        name: "initial-schema",
+        run(db) {
+            db.exec(`
         CREATE TABLE IF NOT EXISTS bindings (
             album_id TEXT PRIMARY KEY,
             relative_path TEXT NOT NULL,
@@ -85,5 +96,106 @@ function migrate(db: Database.Database): void {
             acquired_at TEXT NOT NULL,
             expires_at TEXT NOT NULL
         );
+            `)
+        },
+    },
+    {
+        version: 2,
+        name: "album-integrity-and-binding-foreign-key",
+        disableForeignKeys: true,
+        run(db) {
+            db.exec(`
+                        CREATE TABLE albums_v2 (
+                            id TEXT PRIMARY KEY,
+                            title TEXT NOT NULL CHECK(length(trim(title)) BETWEEN 1 AND 500),
+                            artist TEXT NOT NULL CHECK(length(trim(artist)) BETWEEN 1 AND 500),
+                            year TEXT CHECK(year IS NULL OR length(year) <= 20),
+                            category TEXT CHECK(category IS NULL OR category IN ('new', 'growing', 'comfort-food', 'classic', 'admire', 'archive')),
+                            cover_url TEXT,
+                            cover_override TEXT CHECK(cover_override IS NULL OR json_valid(cover_override)),
+                            role_history TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(role_history)),
+                            listen_count INTEGER NOT NULL DEFAULT 0 CHECK(listen_count >= 0),
+                            last_listened TEXT,
+                            story TEXT CHECK(story IS NULL OR json_valid(story)),
+                            created_at TEXT NOT NULL,
+                            updated_at TEXT NOT NULL
+                        );
+
+                        INSERT INTO albums_v2 (
+                            id, title, artist, year, category, cover_url, cover_override,
+                            role_history, listen_count, last_listened, story, created_at, updated_at
+                        )
+                        SELECT
+                            id,
+                            substr(CASE WHEN length(trim(title)) > 0 THEN trim(title) ELSE 'Untitled' END, 1, 500),
+                            substr(CASE WHEN length(trim(artist)) > 0 THEN trim(artist) ELSE 'Unknown Artist' END, 1, 500),
+                            substr(COALESCE(year, ''), 1, 20),
+                            CASE WHEN category IN ('new', 'growing', 'comfort-food', 'classic', 'admire', 'archive') THEN category ELSE NULL END,
+                            cover_url,
+                            CASE WHEN cover_override IS NULL OR json_valid(cover_override) THEN cover_override ELSE NULL END,
+                            CASE WHEN json_valid(role_history) THEN role_history ELSE '[]' END,
+                            CASE WHEN typeof(listen_count) = 'integer' AND listen_count >= 0 THEN listen_count ELSE 0 END,
+                            last_listened,
+                            CASE WHEN story IS NULL OR json_valid(story) THEN story ELSE NULL END,
+                            created_at,
+                            updated_at
+                        FROM albums;
+
+                        CREATE TABLE bindings_v2 (
+                            album_id TEXT PRIMARY KEY,
+                            relative_path TEXT NOT NULL,
+                            state TEXT CHECK(state IN ('unbound', 'proposed', 'confirmed', 'missing')) NOT NULL DEFAULT 'unbound',
+                            match_source TEXT CHECK(match_source IN ('scan-exact', 'manual')),
+                            proposed_at TEXT,
+                            confirmed_at TEXT,
+                            library_album_id TEXT REFERENCES albums_v2(id) ON DELETE SET NULL
+                        );
+
+                        INSERT INTO bindings_v2 (
+                            album_id, relative_path, state, match_source, proposed_at, confirmed_at, library_album_id
+                        )
+                        SELECT
+                            album_id, relative_path, state, match_source, proposed_at, confirmed_at,
+                            CASE WHEN EXISTS (SELECT 1 FROM albums_v2 a WHERE a.id = bindings.library_album_id)
+                                THEN library_album_id ELSE NULL END
+                        FROM bindings;
+
+                        DROP TABLE bindings;
+                        DROP TABLE albums;
+                        ALTER TABLE albums_v2 RENAME TO albums;
+                        ALTER TABLE bindings_v2 RENAME TO bindings;
+                        CREATE INDEX idx_bindings_album_id ON bindings(album_id);
+                        CREATE INDEX idx_bindings_library_album_id ON bindings(library_album_id);
+            `)
+        },
+    },
+]
+
+function migrate(db: Database.Database): void {
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS schema_migrations (
+            version INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            applied_at TEXT NOT NULL
+        );
     `)
+    const applied = new Set(
+        (db.prepare("SELECT version FROM schema_migrations").all() as Array<{ version: number }>)
+            .map((row) => row.version),
+    )
+    const record = db.prepare("INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)")
+
+    for (const migration of migrations) {
+        if (applied.has(migration.version)) continue
+        if (migration.disableForeignKeys) db.pragma("foreign_keys = OFF")
+        try {
+            db.transaction(() => {
+                migration.run(db)
+                record.run(migration.version, migration.name, new Date().toISOString())
+                db.pragma(`user_version = ${migration.version}`)
+            })()
+        } finally {
+            if (migration.disableForeignKeys) db.pragma("foreign_keys = ON")
+        }
+    }
 }

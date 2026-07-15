@@ -27,7 +27,7 @@ Reflection, Explainability, and future recommendations refer exclusively to this
 - React 19
 - TypeScript
 - Vite
-- Browser `localStorage`
+- SQLite-backed server Library with browser `localStorage` as last-known-good cache
 - IndexedDB (Cover Cache, Custom Covers)
 - External metadata: MusicBrainz and Cover Art Archive
 
@@ -101,9 +101,14 @@ Rotation runs as a multi-service Docker stack:
 
 `HomePage.tsx` is the central container. It composes features and passes data and callbacks through props.
 
-The library logic lives in `useLibrary.ts` (ADR 004). The hook encapsulates:
+Browser network availability and Rotation API reachability are separate states. `ConnectionProvider` probes `/api/health` with a bounded timeout and cancels probes on replacement/unmount. Library server synchronization starts only after the API is confirmed reachable; otherwise the last-known-good cache remains active.
 
-- Loading, saving, and normalizing albums from `localStorage`
+The library logic lives in `useLibrary.ts` (ADR 004). SQLite/API is authoritative for the Library; `localStorage` is a last-known-good cache and durable pending-operation store. The hook encapsulates:
+
+- Server-first loading with safe cache fallback
+- One-time legacy import with server read-back verification
+- Durable, coalesced pending operations for albums and covers
+- Loading, saving, and normalizing the browser cache
 - CRUD operations (`addAlbum`, `updateAlbum`, `deleteAlbum`)
 - Cover override management
 - Focus Album management
@@ -123,7 +128,11 @@ The API handles file-system operations that the browser cannot perform:
 - `/config` — Runtime configuration (read-only)
 - `/health` — Healthcheck
 
-All write operations (`POST/PUT/DELETE`) on scan and exports require the `X-Write-Token` header.
+All mutating API operations require the `X-Rotation-Write-Token` header. This includes album, cover, binding, scan, export, and backup writes. Safe `GET`, `HEAD`, and `OPTIONS` requests remain readable without the token.
+
+The production Caddy deployment is same-origin and does not enable CORS by default. Direct development origins must be explicitly allowlisted through `ROTATION_CORS_ORIGINS`.
+
+The API runs as the unprivileged numeric identity `1026:100`. This is the supported volume-ownership contract established for the Synology deployment; generic Docker hosts must assign the mounted data directory to the same numeric owner. `${ROTATION_HOST_DATA_PATH}` is mounted at `/rotation-data`; `${ROTATION_HOST_MUSIC_PATH}` is mounted read-only at `/music`. Startup creates and verifies the database, backup, cover, staging, archive, and current-export directories before opening the API. A blank production write token is rejected by Compose and again by runtime schema validation.
 
 ### Album File Binding Domain
 
@@ -177,6 +186,19 @@ The actual listening history lives in `listenEvents`.
 The actual Player Rotation is stored as `RotationPlan`.
 
 A RotationPlan describes a concrete selection of multiple albums including the reason for selection.
+
+## Data Ownership
+
+Ownership is defined in [ADR 013](./adr/013-data-ownership-boundaries.md). In summary:
+
+| Layer | Data | Meaning |
+|-------|------|---------|
+| SQLite/API | Library, bindings, scans, export/backup state | Canonical server data |
+| Server filesystem | Covers, exports, staging, archives | Canonical or operational server data |
+| Browser `localStorage` | Library copy and pending operations | Cache and durable synchronization state |
+| Browser `localStorage` | Listening History, RotationPlan, Focus Album | Temporarily browser-owned canonical data; follow-up migration required |
+| IndexedDB | Downloaded covers and pending custom-cover blobs | Reconstructable cache / synchronization payload |
+| Browser preferences | Language, onboarding, dismissed prompts, write token | Device-local state |
 
 ---
 

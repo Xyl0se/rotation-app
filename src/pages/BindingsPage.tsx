@@ -63,10 +63,10 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
         } finally {
             setLoading(false)
         }
-    }, [filter, t])
+    }, [filter])
 
     useEffect(() => {
-        load()
+        void Promise.resolve().then(load)
     }, [load])
 
     async function handleConfirm(albumId: string) {
@@ -87,7 +87,7 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
         try {
             await deleteBinding(albumId)
             await load()
-        } catch (e) {
+        } catch {
             setError(t.bindings.error)
         } finally {
             setProcessingId(null)

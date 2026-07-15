@@ -1,4 +1,4 @@
-import { readdirSync, statSync, copyFileSync, mkdirSync, writeFileSync, existsSync } from "node:fs"
+import { readdirSync, statSync, copyFileSync, mkdirSync, writeFileSync } from "node:fs"
 import { join, dirname } from "node:path"
 import { createLogger } from "../../infrastructure/logger/logger.js"
 import type { PathGuard } from "../../infrastructure/filesystem/pathGuard.js"

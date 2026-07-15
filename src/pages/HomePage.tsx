@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
 import type { Album } from "../types/album"
 import type { RoleId } from "../domain/roles"
@@ -9,7 +9,7 @@ import { useRotationPlan } from "../hooks/useRotationPlan"
 import { useListenEvents } from "../hooks/useListenEvents"
 import { useBindings } from "../hooks/useBindings"
 import { createRepositories } from "../repositories/factory"
-import { useConnection } from "../contexts/ConnectionContext"
+import { useConnection } from "../contexts/connectionState"
 
 import Header from "../components/features/Header"
 import EmptyLibrary from "../components/features/EmptyLibrary"
@@ -60,11 +60,16 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
     const [editingAlbumId, setEditingAlbumId] = useState<string | null>(null)
     const [album, setAlbum] = useState(createEmptyAlbum)
 
-    const { isOnline } = useConnection()
-    const repositories = createRepositories(adapter)
+    const { isOnline, apiReachable } = useConnection()
+    const repositories = useMemo(() => createRepositories(adapter), [adapter])
+    const serverConnected = isOnline && apiReachable === true
 
     const {
         albums,
+        isLoading: isLibraryLoading,
+        syncError: librarySyncError,
+        pendingOperationCount,
+        retrySynchronization,
         focusAlbumId,
         setFocusAlbumId,
         addAlbum,
@@ -75,7 +80,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         updateAlbumCoverOverride,
         setCoverUrlOverride,
         removeAlbumCoverOverride,
-    } = useLibrary(repositories.album, adapter, isOnline)
+    } = useLibrary(repositories.album, adapter, serverConnected)
 
     const {
         rotationPlan,
@@ -179,6 +184,21 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
     return (
         <main className="container">
             <Header />
+            {isLibraryLoading && (
+                <div className="sync-status" role="status">
+                    {t.home.syncingLibrary}
+                </div>
+            )}
+            {!isLibraryLoading && pendingOperationCount > 0 && (
+                <div className="sync-status sync-status--warning" role="status">
+                    <span>
+                        {librarySyncError ? t.home.syncFailed : t.home.pendingChanges}
+                    </span>
+                    <Button variant="secondary" onClick={() => void retrySynchronization()}>
+                        {t.home.retrySync}
+                    </Button>
+                </div>
+            )}
             {
                 orphans.length > 0 && !orphanPromptDismissed && (
                     <CoachOrphanPrompt

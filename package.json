@@ -1,15 +1,20 @@
 {
   "name": "rotation-app",
   "private": true,
-  "version": "0.26.0-dev",
+  "version": "0.26.1-dev",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "npm run lint:frontend && npm run lint:server",
+    "lint:frontend": "eslint src vite.config.ts vitest.config.ts",
+    "lint:server": "npm --prefix server run lint",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "npm run test:frontend && npm run test:server",
+    "test:frontend": "vitest run --config vitest.config.ts",
+    "test:server": "npm --prefix server test",
+    "test:watch": "vitest --config vitest.config.ts",
+    "validate": "npm run lint && npm test && npm run build && npm --prefix server run build"
   },
   "dependencies": {
     "react": "^19.2.7",

@@ -6,7 +6,7 @@ Early tags remain as historical markers. Versions are not retroactively added.
 
 ## Current Anchor
 
-`v0.26.0` marks Sprint 70A: System Diagnostics Panel & Stabilization Bugfixes.
+`v0.26.1-dev` is the current development line for the Sprint 76.1 integrity and deployment hardening work. `v0.26.0` remains the last historical anchor.
 
 Includes:
 
@@ -39,7 +39,7 @@ Patch examples:
 
 1. Set `package.json` and `package-lock.json` to the target version.
 2. Cut `docs/CHANGELOG.md` from `Unreleased` to the target version.
-3. Run lint and build.
+3. Run `npm run validate` and both Compose configuration checks.
 4. Create versioning commit.
-5. Set Git tag with the target version.
+5. Set Git tag with the target version. The image workflows publish the tested commit as SHA, version, and (on `main`) `latest` tags.
 6. The next sprint starts again under `Unreleased`.

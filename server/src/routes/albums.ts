@@ -1,8 +1,14 @@
 import { Router } from "express"
 import type { Request, Response } from "express"
-import { randomUUID } from "node:crypto"
 import type { AlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
 import type { Album } from "../domain/albumTypes.js"
+import {
+    CreateAlbumSchema,
+    ImportAlbumsSchema,
+    UpdateAlbumSchema,
+    UUIDSchema,
+    parseRequest,
+} from "./validation.js"
 
 export interface ImportResult {
     imported: number
@@ -32,15 +38,21 @@ export function createAlbumsRouter(albumRepo: AlbumRepository): Router {
 
     // POST /albums — create album
     router.post("/", (req: Request, res: Response) => {
-        const body = req.body as Partial<Album>
-
-        if (!body.title || !body.artist) {
-            res.status(400).json({ error: "title and artist are required" })
+        const body = parseRequest(CreateAlbumSchema, req.body, res)
+        if (!body) return
+        const id = body.id
+        const existing = albumRepo.findById(id)
+        if (existing) {
+            if (existing.title === body.title && existing.artist === body.artist) {
+                res.status(200).json(existing)
+                return
+            }
+            res.status(409).json({ error: "Album ID already exists" })
             return
         }
 
         const album: Album = {
-            id: randomUUID(),
+            id,
             title: body.title,
             artist: body.artist,
             year: body.year ?? "",
@@ -60,13 +72,26 @@ export function createAlbumsRouter(albumRepo: AlbumRepository): Router {
     // PUT /albums/:id — update album (full replace)
     router.put("/:id", (req: Request, res: Response) => {
         const id = req.params.id as string
+        if (!parseRequest(UUIDSchema, id, res)) return
         const existing = albumRepo.findById(id)
         if (!existing) {
             res.status(404).json({ error: "Album not found" })
             return
         }
 
-        const body = req.body as Partial<Album>
+        const body = parseRequest(UpdateAlbumSchema, req.body, res)
+        if (!body) return
+        if (body.coverOverride && body.coverOverride.albumId !== id) {
+            res.status(400).json({
+                code: "VALIDATION_ERROR",
+                error: "Invalid request",
+                issues: [{
+                    path: "coverOverride.albumId",
+                    message: "Cover override albumId must match album id",
+                }],
+            })
+            return
+        }
 
         const album: Album = {
             id,
@@ -89,6 +114,7 @@ export function createAlbumsRouter(albumRepo: AlbumRepository): Router {
     // DELETE /albums/:id — delete album
     router.delete("/:id", (req: Request, res: Response) => {
         const id = req.params.id as string
+        if (!parseRequest(UUIDSchema, id, res)) return
         const existing = albumRepo.findById(id)
         if (!existing) {
             res.status(404).json({ error: "Album not found" })
@@ -100,58 +126,47 @@ export function createAlbumsRouter(albumRepo: AlbumRepository): Router {
 
     // POST /albums/import — batch import (upsert)
     router.post("/import", (req: Request, res: Response) => {
-        const { albums } = req.body as { albums?: unknown[] }
-
-        if (!Array.isArray(albums)) {
-            res.status(400).json({ error: "albums array is required" })
-            return
-        }
+        const parsed = parseRequest(ImportAlbumsSchema, req.body, res)
+        if (!parsed) return
+        const { albums } = parsed
 
         let imported = 0
         let updated = 0
-        let failed = 0
+        const parsedAlbums: Album[] = []
 
-        for (const raw of albums) {
-            if (typeof raw !== "object" || raw === null) {
-                failed++
-                continue
-            }
-            const body = raw as Partial<Album>
-
-            if (!body.id || !body.title || !body.artist) {
-                failed++
-                continue
-            }
-
-            const existing = albumRepo.findById(body.id as string)
+        for (const body of albums) {
+            const existing = albumRepo.findById(body.id)
 
             const album: Album = {
-                id: body.id as string,
-                title: body.title as string,
-                artist: body.artist as string,
-                year: (body.year as string) ?? "",
-                coverUrl: body.coverUrl as string | undefined,
-                coverOverride: body.coverOverride as Album["coverOverride"],
-                category: body.category as Album["category"],
-                roleHistory: (body.roleHistory as Album["roleHistory"]) ?? [],
-                listenCount: (body.listenCount as number) ?? 0,
-                lastListened: (body.lastListened as string | null) ?? null,
-                story: body.story as Album["story"],
+                id: body.id,
+                title: body.title,
+                artist: body.artist,
+                year: body.year ?? "",
+                coverUrl: body.coverUrl,
+                coverOverride: body.coverOverride,
+                category: body.category,
+                roleHistory: body.roleHistory ?? [],
+                listenCount: body.listenCount ?? 0,
+                lastListened: body.lastListened ?? null,
+                story: body.story,
             }
 
-            try {
-                albumRepo.save(album)
-                if (existing) {
-                    updated++
-                } else {
-                    imported++
-                }
-            } catch {
-                failed++
-            }
+            parsedAlbums.push(album)
+            if (existing) updated++
+            else imported++
         }
 
-        res.json({ imported, updated, failed } satisfies ImportResult)
+        try {
+            albumRepo.saveMany(parsedAlbums)
+            res.json({ imported, updated, failed: 0 } satisfies ImportResult)
+        } catch {
+            res.status(500).json({
+                error: "Album import failed; no albums were changed",
+                imported: 0,
+                updated: 0,
+                failed: parsedAlbums.length,
+            })
+        }
     })
 
     return router

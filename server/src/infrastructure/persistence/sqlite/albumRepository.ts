@@ -216,6 +216,28 @@ export function createAlbumRepository(db: Database.Database) {
         SELECT 1 FROM albums WHERE id = ?
     `)
 
+    function persist(album: Album): void {
+        const record = albumToRecord(album)
+        insert.run(
+            record.id,
+            record.title,
+            record.artist,
+            record.year,
+            record.category,
+            record.cover_url,
+            record.cover_override,
+            record.role_history,
+            record.listen_count,
+            record.last_listened,
+            record.story,
+            record.created_at,
+            record.updated_at,
+        )
+    }
+    const persistMany = db.transaction((albums: Album[]) => {
+        for (const album of albums) persist(album)
+    })
+
     return {
         findAll(): Album[] {
             const records = findAllStmt.all() as AlbumRecord[]
@@ -228,22 +250,11 @@ export function createAlbumRepository(db: Database.Database) {
         },
 
         save(album: Album): void {
-            const record = albumToRecord(album)
-            insert.run(
-                record.id,
-                record.title,
-                record.artist,
-                record.year,
-                record.category,
-                record.cover_url,
-                record.cover_override,
-                record.role_history,
-                record.listen_count,
-                record.last_listened,
-                record.story,
-                record.created_at,
-                record.updated_at,
-            )
+            persist(album)
+        },
+
+        saveMany(albums: Album[]): void {
+            persistMany(albums)
         },
 
         delete(id: string): boolean {

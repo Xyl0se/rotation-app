@@ -1,11 +1,17 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
-import { renderHook, act } from "@testing-library/react"
+import { renderHook, act, waitFor } from "@testing-library/react"
 import { useLibrary } from "./useLibrary"
 import { createMemoryStorageAdapter } from "../adapters/memoryStorageAdapter"
 import { createAlbumRepository } from "../repositories/albumRepository"
 import { STORAGE } from "../config/storage"
 import { clearCoverCache } from "../repositories/coverCache"
 import type { Album } from "../types/album"
+import {
+    fetchAlbums,
+    importAlbums,
+} from "../services/api/albumsService"
+import { getCustomCover } from "../repositories/coverCache"
+import { uploadCover } from "../services/api/coversService"
 
 vi.mock("../repositories/coverCache", () => ({
     saveCustomCover: vi.fn(async (_albumId: string, _blob: Blob, options?: { source?: string }) => ({
@@ -15,11 +21,14 @@ vi.mock("../repositories/coverCache", () => ({
         fetchedAt: new Date().toISOString(),
     })),
     removeCustomCover: vi.fn(async () => { }),
+    getCustomCover: vi.fn(async () => null),
     clearCoverCache: vi.fn(async () => { }),
     resolveCoverUrl: vi.fn(async () => null),
 }))
 
 vi.mock("../services/api/albumsService", () => ({
+    fetchAlbums: vi.fn(async () => []),
+    importAlbums: vi.fn(async () => ({ imported: 0, updated: 0, failed: 0 })),
     createAlbum: vi.fn(async (album: Album) => album),
     updateAlbum: vi.fn(async (album: Album) => album),
     deleteAlbum: vi.fn(async () => { }),
@@ -50,6 +59,86 @@ describe("useLibrary", () => {
         expect(result.current.albums).toEqual([])
     })
 
+    it("loads the authoritative Library from the server and refreshes the cache", async () => {
+        const adapter = makeAdapter()
+        const cached = makeAlbum("cached", "Cached")
+        const serverAlbum = makeAlbum("server", "Server")
+        adapter.set(STORAGE.LIBRARY, JSON.stringify([cached]))
+        vi.mocked(fetchAlbums).mockResolvedValueOnce([serverAlbum])
+
+        const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter, true))
+
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
+        expect(result.current.albums).toEqual([serverAlbum])
+        expect(result.current.persistenceMode).toBe("server")
+        expect(result.current.syncError).toBeNull()
+        expect(JSON.parse(adapter.get(STORAGE.LIBRARY) ?? "[]")).toEqual([serverAlbum])
+    })
+
+    it("keeps the last-known-good cache when the server is unavailable", async () => {
+        const adapter = makeAdapter()
+        const cached = makeAlbum("cached", "Cached")
+        adapter.set(STORAGE.LIBRARY, JSON.stringify([cached]))
+        vi.mocked(fetchAlbums).mockRejectedValueOnce(new Error("API unavailable"))
+
+        const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter, true))
+
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
+        expect(result.current.albums).toEqual([cached])
+        expect(result.current.persistenceMode).toBe("cache")
+        expect(result.current.syncError).toBe("API unavailable")
+    })
+
+    it("imports a legacy cache into an empty server once and verifies it", async () => {
+        const adapter = makeAdapter()
+        const cached = makeAlbum("cached", "Cached")
+        adapter.set(STORAGE.LIBRARY, JSON.stringify([cached]))
+        vi.mocked(fetchAlbums)
+            .mockResolvedValueOnce([])
+            .mockResolvedValueOnce([cached])
+
+        const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter, true))
+
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
+        expect(importAlbums).toHaveBeenCalledOnce()
+        expect(importAlbums).toHaveBeenCalledWith([cached])
+        expect(result.current.albums).toEqual([cached])
+        expect(adapter.get(STORAGE.LIBRARY_SERVER_MIGRATION)).toBe("complete")
+    })
+
+    it("does not overwrite a migrated cache when the server unexpectedly becomes empty", async () => {
+        const adapter = makeAdapter()
+        const cached = makeAlbum("cached", "Cached")
+        adapter.set(STORAGE.LIBRARY, JSON.stringify([cached]))
+        adapter.set(STORAGE.LIBRARY_SERVER_MIGRATION, "complete")
+        vi.mocked(fetchAlbums).mockResolvedValueOnce([])
+
+        const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter, true))
+
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
+        expect(result.current.albums).toEqual([cached])
+        expect(result.current.persistenceMode).toBe("cache")
+        expect(result.current.syncError).toContain("empty after a completed migration")
+        expect(importAlbums).not.toHaveBeenCalled()
+    })
+
+    it("keeps the cache when migration read-back contains different album IDs", async () => {
+        const adapter = makeAdapter()
+        const cached = makeAlbum("cached", "Cached")
+        adapter.set(STORAGE.LIBRARY, JSON.stringify([cached]))
+        vi.mocked(fetchAlbums)
+            .mockResolvedValueOnce([])
+            .mockResolvedValueOnce([makeAlbum("different", "Different")])
+
+        const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter, true))
+
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
+        expect(result.current.albums).toEqual([cached])
+        expect(result.current.persistenceMode).toBe("cache")
+        expect(result.current.syncError).toBe("Server migration verification failed")
+        expect(adapter.get(STORAGE.LIBRARY_SERVER_MIGRATION)).toBeNull()
+    })
+
     it("should add an album", () => {
         const adapter = makeAdapter()
         const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter))
@@ -67,6 +156,71 @@ describe("useLibrary", () => {
         })
         expect(result.current.albums).toHaveLength(1)
         expect(result.current.albums[0].title).toBe("Test Album")
+        expect(result.current.pendingOperationCount).toBe(1)
+    })
+
+    it("replays an offline album change when connectivity returns", async () => {
+        const adapter = makeAdapter()
+        const queuedAlbum = makeAlbum("queued", "Queued")
+        vi.mocked(fetchAlbums).mockResolvedValueOnce([queuedAlbum])
+        const { result, rerender } = renderHook(
+            ({ connected }) => useLibrary(makeRepo(adapter), adapter, connected),
+            { initialProps: { connected: false } },
+        )
+
+        act(() => result.current.addAlbum(queuedAlbum))
+        expect(result.current.pendingOperationCount).toBe(1)
+
+        rerender({ connected: true })
+
+        await waitFor(() => expect(result.current.pendingOperationCount).toBe(0))
+        expect(importAlbums).toHaveBeenCalledWith([queuedAlbum])
+        expect(result.current.lastSuccessfulSyncAt).not.toBeNull()
+        expect(result.current.syncError).toBeNull()
+    })
+
+    it("keeps a failed online mutation queued and exposes the error", async () => {
+        const adapter = makeAdapter()
+        const serverAlbum = makeAlbum("server", "Server")
+        vi.mocked(fetchAlbums).mockResolvedValueOnce([serverAlbum])
+        vi.mocked(importAlbums).mockRejectedValueOnce(new Error("Write failed"))
+        const { result } = renderHook(() => useLibrary(makeRepo(adapter), adapter, true))
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+        act(() => result.current.updateAlbum({ ...serverAlbum, title: "Updated" }))
+
+        await waitFor(() => expect(result.current.syncError).toBe("Write failed"))
+        expect(result.current.albums[0].title).toBe("Updated")
+        expect(result.current.pendingOperationCount).toBe(1)
+    })
+
+    it("replays pending cover binary data from IndexedDB on reconnect", async () => {
+        const adapter = makeAdapter()
+        const queuedAlbum = makeAlbum("cover-album", "Cover Album")
+        const blob = new Blob([new Uint8Array([137, 80, 78, 71])], { type: "image/png" })
+        vi.mocked(getCustomCover).mockResolvedValueOnce({
+            blob,
+            blobUrl: "blob:test",
+            source: "upload",
+        })
+        vi.mocked(fetchAlbums).mockResolvedValueOnce([queuedAlbum])
+        const { result, rerender } = renderHook(
+            ({ connected }) => useLibrary(makeRepo(adapter), adapter, connected),
+            { initialProps: { connected: false } },
+        )
+        act(() => result.current.addAlbum(queuedAlbum))
+        await act(async () => {
+            await result.current.updateAlbumCoverOverride("cover-album", blob, "upload")
+        })
+
+        rerender({ connected: true })
+
+        await waitFor(() => expect(result.current.pendingOperationCount).toBe(0))
+        expect(uploadCover).toHaveBeenCalledWith(
+            "cover-album",
+            expect.any(ArrayBuffer),
+            "image/png",
+        )
     })
 
     it("should delete an album", async () => {
@@ -287,3 +441,15 @@ describe("useLibrary", () => {
         expect(result.current.albums[0].coverOverride).toBeUndefined()
     })
 })
+
+function makeAlbum(id: string, title: string): Album {
+    return {
+        id,
+        title,
+        artist: "Artist",
+        year: "2024",
+        roleHistory: [],
+        listenCount: 0,
+        lastListened: null,
+    }
+}

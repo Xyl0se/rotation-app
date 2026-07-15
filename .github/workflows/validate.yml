@@ -1,0 +1,63 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Install server dependencies
+        run: npm ci --prefix server
+      - name: Lint frontend and server
+        run: npm run lint
+      - name: Test frontend and server
+        run: npm test
+      - name: Build frontend and server
+        run: npm run build && npm run build --prefix server
+      - name: Validate Compose files
+        env:
+          ROTATION_HOST_MUSIC_PATH: /tmp/rotation-ci-music
+          ROTATION_WRITE_TOKEN: ci-validation-token
+        run: docker compose config --quiet && docker compose -f docker-compose.prod.yml config --quiet
+
+  container-smoke:
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Prepare UID 1026 bind mounts
+        run: |
+          mkdir -p server/data music
+          sudo chown -R 1026:100 server/data music
+      - name: Build and start containers
+        run: docker compose up --build --detach --wait --wait-timeout 120
+      - name: Verify web and API health
+        run: |
+          curl --fail --retry 5 --retry-delay 2 http://localhost:3000/health
+          curl --fail --retry 5 --retry-delay 2 http://localhost:3000/api/health
+      - name: Show container logs after failure
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Stop containers
+        if: always()
+        run: docker compose down --volumes

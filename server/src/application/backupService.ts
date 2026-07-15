@@ -1,5 +1,5 @@
 import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs"
-import { join, basename } from "node:path"
+import { join } from "node:path"
 import Database from "better-sqlite3"
 import { createLogger } from "../infrastructure/logger/logger.js"
 
@@ -174,7 +174,7 @@ export function createBackupService(
             }
 
             // Verify backup integrity before restoring
-            let integrityOk = false
+            let integrityOk: boolean
             try {
                 const backupDb = new Database(backupPath)
                 try {
