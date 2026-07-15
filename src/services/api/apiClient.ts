@@ -3,7 +3,6 @@
  * All calls are relative to /api (proxied by Vite dev server).
  */
 
-import { getWriteToken } from "./writeToken.js"
 import { retryFetch } from "./retryFetch.js"
 
 const API_BASE = "/api"
@@ -31,17 +30,10 @@ export class ApiError extends Error {
     }
 }
 
-function buildHeaders(requireWrite = false): Record<string, string> {
-    const headers: Record<string, string> = {
+function buildHeaders(): Record<string, string> {
+    return {
         "Content-Type": "application/json",
     }
-    if (requireWrite) {
-        const token = getWriteToken()
-        if (token) {
-            headers["x-rotation-write-token"] = token
-        }
-    }
-    return headers
 }
 
 function isRetryableStatus(status: number): boolean {
@@ -66,19 +58,19 @@ export async function get<T>(path: string): Promise<T> {
     return handleResponse<T>(response)
 }
 
-export async function post<T>(path: string, body?: unknown, requireWrite = false): Promise<T> {
+export async function post<T>(path: string, body?: unknown): Promise<T> {
     const response = await retryFetch(`${API_BASE}${path}`, {
         method: "POST",
-        headers: buildHeaders(requireWrite),
+        headers: buildHeaders(),
         body: body ? JSON.stringify(body) : undefined,
     })
     return handleResponse<T>(response)
 }
 
-export async function put<T>(path: string, body?: unknown, requireWrite = false): Promise<T> {
+export async function put<T>(path: string, body?: unknown): Promise<T> {
     const response = await retryFetch(`${API_BASE}${path}`, {
         method: "PUT",
-        headers: buildHeaders(requireWrite),
+        headers: buildHeaders(),
         body: body ? JSON.stringify(body) : undefined,
     })
     return handleResponse<T>(response)
@@ -88,9 +80,8 @@ export async function postRaw(
     path: string,
     body: ArrayBuffer,
     contentType: string,
-    requireWrite = false,
 ): Promise<void> {
-    const headers = requireWrite ? buildHeaders(true) : {}
+    const headers = buildHeaders()
     headers["Content-Type"] = contentType
     const response = await retryFetch(`${API_BASE}${path}`, {
         method: "POST",
@@ -108,10 +99,10 @@ export async function postRaw(
     }
 }
 
-export async function del(path: string, requireWrite = false): Promise<void> {
+export async function del(path: string): Promise<void> {
     const response = await retryFetch(`${API_BASE}${path}`, {
         method: "DELETE",
-        headers: requireWrite ? buildHeaders(true) : {},
+        headers: buildHeaders(),
     })
     if (!response.ok) {
         const body = await response.json().catch(() => null)

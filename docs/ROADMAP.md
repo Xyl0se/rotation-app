@@ -46,6 +46,7 @@ All future developments are oriented toward these principles.
 
 | Sprint | Goal | Target | Status |
 |--------|------|--------|--------|
+| [Sprint 76.3](./sprints/Sprint-76.3.md) | Trusted Proxy Write Boundary | v0.26.2-dev | Implementation complete; NAS verification pending |
 | [Sprint 76.2](./sprints/Sprint-76.2.md) | Album-to-Syncthing Export Recovery | v0.26.2-dev | In progress; NAS verification pending |
 | [Sprint 76.1](./sprints/Sprint-76.1.md) | Pre-Release Integrity & Hardening Supersprint | v0.26.1-dev | Implementation complete; NAS verification pending |
 | [Sprint 61](./sprints/Sprint-61.md) | Search & Discovery | v0.27.0-dev | Backlog |

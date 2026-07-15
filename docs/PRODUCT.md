@@ -95,9 +95,9 @@ Rotation does not assign points or scores to a collection.
 ## Product Limits
 
 - Rotation knows only albums, not songs.
-- The Library, covers, bindings, scans, and export operations are server-backed. The browser keeps a last-known-good Library cache and durable pending mutations.
+- The Library, covers, bindings, scans, and export operations are server-backed. Library state is loaded from the API and is not persisted in browser storage.
 - Listening History, RotationPlan, and Focus Album remain canonical browser-local data until their planned server migration.
-- Language, onboarding state, dismissed prompts, and the write token are intentionally device-local.
+- Language, onboarding state, and dismissed prompts are intentionally device-local. Authentication is an internal trusted-proxy concern, not browser state.
 - There are no user accounts or multi-user conflict semantics yet.
 - The Metadata Lookup is a helper, but not a prerequisite for saving an album.
 - Rotation does not try to create a "perfect" library.

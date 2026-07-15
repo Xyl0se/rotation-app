@@ -101,14 +101,13 @@ Rotation runs as a multi-service Docker stack:
 
 `HomePage.tsx` is the central container. It composes features and passes data and callbacks through props.
 
-Browser network availability and Rotation API reachability are separate states. `ConnectionProvider` probes `/api/health` with a bounded timeout and cancels probes on replacement/unmount. Library server synchronization starts only after the API is confirmed reachable; otherwise the last-known-good cache remains active.
+Browser network availability and Rotation API reachability are separate states. `ConnectionProvider` probes `/api/health` with a bounded timeout and cancels probes on replacement/unmount. The Library loads after the API is confirmed reachable and remains unavailable when the server cannot be reached.
 
-The library logic lives in `useLibrary.ts` (ADR 004). SQLite/API is authoritative for the Library; `localStorage` is a last-known-good cache and durable pending-operation store. The hook encapsulates:
+The library logic lives in `useLibrary.ts` (ADR 004). SQLite/API is authoritative for the Library; browser persistence is not used for Album records or mutations. The hook encapsulates:
 
-- Server-first loading with safe cache fallback
-- One-time legacy import with server read-back verification
-- Durable, coalesced pending operations for albums and covers
-- Loading, saving, and normalizing the browser cache
+- Server loading into ephemeral React state
+- Server-confirmed, non-optimistic mutations
+- Explicit unavailable/error states
 - CRUD operations (`addAlbum`, `updateAlbum`, `deleteAlbum`)
 - Cover override management
 - Focus Album management
@@ -195,10 +194,13 @@ Ownership is defined in [ADR 013](./adr/013-data-ownership-boundaries.md). In su
 |-------|------|---------|
 | SQLite/API | Library, bindings, scans, export/backup state | Canonical server data |
 | Server filesystem | Covers, exports, staging, archives | Canonical or operational server data |
-| Browser `localStorage` | Library copy and pending operations | Cache and durable synchronization state |
 | Browser `localStorage` | Listening History, RotationPlan, Focus Album | Temporarily browser-owned canonical data; follow-up migration required |
-| IndexedDB | Downloaded covers and pending custom-cover blobs | Reconstructable cache / synchronization payload |
-| Browser preferences | Language, onboarding, dismissed prompts, write token | Device-local state |
+| IndexedDB | Downloaded covers | Reconstructable cache |
+| Browser preferences | Language, onboarding, dismissed prompts | Device-local state |
+
+Mutating browser requests use the same-origin `/api` proxy. Caddy overwrites and
+injects the internal write token; the browser never receives or persists it. The
+API validates both this internal boundary and browser Origin/Fetch Metadata.
 
 ---
 

@@ -32,6 +32,7 @@ import { createDiagnosticsRouter } from "./routes/diagnostics.js"
 import {
     createRequireWriteToken,
     createRequireWriteTokenForMutations,
+    requireSameOriginForMutations,
 } from "./routes/middleware/writeToken.js"
 import { createApiErrorHandler } from "./routes/middleware/apiError.js"
 import { createLogger } from "./infrastructure/logger/logger.js"
@@ -117,7 +118,7 @@ app.use(express.json())
 
 app.use("/health", createHealthRouter(db, config, scanRunRepo))
 app.use("/config", createConfigRouter(config))
-app.use("/scan", createScanRouter(scanService, scanRunRepo, bindingRepo))
+app.use("/scan", requireSameOriginForMutations, createScanRouter(scanService, scanRunRepo, bindingRepo))
 app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo, musicGuard, workspaceGuard, syncthingGuard))
 
 app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, bindingCaptureService))

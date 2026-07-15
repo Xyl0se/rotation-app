@@ -20,17 +20,17 @@ export async function fetchAlbum(id: string): Promise<Album> {
 }
 
 export async function createAlbum(album: Album): Promise<Album> {
-    return post<Album>("/albums", album, true)
+    return post<Album>("/albums", album)
 }
 
 export async function updateAlbum(album: Album): Promise<Album> {
-    return put<Album>(`/albums/${encodeURIComponent(album.id)}`, album, true)
+    return put<Album>(`/albums/${encodeURIComponent(album.id)}`, album)
 }
 
 export async function deleteAlbum(id: string): Promise<void> {
-    return del(`/albums/${encodeURIComponent(id)}`, true)
+    return del(`/albums/${encodeURIComponent(id)}`)
 }
 
 export async function importAlbums(albums: Album[]): Promise<ImportResult> {
-    return post<ImportResult>("/albums/import", { albums }, true)
+    return post<ImportResult>("/albums/import", { albums })
 }

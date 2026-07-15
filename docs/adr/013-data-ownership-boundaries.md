@@ -25,7 +25,7 @@ Rotation classifies every persisted value as one of four ownership types:
 | Listening History | `localStorage` | Canonical user data, temporarily browser-owned | Not covered by server backup; server migration required in a dedicated follow-up |
 | RotationPlan and Focus Album | `localStorage` | Canonical user data, temporarily browser-owned | Not covered by server backup; server migration required in a dedicated follow-up |
 | Language, onboarding, dismissed prompts | `localStorage` | Device-local preference | Intentionally not synchronized |
-| Write token | `localStorage` | Device-local credential | Must not be included in product data exports or logs |
+| Internal write token | API and Caddy environment | Deployment secret for trusted proxy authentication | Must not reach browser storage, product exports, or logs |
 
 The server is authoritative only for domains that already have a server repository and migration path. Browser-owned canonical data must not be called server-backed until an explicit schema, API, migration, conflict policy, and backup/restore test exist.
 

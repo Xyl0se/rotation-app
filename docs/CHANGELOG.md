@@ -2,6 +2,10 @@
 
 ## v0.26.1-dev
 
+- **Sprint 76.3 — Trusted Proxy Write Boundary**
+  - Removed browser write-token storage, token headers, and token UI. Caddy now overwrites and injects the internal deployment secret for same-origin `/api` requests.
+  - Added Origin/Fetch Metadata protection for mutations while retaining constant-time protection for direct API access.
+
 - **Sprint 76.1 — Pre-Release Integrity & Hardening Supersprint**
   - Protected every mutating API route, hardened cover paths/uploads, standardized sanitized API failures, and added route-level security coverage.
   - Made SQLite/API authoritative for the Library, added durable offline mutation replay, stable client-generated album identities, transactional imports, runtime request validation, and versioned database migrations.

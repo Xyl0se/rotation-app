@@ -9,7 +9,7 @@ import { createBindingsRouter } from "./bindings.js"
 import { createCoversRouter } from "./covers.js"
 import { createExportsRouter } from "./exports.js"
 import { createScanRouter } from "./scan.js"
-import { createRequireWriteToken, createRequireWriteTokenForMutations } from "./middleware/writeToken.js"
+import { createRequireWriteToken, createRequireWriteTokenForMutations, requireSameOriginForMutations } from "./middleware/writeToken.js"
 import { createApiErrorHandler } from "./middleware/apiError.js"
 import type { AlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
 import type { BackupStatusRepository } from "../infrastructure/persistence/sqlite/backupStatusRepository.js"
@@ -167,7 +167,7 @@ function createTestApp() {
     app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo))
     app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService))
     app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, captureService))
-    app.use("/scan", createScanRouter(scanService, scanRunRepo, bindingRepo))
+    app.use("/scan", requireSameOriginForMutations, createScanRouter(scanService, scanRunRepo, bindingRepo))
     app.use("/exports", requireWriteToken, createExportsRouter(exportService))
     app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))
     app.use(createApiErrorHandler())

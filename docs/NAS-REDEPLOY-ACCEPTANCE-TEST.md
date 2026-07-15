@@ -114,7 +114,7 @@ Before redeploying, verify these environment variables in the stack interface:
 ```dotenv
 ROTATION_HOST_DATA_PATH=/volume1/docker/rotation
 ROTATION_HOST_MUSIC_PATH=/volume1/music
-ROTATION_WRITE_TOKEN=<long-random-secret>
+ROTATION_WRITE_TOKEN=<long-random-internal-proxy-secret>
 ```
 
 Adjust the paths to the actual NAS locations if necessary.
@@ -279,18 +279,20 @@ Use a new private window or a fresh browser profile so the clean-install behavio
 - [x] Onboarding can be completed.
 - [ ] The initially empty Library is shown correctly.
 - [ ] The UI distinguishes a reachable server from offline/cache mode.
-- [x] The production write token can be entered through the application UI.
+- [ ] No write-token input or secret is exposed in the application UI or browser storage.
 
-Authentication negative test:
+Trusted-proxy authentication test:
 
-1. Temporarily enter an incorrect write token.
-2. Attempt a write operation such as creating an album.
+1. Perform a write through the normal web URL without browser token setup.
+2. Attempt a direct API mutation without the internal token, if the API is temporarily reachable for diagnostics.
+3. Send a proxied mutation with a deliberately foreign `Origin` header.
 
-- [x] The server rejects the incorrect token.
-- [x] The UI displays a useful error.
-- [x] No unauthorized album is persisted.
+- [ ] Same-origin writes through Caddy succeed without browser configuration.
+- [ ] A direct mutation without the internal token is rejected.
+- [ ] A cross-site mutation is rejected.
+- [ ] Clearing browser storage does not affect write access.
 
-Restore the correct token before continuing.
+Do not expose the internal token to the browser during this test.
 
 ---
 

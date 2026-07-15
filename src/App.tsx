@@ -4,7 +4,6 @@ import HomePage from "./pages/HomePage"
 import WelcomePage from "./pages/WelcomePage"
 import BindingsPage from "./pages/BindingsPage"
 import ExportPage from "./pages/ExportPage"
-import WriteTokenDialog from "./components/features/WriteTokenDialog"
 import OfflineIndicator from "./components/ui/OfflineIndicator"
 import ToastContainer from "./components/ui/Toast"
 
@@ -26,7 +25,6 @@ function App() {
         return adapter.get(STORAGE.ONBOARDING) !== "true"
     })
     const [page, setPage] = useState<Page>("home")
-    const [showTokenDialog, setShowTokenDialog] = useState(false)
     const [highlightAlbumId, setHighlightAlbumId] = useState<string | null>(null)
 
     function handleNavigateToLibrary(albumId: string) {
@@ -69,22 +67,11 @@ function App() {
                 >
                     {t.nav.export}
                 </button>
-                <button
-                    className="app-nav__token"
-                    onClick={() => setShowTokenDialog(true)}
-                    title="Write Token"
-                >
-                    🔒
-                </button>
             </nav>
             {page === "home" && <HomePage adapter={adapter} onNavigateToBindings={() => setPage("bindings")} highlightAlbumId={highlightAlbumId} />}
             {page === "bindings" && <BindingsPage onNavigateToLibrary={handleNavigateToLibrary} />}
             {page === "export" && <ExportPage />}
             <ToastContainer />
-            <WriteTokenDialog
-                open={showTokenDialog}
-                onClose={() => setShowTokenDialog(false)}
-            />
         </>
     )
 }

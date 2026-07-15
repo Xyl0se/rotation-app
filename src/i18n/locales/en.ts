@@ -591,16 +591,6 @@ export const en = {
         en: "English",
     },
 
-    writeToken: {
-        title: "Write Token",
-        description:
-            "Enter the ROTATION_WRITE_TOKEN from your server environment to enable write operations like scanning and exporting.",
-        placeholder: "Paste token here...",
-        save: "Save",
-        clear: "Clear",
-        saved: "Saved",
-    },
-
     exportPage: {
         title: "Export to Device",
         description:

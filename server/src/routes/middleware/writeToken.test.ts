@@ -3,12 +3,16 @@ import type { NextFunction, Request, Response } from "express"
 import {
     createRequireWriteToken,
     createRequireWriteTokenForMutations,
+    requireSameOriginForMutations,
 } from "./writeToken.js"
 
-function request(method: string, token?: string): Request {
+function request(method: string, token?: string, headers: Record<string, string> = {}): Request {
     return {
         method,
-        headers: token ? { "x-rotation-write-token": token } : {},
+        headers: {
+            ...headers,
+            ...(token ? { "x-rotation-write-token": token } : {}),
+        },
     } as Request
 }
 
@@ -58,6 +62,51 @@ describe("write-token middleware", () => {
         expect(res.status).not.toHaveBeenCalled()
     })
 
+    it("accepts a same-origin mutation forwarded by the trusted proxy", () => {
+        const res = response()
+        const next = vi.fn() as NextFunction
+
+        createRequireWriteToken("server-secret")(request("POST", "server-secret", {
+            origin: "http://rotation.local:3000",
+            "x-forwarded-host": "rotation.local:3000",
+            "x-forwarded-proto": "http",
+            "sec-fetch-site": "same-origin",
+        }), res.value, next)
+
+        expect(next).toHaveBeenCalledOnce()
+    })
+
+    it("rejects a cross-site mutation even with the internal token", () => {
+        const res = response()
+        const next = vi.fn() as NextFunction
+
+        createRequireWriteToken("server-secret")(request("POST", "server-secret", {
+            origin: "https://evil.example",
+            "x-forwarded-host": "rotation.local:3000",
+            "sec-fetch-site": "cross-site",
+        }), res.value, next)
+
+        expect(res.status).toHaveBeenCalledWith(403)
+        expect(res.json).toHaveBeenCalledWith({
+            code: "CROSS_SITE_MUTATION",
+            error: "Forbidden: cross-site mutation",
+        })
+        expect(next).not.toHaveBeenCalled()
+    })
+
+    it("rejects a mismatching Origin when Fetch Metadata is unavailable", () => {
+        const res = response()
+        const next = vi.fn() as NextFunction
+
+        createRequireWriteToken("server-secret")(request("POST", "server-secret", {
+            origin: "https://evil.example",
+            "x-forwarded-host": "rotation.local:3000",
+        }), res.value, next)
+
+        expect(res.status).toHaveBeenCalledWith(403)
+        expect(next).not.toHaveBeenCalled()
+    })
+
     it.each(["GET", "HEAD", "OPTIONS"])("allows safe %s requests without a token", (method) => {
         const res = response()
         const next = vi.fn() as NextFunction
@@ -73,6 +122,20 @@ describe("write-token middleware", () => {
         const next = vi.fn() as NextFunction
 
         createRequireWriteTokenForMutations("server-secret")(request(method), res.value, next)
+
+        expect(res.status).toHaveBeenCalledWith(403)
+        expect(next).not.toHaveBeenCalled()
+    })
+
+    it("protects a token-free mutation from cross-site browsers", () => {
+        const res = response()
+        const next = vi.fn() as NextFunction
+
+        requireSameOriginForMutations(request("POST", undefined, {
+            origin: "https://evil.example",
+            "x-forwarded-host": "rotation.local:3000",
+            "sec-fetch-site": "cross-site",
+        }), res.value, next)
 
         expect(res.status).toHaveBeenCalledWith(403)
         expect(next).not.toHaveBeenCalled()

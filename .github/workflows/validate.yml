@@ -55,6 +55,11 @@ jobs:
         run: |
           curl --fail --retry 5 --retry-delay 2 http://localhost:3000/health
           curl --fail --retry 5 --retry-delay 2 http://localhost:3000/api/health
+      - name: Verify trusted proxy write boundary
+        run: |
+          curl --fail --request POST --header 'Content-Type: application/json' --header 'X-Rotation-Write-Token: client-must-not-win' --data '{}' http://localhost:3000/api/bindings/verify
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST --header 'Origin: https://evil.example' --header 'Sec-Fetch-Site: cross-site' --data '{}' http://localhost:3000/api/bindings/verify)" = "403"
+          docker compose exec -T rotation-api node -e "fetch('http://localhost:3001/bindings/verify',{method:'POST',headers:{'content-type':'application/json'},body:'{}'}).then(r=>{if(r.status!==403)process.exit(1)})"
       - name: Show container logs after failure
         if: failure()
         run: docker compose logs --no-color

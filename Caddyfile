@@ -7,7 +7,12 @@
     # API proxy to backend service
     handle /api/* {
         uri strip_prefix /api
-        reverse_proxy rotation-api:3001
+        reverse_proxy rotation-api:3001 {
+            # Overwrite any client-supplied value; the browser never receives this secret.
+            header_up X-Rotation-Write-Token {$ROTATION_WRITE_TOKEN}
+            header_up X-Forwarded-Host {http.request.host}
+            header_up X-Forwarded-Proto {http.request.scheme}
+        }
     }
 
     # Static SPA files

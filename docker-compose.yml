@@ -38,6 +38,8 @@ services:
       rotation-api:
         condition: service_healthy
     restart: unless-stopped
+    environment:
+      - ROTATION_WRITE_TOKEN=${ROTATION_WRITE_TOKEN:-dev-token}
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/health"]
       interval: 30s

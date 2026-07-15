@@ -18,9 +18,9 @@ export async function fetchCoverUrl(albumId: string): Promise<string | null> {
 }
 
 export async function uploadCover(albumId: string, arrayBuffer: ArrayBuffer, contentType: string): Promise<void> {
-    return postRaw(`/covers/${encodeURIComponent(albumId)}`, arrayBuffer, contentType, true)
+    return postRaw(`/covers/${encodeURIComponent(albumId)}`, arrayBuffer, contentType)
 }
 
 export async function deleteCover(albumId: string): Promise<void> {
-    return del(`/covers/${encodeURIComponent(albumId)}`, true)
+    return del(`/covers/${encodeURIComponent(albumId)}`)
 }

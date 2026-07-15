@@ -60,15 +60,16 @@ sudo chown -R 1026:100 /volume1/docker/rotation
 
 Rotation runs unprivileged as numeric UID/GID `1026:100`. This identity is required by the supported Synology volume setup and is also used by the container image. The host data directory must have matching ownership.
 
-### 2. Generate a write token
+### 2. Generate the internal proxy token
 
-The token protects all mutating operations, including albums, covers, bindings, scans, exports, and manual backups.
+The token protects direct API mutations inside the Docker network. Caddy injects
+it automatically; it is never entered into or stored by the browser.
 
 ```bash
 openssl rand -hex 32
 ```
 
-Save the token somewhere safe. You will need it in the next step.
+Save the token as Portainer stack configuration. Users do not need to know it.
 
 ### 3. Create the stack in Portainer
 
@@ -352,18 +353,19 @@ If you want to keep removed albums on the player, either:
 - Access arbitrary paths outside the configured roots
 - Run as root inside the container
 
-### Write token
+### Trusted proxy write boundary
 
-All destructive operations (scan, export, binding confirmation) require the `ROTATION_WRITE_TOKEN` header:
+Normal browser and same-origin API use goes through Caddy and requires no token setup:
 
 ```bash
-curl -H "X-Rotation-Write-Token: <your-token>" \
-  http://localhost:3000/api/scan
+curl -X POST http://localhost:3000/api/scan
 ```
 
-Generate a strong token during setup and keep it secret.
+The web container overwrites and injects the internal header before proxying to
+the private API container. Direct API mutations still require the secret. The API
+also rejects cross-site browser mutations by `Origin` and Fetch Metadata headers.
 
-The `dev-token` fallback exists only in `docker-compose.yml` for an isolated local development stack. `docker-compose.prod.yml` has no default and refuses to render when `ROTATION_WRITE_TOKEN` or `ROTATION_HOST_MUSIC_PATH` is missing. Never use `dev-token` in a deployed instance.
+The `dev-token` fallback exists only in `docker-compose.yml` for an isolated local development stack. `docker-compose.prod.yml` has no default and provides the configured secret to both Caddy and API. Never use `dev-token` in a deployed instance.
 
 ---
 
