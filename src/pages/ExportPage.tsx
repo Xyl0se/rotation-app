@@ -75,6 +75,22 @@ export default function ExportPage() {
                 </Card>
             )}
 
+            {state.step === "error" && !state.preview && (
+                <Card>
+                    <div className="export-error" role="alert">
+                        <p>{t.exportPage.error(state.error ?? "")}</p>
+                        <div className="export-actions">
+                            <Button variant="secondary" onClick={reset}>
+                                {t.exportPage.cancel}
+                            </Button>
+                            <Button onClick={resetAndStartOver}>
+                                {t.exportPage.resetAndStartOver}
+                            </Button>
+                        </div>
+                    </div>
+                </Card>
+            )}
+
             {(state.step === "preview" || state.step === "staging" || state.step === "staged" || state.step === "applying" || state.step === "applied" || state.step === "error") && state.preview && (
                 <Card>
                     <div className="export-summary">
@@ -227,7 +243,7 @@ export default function ExportPage() {
                     )}
 
                     {state.step === "error" && (
-                        <div className="export-error">
+                        <div className="export-error" role="alert">
                             <p>{t.exportPage.error(state.error ?? "")}</p>
                             <div className="export-actions">
                                 <Button variant="secondary" onClick={resetAndStartOver}>

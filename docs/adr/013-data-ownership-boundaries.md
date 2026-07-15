@@ -48,4 +48,7 @@ The server is authoritative only for domains that already have a server reposito
 
 ## Follow-up
 
-Create a dedicated “Canonical Listening & Rotation Persistence” sprint before multi-device or PWA work. It must migrate Listening History, RotationPlan, and Focus Album to server ownership without silently discarding legacy browser data.
+[Sprint 80 — Canonical Listening & Rotation Persistence](../sprints/Sprint-80.md)
+must be completed before multi-device or PWA work. It migrates Listening History,
+RotationPlan, and Focus Album to server ownership without silently discarding legacy
+browser data.

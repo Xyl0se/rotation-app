@@ -1,84 +1,54 @@
-# Phase X — Platform & Companion
+# Phase X — Durable Companion Foundations
 
-**Status:** No active development. Future vision only.
-
----
-
-## Platform Foundation
-
-Preparation of a native application.
-
-- PWA
-- iOS
-- Android
-- Offline First
-- Prepare synchronization
-
-## Native Prototype
-
-First runnable mobile version.
-
-## Musical Companion
-
-Rotation evolves from tool to companion.
-
-## Weekly Reflection
-
-Weekly reviews.
-
-Not statistics.
-
-But stories.
-
-## Asynchronous Scan Engine
-
-The current scan is synchronous and blocking. For large libraries (10,000+ albums) or slow NAS filesystems (NFS, CIFS), a scan can take minutes.
-
-Future direction:
-
-- Streaming scanner: processes directories incrementally, writes intermediate progress to the database
-- Progress events: frontend receives real-time updates (WebSocket or SSE) instead of polling
-- Background worker: scan runs in a separate process/thread, HTTP request returns immediately with a job ID
-- Resumable scans: if the server restarts mid-scan, the scan can resume from the last checkpoint
-
-This makes Rotation usable for real-world music collections without UI freezes or timeouts.
-
-## Listening Patterns
-
-Rotation recognizes long-term developments.
-
-Examples:
-
-- You are listening to more jazz again.
-- Many albums are currently changing their role.
-- Your classics change hardly at all.
-
-No evaluation. Only observation.
-
-## Explainability 2.0
-
-The Player Rotation becomes fully traceable.
-
-The user understands at all times:
-
-- why an album was chosen
-- which role it fulfills there
-- which story the rotation tells
+**Status:** Future phase; only Sprint 80 is sufficiently defined to plan
 
 ---
 
-## Long-term Vision
+## Entry Condition
 
-Rotation should never feel like a database.
+The core NAS workflow is released and the product has been used long enough to
+distinguish real operational needs from speculative platform work.
 
-Rotation should never feel like Spotify.
+## Planned Foundation
 
-Rotation should never feel like a statistics tool.
+- [Sprint 80 — Canonical Listening & Rotation Persistence](./Sprint-80.md)
 
-Rotation should feel like a conversation about music.
+Listening History, Focus Album, and RotationPlan currently remain canonical in
+browser storage. Moving them to server ownership closes a durability and backup gap.
+It is also a prerequisite for any credible second-device or PWA workflow, but does
+not itself commit Rotation to those features.
 
-An album is not a file.
+## Conditional Directions
 
-An album is a story.
+### Asynchronous Scan Jobs
 
-Rotation helps consciously accompany these stories over many years.
+Consider only when real NAS measurements show scans timing out or blocking useful
+work. The first design concern is a durable, restart-safe job and progress model.
+Streaming transport, SSE, WebSockets, or a separate worker are implementation choices,
+not goals by themselves.
+
+### Mobile or PWA Companion
+
+Define a concrete mobile workflow before choosing PWA, iOS, or Android technology.
+Offline-first writes require explicit conflict handling and remain out of scope until
+there is evidence they are needed.
+
+### Weekly Reflection and Listening Patterns
+
+Explore narrative observations only after listening history is durable enough to
+support them. Observations must remain transparent and non-evaluative—for example,
+noticing renewed attention to a genre or role changes without scoring the Library.
+
+### Explainability 2.0
+
+Extend rotation reasoning only where production use reveals unanswered “why this
+album?” questions. Prefer improving existing explanations over adding a parallel
+recommendation system.
+
+## Non-Goals Without a New Decision
+
+- Native prototypes without a validated workflow
+- Generic synchronization infrastructure
+- Offline mutation queues
+- Statistics or optimization of the collection
+- Architecture sized speculatively for 10,000+ albums

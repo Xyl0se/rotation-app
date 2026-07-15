@@ -1,25 +1,18 @@
-# Sprint 61 — Search & Discovery
+# Misnumbered Search & Discovery Backlog Note
 
-**Status:** Backlog — frozen until stabilization is complete.
-
-**Target version:** `v0.26.0-dev`
+**Status:** Superseded by [Sprint 78](./Sprint-78.md)
 
 ---
 
-## Goal
+This backlog note was incorrectly assigned the already-used identifier “Sprint 61”.
+The authoritative version history identifies Sprint 61 as Server Persistence
+(`v0.22.0-dev`). The duplicate identifier is not reused in the forward roadmap.
 
-Better access to large libraries.
+The note also mixed missing search functionality with Library perspectives that now
+already exist. Artist, year, last-listened, and role-change grouping were delivered
+before the server-authoritative Library migration.
 
-## Topics
-
-- Search library
-- Intelligent filters
-- Quick navigation
-- Prepared Smart Collections
-
-## Definition of Done
-
-- [ ] Full-text search across albums (title, artist, story)
-- [ ] Filter by role, year, last listened, archive status
-- [ ] Keyboard shortcut for quick search
-- [ ] Smart Collections: "Never listened", "Recently archived", "Role changes this year"
+The remaining useful scope—fast text search, small composable filters, keyboard
+access, and a few transparent saved views—has been re-evaluated against the current
+architecture and moved to Sprint 78. This file remains only as a compatibility
+pointer for older documentation links.

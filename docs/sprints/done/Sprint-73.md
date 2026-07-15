@@ -14,11 +14,11 @@ The frontend survives API outages, timeouts, and network issues.
 
 | Subsprint | Focus | Status |
 |-----------|-------|--------|
-| [73A](./done/Sprint-73A.md) | API Resilience & Connection State | Done |
-| [73B](./done/Sprint-73B.md) | Feedback Systems | Done |
-| [73C](./done/Sprint-73C.md) | Export & Bindings Polish | Done |
-| [73D](./done/Sprint-73D.md) | Scan Real Progress | Done |
-| [73E](./done/Sprint-73E.md) | Integration & Audit | Done |
+| [73A](./Sprint-73A.md) | API Resilience & Connection State | Done |
+| [73B](./Sprint-73B.md) | Feedback Systems | Done |
+| [73C](./Sprint-73C.md) | Export & Bindings Polish | Done |
+| [73D](./Sprint-73D.md) | Scan Real Progress | Done |
+| [73E](./Sprint-73E.md) | Integration & Audit | Done |
 
 ## Architecture Changes
 

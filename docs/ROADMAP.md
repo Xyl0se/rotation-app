@@ -8,51 +8,96 @@ Version: v0.26.1-dev
 
 ---
 
-## Current Focus: Stabilization
+## Roadmap Decision Point
 
-**New features are frozen until Sprint 76.2 and the Sprint 76.1 NAS release gate are completed.**
+Rotation has reached its first complete intended workflow in code:
 
-Rotation has undergone a massive architectural expansion (Sprints 58–76): server persistence, Docker deployment, album file binding, the export engine, and full Library-Bindings Integration. The system is functional but not yet battle-tested under real-world NAS conditions.
+```text
+capture album → Library → music-folder binding → curated rotation
+→ export → Syncthing folder
+```
 
-The next sprints are dedicated exclusively to **hardening, bugfixing, and operational reliability**. No new product features will be added.
+The immediate task is not another feature. It is to prove this workflow on the NAS,
+close the stabilization supersprints, and publish a coherent release. If production
+export succeeds, Sprint 77 is the release-closure gate. If it fails, the reproduced
+export defect is the first Sprint 77 work item.
 
----
+After that gate, product work resumes in a deliberately narrow order: find albums,
+reduce binding friction, then close the remaining browser-owned data gap.
 
 ## Product Guideline
 
-The library documents relationships. It is not evaluated.
+The Library documents relationships. It is not evaluated.
 
-Album roles have no target sizes. There is no optimal role distribution. There is no "perfect collection".
-
-The Player Rotation is a consciously curated selection from the library. Reflection supports decisions. Explainability explains decisions. The Dashboard creates attention.
+Album roles have no target sizes. There is no optimal role distribution and no
+“perfect collection”. The Player Rotation is a consciously curated selection from
+the Library. Reflection supports decisions. Explainability explains decisions. The
+Dashboard creates attention.
 
 Not optimization.
 
-All future developments are oriented toward these principles.
-
----
-
 ## Current Product State
 
-- **Collection:** Album discovery, MusicBrainz, Album Coach, Role model, Timeline, Listening History, Archive, Rediscovery
-- **Library:** Editor, Role Explorer, Library Perspectives, Cover Cache, Persistence
-- **Rotation:** Focus Album, Player Rotation, Rotation Review, RotationPlan
-- **Dashboard:** Reflection, Insights, Role overview
-- **Infrastructure:** Repository Pattern, Storage Adapter, Migration Registry, Defensive Loading, required CI quality gates
+- **Collection:** Album discovery, MusicBrainz, Album Coach, Role model, Timeline,
+  Listening History, Archive, Rediscovery
+- **Library:** Server-authoritative albums and stories, editor, Role Explorer,
+  perspectives, cover cache
+- **Bindings:** Manual scan, Capture, conservative matching proposals, confirmed links
+- **Rotation:** Focus Album, Player Rotation, review, RotationPlan
+- **Export:** Preview, validation, staging, atomic destination replacement, recovery
+- **Operations:** Docker deployment, trusted-proxy write boundary, diagnostics,
+  backups, required CI quality gates
 
----
+## Delivery Sequence
 
-## Active & Upcoming Sprints
+| Order | Sprint | Outcome | Target | Decision |
+|------:|--------|---------|--------|----------|
+| Now | [76.1](./sprints/Sprint-76.1.md), [76.2](./sprints/Sprint-76.2.md), [76.3](./sprints/Sprint-76.3.md) | Implemented stabilization work | v0.26.2-dev | Awaiting final NAS evidence |
+| 1 | [Sprint 77](./sprints/Sprint-77.md) | Production acceptance and release closure | v0.26.2 | Required release gate |
+| 2 | [Sprint 78](./sprints/Sprint-78.md) | Library findability | v0.27.0-dev | First product sprint |
+| 3 | [Sprint 79](./sprints/Sprint-79.md) | Safe ranked binding candidates | v0.27.1-dev | Revalidate from real unmatched folders |
+| 4 | [Sprint 80](./sprints/Sprint-80.md) | Server-owned listening and rotation data | v0.28.0-dev | Required before multi-device/PWA |
 
-| Sprint | Goal | Target | Status |
-|--------|------|--------|--------|
-| [Sprint 76.3](./sprints/Sprint-76.3.md) | Trusted Proxy Write Boundary | v0.26.2-dev | Implementation complete; NAS verification pending |
-| [Sprint 76.2](./sprints/Sprint-76.2.md) | Album-to-Syncthing Export Recovery | v0.26.2-dev | In progress; NAS verification pending |
-| [Sprint 76.1](./sprints/Sprint-76.1.md) | Pre-Release Integrity & Hardening Supersprint | v0.26.1-dev | Implementation complete; NAS verification pending |
-| [Sprint 61](./sprints/Sprint-61.md) | Search & Discovery | v0.27.0-dev | Backlog |
-| [Sprint 68B](./sprints/Sprint-68B.md) | Fuzzy Matching | v0.27.0-dev | Backlog |
+Sprint numbers express the present recommended order, not a promise to implement
+features without re-evaluating production evidence after each sprint.
 
-## Completed Sprints
+## Backlog Audit
+
+| Previous item | Assessment | Disposition |
+|---------------|------------|-------------|
+| Sprint 77 “Cleanup” | Useful but too vague to verify | Rewritten as the concrete release-closure gate |
+| Misnumbered “Sprint 61” Search & Discovery note | Identifier was already used by Server Persistence; scope partly duplicated delivered perspectives | Remaining scope moved to Sprint 78; number retired |
+| Sprint 68B Fuzzy Matching | Partly obsolete; conservative normalized matching already exists | Remaining review/ranking problem moved to Sprint 79 |
+| Cross-browser Library synchronization | Obsolete as a feature request; the Library is already server-authoritative | No separate sprint |
+| Listening/Rotation persistence | Still useful because canonical data remains browser-local and outside server backups | Sprint 80, after core UX work |
+| PWA/iOS/Android/offline-first | Premature without a proven device use case and server-owned domain data | Vision only; no committed sprint |
+| Asynchronous scan engine | Potentially useful only for measured slow/large NAS libraries | Conditional backlog |
+| Weekly Reflection, listening patterns, Explainability 2.0 | Product-aligned but not currently blocking the core workflow | Discovery backlog after Sprint 80 |
+
+The misnumbered [Search & Discovery note](./sprints/Sprint-61.md) and historical
+[Sprint 68B](./sprints/Sprint-68B.md) remain as superseded pointers so older
+references continue to resolve.
+
+## Conditional Backlog
+
+These items should receive a sprint only when their trigger is observed:
+
+- **Asynchronous scan jobs:** Triggered by measured request timeouts, server blocking,
+  or unacceptable scan duration on the target NAS. Prefer a durable job model before
+  adding WebSocket/SSE transport.
+- **PWA or native companion:** Triggered by a concrete mobile workflow after Sprint 80;
+  a mobile wrapper alone is not a product goal.
+- **Offline mutation:** Triggered by a real offline use case and only with explicit
+  conflict semantics. It is not implied by server persistence.
+- **Listening patterns and weekly reflection:** Triggered by enough durable listening
+  history to evaluate whether the observations remain useful and non-judgmental.
+- **Explainability 2.0:** Triggered by user confusion that current rotation reasons and
+  review UI do not resolve.
+
+See [Phase IX](./sprints/Phase-IX.md) for the next product phase and
+[Phase X](./sprints/Phase-X.md) for conditional platform/companion directions.
+
+## Completed Foundation
 
 | Sprint | Goal | Target | Status |
 |--------|------|--------|--------|
@@ -66,41 +111,11 @@ All future developments are oriented toward these principles.
 | [Sprint 75.3](./sprints/done/Sprint-75.3.md) | Library-Bindings UI Bridge | v0.25.8-dev | Done ✅ |
 | [Sprint 76](./sprints/done/Sprint-76.md) | Library-Bindings Integration | v0.26.0-dev | Done ✅ |
 
----
-
-## Backlog
-
-| Sprint | Goal | Target | Status |
-|--------|------|--------|--------|
-| [Sprint 61](./sprints/Sprint-61.md) | Search & Discovery | v0.27.0-dev | Backlog |
-| [Sprint 68B](./sprints/Sprint-68B.md) | Fuzzy Matching | v0.27.0-dev | Backlog |
-
-### Phase IX — Search & Discovery
-
-[Phase IX details](./sprints/Phase-IX.md)
-
-Frozen until Sprint 76.2 and the Sprint 76.1 NAS release gate are completed. Includes Search & Discovery and Fuzzy Matching.
-
-### Phase X — Platform & Companion
-
-[Phase X details](./sprints/Phase-X.md)
-
-Future vision only. PWA, mobile, offline-first, listening patterns, explainability 2.0.
-
----
-
 ## Long-term Vision
 
-Rotation should never feel like a database.
-
-Rotation should never feel like Spotify.
-
-Rotation should never feel like a statistics tool.
+Rotation should never feel like a database, Spotify, or a statistics tool.
 
 Rotation should feel like a conversation about music.
 
-An album is not a file.
-
-An album is a story.
-
-Rotation helps consciously accompany these stories over many years.
+An album is not a file. An album is a story. Rotation helps consciously accompany
+these stories over many years.

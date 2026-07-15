@@ -1,25 +1,13 @@
-# Sprint 68B — Fuzzy Matching
+# Sprint 68B — Fuzzy Matching (Superseded)
 
-**Status:** Backlog
-
-**Target version:** `v0.25.0-dev` (optional)
+**Status:** Superseded by [Sprint 79](./Sprint-79.md)
 
 ---
 
-## Goal
+The initial backlog assumed that fuzzy matching did not exist. The server now
+already proposes exact, case-insensitive, and normalized matches, and scan tests
+cover minor naming differences.
 
-Better proposals through fuzzy matching, but never automatic confirmation.
-
-## Topics
-
-- Levenshtein distance or similar algorithm
-- Candidate ranking
-- Tag metadata as additional signal source
-- Configurable threshold (e.g. 80% match)
-
-## Definition of Done
-
-- [ ] Fuzzy proposals are shown in the UI
-- [ ] Ranking helps with selection
-- [ ] Automatic confirmation remains disabled
-- [ ] User can disable fuzzy matching
+The useful remaining problem is not “add Levenshtein” in isolation. It is to make
+ambiguous album-to-folder candidates reviewable without ever auto-confirming an
+uncertain link. That narrower, evidence-driven scope is defined in Sprint 79.
