@@ -5,6 +5,7 @@
 - **Sprint 76.3 — Trusted Proxy Write Boundary**
   - Removed browser write-token storage, token headers, and token UI. Caddy now overwrites and injects the internal deployment secret for same-origin `/api` requests.
   - Added Origin/Fetch Metadata protection for mutations while retaining constant-time protection for direct API access.
+  - Fixed false cross-site rejections when HTTPS terminates at a NAS reverse proxy before Caddy's internal HTTP connection; Origin validation now compares the externally stable host while Fetch Metadata still rejects cross-site requests.
 
 - **Sprint 76.1 — Pre-Release Integrity & Hardening Supersprint**
   - Protected every mutating API route, hardened cover paths/uploads, standardized sanitized API failures, and added route-level security coverage.

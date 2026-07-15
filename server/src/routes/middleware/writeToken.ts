@@ -28,9 +28,6 @@ function isTrustedBrowserRequest(req: Request): boolean {
         const forwardedHost = firstHeaderValue(req.headers["x-forwarded-host"])
         const expectedHost = forwardedHost ?? firstHeaderValue(req.headers.host)
         if (!expectedHost || parsedOrigin.host !== expectedHost) return false
-
-        const forwardedProto = firstHeaderValue(req.headers["x-forwarded-proto"])
-        if (forwardedProto && parsedOrigin.protocol !== `${forwardedProto}:`) return false
         return true
     } catch {
         return false

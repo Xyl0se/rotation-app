@@ -76,6 +76,21 @@ describe("write-token middleware", () => {
         expect(next).toHaveBeenCalledOnce()
     })
 
+    it("accepts an HTTPS origin when TLS terminates before the HTTP web container", () => {
+        const res = response()
+        const next = vi.fn() as NextFunction
+
+        createRequireWriteToken("server-secret")(request("POST", "server-secret", {
+            origin: "https://rotation.example:8443",
+            "x-forwarded-host": "rotation.example:8443",
+            "x-forwarded-proto": "http",
+            "sec-fetch-site": "same-origin",
+        }), res.value, next)
+
+        expect(next).toHaveBeenCalledOnce()
+        expect(res.status).not.toHaveBeenCalled()
+    })
+
     it("rejects a cross-site mutation even with the internal token", () => {
         const res = response()
         const next = vi.fn() as NextFunction
@@ -101,6 +116,21 @@ describe("write-token middleware", () => {
         createRequireWriteToken("server-secret")(request("POST", "server-secret", {
             origin: "https://evil.example",
             "x-forwarded-host": "rotation.local:3000",
+        }), res.value, next)
+
+        expect(res.status).toHaveBeenCalledWith(403)
+        expect(next).not.toHaveBeenCalled()
+    })
+
+    it("rejects a mismatching Origin even when the protocol matches", () => {
+        const res = response()
+        const next = vi.fn() as NextFunction
+
+        createRequireWriteToken("server-secret")(request("POST", "server-secret", {
+            origin: "http://evil.example",
+            "x-forwarded-host": "rotation.local:3000",
+            "x-forwarded-proto": "http",
+            "sec-fetch-site": "same-site",
         }), res.value, next)
 
         expect(res.status).toHaveBeenCalledWith(403)

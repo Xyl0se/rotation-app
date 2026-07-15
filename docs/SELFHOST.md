@@ -363,7 +363,10 @@ curl -X POST http://localhost:3000/api/scan
 
 The web container overwrites and injects the internal header before proxying to
 the private API container. Direct API mutations still require the secret. The API
-also rejects cross-site browser mutations by `Origin` and Fetch Metadata headers.
+also rejects cross-site browser mutations by `Origin` host and Fetch Metadata
+headers. The Origin protocol is deliberately not compared with Caddy's internal
+upstream protocol because a NAS reverse proxy may terminate HTTPS before forwarding
+the request to the web container over HTTP.
 
 The `dev-token` fallback exists only in `docker-compose.yml` for an isolated local development stack. `docker-compose.prod.yml` has no default and provides the configured secret to both Caddy and API. Never use `dev-token` in a deployed instance.
 
