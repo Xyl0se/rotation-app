@@ -398,6 +398,7 @@ export const de: Translation = {
     },
 
     editDialog: {
+        startCoach: "Rolle mit Album Coach bestimmen",
         title: "Album-Metadaten bearbeiten",
         subtitle: "Korrigiere die Metadaten dieses Albums. Die Rolle bleibt unverändert.",
         titleLabel: "Titel",
@@ -691,6 +692,7 @@ export const de: Translation = {
                 : `${count} verwaiste Ordner erkannt – siehe Bindings-Seite.`,
         capture: "Erfassen",
         captureSuccess: "Album erfasst und verknüpft.",
+        coachSuccess: "Albumrolle gespeichert.",
         viewInLibrary: "In Bibliothek anzeigen",
     },
 

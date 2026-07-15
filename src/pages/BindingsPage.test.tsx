@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
     toastSuccess: vi.fn(),
     toastError: vi.fn(),
     captureBinding: vi.fn(),
+    updateAlbum: vi.fn(),
 }))
 
 vi.mock("../components/features/diagnostics/DiagnosticsPanel.js", () => ({
@@ -21,6 +22,16 @@ vi.mock("../components/features/discover-album/DiscoverAlbumDialog.js", () => ({
     default: ({ onFinish, album }: { onFinish: (album: unknown) => void; album: unknown }) => (
         <button onClick={() => onFinish(album)}>Finish capture</button>
     ),
+}))
+
+vi.mock("../components/features/album-coach/AlbumCoach.js", () => ({
+    default: ({ onComplete }: { onComplete: (role: string) => void }) => (
+        <button onClick={() => onComplete("new")}>Complete coach</button>
+    ),
+}))
+
+vi.mock("../services/api/albumsService.js", () => ({
+    updateAlbum: mocks.updateAlbum,
 }))
 
 vi.mock("../services/api/bindingsService.js", () => ({
@@ -106,7 +117,11 @@ describe("BindingsPage manual music scan", () => {
             }],
             count: 1,
         })
-        mocks.captureBinding.mockResolvedValue({ album: {}, binding: {} })
+        mocks.captureBinding.mockImplementation(async (_bindingId: string, album: object) => ({
+            album: { ...album, roleHistory: [], listenCount: 0, lastListened: null },
+            binding: {},
+        }))
+        mocks.updateAlbum.mockResolvedValue({})
         render(
             <I18nContext.Provider value={{ t: en, language: "en", setLanguage: () => {} }}>
                 <BindingsPage />
@@ -121,5 +136,9 @@ describe("BindingsPage manual music scan", () => {
             "Artist/New Album",
             expect.objectContaining({ id: expect.any(String) }),
         )
+        fireEvent.click(await screen.findByRole("button", { name: "Complete coach" }))
+        await waitFor(() => expect(mocks.updateAlbum).toHaveBeenCalledWith(
+            expect.objectContaining({ category: "new" }),
+        ))
     })
 })

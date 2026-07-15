@@ -397,6 +397,7 @@ export const en = {
     },
 
     editDialog: {
+        startCoach: "Determine role with Album Coach",
         title: "Edit Album Metadata",
         subtitle: "Correct the metadata of this album. The role remains unchanged.",
         titleLabel: "Title",
@@ -690,6 +691,7 @@ export const en = {
                 : `${count} orphaned folders detected — review on Bindings page.`,
         capture: "Capture",
         captureSuccess: "Album captured and linked successfully.",
+        coachSuccess: "Album role saved.",
         viewInLibrary: "View in Library",
     },
 

@@ -17,9 +17,13 @@ import Button from "../components/ui/Button.js"
 import Card from "../components/ui/Card.js"
 import DiagnosticsPanel from "../components/features/diagnostics/DiagnosticsPanel.js"
 import DiscoverAlbumDialog from "../components/features/discover-album/DiscoverAlbumDialog.js"
+import AlbumCoach from "../components/features/album-coach/AlbumCoach.js"
+import Dialog from "../components/ui/Dialog.js"
 import type { Album } from "../types/album.js"
+import type { RoleId } from "../domain/roles.js"
 import { generateUUID } from "../utils/uuid.js"
 import { getScanProgress, triggerScan } from "../services/api/scanService.js"
+import { updateAlbum } from "../services/api/albumsService.js"
 
 function makeEmptyAlbum(): Album {
     return {
@@ -55,6 +59,7 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
         directoriesScanned: number
         directoriesSkipped: number
     } | null>(null)
+    const [coachingAlbum, setCoachingAlbum] = useState<Album | null>(null)
 
     const load = useCallback(async () => {
         setLoading(true)
@@ -175,12 +180,32 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
     async function handleCaptureFinish(album: Album) {
         if (!captureBindingId) return
         try {
-            await captureBinding(captureBindingId, album)
+            const captured = await captureBinding(captureBindingId, album)
             toast.success(t.bindings.captureSuccess)
             setShowCaptureDialog(false)
             setCaptureAlbum(makeEmptyAlbum())
             setCaptureBindingId(null)
+            setCoachingAlbum(captured.album)
             await load()
+        } catch (e) {
+            toast.error(getApiErrorMessage(e))
+        }
+    }
+
+    async function handleCaptureCoachComplete(role: RoleId) {
+        if (!coachingAlbum) return
+        try {
+            await updateAlbum({
+                ...coachingAlbum,
+                category: role,
+                roleHistory: [...coachingAlbum.roleHistory, {
+                    role,
+                    recordedAt: new Date().toISOString(),
+                    source: "coach",
+                }],
+            })
+            toast.success(t.bindings.coachSuccess)
+            setCoachingAlbum(null)
         } catch (e) {
             toast.error(getApiErrorMessage(e))
         }
@@ -279,6 +304,16 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
                     prefill={capturePrefill}
                 />
             )}
+
+            <Dialog open={coachingAlbum !== null}>
+                {coachingAlbum && (
+                    <AlbumCoach
+                        key={coachingAlbum.id}
+                        albumTitle={coachingAlbum.title}
+                        onComplete={handleCaptureCoachComplete}
+                    />
+                )}
+            </Dialog>
 
             <div className="bindings-list">
                 {bindings.map((b) => (

@@ -56,7 +56,6 @@ const mutationRoutes: RouteCase[] = [
     { name: "verify bindings", method: "POST", path: "/bindings/verify" },
     { name: "reconcile bindings", method: "POST", path: "/bindings/reconcile" },
     { name: "delete binding", method: "DELETE", path: `/bindings?albumId=${ALBUM_ID}` },
-    { name: "trigger scan", method: "POST", path: "/scan" },
     { name: "preview export", method: "POST", path: "/exports/preview", body: { albumIds: [] } },
     { name: "calculate export diff", method: "POST", path: "/exports/diff", body: { albumIds: [] } },
     { name: "stage export", method: "POST", path: "/exports/stage", body: { exportId: ALBUM_ID, albumIds: [] } },
@@ -168,7 +167,7 @@ function createTestApp() {
     app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo))
     app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService))
     app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, captureService))
-    app.use("/scan", requireWriteToken, createScanRouter(scanService, scanRunRepo, bindingRepo))
+    app.use("/scan", createScanRouter(scanService, scanRunRepo, bindingRepo))
     app.use("/exports", requireWriteToken, createExportsRouter(exportService))
     app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))
     app.use(createApiErrorHandler())
@@ -258,9 +257,8 @@ describe("mutating API route security", () => {
         { name: "albums", route: mutationRoutes[0], status: 201, spy: testApp.spies.saveAlbum },
         { name: "covers", route: mutationRoutes[4], status: 201, spy: testApp.spies.saveCover },
         { name: "bindings", route: mutationRoutes[6], status: 200, spy: testApp.spies.confirmBinding },
-        { name: "scan", route: mutationRoutes[12], status: 201, spy: testApp.spies.runScan },
-        { name: "exports", route: mutationRoutes[13], status: 200, spy: testApp.spies.createPreview },
-        { name: "backups", route: mutationRoutes[17], status: 200, spy: testApp.spies.runBackup },
+        { name: "exports", route: mutationRoutes[12], status: 200, spy: testApp.spies.createPreview },
+        { name: "backups", route: mutationRoutes[16], status: 200, spy: testApp.spies.runBackup },
     ])("allows an authorized $name mutation", async ({ route, status, spy }) => {
         const mockSpy = spy as unknown as { mock: { calls: unknown[][] } }
         const callsBefore = mockSpy.mock.calls.length
@@ -276,6 +274,15 @@ describe("mutating API route security", () => {
 
         expect(response.status).toBe(200)
         await expect(response.json()).resolves.toEqual([])
+    })
+
+    it("allows a music scan without a write token", async () => {
+        const runScan = testApp.spies.runScan as unknown as { mock: { calls: unknown[][] } }
+        const callsBefore = runScan.mock.calls.length
+        const response = await fetch(`${baseUrl}/scan`, { method: "POST" })
+
+        expect(response.status).toBe(201)
+        expect(runScan.mock.calls).toHaveLength(callsBefore + 1)
     })
 
     it("forwards one canonical album ID through album, cover, binding, export, and delete routes", async () => {

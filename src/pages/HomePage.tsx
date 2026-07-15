@@ -58,6 +58,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
     const [archiveReturnAlbumId, setArchiveReturnAlbumId] = useState<string | null>(null)
     const [deleteAlbumId, setDeleteAlbumId] = useState<string | null>(null)
     const [editingAlbumId, setEditingAlbumId] = useState<string | null>(null)
+    const [manualCoachAlbumId, setManualCoachAlbumId] = useState<string | null>(null)
     const [album, setAlbum] = useState(createEmptyAlbum)
 
     const { isOnline, apiReachable } = useConnection()
@@ -179,6 +180,14 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
     const archiveReturnAlbum = albums.find(album => album.id === archiveReturnAlbumId)
     const deleteAlbumData = albums.find(album => album.id === deleteAlbumId)
     const editingAlbum = albums.find(album => album.id === editingAlbumId)
+    const manualCoachAlbum = albums.find(album => album.id === manualCoachAlbumId)
+
+    async function handleManualCoachComplete(role: RoleId) {
+        if (!manualCoachAlbumId) return
+        if (await updateAlbumRole(manualCoachAlbumId, role, "coach")) {
+            setManualCoachAlbumId(null)
+        }
+    }
 
     return (
         <main className="container">
@@ -303,6 +312,10 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                         onUpdateCoverOverride={updateAlbumCoverOverride}
                         onSetCoverUrlOverride={setCoverUrlOverride}
                         onRemoveCoverOverride={removeAlbumCoverOverride}
+                        onStartCoach={(albumId) => {
+                            setEditingAlbumId(null)
+                            setManualCoachAlbumId(albumId)
+                        }}
                     />
                 )
             }
@@ -311,6 +324,15 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                 onCancel={() => setDeleteAlbumId(null)}
                 onConfirm={handleDeleteAlbum}
             />
+            <Dialog open={manualCoachAlbum !== undefined}>
+                {manualCoachAlbum && (
+                    <AlbumCoach
+                        key={`manual-${manualCoachAlbum.id}`}
+                        albumTitle={manualCoachAlbum.title}
+                        onComplete={handleManualCoachComplete}
+                    />
+                )}
+            </Dialog>
             <Dialog open={reflectionAlbum !== undefined}>
                 {
                     reflectionAlbum && (

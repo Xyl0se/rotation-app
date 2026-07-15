@@ -13,7 +13,7 @@ export interface ScanProgressResponse {
 }
 
 export async function triggerScan(): Promise<ScanResponse> {
-    return post<ScanResponse>("/scan", undefined, true)
+    return post<ScanResponse>("/scan")
 }
 
 export async function getScanProgress(scanId: string): Promise<ScanProgressResponse> {

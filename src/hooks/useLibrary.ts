@@ -135,7 +135,7 @@ export function useLibrary(adapter: StorageAdapter, isConnected: boolean = false
     const updateAlbumRole = useCallback(async (
         id: string,
         role: RoleId,
-        source: "reflection" | "archive",
+        source: "coach" | "reflection" | "archive",
     ): Promise<boolean> => {
         const current = albums.find(album => album.id === id)
         if (!current) return false

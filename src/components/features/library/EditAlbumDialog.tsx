@@ -51,6 +51,7 @@ type EditAlbumDialogProps = {
         url: string,
     ) => Promise<boolean>
     onRemoveCoverOverride: (id: string) => Promise<boolean>
+    onStartCoach?: (albumId: string) => void
 }
 
 function EditAlbumDialog({
@@ -61,6 +62,7 @@ function EditAlbumDialog({
     onUpdateCoverOverride,
     onSetCoverUrlOverride,
     onRemoveCoverOverride,
+    onStartCoach,
 }: EditAlbumDialogProps) {
     const { t } = useI18n()
 
@@ -422,6 +424,14 @@ function EditAlbumDialog({
                 </div>
 
                 <div className="dialog-actions">
+                    {!album.category && onStartCoach && (
+                        <Button
+                            variant="secondary"
+                            onClick={() => onStartCoach(album.id)}
+                        >
+                            {t.editDialog.startCoach}
+                        </Button>
+                    )}
                     <Button
                         variant="secondary"
                         onClick={onClose}

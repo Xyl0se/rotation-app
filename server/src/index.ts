@@ -117,7 +117,7 @@ app.use(express.json())
 
 app.use("/health", createHealthRouter(db, config, scanRunRepo))
 app.use("/config", createConfigRouter(config))
-app.use("/scan", requireWriteToken, createScanRouter(scanService, scanRunRepo, bindingRepo))
+app.use("/scan", createScanRouter(scanService, scanRunRepo, bindingRepo))
 app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo, musicGuard, workspaceGuard, syncthingGuard))
 
 app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, bindingCaptureService))

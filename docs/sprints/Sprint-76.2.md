@@ -457,6 +457,10 @@ If the same synchronization failure occurs in the single-browser reproduction, i
   Bindings automatically, and is covered by a page-level regression test.
 - Replaced the browser Library cache/synchronization queue with a server-only
   Library hook and made Binding Capture an atomic, idempotent server operation.
+- Made manual music scans token-free (the music volume remains read-only), while
+  retaining server-side scan-run and proposed-Binding persistence.
+- Restored role onboarding: Capture now proceeds directly into Album Coach, and
+  roleless existing Albums expose a manual Coach action in the edit dialog.
 - Added structured preview issues for missing Library Albums, missing Bindings,
   and unconfirmed Bindings, enriched with title/artist where available.
 - Replaced misleading `/` path logs with privacy-safe root labels and added
