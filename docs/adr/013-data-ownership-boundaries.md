@@ -20,8 +20,7 @@ Rotation classifies every persisted value as one of four ownership types:
 | Server cover files and metadata | Server filesystem | Canonical server data | Requires full data-directory backup |
 | Bindings, scan runs, export operations/locks, backup status | SQLite/API | Canonical operational data | Included in SQLite backups |
 | Current export, staging, and archive directories | Server filesystem | Canonical/reconstructable operational data by directory | Included only in full data-directory backup |
-| Browser Library repository | `localStorage` | Last-known-good cache | Must never overwrite verified server data implicitly |
-| Pending Library/cover operations | `localStorage` plus cover blob in IndexedDB | Durable synchronization state | Replayed idempotently; not a second canonical Library |
+| Library view state | React memory | Ephemeral projection of the API response | Rebuilt from SQLite/API after reload |
 | Downloaded cover cache | IndexedDB | Reconstructable cache | May be deleted without losing canonical cover ownership |
 | Listening History | `localStorage` | Canonical user data, temporarily browser-owned | Not covered by server backup; server migration required in a dedicated follow-up |
 | RotationPlan and Focus Album | `localStorage` | Canonical user data, temporarily browser-owned | Not covered by server backup; server migration required in a dedicated follow-up |
@@ -30,19 +29,20 @@ Rotation classifies every persisted value as one of four ownership types:
 
 The server is authoritative only for domains that already have a server repository and migration path. Browser-owned canonical data must not be called server-backed until an explicit schema, API, migration, conflict policy, and backup/restore test exist.
 
-## Synchronization Rules
+## Library Rules
 
-- Server Library data replaces the browser Library cache only after a successful validated response.
-- A failed or unexpectedly empty response cannot erase a non-empty last-known-good cache.
-- Offline/failed mutations are stored as durable, coalesced operations and replayed serially.
-- Operation IDs prevent completion of an older request from removing a newer queued change.
-- Cover blobs stay in IndexedDB while pending and are uploaded from there on reconnect.
-- A migration marker is written only after server read-back verifies all migrated album IDs.
+- SQLite/API is the only persistent Album Library.
+- Albums enter the React view only after a successful server read or confirmed mutation.
+- Failed mutations leave the last confirmed in-memory view unchanged and remain retryable from the UI.
+- Library writes are unavailable while the API is unreachable; no offline mutation queue exists.
+- Binding Capture creates the Album and Binding link in one server transaction.
+- IndexedDB cover content is a reconstructable display cache, never evidence that an Album exists.
+- Obsolete `rotation-library`, migration-marker, and pending-operation keys are removed at startup.
 
 ## Consequences
 
 - Self-hosting documentation must distinguish SQLite backup from full data-directory backup and browser-local data.
-- A second browser currently shares the Library but not Listening History, RotationPlan, Focus Album, or device preferences.
+- A second browser reads the same server Library but not Listening History, RotationPlan, Focus Album, or device preferences.
 - Moving the remaining browser-owned canonical data requires a separate sprint/ADR. It must cover schema design, referential integrity, legacy import, multi-device conflict behavior, and restore testing.
 - Browser cache loss is acceptable for reconstructable data but not for temporarily browser-owned canonical data.
 

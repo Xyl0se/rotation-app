@@ -93,6 +93,10 @@ export const LinkBindingBodySchema = z.object({
     albumId: BindingIdSchema,
     libraryAlbumId: UUIDSchema,
 })
+export const CaptureBindingBodySchema = z.object({
+    albumId: BindingIdSchema,
+    album: AlbumSchema,
+})
 export const DeleteBindingQuerySchema = z.object({ albumId: BindingIdSchema })
 
 const AlbumIdsSchema = z.array(UUIDSchema).max(1_000).superRefine((ids, context) => {

@@ -2,12 +2,10 @@ import type { StorageAdapter } from "../adapters/storageAdapter"
 
 import { STORAGE } from "../config/storage"
 
-import { createAlbumRepository } from "./albumRepository"
 import { createRotationPlanRepository } from "./rotationPlanRepository"
 import { createListenEventRepository } from "./listenEventRepository"
 
 export interface RepositoryKeys {
-    library: string
     rotationPlan: {
         draft: string
         active: string
@@ -18,7 +16,6 @@ export interface RepositoryKeys {
 export function createRepositories(
     adapter: StorageAdapter,
     keys: RepositoryKeys = {
-        library: STORAGE.LIBRARY,
         rotationPlan: {
             draft: STORAGE.CURRENT_ROTATION_PLAN,
             active: STORAGE.ACTIVE_ROTATION_PLAN,
@@ -27,7 +24,6 @@ export function createRepositories(
     },
 ) {
     return {
-        album: createAlbumRepository(adapter, keys.library),
         rotationPlan: createRotationPlanRepository(
             adapter,
             keys.rotationPlan.draft,

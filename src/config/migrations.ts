@@ -30,6 +30,13 @@ export function runMigrations(adapter: StorageAdapter): void {
     setStoredSchemaVersion(adapter, SCHEMA_VERSION)
 }
 
+/** Remove obsolete browser-owned Library state after the server became authoritative. */
+export function clearLegacyLibraryStorage(adapter: StorageAdapter): void {
+    adapter.remove(STORAGE.LIBRARY)
+    adapter.remove(STORAGE.LIBRARY_SERVER_MIGRATION)
+    adapter.remove(STORAGE.LIBRARY_PENDING_OPERATIONS)
+}
+
 /**
  * Migration from unversioned data (before v0.11.0-dev).
  *

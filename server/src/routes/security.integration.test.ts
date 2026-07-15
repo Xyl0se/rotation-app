@@ -20,6 +20,7 @@ import type { ScanRunRepository } from "../infrastructure/persistence/sqlite/sca
 import type { ScanService } from "../application/scanService.js"
 import type { BackupScheduler } from "../application/backupScheduler.js"
 import type { BackupService } from "../application/backupService.js"
+import type { BindingCaptureService } from "../application/bindingCaptureService.js"
 import type { CoverService } from "../application/coverService.js"
 
 const WRITE_TOKEN = "integration-test-token"
@@ -37,7 +38,7 @@ interface RouteCase {
 
 function expectedAuthorizedStatus(route: RouteCase): number {
     if (route.method === "DELETE") return 204
-    if (route.path === "/albums" || route.path === "/scan" || route.path.startsWith("/covers/")) return 201
+    if (route.path === "/albums" || route.path === "/scan" || route.path === "/bindings/capture" || route.path.startsWith("/covers/")) return 201
     if (route.path === "/exports/stage") return 202
     return 200
 }
@@ -61,6 +62,10 @@ const mutationRoutes: RouteCase[] = [
     { name: "stage export", method: "POST", path: "/exports/stage", body: { exportId: ALBUM_ID, albumIds: [] } },
     { name: "apply export", method: "POST", path: "/exports/apply", body: { exportId: ALBUM_ID } },
     { name: "run backup", method: "POST", path: "/backups/run" },
+    { name: "capture binding", method: "POST", path: "/bindings/capture", body: {
+        albumId: ALBUM_ID,
+        album: { id: ALBUM_ID, title: "Album", artist: "Artist" },
+    } },
 ]
 
 function bindingRecord() {
@@ -147,6 +152,12 @@ function createTestApp() {
     const backupStatusRepo = { getHistory: vi.fn(() => []) } as unknown as BackupStatusRepository
     const backupService = { listBackups: vi.fn(() => []) } as unknown as BackupService
     const musicGuard = ((relativePath: string) => `/music/${relativePath}`) as PathGuard
+    const captureService = {
+        capture: vi.fn(() => ({
+            album: albumRepo.findById(ALBUM_ID),
+            binding: bindingRecord(),
+        })),
+    } as unknown as BindingCaptureService
 
     const requireWriteToken = createRequireWriteToken(WRITE_TOKEN)
     const requireWriteTokenForMutations = createRequireWriteTokenForMutations(WRITE_TOKEN)
@@ -156,7 +167,7 @@ function createTestApp() {
     app.use(express.json())
     app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo))
     app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService))
-    app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard))
+    app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, captureService))
     app.use("/scan", requireWriteToken, createScanRouter(scanService, scanRunRepo, bindingRepo))
     app.use("/exports", requireWriteToken, createExportsRouter(exportService))
     app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))

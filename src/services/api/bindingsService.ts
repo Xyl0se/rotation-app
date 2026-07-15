@@ -4,6 +4,7 @@
  */
 
 import { get, post, del } from "./apiClient.js"
+import type { Album } from "../../types/album.js"
 
 export interface Binding {
     albumId: string
@@ -52,6 +53,17 @@ export async function confirmBinding(albumId: string): Promise<Binding> {
 
 export async function linkBinding(albumId: string, libraryAlbumId: string): Promise<Binding> {
     return post<Binding>("/bindings/link", { albumId, libraryAlbumId }, true)
+}
+
+export async function captureBinding(
+    albumId: string,
+    album: Album,
+): Promise<{ album: Album; binding: Binding }> {
+    return post<{ album: Album; binding: Binding }>(
+        "/bindings/capture",
+        { albumId, album },
+        true,
+    )
 }
 
 export async function unlinkBinding(albumId: string): Promise<Binding> {

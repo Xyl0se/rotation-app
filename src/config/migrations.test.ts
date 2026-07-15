@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
 import { createMemoryStorageAdapter } from "../adapters/memoryStorageAdapter"
-import { runMigrations, migrateFromUnversioned } from "./migrations"
+import { clearLegacyLibraryStorage, runMigrations, migrateFromUnversioned } from "./migrations"
 import { clearMigrations, registerMigration } from "./migrationRegistry"
 import { SCHEMA_VERSION, STORAGE_VERSION } from "./schemaVersion"
 import { STORAGE } from "./storage"
@@ -96,5 +96,21 @@ describe("runMigrations", () => {
         expect(() => runMigrations(adapter)).toThrow("migration failed")
         // Schema version should remain unset — not bumped to SCHEMA_VERSION
         expect(adapter.get(STORAGE_VERSION)).toBeNull()
+    })
+
+    it("removes obsolete Library state without touching focus or rotation", () => {
+        adapter.set(STORAGE.LIBRARY, "[]")
+        adapter.set(STORAGE.LIBRARY_SERVER_MIGRATION, "complete")
+        adapter.set(STORAGE.LIBRARY_PENDING_OPERATIONS, "[]")
+        adapter.set(STORAGE.FOCUS_ALBUM, "album-a")
+        adapter.set(STORAGE.ACTIVE_ROTATION_PLAN, "plan")
+
+        clearLegacyLibraryStorage(adapter)
+
+        expect(adapter.get(STORAGE.LIBRARY)).toBeNull()
+        expect(adapter.get(STORAGE.LIBRARY_SERVER_MIGRATION)).toBeNull()
+        expect(adapter.get(STORAGE.LIBRARY_PENDING_OPERATIONS)).toBeNull()
+        expect(adapter.get(STORAGE.FOCUS_ALBUM)).toBe("album-a")
+        expect(adapter.get(STORAGE.ACTIVE_ROTATION_PLAN)).toBe("plan")
     })
 })

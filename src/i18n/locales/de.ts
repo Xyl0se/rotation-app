@@ -62,9 +62,8 @@ export const de: Translation = {
         suggestFocusAlbum: "Neues Fokusalbum vorschlagen",
         discoverAlbum: "Neues Album entdecken",
         syncingLibrary: "Bibliothek wird synchronisiert…",
-        pendingChanges: "Änderungen sind lokal gespeichert und warten auf Synchronisierung.",
-        syncFailed: "Die Bibliothek konnte nicht synchronisiert werden. Deine lokalen Änderungen sind sicher.",
-        retrySync: "Synchronisierung wiederholen",
+        libraryUnavailable: "Die Server-Bibliothek ist nicht verfügbar",
+        retryLibrary: "Bibliothek neu laden",
     },
 
     emptyLibrary: {

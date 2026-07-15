@@ -13,6 +13,7 @@ import { createPathGuard } from "./infrastructure/filesystem/pathGuard.js"
 import { createDirectoryScanner } from "./infrastructure/filesystem/directoryScanner.js"
 import { createScanService } from "./application/scanService.js"
 import { createExportService } from "./application/exportService.js"
+import { createBindingCaptureService } from "./application/bindingCaptureService.js"
 import { createCoverService } from "./application/coverService.js"
 import { runCrashRecovery } from "./application/crashRecovery.js"
 import { createBackupService } from "./application/backupService.js"
@@ -64,6 +65,7 @@ const scanner = createDirectoryScanner(musicGuard)
 const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo)
 const lockRepo = createExportLockRepository(db)
 const exportService = createExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard, albumRepo)
+const bindingCaptureService = createBindingCaptureService(db, albumRepo, bindingRepo)
 
 // Run crash recovery on startup
 const recovery = runCrashRecovery(exportRepo, lockRepo, workspaceGuard)
@@ -118,7 +120,7 @@ app.use("/config", createConfigRouter(config))
 app.use("/scan", requireWriteToken, createScanRouter(scanService, scanRunRepo, bindingRepo))
 app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo, musicGuard, workspaceGuard, syncthingGuard))
 
-app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard))
+app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, bindingCaptureService))
 app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo))
 app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))

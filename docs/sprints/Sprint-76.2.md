@@ -280,6 +280,37 @@ Use one fresh browser profile and one clean/test server database:
 
 ---
 
+## Workstream 76.2G — Server-Authoritative Library
+
+**Status:** Implemented; NAS verification pending.
+
+### Delivered
+
+- Removed persistent browser Library storage, automatic migration, and pending
+  Library mutation queues.
+- `GET/POST/PUT/DELETE /albums` is the only Library read/write contract.
+- React state changes only after the server confirms a mutation; failed writes
+  retain the last confirmed state and expose a reloadable error.
+- Focus Album, RotationPlan, Listening History, and device preferences remain
+  browser-local by explicit scope decision.
+- Legacy Library, migration-marker, and pending-operation keys are cleared on
+  startup without touching Focus or Rotation state.
+- Local JSON backup no longer includes Library data; SQLite backups remain the
+  canonical Library backup.
+- Binding Capture now creates the Album and links its Binding atomically in one
+  SQLite transaction and supports idempotent retries.
+
+### Acceptance Criteria
+
+- [x] Reload reconstructs the Library exclusively from `GET /albums`.
+- [x] No Album or pending Album mutation is written to `localStorage`.
+- [x] Failed creates/updates/deletes do not introduce optimistic Library state.
+- [x] Capture commits Album and Binding link together or rolls both back.
+- [x] Legacy Library cleanup preserves Focus Album and RotationPlan.
+- [ ] NAS Capture, reload, Rotation, and Export complete with the server-only Library.
+
+---
+
 ## Cross-Browser Observation
 
 The synchronization warning observed after using a second fresh browser is retained as a product observation, but it is not a Sprint 76.2 acceptance criterion.
@@ -424,6 +455,8 @@ If the same synchronization failure occurs in the single-browser reproduction, i
 - Added an always-available manual music-folder scan action to the Bindings page;
   it reports progress, prevents parallel scans, refreshes newly discovered
   Bindings automatically, and is covered by a page-level regression test.
+- Replaced the browser Library cache/synchronization queue with a server-only
+  Library hook and made Binding Capture an atomic, idempotent server operation.
 - Added structured preview issues for missing Library Albums, missing Bindings,
   and unconfirmed Bindings, enriched with title/artist where available.
 - Replaced misleading `/` path logs with privacy-safe root labels and added
@@ -431,6 +464,5 @@ If the same synchronization failure occurs in the single-browser reproduction, i
 - Full validation passed locally: 280 frontend tests, 194 server tests, lint,
   frontend production build, and server TypeScript build.
 
-Still open: Capture partial-failure/retry coverage, container/Compose smoke
-validation, image publication, and the single-browser NAS acceptance run through
+Still open: container/Compose smoke validation, image publication, and the single-browser NAS acceptance run through
 Syncthing, restart, backup, and restore.

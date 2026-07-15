@@ -40,17 +40,17 @@ type EditAlbumDialogProps = {
     album: Album
     binding?: Binding
     onClose: () => void
-    onSave: (album: Album) => void
+    onSave: (album: Album) => Promise<boolean>
     onUpdateCoverOverride: (
         id: string,
         blob: Blob,
         source: "upload" | "alternative",
-    ) => Promise<void>
+    ) => Promise<boolean>
     onSetCoverUrlOverride: (
         id: string,
         url: string,
-    ) => Promise<void>
-    onRemoveCoverOverride: (id: string) => Promise<void>
+    ) => Promise<boolean>
+    onRemoveCoverOverride: (id: string) => Promise<boolean>
 }
 
 function EditAlbumDialog({
@@ -85,7 +85,10 @@ function EditAlbumDialog({
         setIsLoadingUrl(true)
         setError(null)
         try {
-            await onSetCoverUrlOverride(album.id, validUrl)
+            if (!await onSetCoverUrlOverride(album.id, validUrl)) {
+                setError(t.editDialog.errors.setCoverUrl)
+                return
+            }
             setUrlInput("")
             onClose()
         } catch (e) {
@@ -125,7 +128,10 @@ function EditAlbumDialog({
 
         setError(null)
         try {
-            await onUpdateCoverOverride(album.id, file, "upload")
+            if (!await onUpdateCoverOverride(album.id, file, "upload")) {
+                setError(t.editDialog.errors.uploadCover)
+                return
+            }
             if (fileInputRef.current) {
                 fileInputRef.current.value = ""
             }
@@ -145,7 +151,10 @@ function EditAlbumDialog({
     async function handleReset() {
         setError(null)
         try {
-            await onRemoveCoverOverride(album.id)
+            if (!await onRemoveCoverOverride(album.id)) {
+                setError(t.editDialog.errors.generic)
+                return
+            }
             onClose()
         } catch (e) {
             setError(
@@ -420,10 +429,10 @@ function EditAlbumDialog({
                         {t.editDialog.cancel}
                     </Button>
                     <Button
-                        onClick={() => {
+                        onClick={async () => {
                             const coverUrlChanged =
                                 draft.coverUrl !== album.coverUrl
-                            onSave({
+                            const saved = await onSave({
                                 ...album,
                                 title: draft.title,
                                 artist: draft.artist,
@@ -434,7 +443,8 @@ function EditAlbumDialog({
                                     : album.coverOverride,
                                 story: draft.story,
                             })
-                            onClose()
+                            if (saved) onClose()
+                            else setError(t.editDialog.errors.generic)
                         }}
                     >
                         {t.editDialog.save}

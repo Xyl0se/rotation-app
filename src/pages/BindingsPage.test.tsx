@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
     getScanProgress: vi.fn(),
     toastSuccess: vi.fn(),
     toastError: vi.fn(),
+    captureBinding: vi.fn(),
 }))
 
 vi.mock("../components/features/diagnostics/DiagnosticsPanel.js", () => ({
@@ -17,7 +18,9 @@ vi.mock("../components/features/diagnostics/DiagnosticsPanel.js", () => ({
 }))
 
 vi.mock("../components/features/discover-album/DiscoverAlbumDialog.js", () => ({
-    default: () => null,
+    default: ({ onFinish, album }: { onFinish: (album: unknown) => void; album: unknown }) => (
+        <button onClick={() => onFinish(album)}>Finish capture</button>
+    ),
 }))
 
 vi.mock("../services/api/bindingsService.js", () => ({
@@ -26,7 +29,7 @@ vi.mock("../services/api/bindingsService.js", () => ({
     deleteBinding: vi.fn(),
     verifyBindings: vi.fn(),
     reconcileBindings: vi.fn(),
-    linkBinding: vi.fn(),
+    captureBinding: mocks.captureBinding,
 }))
 
 vi.mock("../services/api/scanService.js", () => ({
@@ -82,6 +85,41 @@ describe("BindingsPage manual music scan", () => {
         expect(await screen.findByText("Artist/New Album")).toBeTruthy()
         expect(mocks.toastSuccess).toHaveBeenCalledWith(
             "Music scan completed. Bindings have been refreshed.",
+        )
+    })
+
+    it("uses the atomic server capture operation", async () => {
+        mocks.fetchBindings.mockReset()
+        mocks.fetchBindings.mockResolvedValue({
+            bindings: [{
+                albumId: "Artist/New Album",
+                relativePath: "Artist/New Album",
+                state: "proposed",
+                matchSource: null,
+                proposedAt: "2026-07-15T00:00:00.000Z",
+                confirmedAt: null,
+                libraryAlbumId: null,
+                folderExists: true,
+                libraryExists: false,
+                suggestedArtist: "Artist",
+                suggestedTitle: "New Album",
+            }],
+            count: 1,
+        })
+        mocks.captureBinding.mockResolvedValue({ album: {}, binding: {} })
+        render(
+            <I18nContext.Provider value={{ t: en, language: "en", setLanguage: () => {} }}>
+                <BindingsPage />
+            </I18nContext.Provider>,
+        )
+
+        fireEvent.click(await screen.findByRole("button", { name: "Capture" }))
+        fireEvent.click(await screen.findByRole("button", { name: "Finish capture" }))
+
+        await waitFor(() => expect(mocks.captureBinding).toHaveBeenCalledOnce())
+        expect(mocks.captureBinding).toHaveBeenCalledWith(
+            "Artist/New Album",
+            expect.objectContaining({ id: expect.any(String) }),
         )
     })
 })

@@ -67,9 +67,8 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
     const {
         albums,
         isLoading: isLibraryLoading,
-        syncError: librarySyncError,
-        pendingOperationCount,
-        retrySynchronization,
+        libraryError,
+        refresh: refreshLibrary,
         focusAlbumId,
         setFocusAlbumId,
         addAlbum,
@@ -80,7 +79,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         updateAlbumCoverOverride,
         setCoverUrlOverride,
         removeAlbumCoverOverride,
-    } = useLibrary(repositories.album, adapter, serverConnected)
+    } = useLibrary(adapter, serverConnected)
 
     const {
         rotationPlan,
@@ -133,10 +132,11 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         setFocusAlbumId(candidates[randomIndex].id)
     }
 
-    function handleFinish(completedAlbum: Album) {
-        addAlbum(completedAlbum)
-        setDialogOpen(false)
-        setAlbum(createEmptyAlbum())
+    async function handleFinish(completedAlbum: Album) {
+        if (await addAlbum(completedAlbum)) {
+            setDialogOpen(false)
+            setAlbum(createEmptyAlbum())
+        }
     }
 
     function handleLogListen(id: string) {
@@ -144,9 +144,8 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         logListenForAlbum(id)
     }
 
-    function handleDeleteAlbum(id: string) {
-        deleteAlbum(id)
-        setDeleteAlbumId(null)
+    async function handleDeleteAlbum(id: string) {
+        if (await deleteAlbum(id)) setDeleteAlbumId(null)
     }
 
     function handleReflectionComplete(role: RoleId) {
@@ -189,13 +188,11 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                     {t.home.syncingLibrary}
                 </div>
             )}
-            {!isLibraryLoading && pendingOperationCount > 0 && (
+            {!isLibraryLoading && libraryError && (
                 <div className="sync-status sync-status--warning" role="status">
-                    <span>
-                        {librarySyncError ? t.home.syncFailed : t.home.pendingChanges}
-                    </span>
-                    <Button variant="secondary" onClick={() => void retrySynchronization()}>
-                        {t.home.retrySync}
+                    <span>{t.home.libraryUnavailable}: {libraryError}</span>
+                    <Button variant="secondary" onClick={() => void refreshLibrary()}>
+                        {t.home.retryLibrary}
                     </Button>
                 </div>
             )}
@@ -220,6 +217,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                             adapter={adapter}
                             onDiscoverAlbum={handleNewAlbum}
                             onBackupRestored={() => window.location.reload()}
+                            disabled={!serverConnected}
                         />
                     )
                     : (
@@ -231,7 +229,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                                 >
                                     {t.home.suggestFocusAlbum}
                                 </Button>
-                                <Button onClick={handleNewAlbum}>
+                                <Button onClick={handleNewAlbum} disabled={!serverConnected}>
                                     {t.home.discoverAlbum}
                                 </Button>
                             </div>

@@ -61,9 +61,8 @@ export const en = {
         suggestFocusAlbum: "Suggest New Focus Album",
         discoverAlbum: "Discover New Album",
         syncingLibrary: "Synchronizing Library…",
-        pendingChanges: "Library changes are saved locally and waiting to synchronize.",
-        syncFailed: "Library synchronization failed. Your local changes are safe.",
-        retrySync: "Retry synchronization",
+        libraryUnavailable: "The server Library is unavailable",
+        retryLibrary: "Reload Library",
     },
 
     emptyLibrary: {

@@ -2,9 +2,11 @@ import { Router } from "express"
 import type { Request, Response } from "express"
 import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
 import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
+import type { BindingCaptureService } from "../application/bindingCaptureService.js"
 import { existsSync } from "node:fs"
 import {
     BindingAlbumIdBodySchema,
+    CaptureBindingBodySchema,
     DeleteBindingQuerySchema,
     LinkBindingBodySchema,
     parseRequest,
@@ -78,7 +80,11 @@ function toDTO(
     }
 }
 
-export function createBindingsRouter(bindingRepo: BindingRepository, musicGuard: PathGuard): Router {
+export function createBindingsRouter(
+    bindingRepo: BindingRepository,
+    musicGuard: PathGuard,
+    captureService?: BindingCaptureService,
+): Router {
     const router = Router()
 
     // GET /bindings – list all or filter by state or get single by albumId
@@ -167,6 +173,40 @@ export function createBindingsRouter(bindingRepo: BindingRepository, musicGuard:
         }
         const updated = bindingRepo.findWithAlbumDataById(albumId)!
         res.json(toDTO(updated, musicGuard))
+    })
+
+    // POST /bindings/capture – atomically create one Library Album and link its Binding
+    router.post("/capture", (req: Request, res: Response) => {
+        if (!captureService) {
+            res.status(501).json({ error: "Binding capture is unavailable" })
+            return
+        }
+        const body = parseRequest(CaptureBindingBodySchema, req.body, res)
+        if (!body) return
+        try {
+            const result = captureService.capture(body.albumId, {
+                ...body.album,
+                year: body.album.year ?? "",
+                roleHistory: body.album.roleHistory ?? [],
+                listenCount: body.album.listenCount ?? 0,
+                lastListened: body.album.lastListened ?? null,
+            })
+            res.status(201).json({
+                album: result.album,
+                binding: toDTO(result.binding, musicGuard),
+            })
+        } catch (error) {
+            const code = error instanceof Error ? error.message : "CAPTURE_FAILED"
+            if (code === "BINDING_NOT_FOUND") {
+                res.status(404).json({ error: "Binding not found" })
+                return
+            }
+            if (code === "ALBUM_ID_CONFLICT" || code === "BINDING_ALREADY_LINKED") {
+                res.status(409).json({ error: code })
+                return
+            }
+            res.status(500).json({ error: "Binding capture failed" })
+        }
     })
 
     // POST /bindings/unlink – remove library album link from a binding

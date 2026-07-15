@@ -10,13 +10,14 @@ import ToastContainer from "./components/ui/Toast"
 
 import { STORAGE } from "./config/storage"
 import { createLocalStorageAdapter } from "./adapters/localStorageAdapter"
-import { runMigrations } from "./config/migrations"
+import { clearLegacyLibraryStorage, runMigrations } from "./config/migrations"
 import { useI18n } from "./i18n/useI18n"
 
 type Page = "home" | "bindings" | "export"
 
 const adapter = createLocalStorageAdapter()
 runMigrations(adapter)
+clearLegacyLibraryStorage(adapter)
 
 function App() {
     const { t } = useI18n()

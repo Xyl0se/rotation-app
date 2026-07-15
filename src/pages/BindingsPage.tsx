@@ -5,7 +5,7 @@ import {
     deleteBinding,
     verifyBindings,
     reconcileBindings,
-    linkBinding,
+    captureBinding,
     type Binding,
     type VerifyResult,
     type ReconcileResult,
@@ -19,7 +19,6 @@ import DiagnosticsPanel from "../components/features/diagnostics/DiagnosticsPane
 import DiscoverAlbumDialog from "../components/features/discover-album/DiscoverAlbumDialog.js"
 import type { Album } from "../types/album.js"
 import { generateUUID } from "../utils/uuid.js"
-import { createAlbum } from "../services/api/albumsService.js"
 import { getScanProgress, triggerScan } from "../services/api/scanService.js"
 
 function makeEmptyAlbum(): Album {
@@ -176,8 +175,7 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
     async function handleCaptureFinish(album: Album) {
         if (!captureBindingId) return
         try {
-            const created = await createAlbum(album)
-            await linkBinding(captureBindingId, created.id)
+            await captureBinding(captureBindingId, album)
             toast.success(t.bindings.captureSuccess)
             setShowCaptureDialog(false)
             setCaptureAlbum(makeEmptyAlbum())

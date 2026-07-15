@@ -1,42 +1,24 @@
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import type { Album } from "../types/album"
 import type { RoleId } from "../domain/roles"
-import type { AlbumRepository } from "../repositories/albumRepository"
 import type { StorageAdapter } from "../adapters/storageAdapter"
-
 import { STORAGE } from "../config/storage"
-
 import {
-    saveCustomCover,
-    getCustomCover,
-    removeCustomCover,
     clearCoverCache,
+    removeCustomCover,
+    saveCustomCover,
 } from "../repositories/coverCache"
-
 import {
-    fetchAlbums as apiFetchAlbums,
-    importAlbums as apiImportAlbums,
+    createAlbum as apiCreateAlbum,
     deleteAlbum as apiDeleteAlbum,
+    fetchAlbums as apiFetchAlbums,
+    updateAlbum as apiUpdateAlbum,
 } from "../services/api/albumsService"
-
 import {
-    uploadCover as apiUploadCover,
     deleteCover as apiDeleteCover,
+    uploadCover as apiUploadCover,
 } from "../services/api/coversService"
-import { ApiError } from "../services/api/apiClient"
-import {
-    completeLibraryOperation,
-    enqueueLibraryOperation,
-    loadPendingLibraryOperations,
-} from "../repositories/pendingLibraryOperations"
-
-export type LibraryPersistenceMode = "cache" | "server" | "migrating"
-
-interface ServerBootstrapResult {
-    albums: Album[]
-    mode: "server"
-}
 
 function normalizeAlbum(album: Album): Album {
     return {
@@ -48,352 +30,192 @@ function normalizeAlbum(album: Album): Album {
     }
 }
 
-export function useLibrary(
-    repository: AlbumRepository,
-    adapter: StorageAdapter,
-    isConnected: boolean = false,
-) {
-    const [albums, setAlbums] = useState<Album[]>(() => {
-        const loaded = repository.load()
-        return loaded.map(normalizeAlbum)
-    })
+/**
+ * Server-authoritative Library state.
+ *
+ * Albums only enter React state after the API has confirmed the mutation. The
+ * storage adapter is used exclusively for the focus Album ID; it never stores
+ * Library records or a mutation queue.
+ */
+export function useLibrary(adapter: StorageAdapter, isConnected: boolean = false) {
+    const [albums, setAlbums] = useState<Album[]>([])
     const [isLoading, setIsLoading] = useState(isConnected)
-    const [persistenceMode, setPersistenceMode] = useState<LibraryPersistenceMode>("cache")
-    const [syncError, setSyncError] = useState<string | null>(null)
-    const [pendingOperationCount, setPendingOperationCount] = useState(() =>
-        loadPendingLibraryOperations(adapter).length,
+    const [libraryError, setLibraryError] = useState<string | null>(null)
+    const [focusAlbumId, setFocusAlbumId] = useState<string | null>(() =>
+        adapter.get(STORAGE.FOCUS_ALBUM),
     )
-    const [lastSuccessfulSyncAt, setLastSuccessfulSyncAt] = useState<string | null>(null)
-    const bootstrapRef = useRef<Promise<ServerBootstrapResult> | null>(null)
-    const bootstrapAppliedRef = useRef(false)
-    const flushRef = useRef<Promise<boolean> | null>(null)
 
-    const [focusAlbumId, setFocusAlbumId] = useState<string | null>(() => {
-        const savedFocus = adapter.get(STORAGE.FOCUS_ALBUM)
-        return savedFocus ?? null
-    })
-
-    useEffect(() => {
-        repository.save(albums)
-    }, [albums, repository])
-
-    const flushPendingOperations = useCallback(async (): Promise<boolean> => {
-        if (!isConnected) return false
-        if (flushRef.current) return flushRef.current
-
-        const run = async (): Promise<boolean> => {
-            while (true) {
-                const operation = loadPendingLibraryOperations(adapter)[0]
-                if (!operation) {
-                    setPendingOperationCount(0)
-                    setSyncError(null)
-                    setLastSuccessfulSyncAt(new Date().toISOString())
-                    return true
-                }
-
-                try {
-                    if (operation.kind === "upsert") {
-                        const result = await apiImportAlbums([operation.album])
-                        if (result.failed > 0) throw new Error("Server rejected album synchronization")
-                    } else if (operation.kind === "delete") {
-                        try {
-                            await apiDeleteAlbum(operation.albumId)
-                        } catch (error) {
-                            if (!(error instanceof ApiError && error.status === 404)) throw error
-                        }
-                    } else if (operation.kind === "cover-upload") {
-                        const customCover = await getCustomCover(operation.albumId)
-                        if (!customCover) throw new Error("Pending cover data is unavailable")
-                        await apiUploadCover(
-                            operation.albumId,
-                            await customCover.blob.arrayBuffer(),
-                            customCover.blob.type,
-                        )
-                    } else {
-                        try {
-                            await apiDeleteCover(operation.albumId)
-                        } catch (error) {
-                            if (!(error instanceof ApiError && error.status === 404)) throw error
-                        }
-                    }
-                    completeLibraryOperation(adapter, operation)
-                    setPendingOperationCount(loadPendingLibraryOperations(adapter).length)
-                } catch (error) {
-                    setSyncError(error instanceof Error ? error.message : "Library synchronization failed")
-                    setPendingOperationCount(loadPendingLibraryOperations(adapter).length)
-                    return false
-                }
-            }
-        }
-
-        const promise = run().finally(() => {
-            if (flushRef.current === promise) flushRef.current = null
-        })
-        flushRef.current = promise
-        return promise
-    }, [adapter, isConnected])
-
-    const enqueue = useCallback((operation: Parameters<typeof enqueueLibraryOperation>[1]) => {
-        enqueueLibraryOperation(adapter, operation)
-        setPendingOperationCount(loadPendingLibraryOperations(adapter).length)
-        void flushPendingOperations()
-    }, [adapter, flushPendingOperations])
-
-    useEffect(() => {
+    const refresh = useCallback(async (): Promise<boolean> => {
         if (!isConnected) {
-            bootstrapRef.current = null
-            bootstrapAppliedRef.current = false
-            queueMicrotask(() => setIsLoading(false))
-            return
+            setLibraryError("Library server is not reachable")
+            setIsLoading(false)
+            return false
         }
-
-        let active = true
-        if (!bootstrapRef.current) {
-            const cachedAlbums = repository.load().map(normalizeAlbum)
-            bootstrapRef.current = (async () => {
-                if (loadPendingLibraryOperations(adapter).length > 0) {
-                    const flushed = await flushPendingOperations()
-                    if (!flushed) throw new Error("Pending Library synchronization failed")
-                }
-                const serverAlbums = (await apiFetchAlbums()).map(normalizeAlbum)
-                if (serverAlbums.length > 0 || cachedAlbums.length === 0) {
-                    return { albums: serverAlbums, mode: "server" }
-                }
-
-                const migrationComplete = adapter.get(STORAGE.LIBRARY_SERVER_MIGRATION) === "complete"
-                if (!migrationComplete) {
-                    if (active) setPersistenceMode("migrating")
-                    await apiImportAlbums(cachedAlbums)
-                    const verifiedAlbums = (await apiFetchAlbums()).map(normalizeAlbum)
-                    const verifiedIds = new Set(verifiedAlbums.map((album) => album.id))
-                    if (
-                        verifiedAlbums.length !== cachedAlbums.length
-                        || cachedAlbums.some((album) => !verifiedIds.has(album.id))
-                    ) {
-                        throw new Error("Server migration verification failed")
-                    }
-                    adapter.set(STORAGE.LIBRARY_SERVER_MIGRATION, "complete")
-                    return { albums: verifiedAlbums, mode: "server" }
-                }
-
-                throw new Error("Server Library is empty after a completed migration")
-            })()
+        setIsLoading(true)
+        try {
+            const serverAlbums = (await apiFetchAlbums()).map(normalizeAlbum)
+            setAlbums(serverAlbums)
+            setLibraryError(null)
+            return true
+        } catch (error) {
+            setLibraryError(error instanceof Error ? error.message : "Library request failed")
+            return false
+        } finally {
+            setIsLoading(false)
         }
-
-        queueMicrotask(() => {
-            if (active) setIsLoading(true)
-        })
-        bootstrapRef.current
-            .then((result) => {
-                if (!active || bootstrapAppliedRef.current) return
-                bootstrapAppliedRef.current = true
-                setAlbums(result.albums)
-                setPersistenceMode(result.mode)
-                setSyncError(null)
-            })
-            .catch((error: unknown) => {
-                if (!active || bootstrapAppliedRef.current) return
-                bootstrapAppliedRef.current = true
-                setPersistenceMode("cache")
-                setSyncError(error instanceof Error ? error.message : "Library synchronization failed")
-            })
-            .finally(() => {
-                if (active) setIsLoading(false)
-            })
-
-        return () => {
-            active = false
-        }
-    }, [isConnected, repository, adapter, flushPendingOperations])
+    }, [isConnected])
 
     useEffect(() => {
-        if (focusAlbumId) {
-            adapter.set(STORAGE.FOCUS_ALBUM, focusAlbumId)
+        if (isConnected) {
+            queueMicrotask(() => void refresh())
         } else {
-            adapter.remove(STORAGE.FOCUS_ALBUM)
+            queueMicrotask(() => {
+                setIsLoading(false)
+                setLibraryError("Library server is not reachable")
+            })
         }
+    }, [isConnected, refresh])
+
+    useEffect(() => {
+        if (focusAlbumId) adapter.set(STORAGE.FOCUS_ALBUM, focusAlbumId)
+        else adapter.remove(STORAGE.FOCUS_ALBUM)
     }, [focusAlbumId, adapter])
 
-    const addAlbum = useCallback((album: Album) => {
-        setAlbums(previous => [...previous, album])
-        enqueue({ kind: "upsert", albumId: album.id, album })
-    }, [enqueue])
-
-    const deleteAlbum = useCallback(async (id: string) => {
-        try {
-            await removeCustomCover(id)
-        } catch {
-            // Ignore – cover deletion is not critical
+    const runMutation = useCallback(async (
+        operation: () => Promise<Album>,
+        apply: (confirmed: Album) => void,
+    ): Promise<boolean> => {
+        if (!isConnected) {
+            setLibraryError("Library server is not reachable")
+            return false
         }
-        setAlbums(previous =>
-            previous.filter(album => album.id !== id)
-        )
-        enqueue({ kind: "cover-delete", albumId: id })
-        enqueue({ kind: "delete", albumId: id })
-    }, [enqueue])
+        try {
+            const confirmed = normalizeAlbum(await operation())
+            apply(confirmed)
+            setLibraryError(null)
+            return true
+        } catch (error) {
+            setLibraryError(error instanceof Error ? error.message : "Library mutation failed")
+            return false
+        }
+    }, [isConnected])
 
-    const updateAlbum = useCallback((updatedAlbum: Album) => {
-        setAlbums(previous => {
-            const previousAlbum = previous.find(
-                album => album.id === updatedAlbum.id
-            )
-            if (
-                previousAlbum
-                && previousAlbum.coverUrl !== updatedAlbum.coverUrl
-            ) {
-                clearCoverCache(updatedAlbum.id).catch(() => {
-                    // Ignore – cache invalidation is not critical
-                })
-            }
-            return previous.map(album =>
-                album.id === updatedAlbum.id
-                    ? updatedAlbum
-                    : album
-            )
-        })
-        enqueue({ kind: "upsert", albumId: updatedAlbum.id, album: updatedAlbum })
-    }, [enqueue])
+    const addAlbum = useCallback(async (album: Album): Promise<boolean> =>
+        runMutation(
+            () => apiCreateAlbum(album),
+            confirmed => setAlbums(previous => [...previous, confirmed]),
+        ), [runMutation])
 
-    const updateAlbumRole = useCallback((
+    const updateAlbum = useCallback(async (album: Album): Promise<boolean> =>
+        runMutation(
+            () => apiUpdateAlbum(album),
+            confirmed => setAlbums(previous => previous.map(existing =>
+                existing.id === confirmed.id ? confirmed : existing,
+            )),
+        ), [runMutation])
+
+    const deleteAlbum = useCallback(async (id: string): Promise<boolean> => {
+        if (!isConnected) {
+            setLibraryError("Library server is not reachable")
+            return false
+        }
+        try {
+            await apiDeleteAlbum(id)
+            await removeCustomCover(id).catch(() => undefined)
+            await clearCoverCache(id).catch(() => undefined)
+            setAlbums(previous => previous.filter(album => album.id !== id))
+            setLibraryError(null)
+            return true
+        } catch (error) {
+            setLibraryError(error instanceof Error ? error.message : "Library deletion failed")
+            return false
+        }
+    }, [isConnected])
+
+    const updateAlbumRole = useCallback(async (
         id: string,
         role: RoleId,
         source: "reflection" | "archive",
-    ) => {
-        const recordedAt = new Date().toISOString()
-        setAlbums(previous => {
-            const next = previous.map(album => {
-                if (album.id !== id) {
-                    return album
-                }
-                return {
-                    ...album,
-                    category: role,
-                    roleHistory: [
-                        ...album.roleHistory,
-                        {
-                            role,
-                            recordedAt,
-                            source,
-                        },
-                    ],
-                }
-            })
-            const updated = next.find(a => a.id === id)
-            if (updated) enqueue({ kind: "upsert", albumId: id, album: updated })
-            return next
+    ): Promise<boolean> => {
+        const current = albums.find(album => album.id === id)
+        if (!current) return false
+        return updateAlbum({
+            ...current,
+            category: role,
+            roleHistory: [...current.roleHistory, {
+                role,
+                source,
+                recordedAt: new Date().toISOString(),
+            }],
         })
-    }, [enqueue])
+    }, [albums, updateAlbum])
 
-    const logListenForAlbum = useCallback((id: string) => {
-        const today = new Date().toISOString()
-        setAlbums(previous => {
-            const next = previous.map(album => {
-                if (album.id !== id) {
-                    return album
-                }
-                return {
-                    ...album,
-                    listenCount: album.listenCount + 1,
-                    lastListened: today,
-                }
-            })
-            const updated = next.find(a => a.id === id)
-            if (updated) enqueue({ kind: "upsert", albumId: id, album: updated })
-            return next
+    const logListenForAlbum = useCallback(async (id: string): Promise<boolean> => {
+        const current = albums.find(album => album.id === id)
+        if (!current) return false
+        return updateAlbum({
+            ...current,
+            listenCount: current.listenCount + 1,
+            lastListened: new Date().toISOString(),
         })
-    }, [enqueue])
+    }, [albums, updateAlbum])
 
     const updateAlbumCoverOverride = useCallback(async (
         id: string,
         blob: Blob,
         source: "upload" | "alternative",
-    ) => {
-        const customCover = await saveCustomCover(id, blob, { source })
-        const blobUrl = URL.createObjectURL(blob)
-        clearCoverCache(id).catch(() => {
-            // Ignore – cache invalidation is not critical
-        })
-        enqueue({ kind: "cover-upload", albumId: id })
-        setAlbums(previous => {
-            const next = previous.map(album => {
-                if (album.id !== id) {
-                    return album
-                }
-                return {
-                    ...album,
-                    coverOverride: {
-                        type: "custom" as const,
-                        albumId: id,
-                        blobUrl,
-                        source,
-                        fetchedAt: customCover.fetchedAt,
-                    },
-                }
+    ): Promise<boolean> => {
+        const current = albums.find(album => album.id === id)
+        if (!current || !isConnected) return false
+        try {
+            await apiUploadCover(id, await blob.arrayBuffer(), blob.type)
+            const cached = await saveCustomCover(id, blob, { source })
+            await clearCoverCache(id).catch(() => undefined)
+            return updateAlbum({
+                ...current,
+                coverOverride: {
+                    type: "custom",
+                    albumId: id,
+                    blobUrl: URL.createObjectURL(blob),
+                    source,
+                    fetchedAt: cached.fetchedAt,
+                },
             })
-            const updated = next.find(a => a.id === id)
-            if (updated) enqueue({ kind: "upsert", albumId: id, album: updated })
-            return next
-        })
-    }, [enqueue])
+        } catch (error) {
+            setLibraryError(error instanceof Error ? error.message : "Cover upload failed")
+            return false
+        }
+    }, [albums, isConnected, updateAlbum])
 
-    const setCoverUrlOverride = useCallback(async (
-        id: string,
-        url: string,
-    ) => {
-        clearCoverCache(id).catch(() => {
-            // Ignore – cache invalidation is not critical
+    const setCoverUrlOverride = useCallback(async (id: string, url: string): Promise<boolean> => {
+        const current = albums.find(album => album.id === id)
+        if (!current) return false
+        await clearCoverCache(id).catch(() => undefined)
+        return updateAlbum({
+            ...current,
+            coverOverride: { type: "url", albumId: id, url, fetchedAt: new Date().toISOString() },
         })
-        setAlbums(previous => {
-            const next = previous.map(album => {
-                if (album.id !== id) {
-                    return album
-                }
-                return {
-                    ...album,
-                    coverOverride: {
-                        type: "url" as const,
-                        albumId: id,
-                        url,
-                        fetchedAt: new Date().toISOString(),
-                    },
-                }
-            })
-            const updated = next.find(a => a.id === id)
-            if (updated) enqueue({ kind: "upsert", albumId: id, album: updated })
-            return next
-        })
-    }, [enqueue])
+    }, [albums, updateAlbum])
 
-    const removeAlbumCoverOverride = useCallback(async (id: string) => {
-        await removeCustomCover(id)
-        clearCoverCache(id).catch(() => {
-            // Ignore – cache invalidation is not critical
-        })
-        enqueue({ kind: "cover-delete", albumId: id })
-        setAlbums(previous => {
-            const next = previous.map(album => {
-                if (album.id !== id) {
-                    return album
-                }
-                return {
-                    ...album,
-                    coverOverride: undefined,
-                }
-            })
-            const updated = next.find(a => a.id === id)
-            if (updated) enqueue({ kind: "upsert", albumId: id, album: updated })
-            return next
-        })
-    }, [enqueue])
+    const removeAlbumCoverOverride = useCallback(async (id: string): Promise<boolean> => {
+        const current = albums.find(album => album.id === id)
+        if (!current || !isConnected) return false
+        try {
+            await apiDeleteCover(id)
+            await removeCustomCover(id).catch(() => undefined)
+            await clearCoverCache(id).catch(() => undefined)
+            return updateAlbum({ ...current, coverOverride: undefined })
+        } catch (error) {
+            setLibraryError(error instanceof Error ? error.message : "Cover deletion failed")
+            return false
+        }
+    }, [albums, isConnected, updateAlbum])
 
     return {
         albums,
         isLoading,
-        persistenceMode,
-        syncError,
-        pendingOperationCount,
-        lastSuccessfulSyncAt,
-        retrySynchronization: flushPendingOperations,
+        libraryError,
+        refresh,
         focusAlbumId,
         setFocusAlbumId,
         addAlbum,

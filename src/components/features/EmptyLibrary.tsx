@@ -9,9 +9,10 @@ type EmptyLibraryProps = {
     adapter: StorageAdapter
     onDiscoverAlbum: () => void
     onBackupRestored: () => void
+    disabled?: boolean
 }
 
-function EmptyLibrary({ adapter, onDiscoverAlbum, onBackupRestored }: EmptyLibraryProps) {
+function EmptyLibrary({ adapter, onDiscoverAlbum, onBackupRestored, disabled = false }: EmptyLibraryProps) {
     const { t } = useI18n()
 
     return (
@@ -20,7 +21,7 @@ function EmptyLibrary({ adapter, onDiscoverAlbum, onBackupRestored }: EmptyLibra
 
             <p>{t.emptyLibrary.description}</p>
 
-            <Button onClick={onDiscoverAlbum}>
+            <Button onClick={onDiscoverAlbum} disabled={disabled}>
                 {t.emptyLibrary.cta}
             </Button>
 

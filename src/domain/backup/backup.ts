@@ -3,7 +3,6 @@ import type { StorageAdapter } from "../../adapters/storageAdapter"
 import { SCHEMA_VERSION } from "../../config/schemaVersion"
 
 const BACKUP_KEYS = [
-    "rotation-library",
     "rotation-onboarding-complete",
     "rotation-current-plan",
     "rotation-active-plan",
