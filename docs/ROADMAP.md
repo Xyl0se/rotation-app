@@ -10,7 +10,7 @@ Version: v0.26.1-dev
 
 ## Current Focus: Stabilization
 
-**New features are frozen until Sprint 76.1 is completed.**
+**New features are frozen until Sprint 76.2 and the Sprint 76.1 NAS release gate are completed.**
 
 Rotation has undergone a massive architectural expansion (Sprints 58–76): server persistence, Docker deployment, album file binding, the export engine, and full Library-Bindings Integration. The system is functional but not yet battle-tested under real-world NAS conditions.
 
@@ -46,6 +46,7 @@ All future developments are oriented toward these principles.
 
 | Sprint | Goal | Target | Status |
 |--------|------|--------|--------|
+| [Sprint 76.2](./sprints/Sprint-76.2.md) | Album-to-Syncthing Export Recovery | v0.26.2-dev | In progress; NAS verification pending |
 | [Sprint 76.1](./sprints/Sprint-76.1.md) | Pre-Release Integrity & Hardening Supersprint | v0.26.1-dev | Implementation complete; NAS verification pending |
 | [Sprint 61](./sprints/Sprint-61.md) | Search & Discovery | v0.27.0-dev | Backlog |
 | [Sprint 68B](./sprints/Sprint-68B.md) | Fuzzy Matching | v0.27.0-dev | Backlog |
@@ -77,7 +78,7 @@ All future developments are oriented toward these principles.
 
 [Phase IX details](./sprints/Phase-IX.md)
 
-Frozen until Sprint 76.1 is completed. Includes Search & Discovery and Fuzzy Matching.
+Frozen until Sprint 76.2 and the Sprint 76.1 NAS release gate are completed. Includes Search & Discovery and Fuzzy Matching.
 
 ### Phase X — Platform & Companion
 

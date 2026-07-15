@@ -92,7 +92,21 @@ export default function ExportPage() {
                         </div>
                     </div>
 
-                    {state.preview.missingBindings.length > 0 && (
+                    {(state.preview.issues?.length ?? 0) > 0 && (
+                        <div className="export-warning">
+                            <strong>{t.exportPage.missingBindings}</strong>
+                            <ul>
+                                {state.preview.issues?.map(issue => (
+                                    <li key={`${issue.albumId}-${issue.reason}`}>
+                                        {[issue.artist, issue.title].filter(Boolean).join(" — ") || issue.albumId}
+                                        {`: ${t.exportPage.issueReasons[issue.reason]}`}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {!state.preview.issues && state.preview.missingBindings.length > 0 && (
                         <div className="export-warning">
                             <strong>{t.exportPage.missingBindings}</strong>
                             <ul>
@@ -103,13 +117,11 @@ export default function ExportPage() {
                         </div>
                     )}
 
-                    {state.preview.unconfirmedBindings.length > 0 && (
+                    {!state.preview.issues && state.preview.unconfirmedBindings.length > 0 && (
                         <div className="export-warning">
                             <strong>{t.exportPage.unconfirmedBindings}</strong>
                             <ul>
-                                {state.preview.unconfirmedBindings.map(id => (
-                                    <li key={id}>{id}</li>
-                                ))}
+                                {state.preview.unconfirmedBindings.map(id => <li key={id}>{id}</li>)}
                             </ul>
                         </div>
                     )}

@@ -63,7 +63,7 @@ const syncthingGuard = createPathGuard(config.ROTATION_SYNCTHING_ROOT)
 const scanner = createDirectoryScanner(musicGuard)
 const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo)
 const lockRepo = createExportLockRepository(db)
-const exportService = createExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard)
+const exportService = createExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard, albumRepo)
 
 // Run crash recovery on startup
 const recovery = runCrashRecovery(exportRepo, lockRepo, workspaceGuard)

@@ -14,6 +14,12 @@ export interface ExportPreviewResult {
     }>
     missingBindings: string[]
     unconfirmedBindings: string[]
+    issues?: Array<{
+        albumId: string
+        title?: string
+        artist?: string
+        reason: "album-not-found" | "binding-missing" | "binding-unconfirmed"
+    }>
     canExport: boolean
 }
 

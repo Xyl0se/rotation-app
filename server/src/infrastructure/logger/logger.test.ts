@@ -78,7 +78,22 @@ describe("logger", () => {
         const log = create("test")
         log.info("scan", { sourcePath: "/music/Pink Floyd/Dark Side" })
         const parsed = JSON.parse(stdoutLines[0])
-        expect(parsed.context.sourcePath).toBe("/Pink Floyd/Dark Side")
+        expect(parsed.context.sourcePath).toBe("[music-root]/Pink Floyd/Dark Side")
+    })
+
+    it("keeps exact configured roots meaningful", async () => {
+        process.env.ROTATION_MUSIC_PATH = "/music"
+        process.env.ROTATION_WORKSPACE_PATH = "/rotation-data/workspace"
+        setEnv("info", "json")
+        const { createLogger: create } = await import("./logger.js")
+        const log = create("test")
+        log.info("paths", {
+            musicPath: "/music",
+            workspacePath: "/rotation-data/workspace",
+        })
+        const parsed = JSON.parse(stdoutLines[0])
+        expect(parsed.context.musicPath).toBe("[music-root]")
+        expect(parsed.context.workspacePath).toBe("[workspace-root]")
     })
 
     it("redacts tokens in context", async () => {

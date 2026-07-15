@@ -32,20 +32,24 @@ function getEnvFormat(): LogFormat {
 }
 
 function sanitizePath(path: string): string {
-    // Remove potentially sensitive absolute prefixes while preserving relative structure
-    const prefixes = ["/rotation-data", "/music", process.env.ROTATION_DATA_DIR ?? "", process.env.ROTATION_MUSIC_PATH ?? ""]
-    let sanitized = path
-    for (const prefix of prefixes) {
-        if (prefix && sanitized.startsWith(prefix)) {
-            sanitized = sanitized.slice(prefix.length)
-            break
+    // Container roots are safe and useful operational context. Represent configured
+    // host paths by explicit labels instead of collapsing an exact root to "/".
+    const roots = [
+        { path: process.env.ROTATION_SYNCTHING_ROOT, label: "[syncthing-root]" },
+        { path: process.env.ROTATION_WORKSPACE_PATH, label: "[workspace-root]" },
+        { path: process.env.ROTATION_MUSIC_PATH ?? "/music", label: "[music-root]" },
+        { path: process.env.ROTATION_DATA_DIR ?? "/rotation-data", label: "[data-root]" },
+    ]
+        .filter((root): root is { path: string; label: string } => Boolean(root.path))
+        .sort((a, b) => b.path.length - a.path.length)
+
+    for (const root of roots) {
+        if (path === root.path) return root.label
+        if (path.startsWith(`${root.path}/`)) {
+            return `${root.label}${path.slice(root.path.length)}`
         }
     }
-    // Keep leading slash for clarity if it was absolute
-    if (path.startsWith("/") && !sanitized.startsWith("/")) {
-        sanitized = "/" + sanitized
-    }
-    return sanitized
+    return path
 }
 
 function sanitizeContextValue(key: string, value: unknown): unknown {

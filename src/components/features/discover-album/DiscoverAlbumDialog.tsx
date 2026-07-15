@@ -34,23 +34,25 @@ function DiscoverAlbumDialog({
     const [metadataState, setMetadataState] = useState<
         "idle" | "searching" | "found" | "not-found"
     >("idle")
+    const prefillTitle = prefill?.title
+    const prefillArtist = prefill?.artist
 
     useEffect(() => {
-        if (open && prefill) {
+        if (open && (prefillTitle || prefillArtist)) {
             queueMicrotask(() => {
                 setAlbum(prev => ({
                     ...prev,
-                    ...(prefill.title && { title: prefill.title }),
-                    ...(prefill.artist && { artist: prefill.artist }),
+                    ...(prefillTitle && { title: prefillTitle }),
+                    ...(prefillArtist && { artist: prefillArtist }),
                 }))
-                if (prefill.title && prefill.artist) {
+                if (prefillTitle && prefillArtist) {
                     setCurrentStepIndex(2) // skip to metadata step
-                } else if (prefill.title) {
+                } else if (prefillTitle) {
                     setCurrentStepIndex(1) // skip to artist step
                 }
             })
         }
-    }, [open, prefill, setAlbum])
+    }, [open, prefillTitle, prefillArtist, setAlbum])
 
     const currentStep = steps[currentStepIndex]
 

@@ -50,8 +50,8 @@ export function resolveSafePath(
 
     // Normalize Unicode to NFC to prevent NFC/NFD canonical equivalence attacks
     const normalizedPath = relativePath.normalize("NFC")
-    const resolved = resolve(allowedBase, normalizedPath)
     const realBase = realpathSync(allowedBase).normalize("NFC")
+    const resolved = resolve(realBase, normalizedPath)
 
     if (options.symlinkPolicy === "reject") {
         // Walk path components from resolved down to base, reject symlinks

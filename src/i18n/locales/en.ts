@@ -613,6 +613,11 @@ export const en = {
         files: "Files",
         missingBindings: "Missing bindings:",
         unconfirmedBindings: "Unconfirmed bindings:",
+        issueReasons: {
+            "album-not-found": "album is no longer in the Library",
+            "binding-missing": "album has no filesystem binding",
+            "binding-unconfirmed": "filesystem binding must be confirmed",
+        },
         skippedAlbums: "Skipped albums:",
         skippedAlbumsDescription: (count: number) =>
             `${count} album(s) could not be copied.`,

@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto"
 import { createLogger } from "../infrastructure/logger/logger.js"
 import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
+import type { AlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
 import type { ExportOperationRepository } from "../infrastructure/persistence/sqlite/exportOperationRepository.js"
 import type { ExportLockRepository } from "../infrastructure/persistence/sqlite/exportLockRepository.js"
 import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
@@ -25,6 +26,16 @@ export interface StagingProgress {
 
 const stagingJobs = new Map<string, StagingProgress>()
 
+function mapBindingsByLibraryAlbumId(
+    bindings: ReturnType<BindingRepository["findAll"]>,
+): Map<string, ReturnType<BindingRepository["findAll"]>[number]> {
+    return new Map(
+        bindings
+            .filter((binding) => binding.library_album_id !== null)
+            .map((binding) => [binding.library_album_id!, binding]),
+    )
+}
+
 export interface ExportService {
     createPreview(albumIds: string[]): ExportPreviewResult
     calculateDiff(albumIds: string[]): ExportDiff
@@ -41,18 +52,54 @@ export function createExportService(
     lockRepo: ExportLockRepository,
     musicGuard: PathGuard,
     workspaceGuard: PathGuard,
+    albumRepo?: AlbumRepository,
 ): ExportService {
+    const log = createLogger("export-service")
+
+    function enrichPreview(preview: ExportPreviewResult): ExportPreviewResult {
+        if (!albumRepo) return preview
+        return {
+            ...preview,
+            issues: [
+                ...preview.missingBindings.map((albumId) => {
+                    const album = albumRepo.findById(albumId)
+                    return {
+                        albumId,
+                        ...(album && { title: album.title, artist: album.artist }),
+                        reason: album ? "binding-missing" as const : "album-not-found" as const,
+                    }
+                }),
+                ...preview.unconfirmedBindings.map((albumId) => {
+                    const album = albumRepo.findById(albumId)
+                    return {
+                        albumId,
+                        ...(album && { title: album.title, artist: album.artist }),
+                        reason: "binding-unconfirmed" as const,
+                    }
+                }),
+            ],
+        }
+    }
+
     return {
         createPreview(albumIds: string[]): ExportPreviewResult {
             const exportId = randomUUID()
             const allBindings = bindingRepo.findAll()
-            const bindingMap = new Map(allBindings.map((b) => [b.album_id, b]))
-            return previewExport(exportId, albumIds, bindingMap, musicGuard)
+            const bindingMap = mapBindingsByLibraryAlbumId(allBindings)
+            const preview = enrichPreview(previewExport(exportId, albumIds, bindingMap, musicGuard))
+            log.info("Export preview created", {
+                exportId,
+                requestedAlbums: albumIds.length,
+                resolvedBindings: preview.sources.length,
+                missingBindings: preview.missingBindings.length,
+                unconfirmedBindings: preview.unconfirmedBindings.length,
+            })
+            return preview
         },
 
         calculateDiff(albumIds: string[]): ExportDiff {
             const allBindings = bindingRepo.findAll()
-            const bindingMap = new Map(allBindings.map((b) => [b.album_id, b]))
+            const bindingMap = mapBindingsByLibraryAlbumId(allBindings)
             return calculateExportDiffForPreview(albumIds, bindingMap, workspaceGuard)
         },
 
@@ -66,7 +113,7 @@ export function createExportService(
             }
 
             const allBindings = bindingRepo.findAll()
-            const bindingMap = new Map(allBindings.map((b) => [b.album_id, b]))
+            const bindingMap = mapBindingsByLibraryAlbumId(allBindings)
             const preview = previewExport(exportId, albumIds, bindingMap, musicGuard)
 
             if (!preview.canExport) {
@@ -79,6 +126,11 @@ export function createExportService(
             }
 
             stagingJobs.set(exportId, { status: "staging", filesCopied: 0, totalFiles: preview.fileCount })
+            log.info("Export staging started", {
+                exportId,
+                albums: preview.albumCount,
+                files: preview.fileCount,
+            })
 
             // Persist operation record
             exportRepo.save({
@@ -119,6 +171,11 @@ export function createExportService(
                             albumName: s.albumName,
                         })),
                     })
+                    log.info("Export staging completed", {
+                        exportId,
+                        filesCopied: preview.fileCount,
+                        skippedSources: result.skippedSources.length,
+                    })
                 } catch (err) {
                     const message = err instanceof Error ? err.message : String(err)
                     stagingJobs.set(exportId, { status: "failed", error: message })
@@ -126,7 +183,6 @@ export function createExportService(
                     try {
                         rollbackStaging(exportId, workspaceGuard)
                     } catch (rollbackErr) {
-                        const log = createLogger("export-service")
                         log.error("Rollback failed for export", { exportId }, rollbackErr)
                     } finally {
                         lockRepo.release()
@@ -162,6 +218,11 @@ export function createExportService(
                 })
                 stagingJobs.delete(exportId)
                 lockRepo.release()
+            log.info("Export applied", {
+                exportId,
+                exportPath: result.exportPath,
+                archivedPreviousExport: result.archivePath !== null,
+            })
             return result
         },
 

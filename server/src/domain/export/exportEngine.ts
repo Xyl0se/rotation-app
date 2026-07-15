@@ -34,7 +34,15 @@ export interface ExportPreviewResult {
     sources: ExportSource[]
     missingBindings: string[]
     unconfirmedBindings: string[]
+    issues?: ExportPreviewIssue[]
     canExport: boolean
+}
+
+export interface ExportPreviewIssue {
+    albumId: string
+    title?: string
+    artist?: string
+    reason: "album-not-found" | "binding-missing" | "binding-unconfirmed"
 }
 
 export interface ExportStageResult {

@@ -614,6 +614,11 @@ export const de: Translation = {
         files: "Dateien",
         missingBindings: "Fehlende Bindings:",
         unconfirmedBindings: "Unbestätigte Bindings:",
+        issueReasons: {
+            "album-not-found": "Album ist nicht mehr in der Library",
+            "binding-missing": "Album hat kein Dateisystem-Binding",
+            "binding-unconfirmed": "Dateisystem-Binding muss bestätigt werden",
+        },
         skippedAlbums: "Übersprungene Alben:",
         skippedAlbumsDescription: (count: number) =>
             `${count} Album(e) konnten nicht kopiert werden.`,

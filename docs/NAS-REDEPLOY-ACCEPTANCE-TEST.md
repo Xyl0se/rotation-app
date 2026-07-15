@@ -35,11 +35,11 @@ Final result:
 
 ## 1. Safety and Preconditions
 
-- [ ] The old Portainer stack is stopped.
-- [ ] No `rotation-api` or `rotation-web` container from the previous deployment is running.
-- [ ] The deleted database is intentionally not required for this test.
-- [ ] Any remaining data that must be preserved has been backed up separately.
-- [ ] The music library remains present and must not be modified by Rotation.
+- [X] The old Portainer stack is stopped.
+- [X] No `rotation-api` or `rotation-web` container from the previous deployment is running.
+- [X] The deleted database is intentionally not required for this test.
+- [X] Any remaining data that must be preserved has been backed up separately.
+- [X] The music library remains present and must not be modified by Rotation.
 
 Check for old containers in Portainer or over SSH:
 
@@ -48,6 +48,7 @@ docker ps -a --filter name=rotation
 ```
 
 Expected: no running old Rotation containers. Stopped containers may be replaced by the redeploy.
+Observed: no running old containers from Rotation.
 
 ### Record the initial data-directory state
 
@@ -58,7 +59,13 @@ sudo find /volume1/docker/rotation -maxdepth 3 -mindepth 1 -print
 Observed initial contents:
 
 ```text
-
+/volume1/docker/rotation/data
+/volume1/docker/rotation/data/backups
+/volume1/docker/rotation/data/covers
+/volume1/docker/rotation/exports
+/volume1/docker/rotation/exports/current-rotation
+/volume1/docker/rotation/archive
+/volume1/docker/rotation/.env
 ```
 
 ---
@@ -87,15 +94,15 @@ Expected owner/group:
 1026 100
 ```
 
-- [ ] Data-directory ownership is `1026:100`.
-- [ ] UID 1026 has read/write/execute access to the data directory.
-- [ ] The configured music directory exists and is readable.
-- [ ] The music mount in the Portainer stack is read-only (`:ro`).
+- [x] Data-directory ownership is `1026:100`.
+- [x] UID 1026 has read/write/execute access to the data directory.
+- [x] The configured music directory exists and is readable.
+- [x] The music mount in the Portainer stack is read-only (`:ro`).
 
 Observed permissions:
 
 ```text
-
+drwxrwxrwx+ 1 1026 100 44 Jul 15 15:27 /volume1/docker/rotation
 ```
 
 ---
@@ -112,14 +119,14 @@ ROTATION_WRITE_TOKEN=<long-random-secret>
 
 Adjust the paths to the actual NAS locations if necessary.
 
-- [ ] `ROTATION_HOST_DATA_PATH` points to the prepared writable directory.
-- [ ] `ROTATION_HOST_MUSIC_PATH` points to the real music library.
-- [ ] `ROTATION_WRITE_TOKEN` is present and non-blank.
-- [ ] `ROTATION_WRITE_TOKEN` is not `dev-token`.
-- [ ] The token is not the literal text `$(openssl rand -hex 32)`.
-- [ ] The API image is `ghcr.io/xyl0se/rotation-app-api:latest` or the intended tested SHA tag.
-- [ ] The web image is `ghcr.io/xyl0se/rotation-app-web:latest` or the intended tested SHA tag.
-- [ ] The API service runs as `1026:100` according to the Compose definition.
+- [x] `ROTATION_HOST_DATA_PATH` points to the prepared writable directory.
+- [x] `ROTATION_HOST_MUSIC_PATH` points to the real music library.
+- [x] `ROTATION_WRITE_TOKEN` is present and non-blank.
+- [x] `ROTATION_WRITE_TOKEN` is not `dev-token`.
+- [x] The token is not the literal text `$(openssl rand -hex 32)`.
+- [x] The API image is `ghcr.io/xyl0se/rotation-app-api:latest` or the intended tested SHA tag.
+- [x] The web image is `ghcr.io/xyl0se/rotation-app-web:latest` or the intended tested SHA tag.
+- [x] The API service runs as `1026:100` according to the Compose definition.
 
 For the strongest reproducibility, use the SHA image tags produced for the tested commit instead of `latest` and record them above.
 
@@ -135,10 +142,10 @@ In Portainer:
 4. Select **Update the stack** / **Deploy the stack**.
 5. Wait until both services have started.
 
-- [ ] Portainer pulled the intended images.
-- [ ] `rotation-api` started without a restart loop.
-- [ ] `rotation-web` started without a restart loop.
-- [ ] Both containers report `healthy`.
+- [x] Portainer pulled the intended images.
+- [x] `rotation-api` started without a restart loop.
+- [x] `rotation-web` started without a restart loop.
+- [x] Both containers report `healthy`.
 
 Record container image IDs/digests:
 
@@ -148,8 +155,8 @@ docker inspect rotation-web --format '{{.Image}}'
 ```
 
 ```text
-API:
-Web:
+API: sha256:cac08c873a98fca118b67417bfeb20ac623bf724941e55b1f5433a46a66d364a
+Web: sha256:58b20b9cdef61518f1d7bd986e86b712ff7ba519ccf77e6a945c69797fcf6c4f
 ```
 
 ---
@@ -162,6 +169,15 @@ Inspect the API logs:
 docker logs --tail=200 rotation-api
 ```
 
+Result:
+[15:44:50.936] INFO  [backup-scheduler] Backup scheduler started {"cronExpression":"0 * * * *"}
+[15:44:50.963] INFO  [startup] Rotation API listening {"port":3001}
+[15:44:50.963] INFO  [startup] Music path {"path":"/"}
+[15:44:50.963] INFO  [startup] Workspace path {"path":"/"}
+[15:44:50.964] INFO  [startup] Syncthing root {"path":"/exports/current-rotation"}
+[15:44:50.964] INFO  [startup] Backups enabled {"enabled":true,"retention":24,"cron":"0 * * * *"}
+
+
 The logs must not contain:
 
 - `permission denied`
@@ -170,11 +186,11 @@ The logs must not contain:
 - SQLite migration errors
 - an endless restart cycle
 
-- [ ] Configuration validation succeeded.
-- [ ] SQLite initialized successfully.
-- [ ] Database migrations completed without an error.
-- [ ] Backup scheduler initialized as configured.
-- [ ] No sensitive write token appears in the logs.
+- [x] Configuration validation succeeded.
+- [x] SQLite initialized successfully.
+- [x] Database migrations completed without an error.
+- [x] Backup scheduler initialized as configured.
+- [x] No sensitive write token appears in the logs.
 
 Verify the generated host structure:
 
@@ -195,13 +211,30 @@ Expected minimum structure:
 /volume1/docker/rotation/staging-exports
 ```
 
-- [ ] `rotation.db` was created.
-- [ ] Backup directory was created.
-- [ ] Cover directory was created.
-- [ ] Staging directory was created.
-- [ ] Archive directory was created.
-- [ ] Current Rotation export directory was created.
-- [ ] Generated writable content is owned by `1026:100`.
+Actual structure:
+```text
+/volume1/docker/rotation/data
+/volume1/docker/rotation/data/backups
+/volume1/docker/rotation/data/covers
+/volume1/docker/rotation/data/rotation.db
+/volume1/docker/rotation/data/rotation.db-wal
+/volume1/docker/rotation/data/rotation.db-shm
+/volume1/docker/rotation/exports
+/volume1/docker/rotation/exports/current-rotation
+/volume1/docker/rotation/exports/archive
+/volume1/docker/rotation/archive
+/volume1/docker/rotation/.env
+/volume1/docker/rotation/staging-exports
+````
+
+
+- [x] `rotation.db` was created.
+- [x] Backup directory was created.
+- [x] Cover directory was created.
+- [x] Staging directory was created.
+- [x] Archive directory was created.
+- [x] Current Rotation export directory was created.
+- [x] Generated writable content is owned by `1026:100`.
 
 Record deviations:
 
@@ -220,17 +253,19 @@ curl -fsS http://<nas-ip>:3000/health
 curl -fsS http://<nas-ip>:3000/api/health
 ```
 
-- [ ] Frontend health endpoint returns successfully.
-- [ ] API health endpoint returns successfully.
-- [ ] Database status is healthy.
-- [ ] Music directory is reported readable.
-- [ ] Data/workspace directory is reported writable.
-- [ ] Syncthing export directory is reported writable.
+- [x] Frontend health endpoint returns successfully.
+- [x] API health endpoint returns successfully.
+- [x] Database status is healthy.
+- [x] Music directory is reported readable.
+- [x] Data/workspace directory is reported writable.
+- [x] Syncthing export directory is reported writable.
 
 Paste the API health response:
 
 ```json
-
+mreeh@Mac ~ % curl -fsS http://192.168.1.100:3000/health
+ok%                                                                             mreeh@Mac ~ % curl -fsS http://192.168.1.100:3000/api/health
+{"status":"ok","checks":{"db":{"status":"ok","responseMs":0},"musicReadable":{"status":"ok"},"dataWritable":{"status":"ok"},"syncthingWritable":{"status":"ok"}},"lastScan":{"id":"472de42d-6827-42d5-bcbe-5bb359c2c6b1","status":"completed","finishedAt":"2026-07-15T15:48:46.618Z","albumFoldersFound":26},"metrics":{}}%    mreeh@Mac ~ %
 ```
 
 ---
@@ -239,21 +274,21 @@ Paste the API health response:
 
 Use a new private window or a fresh browser profile so the clean-install behavior is not masked by old browser storage.
 
-- [ ] Rotation loads without a blank page or console crash.
-- [ ] The welcome/onboarding page appears.
-- [ ] Onboarding can be completed.
+- [x] Rotation loads without a blank page or console crash.
+- [x] The welcome/onboarding page appears.
+- [x] Onboarding can be completed.
 - [ ] The initially empty Library is shown correctly.
 - [ ] The UI distinguishes a reachable server from offline/cache mode.
-- [ ] The production write token can be entered through the application UI.
+- [x] The production write token can be entered through the application UI.
 
 Authentication negative test:
 
 1. Temporarily enter an incorrect write token.
 2. Attempt a write operation such as creating an album.
 
-- [ ] The server rejects the incorrect token.
-- [ ] The UI displays a useful error.
-- [ ] No unauthorized album is persisted.
+- [x] The server rejects the incorrect token.
+- [x] The UI displays a useful error.
+- [x] No unauthorized album is persisted.
 
 Restore the correct token before continuing.
 
@@ -269,18 +304,18 @@ Artist: Test Artist
 Year: 2026
 ```
 
-- [ ] Album creation succeeds.
-- [ ] The album appears in the Library.
-- [ ] Reloading the page preserves the album.
-- [ ] Editing title/year succeeds and survives another reload.
-- [ ] A custom cover upload succeeds.
-- [ ] The cover survives a page reload.
-- [ ] A server-side cover file and metadata file exist under `data/covers`.
+- [x] Album creation succeeds.
+- [x] The album appears in the Library.
+- [x] Reloading the page preserves the album.
+- [x] Editing title/year succeeds and survives another reload.
+- [x] A custom cover upload succeeds.
+- [x] The cover survives a page reload.
+- [x] A server-side cover file and metadata file exist under `data/covers`.
 
 Record the album ID if visible in API responses or logs:
 
 ```text
-
+762afc5e-5408-4d9d-b48a-237874d7ec34
 ```
 
 Optional API verification:
@@ -293,13 +328,13 @@ curl -fsS http://<nas-ip>:3000/api/albums
 
 ## 9. Scan and Binding
 
-- [ ] Start a music-library scan.
-- [ ] Scan progress is visible and completes.
-- [ ] No write occurs inside the original music directory.
-- [ ] Proposed or existing bindings are displayed.
-- [ ] Confirm a proposed binding or manually link one Library album.
-- [ ] The confirmed binding remains after a page reload.
-- [ ] The Library album shows the expected binding state.
+- [x] Start a music-library scan.
+- [x] Scan progress is visible and completes.
+- [x] No write occurs inside the original music directory.
+- [x] Proposed or existing bindings are displayed.
+- [x] Confirm a proposed binding or manually link one Library album.
+- [x] The confirmed binding remains after a page reload.
+- [x] The Library album shows the expected binding state.
 
 If the deliberately created test album has no real folder, use a real existing album for the binding test.
 
@@ -334,6 +369,14 @@ If Syncthing is configured:
 
 - [ ] Syncthing detects the changed `current-rotation` folder.
 - [ ] The target device receives the expected album files.
+
+Observation:
+- after creating the test album from within the other browser with fresh browser profile, the app starts to break down:
+- Homepage shows: "Library synchronization failed. Your local changes are safe"
+- The "Retry synchronization" button does nothing (seemingly)
+- Reload doesn't fix this behaviour.
+- The "Capture" button on an album on the Bindings page also doesn't work - there is no dialogue opening after clicking it.
+- The Export lists a bunch of ids with missing bindings but apparently no album is identified to be moved to the export folder.
 
 ---
 
