@@ -667,6 +667,14 @@ export const de: Translation = {
         folderMissing: "Ordner nicht gefunden",
         verify: "Überprüfen",
         reconcile: "Abgleichen",
+        scanNow: "Musikordner scannen",
+        scanning: "Musikordner wird gescannt…",
+        scanTooltip: "Scannt den Musikordner jetzt und erzeugt Bindings für neu gefundene Albumordner",
+        scanProgress: (scanned: number, skipped: number) =>
+            `${scanned} Verzeichnisse gescannt, ${skipped} übersprungen`,
+        scanSuccess: "Musikscan abgeschlossen. Bindings wurden aktualisiert.",
+        scanFailed: "Musikscan fehlgeschlagen.",
+        scanTimeout: "Zeitüberschreitung beim Musikscan. Bitte Diagnose prüfen und erneut versuchen.",
         verifyTooltip:
             "Prüft alle bestätigten Bindings gegen das Dateisystem und markiert fehlende Ordner",
         reconcileTooltip:

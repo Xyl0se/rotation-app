@@ -666,6 +666,14 @@ export const en = {
         folderMissing: "Folder not found",
         verify: "Verify",
         reconcile: "Reconcile",
+        scanNow: "Scan music folder",
+        scanning: "Scanning music folder…",
+        scanTooltip: "Scans the music folder now and creates bindings for newly found album folders",
+        scanProgress: (scanned: number, skipped: number) =>
+            `${scanned} directories scanned, ${skipped} skipped`,
+        scanSuccess: "Music scan completed. Bindings have been refreshed.",
+        scanFailed: "Music scan failed.",
+        scanTimeout: "Music scan timed out. Check diagnostics and try again.",
         verifyTooltip:
             "Checks all confirmed bindings against the filesystem and marks missing folders",
         reconcileTooltip:

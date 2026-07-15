@@ -20,6 +20,7 @@ import DiscoverAlbumDialog from "../components/features/discover-album/DiscoverA
 import type { Album } from "../types/album.js"
 import { generateUUID } from "../utils/uuid.js"
 import { createAlbum } from "../services/api/albumsService.js"
+import { getScanProgress, triggerScan } from "../services/api/scanService.js"
 
 function makeEmptyAlbum(): Album {
     return {
@@ -50,6 +51,11 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
     const [captureAlbum, setCaptureAlbum] = useState<Album>(() => makeEmptyAlbum())
     const [captureBindingId, setCaptureBindingId] = useState<string | null>(null)
     const [showCaptureDialog, setShowCaptureDialog] = useState(false)
+    const [scanning, setScanning] = useState(false)
+    const [scanProgress, setScanProgress] = useState<{
+        directoriesScanned: number
+        directoriesSkipped: number
+    } | null>(null)
 
     const load = useCallback(async () => {
         setLoading(true)
@@ -128,6 +134,39 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
         }
     }
 
+    async function handleScan() {
+        setScanning(true)
+        setScanProgress(null)
+        setError(null)
+        try {
+            const { scanId } = await triggerScan()
+            for (let attempt = 0; attempt < 60; attempt += 1) {
+                const progress = await getScanProgress(scanId)
+                setScanProgress({
+                    directoriesScanned: progress.directoriesScanned,
+                    directoriesSkipped: progress.directoriesSkipped,
+                })
+                if (progress.status === "completed") {
+                    await load()
+                    toast.success(t.bindings.scanSuccess)
+                    return
+                }
+                if (progress.status === "failed") {
+                    throw new Error(t.bindings.scanFailed)
+                }
+                await new Promise(resolve => setTimeout(resolve, 1000))
+            }
+            throw new Error(t.bindings.scanTimeout)
+        } catch (e) {
+            const message = getApiErrorMessage(e)
+            setError(message)
+            toast.error(message)
+        } finally {
+            setScanning(false)
+            setScanProgress(null)
+        }
+    }
+
     function handleStartCapture(binding: Binding) {
         setCaptureBindingId(binding.albumId)
         setCaptureAlbum(makeEmptyAlbum())
@@ -166,6 +205,13 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
 
             <div className="bindings-actions">
                 <Button
+                    onClick={handleScan}
+                    disabled={scanning || loading}
+                    title={t.bindings.scanTooltip}
+                >
+                    {scanning ? t.bindings.scanning : t.bindings.scanNow}
+                </Button>
+                <Button
                     variant="secondary"
                     onClick={handleVerify}
                     disabled={loading}
@@ -182,6 +228,15 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
                     {t.bindings.reconcile}
                 </Button>
             </div>
+
+            {scanning && scanProgress && (
+                <div className="bindings-result bindings-result--scan">
+                    {t.bindings.scanProgress(
+                        scanProgress.directoriesScanned,
+                        scanProgress.directoriesSkipped,
+                    )}
+                </div>
+            )}
 
             {verifyResult && (
                 <div className="bindings-result bindings-result--verify">

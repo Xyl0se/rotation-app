@@ -421,6 +421,9 @@ If the same synchronization failure occurs in the single-browser reproduction, i
   longer fail because `/var` resolves to `/private/var`.
 - Stabilized Binding Capture prefill effects when the parent recreates an
   equivalent prefill object and added a component regression test.
+- Added an always-available manual music-folder scan action to the Bindings page;
+  it reports progress, prevents parallel scans, refreshes newly discovered
+  Bindings automatically, and is covered by a page-level regression test.
 - Added structured preview issues for missing Library Albums, missing Bindings,
   and unconfirmed Bindings, enriched with title/artist where available.
 - Replaced misleading `/` path logs with privacy-safe root labels and added
