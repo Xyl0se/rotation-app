@@ -4,15 +4,15 @@
 >
 > Rotation accompanies the relationship between person and album.
 
-Version: v0.25.8-dev
+Version: v0.26.0-dev
 
 ---
 
 ## Current Focus: Stabilization
 
-**New features are frozen until Sprint 75 is completed.**
+**New features are frozen until Sprint 76 is completed.**
 
-Rotation has undergone a massive architectural expansion (Sprints 58–70): server persistence, Docker deployment, album file binding, and the export engine. The system is functional but not yet battle-tested under real-world NAS conditions.
+Rotation has undergone a massive architectural expansion (Sprints 58–76): server persistence, Docker deployment, album file binding, the export engine, and full Library-Bindings Integration. The system is functional but not yet battle-tested under real-world NAS conditions.
 
 The next sprints are dedicated exclusively to **hardening, bugfixing, and operational reliability**. No new product features will be added.
 
@@ -46,7 +46,8 @@ All future developments are oriented toward these principles.
 
 | Sprint | Goal | Target | Status |
 |--------|------|--------|--------|
-| [Sprint 76](./sprints/Sprint-76.md) | Library-Bindings Integration | v0.26.0-dev | Backlog |
+| [Sprint 61](./sprints/Sprint-61.md) | Search & Discovery | v0.27.0-dev | Backlog |
+| [Sprint 68B](./sprints/Sprint-68B.md) | Fuzzy Matching | v0.27.0-dev | Backlog |
 
 ## Completed Sprints
 
@@ -60,6 +61,7 @@ All future developments are oriented toward these principles.
 | [Sprint 75.1](./sprints/done/Sprint-75.1.md) | Server-Side Library & Cover Storage | v0.25.6-dev | Done ✅ |
 | [Sprint 75.2](./sprints/done/Sprint-75.2.md) | Library-Bindings Enabler | v0.25.7-dev | Done ✅ |
 | [Sprint 75.3](./sprints/done/Sprint-75.3.md) | Library-Bindings UI Bridge | v0.25.8-dev | Done ✅ |
+| [Sprint 76](./sprints/done/Sprint-76.md) | Library-Bindings Integration | v0.26.0-dev | Done ✅ |
 
 ---
 
@@ -67,15 +69,14 @@ All future developments are oriented toward these principles.
 
 | Sprint | Goal | Target | Status |
 |--------|------|--------|--------|
-| [Sprint 76](./sprints/Sprint-76.md) | Library-Bindings Integration | v0.26.0-dev | Backlog |
-| [Sprint 68B](./sprints/Sprint-68B.md) | Fuzzy Matching | v0.25.0-dev | Backlog |
-| [Sprint 61](./sprints/Sprint-61.md) | Search & Discovery | v0.26.0-dev | Backlog |
+| [Sprint 61](./sprints/Sprint-61.md) | Search & Discovery | v0.27.0-dev | Backlog |
+| [Sprint 68B](./sprints/Sprint-68B.md) | Fuzzy Matching | v0.27.0-dev | Backlog |
 
 ### Phase IX — Search & Discovery
 
 [Phase IX details](./sprints/Phase-IX.md)
 
-Frozen until Sprint 75 is completed. Includes Search & Discovery, Fuzzy Matching, and Library-Bindings Integration.
+Frozen until Sprint 76 is completed. Includes Search & Discovery and Fuzzy Matching.
 
 ### Phase X — Platform & Companion
 

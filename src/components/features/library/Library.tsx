@@ -24,6 +24,7 @@ type LibraryProps = {
     albums: Album[]
     listenEvents?: ListenEvent[]
     focusAlbumId: string | null
+    highlightAlbumId?: string | null
     onArchive: (id: string) => void
     onDelete: (id: string) => void
     onEdit: (id: string) => void
@@ -39,6 +40,8 @@ function Library({
     listenEvents = [],
 
     focusAlbumId,
+
+    highlightAlbumId,
 
     onArchive,
 
@@ -122,6 +125,8 @@ function Library({
                                 album={album}
 
                                 isFocus={album.id === focusAlbumId}
+
+                                isHighlighted={album.id === highlightAlbumId}
 
                                 binding={bindingMap.get(album.id) ?? null}
 

@@ -1,7 +1,7 @@
 {
   "name": "rotation-app",
   "private": true,
-  "version": "0.25.8-dev",
+  "version": "0.26.0-dev",
   "type": "module",
   "scripts": {
     "dev": "vite",

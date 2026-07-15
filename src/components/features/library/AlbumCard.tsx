@@ -16,6 +16,7 @@ function getRoleLabelClass(roleId: RoleId | undefined): string {
 type AlbumCardProps = {
     album: Album
     isFocus: boolean
+    isHighlighted?: boolean
     onArchive: (id: string) => void
     onDelete: (id: string) => void
     onEdit: (id: string) => void
@@ -24,11 +25,13 @@ type AlbumCardProps = {
     onSetFocus: (id: string) => void
     showRoleLabel?: boolean
     binding?: Binding | null
+    id?: string
 }
 
 function AlbumCard({
     album,
     isFocus,
+    isHighlighted = false,
     onArchive,
     onDelete,
     onEdit,
@@ -37,6 +40,7 @@ function AlbumCard({
     onSetFocus,
     showRoleLabel = true,
     binding = null,
+    id,
 }: AlbumCardProps) {
     const { t } = useI18n()
 
@@ -52,7 +56,7 @@ function AlbumCard({
     const isMissing = isBound && !binding.folderExists
 
     return (
-        <Card>
+        <Card className={isHighlighted ? "album-card--highlighted" : undefined} id={id}>
             <div className="album-card-inner">
                 <AlbumCover
                     coverUrl={album.coverUrl}

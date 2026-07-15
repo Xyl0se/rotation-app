@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.26.0-dev
+
+- **Sprint 76 — Library-Bindings Integration**
+  - **AlbumCard Binding-Badge**: Library → Binding Visibility — jedes Album zeigt ein kleines Status-Badge (Bound / Unbound / Missing) mit farbcodiertem Hintergrund. Tooltips zeigen Dateipfad oder fehlenden Ordner an.
+  - **BindingsPage Album-Preview & Orphan-Badge**: Binding → Library Visibility — jede Binding-Zeile zeigt Album-Titel/Künstler als Vorschau. Orphan-Bindings erhalten ein „Not in Library"-Badge.
+  - **Album Coach Orphan Prompt**: Wenn ein Scan verwaiste Bindings produziert (albumId nicht in der Library), erscheint ein dismissibler, non-intrusiver Coach-Prompt auf der Startseite. Lädt den Nutzer ein, das Album zu erfassen („Jetzt erfassen" / „Später"). Dismiss-Zustand wird in `localStorage` persistiert.
+  - **i18n**: Alle neuen UI-Strings in DE/EN übersetzt (`coach.orphanPrompt.*`, `bindings.orphan`).
+  - Build clean, 338 Tests grün.
+
 ## v0.25.8-dev
 
 - **Sprint 75.3 — Library-Bindings UI Bridge**

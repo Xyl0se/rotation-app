@@ -150,6 +150,30 @@
     font-size: 0.95rem;
 }
 
+.orphan-banner--actionable {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.orphan-banner--actionable:hover {
+    background: #ffe082;
+    border-color: #ffa000;
+}
+
+.orphan-banner--actionable:focus-visible {
+    outline: 2px solid #ffa000;
+    outline-offset: 2px;
+}
+
+.orphan-banner__arrow {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
 /* App Navigation */
 .app-nav {
     display: flex;
@@ -177,4 +201,34 @@
 
 .app-nav button:hover:not(.active) {
     background: #e0e0e0;
+}
+
+/* Coach Orphan Prompt */
+.coach-orphan-prompt {
+    padding: 1.25rem;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.coach-orphan-prompt__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: var(--text-primary, #1a1a1a);
+}
+
+.coach-orphan-prompt__description {
+    font-size: 0.95rem;
+    margin: 0 0 1rem;
+    color: #555;
+    line-height: 1.4;
+}
+
+.coach-orphan-prompt__actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
 }

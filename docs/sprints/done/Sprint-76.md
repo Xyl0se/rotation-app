@@ -1,8 +1,10 @@
 # Sprint 76 — Library-Bindings Integration
 
-**Status:** Backlog — starts after Sprint 75.
+**Status:** Done ✅
 
 **Target version:** `v0.26.0-dev`
+
+**Completed:** 2026-07-15
 
 ---
 
@@ -45,9 +47,9 @@ Bindings and Library become visibly connected. A binding is no longer an isolate
 
 ## Definition of Done
 
-- [ ] Library shows a visual indicator when an album has a confirmed binding
-- [ ] Bindings list shows a clear "not in Library" / orphan state for missing albums
-- [ ] When a scan produces a confirmed binding without a Library entry, the Album Coach offers to start discovery
-- [ ] Album Coach orphan prompt is dismissible and non-intrusive
-- [ ] All new UI strings are internationalized (EN/DE)
-- [ ] No regression in scan or export performance
+- [x] Library shows a visual indicator when an album has a confirmed binding
+- [x] Bindings list shows a clear "not in Library" / orphan state for missing albums
+- [x] When a scan produces a confirmed binding without a Library entry, the Album Coach offers to start discovery
+- [x] Album Coach orphan prompt is dismissible and non-intrusive
+- [x] All new UI strings are internationalized (EN/DE)
+- [x] No regression in scan or export performance

@@ -669,6 +669,9 @@ export const en = {
             count === 1
                 ? "1 orphaned folder detected — review on Bindings page."
                 : `${count} orphaned folders detected — review on Bindings page.`,
+        capture: "Capture",
+        captureSuccess: "Album captured and linked successfully.",
+        viewInLibrary: "View in Library",
     },
 
     diagnostics: {

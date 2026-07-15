@@ -23,6 +23,7 @@ import PlayerRotation from "../components/features/player-rotation/PlayerRotatio
 import Button from "../components/ui/Button"
 import Dialog from "../components/ui/Dialog"
 import AlbumCoach from "../components/features/album-coach/AlbumCoach"
+import CoachOrphanPrompt from "../components/features/album-coach/CoachOrphanPrompt"
 import ArchiveProtectionCoach from "../components/features/archive/ArchiveProtectionCoach"
 import ArchiveReturnCoach from "../components/features/archive/ArchiveReturnCoach"
 import BackupControls from "../components/features/backup/BackupControls"
@@ -45,9 +46,11 @@ function createEmptyAlbum(): Album {
 
 interface HomePageProps {
     adapter: StorageAdapter
+    onNavigateToBindings?: () => void
+    highlightAlbumId?: string | null
 }
 
-function HomePage({ adapter }: HomePageProps) {
+function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     const { t } = useI18n()
     const [dialogOpen, setDialogOpen] = useState(false)
     const [reflectionAlbumId, setReflectionAlbumId] = useState<string | null>(null)
@@ -89,6 +92,23 @@ function HomePage({ adapter }: HomePageProps) {
     } = useListenEvents(repositories.listenEvents, albums, adapter)
 
     const { orphans } = useBindings()
+
+    const [orphanPromptDismissed, setOrphanPromptDismissed] = useState(() => {
+        try {
+            return localStorage.getItem("rotation:orphanPromptDismissed") === "true"
+        } catch {
+            return false
+        }
+    })
+
+    function handleDismissOrphanPrompt() {
+        setOrphanPromptDismissed(true)
+        try {
+            localStorage.setItem("rotation:orphanPromptDismissed", "true")
+        } catch {
+            // ignore
+        }
+    }
 
     function handleNewAlbum() {
         setAlbum(createEmptyAlbum())
@@ -160,10 +180,17 @@ function HomePage({ adapter }: HomePageProps) {
         <main className="container">
             <Header />
             {
-                orphans.length > 0 && (
-                    <div className="orphan-banner">
-                        {t.bindings.orphanBanner(orphans.length)}
-                    </div>
+                orphans.length > 0 && !orphanPromptDismissed && (
+                    <CoachOrphanPrompt
+                        title={t.coach.orphanPrompt.title}
+                        description={t.coach.orphanPrompt.description}
+                        dismissLabel={t.coach.orphanPrompt.dismiss}
+                        captureLabel={t.coach.orphanPrompt.capture}
+                        onDismiss={handleDismissOrphanPrompt}
+                        onCapture={() => {
+                            onNavigateToBindings?.()
+                        }}
+                    />
                 )
             }
             {
@@ -226,6 +253,7 @@ function HomePage({ adapter }: HomePageProps) {
                             <Library
                                 albums={albums}
                                 focusAlbumId={focusAlbumId}
+                                highlightAlbumId={highlightAlbumId}
                                 onArchive={setArchiveAlbumId}
                                 onDelete={setDeleteAlbumId}
                                 onEdit={setEditingAlbumId}

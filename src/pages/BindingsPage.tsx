@@ -5,18 +5,41 @@ import {
     deleteBinding,
     verifyBindings,
     reconcileBindings,
+    linkBinding,
     type Binding,
     type VerifyResult,
     type ReconcileResult,
 } from "../services/api/bindingsService.js"
 import { getApiErrorMessage } from "../services/api/apiClient.js"
 import { useI18n } from "../i18n/useI18n.js"
+import { useToast } from "../hooks/useToast.js"
 import Button from "../components/ui/Button.js"
 import Card from "../components/ui/Card.js"
 import DiagnosticsPanel from "../components/features/diagnostics/DiagnosticsPanel.js"
+import DiscoverAlbumDialog from "../components/features/discover-album/DiscoverAlbumDialog.js"
+import type { Album } from "../types/album.js"
+import { generateUUID } from "../utils/uuid.js"
+import { createAlbum } from "../services/api/albumsService.js"
 
-export default function BindingsPage() {
+function makeEmptyAlbum(): Album {
+    return {
+        id: generateUUID(),
+        title: "",
+        artist: "",
+        year: "",
+        roleHistory: [],
+        listenCount: 0,
+        lastListened: null,
+    }
+}
+
+interface BindingsPageProps {
+    onNavigateToLibrary?: (albumId: string) => void
+}
+
+export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps) {
     const { t } = useI18n()
+    const toast = useToast()
     const [bindings, setBindings] = useState<Binding[]>([])
     const [filter, setFilter] = useState<"all" | "proposed" | "confirmed" | "missing">("all")
     const [loading, setLoading] = useState(false)
@@ -24,6 +47,9 @@ export default function BindingsPage() {
     const [processingId, setProcessingId] = useState<string | null>(null)
     const [verifyResult, setVerifyResult] = useState<VerifyResult | null>(null)
     const [reconcileResult, setReconcileResult] = useState<ReconcileResult | null>(null)
+    const [captureAlbum, setCaptureAlbum] = useState<Album>(() => makeEmptyAlbum())
+    const [captureBindingId, setCaptureBindingId] = useState<string | null>(null)
+    const [showCaptureDialog, setShowCaptureDialog] = useState(false)
 
     const load = useCallback(async () => {
         setLoading(true)
@@ -102,6 +128,36 @@ export default function BindingsPage() {
         }
     }
 
+    function handleStartCapture(binding: Binding) {
+        setCaptureBindingId(binding.albumId)
+        setCaptureAlbum(makeEmptyAlbum())
+        setShowCaptureDialog(true)
+    }
+
+    async function handleCaptureFinish(album: Album) {
+        if (!captureBindingId) return
+        try {
+            const created = await createAlbum(album)
+            await linkBinding(captureBindingId, created.id)
+            toast.success(t.bindings.captureSuccess)
+            setShowCaptureDialog(false)
+            setCaptureAlbum(makeEmptyAlbum())
+            setCaptureBindingId(null)
+            await load()
+        } catch (e) {
+            toast.error(getApiErrorMessage(e))
+        }
+    }
+
+    const capturePrefill = (() => {
+        const binding = bindings.find(b => b.albumId === captureBindingId)
+        if (!binding) return undefined
+        return {
+            title: binding.suggestedTitle,
+            artist: binding.suggestedArtist,
+        }
+    })()
+
     return (
         <div className="bindings-page">
             <DiagnosticsPanel />
@@ -157,6 +213,20 @@ export default function BindingsPage() {
                 <p className="bindings-empty">{t.bindings.empty}</p>
             )}
 
+            {showCaptureDialog && (
+                <DiscoverAlbumDialog
+                    open={showCaptureDialog}
+                    onClose={() => {
+                        setShowCaptureDialog(false)
+                        setCaptureBindingId(null)
+                    }}
+                    onFinish={handleCaptureFinish}
+                    album={captureAlbum}
+                    setAlbum={setCaptureAlbum}
+                    prefill={capturePrefill}
+                />
+            )}
+
             <div className="bindings-list">
                 {bindings.map((b) => (
                     <Card key={b.albumId}>
@@ -180,12 +250,29 @@ export default function BindingsPage() {
                                 )}
                             </div>
                             <div className="binding-actions">
+                                {b.libraryExists && b.libraryAlbumId && onNavigateToLibrary && (
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => onNavigateToLibrary(b.libraryAlbumId!)}
+                                        disabled={processingId === b.albumId}
+                                    >
+                                        {t.bindings.viewInLibrary}
+                                    </Button>
+                                )}
                                 {b.state === "proposed" && (
                                     <Button
                                         onClick={() => handleConfirm(b.albumId)}
                                         disabled={processingId === b.albumId}
                                     >
                                         {t.bindings.confirm}
+                                    </Button>
+                                )}
+                                {!b.libraryExists && (
+                                    <Button
+                                        onClick={() => handleStartCapture(b)}
+                                        disabled={processingId === b.albumId}
+                                    >
+                                        {t.bindings.capture}
                                     </Button>
                                 )}
                                 <Button

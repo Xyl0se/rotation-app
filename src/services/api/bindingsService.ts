@@ -17,6 +17,8 @@ export interface Binding {
     libraryExists: boolean
     albumTitle?: string
     albumArtist?: string
+    suggestedTitle?: string
+    suggestedArtist?: string
 }
 
 export interface BindingsListResponse {

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import type { Album } from "../../../types/album"
 
@@ -18,6 +18,7 @@ interface DiscoverAlbumDialogProps {
     setAlbum: React.Dispatch<React.SetStateAction<Album>>
     onClose: () => void
     onFinish: (album: Album) => void
+    prefill?: { title?: string; artist?: string }
 }
 
 function DiscoverAlbumDialog({
@@ -26,12 +27,28 @@ function DiscoverAlbumDialog({
     setAlbum,
     onClose,
     onFinish,
+    prefill,
 }: DiscoverAlbumDialogProps) {
     const { t } = useI18n()
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
     const [metadataState, setMetadataState] = useState<
         "idle" | "searching" | "found" | "not-found"
     >("idle")
+
+    useEffect(() => {
+        if (open && prefill) {
+            setAlbum(prev => ({
+                ...prev,
+                ...(prefill.title && { title: prefill.title }),
+                ...(prefill.artist && { artist: prefill.artist }),
+            }))
+            if (prefill.title && prefill.artist) {
+                setCurrentStepIndex(2) // skip to metadata step
+            } else if (prefill.title) {
+                setCurrentStepIndex(1) // skip to artist step
+            }
+        }
+    }, [open, prefill, setAlbum])
 
     const currentStep = steps[currentStepIndex]
 

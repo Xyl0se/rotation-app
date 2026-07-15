@@ -2,11 +2,13 @@ import type { ReactNode } from "react"
 
 type CardProps = {
     children: ReactNode
+    className?: string
+    id?: string
 }
 
-function Card({ children }: CardProps) {
+function Card({ children, className, id }: CardProps) {
     return (
-        <div className="card">
+        <div className={`card${className ? ` ${className}` : ""}`} id={id}>
             {children}
         </div>
     )

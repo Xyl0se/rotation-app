@@ -669,8 +669,11 @@ export const de: Translation = {
             `${title} von ${artist}`,
         orphanBanner: (count: number) =>
             count === 1
-                ? "1 verwaister Ordner erkannt – prüfe auf der Bindings-Seite."
-                : `${count} verwaiste Ordner erkannt – prüfe auf der Bindings-Seite.`,
+                ? "1 verwaister Ordner erkannt – siehe Bindings-Seite."
+                : `${count} verwaiste Ordner erkannt – siehe Bindings-Seite.`,
+        capture: "Erfassen",
+        captureSuccess: "Album erfasst und verknüpft.",
+        viewInLibrary: "In Bibliothek anzeigen",
     },
 
     diagnostics: {

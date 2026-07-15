@@ -26,6 +26,12 @@ function App() {
     })
     const [page, setPage] = useState<Page>("home")
     const [showTokenDialog, setShowTokenDialog] = useState(false)
+    const [highlightAlbumId, setHighlightAlbumId] = useState<string | null>(null)
+
+    function handleNavigateToLibrary(albumId: string) {
+        setPage("home")
+        setHighlightAlbumId(albumId)
+    }
 
     function handleContinue() {
         adapter.set(STORAGE.ONBOARDING, "true")
@@ -70,8 +76,8 @@ function App() {
                     🔒
                 </button>
             </nav>
-            {page === "home" && <HomePage adapter={adapter} />}
-            {page === "bindings" && <BindingsPage />}
+            {page === "home" && <HomePage adapter={adapter} onNavigateToBindings={() => setPage("bindings")} highlightAlbumId={highlightAlbumId} />}
+            {page === "bindings" && <BindingsPage onNavigateToLibrary={handleNavigateToLibrary} />}
             {page === "export" && <ExportPage />}
             <ToastContainer />
             <WriteTokenDialog

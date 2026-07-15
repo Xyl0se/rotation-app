@@ -16,6 +16,22 @@ export interface BindingDTO {
     libraryExists: boolean
     albumTitle?: string
     albumArtist?: string
+    suggestedTitle?: string
+    suggestedArtist?: string
+}
+
+function parseFolderName(relativePath: string): { artist: string; title: string } | null {
+    // Expects "Artist / Album Title" or "Artist/Album Title"
+    const normalized = relativePath.replace(/\\/g, "/")
+    const parts = normalized.split("/").filter((p) => p.trim().length > 0)
+    if (parts.length >= 2) {
+        const artist = parts[parts.length - 2].trim()
+        const title = parts[parts.length - 1].trim()
+        if (artist && title) {
+            return { artist, title }
+        }
+    }
+    return null
 }
 
 function toDTO(
@@ -30,6 +46,7 @@ function toDTO(
         folderExists = false
     }
     const libraryExists = record.library_album_id !== null
+    const parsed = !libraryExists ? parseFolderName(record.relative_path) : null
     return {
         albumId: record.album_id,
         relativePath: record.relative_path,
@@ -44,6 +61,12 @@ function toDTO(
             ? {
                   albumTitle: record.title ?? undefined,
                   albumArtist: record.artist ?? undefined,
+              }
+            : {}),
+        ...(parsed
+            ? {
+                  suggestedTitle: parsed.title,
+                  suggestedArtist: parsed.artist,
               }
             : {}),
     }
