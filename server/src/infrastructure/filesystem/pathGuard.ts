@@ -44,6 +44,10 @@ export function resolveSafePath(
     relativePath: string,
     options: PathGuardOptions = DEFAULT_OPTIONS,
 ): string {
+    if (relativePath.includes("\0")) {
+        throw new PathTraversalError("Paths containing null bytes are not allowed")
+    }
+
     // Normalize Unicode to NFC to prevent NFC/NFD canonical equivalence attacks
     const normalizedPath = relativePath.normalize("NFC")
     const resolved = resolve(allowedBase, normalizedPath)
