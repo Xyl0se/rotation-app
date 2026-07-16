@@ -2,6 +2,12 @@
 
 ## v0.26.1-dev
 
+- **Long-running NAS export resilience and visual refresh**
+  - Replaced blocking synchronous staging copies with asynchronous filesystem operations so API health and progress endpoints remain responsive during multi-minute NAS exports.
+  - Added per-file staging progress, a 15-minute staging window, resilient non-overlapping status polling, and recovery of already-running or completed jobs after an interrupted browser/proxy response.
+  - Made staged status recoverable from SQLite after an API restart and prevented “Retry from current step” from blindly starting a duplicate copy when the original job still exists.
+  - Redesigned Export as a responsive pastel travel landscape with sky, clouds, sun, grass, translucent content surfaces, and context-matched progress and action styling.
+
 - **Release-candidate acceptance**
   - Completed the production NAS acceptance path from Album Capture and confirmed Binding through Rotation export and Syncthing delivery.
   - Verified clean deployment as UID/GID `1026:100`, persistence across restart, Syncthing metadata preservation, and SQLite backup/restore.

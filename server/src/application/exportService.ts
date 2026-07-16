@@ -7,7 +7,7 @@ import type { ExportLockRepository } from "../infrastructure/persistence/sqlite/
 import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
 import {
     previewExport,
-    stageExport,
+    stageExportAsync,
     applyExport,
     rollbackStaging,
     calculateExportDiffForPreview,
@@ -145,10 +145,19 @@ export function createExportService(
                 file_count: preview.fileCount,
             })
 
-            // Run staging asynchronously
-            setImmediate(() => {
+            // Use asynchronous filesystem operations so health/status requests remain
+            // responsive throughout large NAS copies.
+            setImmediate(() => void (async () => {
                 try {
-                    const result = stageExport(exportId, preview, workspaceGuard)
+                    let filesCopied = 0
+                    const result = await stageExportAsync(exportId, preview, workspaceGuard, () => {
+                        filesCopied++
+                        stagingJobs.set(exportId, {
+                            status: "staging",
+                            filesCopied,
+                            totalFiles: preview.fileCount,
+                        })
+                    })
                     exportRepo.save({
                         id: exportId,
                         rotation_plan_id: null,
@@ -188,11 +197,22 @@ export function createExportService(
                         lockRepo.release()
                     }
                 }
-            })
+            })())
         },
 
         getStageStatus(exportId: string): StagingProgress | undefined {
-            return stagingJobs.get(exportId)
+            const live = stagingJobs.get(exportId)
+            if (live) return live
+            const persisted = exportRepo.findById(exportId)
+            if (persisted?.status === "staged" && persisted.staging_path) {
+                return {
+                    status: "staged",
+                    filesCopied: persisted.file_count ?? 0,
+                    totalFiles: persisted.file_count ?? 0,
+                    skippedSources: [],
+                }
+            }
+            return undefined
         },
 
         runApply(exportId: string): ExportApplyResult & { diff: ExportDiff } {

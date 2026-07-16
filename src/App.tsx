@@ -74,7 +74,11 @@ function App() {
                     <BindingsPage onNavigateToLibrary={handleNavigateToLibrary} />
                 </main>
             )}
-            {page === "export" && <ExportPage />}
+            {page === "export" && (
+                <main className="export-workspace">
+                    <ExportPage />
+                </main>
+            )}
             <ToastContainer />
         </>
     )

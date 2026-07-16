@@ -10,7 +10,9 @@ import {
     calculateDirectorySize,
     countFiles,
     copyDirectory,
+    copyDirectoryAsync,
     writeManifest,
+    writeManifestAsync,
     resolveSourcePath,
     resolveStagingPath,
     resolveExportTargetDir,
@@ -156,6 +158,47 @@ export function stageExport(
     const manifestPath = join(stagingPath, "manifest.json")
     writeManifest(manifestPath, manifest)
 
+    return { stagingPath, manifestPath, manifest, skippedSources }
+}
+
+export async function stageExportAsync(
+    exportId: string,
+    preview: ExportPreviewResult,
+    workspaceGuard: PathGuard,
+    onFileCopied?: () => void,
+): Promise<ExportStageResult> {
+    const stagingPath = resolveStagingPath(exportId, workspaceGuard)
+    const skippedSources: ExportSource[] = []
+
+    for (const source of preview.sources) {
+        if (!existsSync(source.absolutePath)) {
+            skippedSources.push(source)
+            continue
+        }
+        await copyDirectoryAsync(
+            source.absolutePath,
+            join(stagingPath, source.relativePath),
+            onFileCopied,
+        )
+    }
+
+    const manifestAlbums = preview.sources
+        .filter((source) => !skippedSources.some((skipped) => skipped.albumId === source.albumId))
+        .map((source) => ({
+            albumId: source.albumId,
+            relativePath: source.relativePath,
+            artistName: source.artistName,
+            albumName: source.albumName,
+        }))
+    const manifest = createManifest(
+        exportId,
+        manifestAlbums,
+        preview.totalSizeBytes,
+        preview.fileCount,
+        "staged",
+    )
+    const manifestPath = join(stagingPath, "manifest.json")
+    await writeManifestAsync(manifestPath, manifest)
     return { stagingPath, manifestPath, manifest, skippedSources }
 }
 

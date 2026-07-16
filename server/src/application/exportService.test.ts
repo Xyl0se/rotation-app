@@ -14,6 +14,16 @@ const LIBRARY_ALBUM_ID = "762afc5e-5408-4d9d-b48a-237874d7ec34"
 const FILESYSTEM_ALBUM_ID = "Test Artist/Rotation NAS Acceptance Test"
 const roots: string[] = []
 
+async function waitForStaging(service: ReturnType<typeof createExportService>, exportId: string): Promise<void> {
+    for (let attempt = 0; attempt < 100; attempt++) {
+        const status = service.getStageStatus(exportId)?.status
+        if (status === "staged") return
+        if (status === "failed") throw new Error("Staging failed")
+        await new Promise(resolve => setTimeout(resolve, 10))
+    }
+    throw new Error("Staging did not complete in time")
+}
+
 afterEach(() => {
     for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true })
 })
@@ -76,7 +86,7 @@ describe("ExportService canonical Album identity", () => {
         ])
 
         service.runStage(preview.exportId, [LIBRARY_ALBUM_ID])
-        await new Promise<void>((resolve) => setImmediate(resolve))
+        await waitForStaging(service, preview.exportId)
         expect(service.getStageStatus(preview.exportId)?.status).toBe("staged")
 
         const applied = service.runApply(preview.exportId)
@@ -105,7 +115,7 @@ describe("ExportService canonical Album identity", () => {
 
         const repeatedPreview = service.createPreview([LIBRARY_ALBUM_ID])
         service.runStage(repeatedPreview.exportId, [LIBRARY_ALBUM_ID])
-        await new Promise<void>((resolve) => setImmediate(resolve))
+        await waitForStaging(service, repeatedPreview.exportId)
 
         // Syncthing still sees the complete previous rotation during staging.
         expect(existsSync(exportedTrack)).toBe(true)

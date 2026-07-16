@@ -80,6 +80,65 @@ export function useExport() {
         }
     }, [])
 
+    const startStatusPolling = useCallback((exportId: string) => {
+        stopPolling()
+        const startedAt = Date.now()
+        const POLL_INTERVAL_MS = 1500
+        const POLL_TIMEOUT_MS = 15 * 60 * 1000
+
+        const poll = async () => {
+            if (Date.now() - startedAt >= POLL_TIMEOUT_MS) {
+                stopPolling()
+                setState(s => ({
+                    ...s,
+                    step: "error",
+                    error: "Export staging timed out after 15 minutes. The server status may still be checked by retrying this step.",
+                    warning: null,
+                }))
+                return
+            }
+
+            try {
+                const progress = await getExportStatus(exportId)
+                const hasSkipped = Boolean(progress.skippedSources?.length)
+                const warning = hasSkipped
+                    ? `${progress.skippedSources!.length} album(s) could not be copied`
+                    : null
+
+                if (progress.status === "staged") {
+                    stopPolling()
+                    setState(s => ({ ...s, step: "staged", progress, error: null, warning }))
+                } else if (progress.status === "failed") {
+                    stopPolling()
+                    setState(s => ({
+                        ...s,
+                        step: "error",
+                        progress,
+                        error: progress.error ?? "Staging failed",
+                        warning: null,
+                    }))
+                } else {
+                    setState(s => ({ ...s, step: "staging", progress, error: null, warning }))
+                }
+            } catch (err) {
+                // A transient status request must not discard a server-side job.
+                // Keep polling until the generous NAS staging deadline is reached.
+                setState(s => ({
+                    ...s,
+                    step: "staging",
+                    error: null,
+                    warning: err instanceof Error ? err.message : String(err),
+                }))
+            }
+
+            if (pollRef.current !== null) {
+                pollRef.current = setTimeout(() => void poll(), POLL_INTERVAL_MS)
+            }
+        }
+
+        pollRef.current = setTimeout(() => void poll(), 0)
+    }, [stopPolling])
+
     const runStage = useCallback(async () => {
         setState(s => ({ ...s, step: "staging", error: null, warning: null }))
 
@@ -90,66 +149,10 @@ export function useExport() {
             }
 
             const albumIds = previewResult.sources.map(s => s.albumId)
-            await stageExport(previewResult.exportId, albumIds)
-
-            // Start polling with timeout
-            stopPolling()
-            let elapsed = 0
-            const POLL_INTERVAL_MS = 500
-            const POLL_TIMEOUT_MS = 60000
-
-            pollRef.current = setInterval(async () => {
-                elapsed += POLL_INTERVAL_MS
-                if (elapsed >= POLL_TIMEOUT_MS) {
-                    stopPolling()
-                    setState(s => ({
-                        ...s,
-                        step: "error",
-                        error: "Export staging timed out. Please try again.",
-                        warning: null,
-                    }))
-                    return
-                }
-
-                try {
-                    const progress = await getExportStatus(previewResult.exportId)
-                    const hasSkipped = progress.skippedSources && progress.skippedSources.length > 0
-                    const warning = hasSkipped
-                        ? `${progress.skippedSources!.length} album(s) could not be copied`
-                        : null
-
-                    if (progress.status === "staged") {
-                        stopPolling()
-                        setState(s => ({
-                            ...s,
-                            step: "staged",
-                            progress,
-                            error: null,
-                            warning,
-                        }))
-                    } else if (progress.status === "failed") {
-                        stopPolling()
-                        setState(s => ({
-                            ...s,
-                            step: "error",
-                            progress,
-                            error: progress.error ?? "Staging failed",
-                            warning: null,
-                        }))
-                    } else {
-                        setState(s => ({ ...s, progress, warning }))
-                    }
-                } catch (err) {
-                    stopPolling()
-                    const message = err instanceof Error ? err.message : String(err)
-                    setState(s => ({
-                        ...s,
-                        step: "error",
-                        error: message,
-                        warning: null,
-                    }))
-                }
-            }, POLL_INTERVAL_MS)
+            await stageExport(previewResult.exportId, albumIds).catch(() => undefined)
+            // The server may have accepted the job even if the response was
+            // interrupted by a proxy or browser timeout. Status is authoritative.
+            startStatusPolling(previewResult.exportId)
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err)
             setState(s => ({
@@ -159,7 +162,7 @@ export function useExport() {
                 warning: null,
             }))
         }
-    }, [state.preview, stopPolling])
+    }, [state.preview, startStatusPolling])
 
     const runApply = useCallback(async () => {
         setState(s => ({ ...s, step: "applying", error: null }))
@@ -201,8 +204,22 @@ export function useExport() {
 
     const retryFromStep = useCallback(async () => {
         setState(s => ({ ...s, step: "staging", error: null, warning: null }))
+        const exportId = state.preview?.exportId
+        if (exportId) {
+            try {
+                const progress = await getExportStatus(exportId)
+                if (progress.status === "staged") {
+                    setState(s => ({ ...s, step: "staged", progress, error: null, warning: null }))
+                    return
+                }
+                startStatusPolling(exportId)
+                return
+            } catch {
+                // No recoverable server job exists; start the current preview once.
+            }
+        }
         await runStage()
-    }, [runStage])
+    }, [runStage, startStatusPolling, state.preview])
 
     const resetAndStartOver = useCallback(async () => {
         reset()

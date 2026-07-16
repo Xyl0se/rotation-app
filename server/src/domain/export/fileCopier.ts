@@ -1,4 +1,5 @@
 import { readdirSync, statSync, copyFileSync, mkdirSync, writeFileSync } from "node:fs"
+import { copyFile, mkdir, readdir, writeFile } from "node:fs/promises"
 import { join, dirname } from "node:path"
 import { createLogger } from "../../infrastructure/logger/logger.js"
 import type { PathGuard } from "../../infrastructure/filesystem/pathGuard.js"
@@ -85,9 +86,36 @@ export function copyDirectory(
     onProgress?.(copied)
 }
 
+export async function copyDirectoryAsync(
+    srcDir: string,
+    destDir: string,
+    onFileCopied?: () => void,
+): Promise<void> {
+    await mkdir(destDir, { recursive: true })
+    const entries = await readdir(srcDir, { withFileTypes: true })
+
+    for (const entry of entries) {
+        const srcPath = join(srcDir, entry.name)
+        const destPath = join(destDir, entry.name)
+
+        if (entry.isDirectory()) {
+            await copyDirectoryAsync(srcPath, destPath, onFileCopied)
+        } else if (entry.isFile()) {
+            await mkdir(dirname(destPath), { recursive: true })
+            await copyFile(srcPath, destPath)
+            onFileCopied?.()
+        }
+    }
+}
+
 export function writeManifest(manifestPath: string, manifest: ExportManifest): void {
     mkdirSync(dirname(manifestPath), { recursive: true })
     writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), "utf-8")
+}
+
+export async function writeManifestAsync(manifestPath: string, manifest: ExportManifest): Promise<void> {
+    await mkdir(dirname(manifestPath), { recursive: true })
+    await writeFile(manifestPath, JSON.stringify(manifest, null, 2), "utf-8")
 }
 
 export function resolveSourcePath(relativePath: string, musicGuard: PathGuard): string {
