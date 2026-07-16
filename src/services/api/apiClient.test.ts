@@ -35,8 +35,8 @@ describe("apiClient trusted proxy authentication", () => {
 
         expect(getApiErrorMessage(new ApiError(403, {
             code: "CROSS_SITE_MUTATION",
-            error: "Forbidden: request Origin does not match proxy host; check NAS reverse-proxy Host forwarding",
-            diagnostic: { reason: "origin-host-mismatch" },
-        }, "Forbidden"))).toContain("NAS reverse-proxy Host forwarding")
+            error: "Forbidden: cross-site mutation",
+            diagnostic: { reason: "fetch-metadata-cross-site" },
+        }, "Forbidden"))).toContain("cross-site mutation")
     })
 })

@@ -200,7 +200,9 @@ Ownership is defined in [ADR 013](./adr/013-data-ownership-boundaries.md). In su
 
 Mutating browser requests use the same-origin `/api` proxy. Caddy overwrites and
 injects the internal write token; the browser never receives or persists it. The
-API validates both this internal boundary and browser Origin/Fetch Metadata.
+API validates the internal boundary and rejects browser requests explicitly marked
+`Sec-Fetch-Site: cross-site`. Origin/Host equality is not enforced because NAS
+reverse proxies may rewrite externally visible host and protocol information.
 
 ---
 

@@ -122,14 +122,12 @@ describe("write-token middleware", () => {
             diagnostic: {
                 reason: "fetch-metadata-cross-site",
                 fetchSite: "cross-site",
-                originHost: null,
-                expectedHost: null,
             },
         })
         expect(next).not.toHaveBeenCalled()
     })
 
-    it("rejects a mismatching Origin when Fetch Metadata is unavailable", () => {
+    it("accepts a rewritten proxy host when Fetch Metadata is unavailable", () => {
         const res = response()
         const next = vi.fn() as NextFunction
 
@@ -138,21 +136,11 @@ describe("write-token middleware", () => {
             "x-forwarded-host": "rotation.local:3000",
         }), res.value, next)
 
-        expect(res.status).toHaveBeenCalledWith(403)
-        expect(res.json).toHaveBeenCalledWith({
-            code: "CROSS_SITE_MUTATION",
-            error: "Forbidden: request Origin does not match proxy host; check NAS reverse-proxy Host forwarding",
-            diagnostic: {
-                reason: "origin-host-mismatch",
-                fetchSite: null,
-                originHost: "evil.example",
-                expectedHost: "rotation.local:3000",
-            },
-        })
-        expect(next).not.toHaveBeenCalled()
+        expect(next).toHaveBeenCalledOnce()
+        expect(res.status).not.toHaveBeenCalled()
     })
 
-    it("rejects a mismatching Origin even when the protocol matches", () => {
+    it("accepts same-site Fetch Metadata despite rewritten proxy host", () => {
         const res = response()
         const next = vi.fn() as NextFunction
 
@@ -163,8 +151,8 @@ describe("write-token middleware", () => {
             "sec-fetch-site": "same-site",
         }), res.value, next)
 
-        expect(res.status).toHaveBeenCalledWith(403)
-        expect(next).not.toHaveBeenCalled()
+        expect(next).toHaveBeenCalledOnce()
+        expect(res.status).not.toHaveBeenCalled()
     })
 
     it.each(["GET", "HEAD", "OPTIONS"])("allows safe %s requests without a token", (method) => {

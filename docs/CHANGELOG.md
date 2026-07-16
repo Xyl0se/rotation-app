@@ -7,6 +7,7 @@
   - Added Origin/Fetch Metadata protection for mutations while retaining constant-time protection for direct API access.
   - Fixed false cross-site rejections when HTTPS terminates at a NAS reverse proxy before Caddy's internal HTTP connection; Origin validation now compares the externally stable host while Fetch Metadata still rejects cross-site requests.
   - Treats browser-controlled `Sec-Fetch-Site: same-origin` as authoritative even when a NAS proxy rewrites the forwarded Host, and returns safe rejection diagnostics instead of a generic write-token message.
+  - Removed the remaining Origin/Host equality fallback because Synology/NAS proxies may rewrite the Host even when Fetch Metadata is `same-site` or unavailable; explicit `Sec-Fetch-Site: cross-site` requests remain blocked and protected routes still require Caddy's internal token.
 
 - **Sprint 76.1 — Pre-Release Integrity & Hardening Supersprint**
   - Protected every mutating API route, hardened cover paths/uploads, standardized sanitized API failures, and added route-level security coverage.

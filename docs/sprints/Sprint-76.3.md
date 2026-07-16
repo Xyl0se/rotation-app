@@ -54,7 +54,8 @@ API mutations that bypass the trusted proxy remain protected.
 ## Workstream 76.3C — Same-Origin Mutation Protection
 
 - Reject browser mutations with `Sec-Fetch-Site: cross-site`.
-- When an `Origin` header exists, require it to match the proxy-forwarded host.
+- Do not compare `Origin` with proxy Host/protocol because NAS reverse proxies may
+  legitimately rewrite both before the request reaches Caddy.
 - Permit non-browser administration requests without `Origin` only when they
   present the internal token directly.
 - Keep safe GET/HEAD/OPTIONS requests readable.

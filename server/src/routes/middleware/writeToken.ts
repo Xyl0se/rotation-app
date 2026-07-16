@@ -18,10 +18,8 @@ function firstHeaderValue(value: string | string[] | undefined): string | undefi
 
 interface BrowserTrustResult {
     trusted: boolean
-    reason?: "fetch-metadata-cross-site" | "invalid-origin" | "origin-host-mismatch"
+    reason?: "fetch-metadata-cross-site"
     fetchSite?: string
-    originHost?: string
-    expectedHost?: string
 }
 
 function evaluateBrowserTrust(req: Request): BrowserTrustResult {
@@ -30,43 +28,19 @@ function evaluateBrowserTrust(req: Request): BrowserTrustResult {
         return { trusted: false, reason: "fetch-metadata-cross-site", fetchSite }
     }
 
-    // Sec-Fetch-Site is a forbidden request header controlled by the browser. It is
-    // the most reliable signal when an upstream NAS proxy rewrites Host headers.
-    if (fetchSite === "same-origin") return { trusted: true, fetchSite }
-
-    const origin = firstHeaderValue(req.headers.origin)
-    if (!origin) return { trusted: true, fetchSite } // CLI/internal caller still needs the secret
-
-    try {
-        const parsedOrigin = new URL(origin)
-        const forwardedHost = firstHeaderValue(req.headers["x-forwarded-host"])
-        const expectedHost = forwardedHost ?? firstHeaderValue(req.headers.host)
-        if (!expectedHost || parsedOrigin.host !== expectedHost) {
-            return {
-                trusted: false,
-                reason: "origin-host-mismatch",
-                fetchSite,
-                originHost: parsedOrigin.host,
-                expectedHost,
-            }
-        }
-        return { trusted: true, fetchSite }
-    } catch {
-        return { trusted: false, reason: "invalid-origin", fetchSite }
-    }
+    // Host and protocol are not stable across Synology/NAS reverse proxies. The
+    // browser-controlled Fetch Metadata header is therefore the only cross-site
+    // signal enforced here. The internal token remains mandatory on protected routes.
+    return { trusted: true, fetchSite }
 }
 
 function rejectUntrustedBrowserRequest(res: Response, result: BrowserTrustResult): void {
     res.status(403).json({
         code: "CROSS_SITE_MUTATION",
-        error: result.reason === "origin-host-mismatch"
-            ? "Forbidden: request Origin does not match proxy host; check NAS reverse-proxy Host forwarding"
-            : "Forbidden: cross-site mutation",
+        error: "Forbidden: cross-site mutation",
         diagnostic: {
             reason: result.reason,
             fetchSite: result.fetchSite ?? null,
-            originHost: result.originHost ?? null,
-            expectedHost: result.expectedHost ?? null,
         },
     })
 }
