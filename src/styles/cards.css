@@ -210,6 +210,13 @@
         background var(--transition-base);
 }
 
+.album-card-tools .card-tool-button.coach {
+    border-color: rgba(126, 161, 179, .42);
+    background: rgba(218, 235, 247, .72);
+    color: #315b75;
+    font-size: 15px;
+}
+
 .album-card-tools .focus-button.active {
     background: var(--color-primary);
     border-color: rgba(90,125,90,.35);

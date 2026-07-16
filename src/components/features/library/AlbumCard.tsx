@@ -23,6 +23,7 @@ type AlbumCardProps = {
     onLogListen: (id: string) => void
     onReconsider: (id: string) => void
     onSetFocus: (id: string) => void
+    onStartCoach?: (id: string) => void
     showRoleLabel?: boolean
     binding?: Binding | null
     id?: string
@@ -38,6 +39,7 @@ function AlbumCard({
     onLogListen,
     onReconsider,
     onSetFocus,
+    onStartCoach,
     showRoleLabel = true,
     binding = null,
     id,
@@ -121,6 +123,17 @@ function AlbumCard({
                 </div>
 
                 <div className="album-card-tools">
+                    {!album.category && onStartCoach && (
+                        <button
+                            className="card-tool-button coach"
+                            onClick={() => onStartCoach(album.id)}
+                            aria-label={t.albumCard.startCoach}
+                            title={t.albumCard.startCoach}
+                        >
+                            ✨
+                        </button>
+                    )}
+
                     {!isArchived && (
                         <button
                             className={

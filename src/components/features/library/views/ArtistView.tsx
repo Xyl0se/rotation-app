@@ -13,6 +13,7 @@ type ArtistViewProps = {
     onLogListen: (id: string) => void
     onReconsider: (id: string) => void
     onSetFocus: (id: string) => void
+    onStartCoach: (id: string) => void
 }
 
 function ArtistView({
@@ -24,6 +25,7 @@ function ArtistView({
     onLogListen,
     onReconsider,
     onSetFocus,
+    onStartCoach,
 }: ArtistViewProps) {
 
     const groups = groupByArtist(albums)
@@ -38,6 +40,7 @@ function ArtistView({
             onLogListen={onLogListen}
             onReconsider={onReconsider}
             onSetFocus={onSetFocus}
+            onStartCoach={onStartCoach}
             emptyMessage="Noch keine Alben in der Bibliothek."
         />
     )

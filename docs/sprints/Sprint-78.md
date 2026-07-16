@@ -28,6 +28,8 @@ retained. This sprint adds retrieval and narrowing, not duplicate groupings.
 ## Workstream 78B — Composable Filters
 
 - Filter by album role, archive state, and release year/range.
+- Include an explicit “No role assigned” filter for albums that still need the
+  Album Coach; do not silently fold them into another role.
 - Offer listening-state filters such as “never listened” without inventing scores.
 - Make search, filters, and existing Library views compose predictably.
 - Provide an obvious reset and a useful empty state.
@@ -43,6 +45,7 @@ retained. This sprint adds retrieval and narrowing, not duplicate groupings.
 
 - [ ] Title, artist, and story search works with keyboard and pointer input.
 - [ ] Search and filters work across all existing Library perspectives.
+- [ ] Albums without a role can be isolated with a dedicated filter.
 - [ ] Filters use canonical server data and create no browser-owned Library copy.
 - [ ] Saved views are deterministic and their rules are visible.
 - [ ] Accessibility, empty-state, and regression tests cover the primary paths.

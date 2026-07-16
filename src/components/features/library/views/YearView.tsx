@@ -13,6 +13,7 @@ type YearViewProps = {
     onLogListen: (id: string) => void
     onReconsider: (id: string) => void
     onSetFocus: (id: string) => void
+    onStartCoach: (id: string) => void
 }
 
 function YearView({
@@ -24,6 +25,7 @@ function YearView({
     onLogListen,
     onReconsider,
     onSetFocus,
+    onStartCoach,
 }: YearViewProps) {
 
     const groups = groupByYear(albums)
@@ -38,6 +40,7 @@ function YearView({
             onLogListen={onLogListen}
             onReconsider={onReconsider}
             onSetFocus={onSetFocus}
+            onStartCoach={onStartCoach}
             emptyMessage="Noch keine Alben in der Bibliothek."
         />
     )

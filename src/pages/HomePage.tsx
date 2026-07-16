@@ -287,6 +287,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                                 onLogListen={handleLogListen}
                                 onReconsider={setArchiveReturnAlbumId}
                                 onSetFocus={setFocusAlbumId}
+                                onStartCoach={setManualCoachAlbumId}
                             />
                             <BackupControls
                                 adapter={adapter}

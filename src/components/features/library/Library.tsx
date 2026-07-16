@@ -31,6 +31,7 @@ type LibraryProps = {
     onLogListen: (id: string) => void
     onReconsider: (id: string) => void
     onSetFocus: (id: string) => void
+    onStartCoach: (id: string) => void
 }
 
 function Library({
@@ -54,6 +55,7 @@ function Library({
     onReconsider,
 
     onSetFocus,
+    onStartCoach,
 
 }: LibraryProps) {
     const { t } = useI18n()
@@ -141,6 +143,7 @@ function Library({
                                 onReconsider={onReconsider}
 
                                 onSetFocus={onSetFocus}
+                                onStartCoach={onStartCoach}
 
                             />
 
@@ -184,6 +187,7 @@ function Library({
                     onLogListen={onLogListen}
                     onReconsider={onReconsider}
                     onSetFocus={onSetFocus}
+                    onStartCoach={onStartCoach}
                 />
             )}
 
@@ -197,6 +201,7 @@ function Library({
                     onLogListen={onLogListen}
                     onReconsider={onReconsider}
                     onSetFocus={onSetFocus}
+                    onStartCoach={onStartCoach}
                 />
             )}
 
@@ -211,6 +216,7 @@ function Library({
                     onLogListen={onLogListen}
                     onReconsider={onReconsider}
                     onSetFocus={onSetFocus}
+                    onStartCoach={onStartCoach}
                 />
             )}
 
@@ -224,6 +230,7 @@ function Library({
                     onLogListen={onLogListen}
                     onReconsider={onReconsider}
                     onSetFocus={onSetFocus}
+                    onStartCoach={onStartCoach}
                 />
             )}
 

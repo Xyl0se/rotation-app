@@ -15,6 +15,7 @@ type LastListenedViewProps = {
     onLogListen: (id: string) => void
     onReconsider: (id: string) => void
     onSetFocus: (id: string) => void
+    onStartCoach: (id: string) => void
 }
 
 function LastListenedView({
@@ -27,6 +28,7 @@ function LastListenedView({
     onLogListen,
     onReconsider,
     onSetFocus,
+    onStartCoach,
 }: LastListenedViewProps) {
 
     const groups = groupByLastListened(albums, listenEvents)
@@ -41,6 +43,7 @@ function LastListenedView({
             onLogListen={onLogListen}
             onReconsider={onReconsider}
             onSetFocus={onSetFocus}
+            onStartCoach={onStartCoach}
             emptyMessage="Noch keine Alben in der Bibliothek."
         />
     )

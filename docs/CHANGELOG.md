@@ -6,6 +6,7 @@
   - Reworked mature-album classification so Classic, Comfort Food, and Admiration represent long-term influence, familiar automatic return, and explicit musical esteem instead of hidden fallback priorities.
   - Added an explicit differentiator when Classic and Comfort Food overlap, made Classic reachable for currently resting albums, and removed ineffective early/archive questions.
   - Moved every Album Coach question and description to the DE/EN translation catalog and added German UI path coverage.
+  - Added a localized ✨ shortcut on roleless Library cards that opens the Album Coach directly; Sprint 78 now includes a dedicated “No role assigned” filter.
 
 - **Sprint 76.3 — Trusted Proxy Write Boundary**
   - Removed browser write-token storage, token headers, and token UI. Caddy now overwrites and injects the internal deployment secret for same-origin `/api` requests.

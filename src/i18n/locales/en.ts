@@ -378,6 +378,7 @@ export const en = {
         listenCount: (count: number) => `${count}x listened`,
         setFocus: "Set Focus",
         edit: "Edit Album",
+        startCoach: "Determine role with Album Coach",
         archive: "Move to Archive",
         reconsider: "Check Rediscovery",
         delete: "Delete Album",

@@ -379,6 +379,7 @@ export const de: Translation = {
         listenCount: (count: number) => `${count}x gehört`,
         setFocus: "Fokus setzen",
         edit: "Album bearbeiten",
+        startCoach: "Rolle mit Album Coach bestimmen",
         archive: "Im Archiv ablegen",
         reconsider: "Wiederentdeckung prüfen",
         delete: "Album löschen",
