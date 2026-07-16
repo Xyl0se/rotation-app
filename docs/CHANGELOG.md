@@ -11,6 +11,7 @@
   - Hardened remote cover resolution through validated server-side caching, bounded retries, ordered MusicBrainz Release/Release Group fallbacks, safe persisted diagnostics, manual re-resolution, and one non-hotlinked rendering path across all Album surfaces.
   - Made Capture metadata lookup tolerate filesystem punctuation substitutions such as `_` for `:` through bounded title variants while preserving genuine underscore matches and adopting confirmed MusicBrainz titles.
   - Fixed acceptance of a server-reloaded draft Rotation by normalizing nullable SQLite lifecycle timestamps and sending an explicit canonical plan payload instead of replaying nullable response-only fields.
+  - Made the production Compose image tag configurable and defaulted the active RC acceptance stack to matching `latest` builds, preventing Portainer from silently redeploying immutable pre-fix images; stable releases remain explicitly pinned.
   - Removed the completed one-time browser Rotation/Listening import bridge while retaining supported historical migrations and Album portability.
   - Reconciled root/API versions and production API/Web image tags at `v0.29.0-rc.1`, added curated GitHub Release automation, immutable production Compose tags, release notes, and a NAS acceptance/rollback runbook.
   - Corrected the immutable GHCR references to retain the leading `v` emitted from the Git release tag, preventing Portainer `manifest unknown` failures.

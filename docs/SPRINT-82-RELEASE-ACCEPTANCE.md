@@ -33,7 +33,9 @@ place; do not mark an item green based only on local tests.
 
 - [ ] Create a draft and verify the handover comparison. Initial NAS smoke reached the
   comparison successfully; acceptance exposed a nullable lifecycle-payload regression,
-  now covered by a load-draft-and-accept route test and awaiting redeploy verification.
+  now covered by a load-draft-and-accept route test. The first retest still used the
+  immutable pre-fix `v0.29.0-rc.1` images; redeploy verification must use matching
+  `latest` images or set `ROTATION_IMAGE_TAG` to the matching fix-build SHA.
 - [ ] Accept it; the earlier active Rotation appears read-only in History.
 - [ ] Preview, stage, and apply an export; its Rotation link appears in History.
 - [ ] Reload the browser and restart both containers; active/draft state remains correct.

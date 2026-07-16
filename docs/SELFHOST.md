@@ -246,6 +246,12 @@ For `v0.29.0-rc.1`, record deployment evidence and the desktop/390 px visual gat
 rollback restores both the previous database backup and matching API/Web SHA tags;
 never start an older image against a database already migrated to schema 11.
 
+During release-candidate acceptance, `docker-compose.prod.yml` defaults to the matching
+API/Web `latest` images produced from `main`. Set `ROTATION_IMAGE_TAG` to one identical
+SHA tag for both services when an exact candidate must be frozen. Stable releases must
+set the immutable release tag explicitly; redeploying the old `v0.29.0-rc.1` tag cannot
+pick up later fixes from `main`.
+
 ---
 
 ## Healthchecks
