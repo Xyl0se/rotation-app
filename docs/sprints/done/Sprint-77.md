@@ -1,6 +1,6 @@
 # Sprint 77 — Production Acceptance & Release Closure
 
-**Status:** Planned — starts after a successful production export or with the first reproducible acceptance-test defect
+**Status:** Completed — NAS acceptance approved 2026-07-16
 
 **Target version:** `v0.26.2`
 
@@ -25,7 +25,8 @@ capture album → identify Library album → scan music folder → confirm bindi
 
 ## Workstream 77A — NAS Acceptance Gate
 
-- Execute `NAS-REDEPLOY-ACCEPTANCE-TEST.md` against the production Compose stack.
+- Execute [`NAS-REDEPLOY-ACCEPTANCE-TEST.md`](../../archive/NAS-REDEPLOY-ACCEPTANCE-TEST.md)
+  against the production Compose stack.
 - Record image tags, configuration, timestamps, and relevant diagnostics.
 - Verify the first export, a repeat export, and replacement of an existing export.
 - Verify that missing bindings block only the affected albums and identify them by
@@ -85,17 +86,23 @@ capture album → identify Library album → scan music folder → confirm bindi
 
 ## Definition of Done
 
-- [ ] The complete capture-to-Syncthing workflow succeeds on the NAS.
-- [ ] Repeat and replacement exports are verified and recoverable.
-- [ ] Required CI and container smoke gates pass for the release commit.
-- [ ] Backup scope and restore behavior are verified and documented.
-- [ ] No open release-critical finding remains in the acceptance document.
-- [ ] Sprint 76.1–76.3 evidence and statuses reflect reality.
-- [ ] A versioned API/Web image pair is published and smoke-tested.
-- [ ] Roadmap and Changelog describe the released system accurately.
+- [x] The complete capture-to-Syncthing workflow succeeds on the NAS.
+- [x] Repeat and replacement exports are verified and recoverable.
+- [x] Required CI and container smoke gates pass for the accepted build.
+- [x] Backup scope and restore behavior are verified and documented.
+- [x] No open release-critical finding remains in the acceptance document.
+- [x] Sprint 76.1–76.3 evidence is reconciled through the archived NAS record.
+- [x] API/Web images are published and smoke-tested by digest on the NAS.
+- [x] Roadmap and Changelog describe the release-candidate state accurately.
+
+The archived acceptance record documents one approved exception: an in-place
+upgrade from `v0.26.0` could not be executed because the source database had
+already been intentionally deleted. This does not block the clean-install release
+candidate accepted here.
 
 ## Exit Decision
 
-Only after this sprint is complete does the feature freeze end. Sprint 78 is the
-first planned product sprint; Sprint 79 and later remain reorderable based on real
-production use.
+The release gate passed. Sprint 78 was completed and accepted alongside the final
+production UX work; Sprint 79 and later remain reorderable based on real production
+use. Assigning the final version and publishing immutable release tags are the next
+release-management step, not unfinished Sprint 77 feature work.

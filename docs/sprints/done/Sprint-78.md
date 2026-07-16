@@ -1,6 +1,6 @@
 # Sprint 78 — Library Findability
 
-**Status:** Implementation complete; production UX verification pending
+**Status:** Completed — production UX accepted 2026-07-16
 
 **Target version:** `v0.27.0-dev`
 
@@ -68,6 +68,10 @@ retained. This sprint adds retrieval and narrowing, not duplicate groupings.
 - UI tests cover German labels, Story search, `/` focus, reset, empty state,
   quick-view toggling, and persistence of the filtered projection across Perspectives.
 - Full frontend/server validation and production builds remain required before merge.
+
+Production verification was accepted together with the NAS release gate on
+2026-07-16. Follow-up fixes covered roleless filtering, direct Album Coach access,
+binding visibility in the Album editor, and reassignment of an existing role.
 
 ## Non-Goals
 

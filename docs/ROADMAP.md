@@ -4,7 +4,7 @@
 >
 > Rotation accompanies the relationship between person and album.
 
-Version: v0.26.1-dev
+Version: v0.26.1-dev — release candidate preparation
 
 ---
 
@@ -17,10 +17,10 @@ capture album → Library → music-folder binding → curated rotation
 → export → Syncthing folder
 ```
 
-The immediate task is not another feature. It is to prove this workflow on the NAS,
-close the stabilization supersprints, and publish a coherent release. If production
-export succeeds, Sprint 77 is the release-closure gate. If it fails, the reproduced
-export defect is the first Sprint 77 work item.
+The complete workflow has now been proven on the NAS, including Syncthing delivery,
+restart persistence, and backup/restore. Sprints 77 and 78 are closed. The immediate
+task is to assign the coherent release version, publish immutable API/Web image tags,
+and run a short post-release smoke test before starting another feature sprint.
 
 After that gate, product work resumes in a deliberately narrow order: find albums,
 reduce binding friction, then close the remaining browser-owned data gap.
@@ -52,11 +52,11 @@ Not optimization.
 
 | Order | Sprint | Outcome | Target | Decision |
 |------:|--------|---------|--------|----------|
-| Now | [76.1](./sprints/Sprint-76.1.md), [76.2](./sprints/Sprint-76.2.md), [76.3](./sprints/Sprint-76.3.md) | Implemented stabilization work | v0.26.2-dev | Awaiting final NAS evidence |
-| 1 | [Sprint 77](./sprints/Sprint-77.md) | Production acceptance and release closure | v0.26.2 | Required release gate |
-| 2 | [Sprint 78](./sprints/Sprint-78.md) | Library findability | v0.27.0-dev | Implementation complete; production UX verification pending |
-| 3 | [Sprint 79](./sprints/Sprint-79.md) | Safe ranked binding candidates | v0.27.1-dev | Revalidate from real unmatched folders |
-| 4 | [Sprint 80](./sprints/Sprint-80.md) | Server-owned listening and rotation data | v0.28.0-dev | Required before multi-device/PWA |
+| Now | Release preparation | Version alignment, immutable API/Web tags, post-release smoke test | Release candidate | NAS acceptance passed |
+| Done | [Sprint 77](./sprints/done/Sprint-77.md) | Production acceptance and release closure | v0.26.2 | Done ✅ |
+| Done | [Sprint 78](./sprints/done/Sprint-78.md) | Library findability | v0.27.0-dev | Done ✅ |
+| 1 | [Sprint 79](./sprints/Sprint-79.md) | Safe ranked binding candidates | v0.27.1-dev | Revalidate from real unmatched folders |
+| 2 | [Sprint 80](./sprints/Sprint-80.md) | Server-owned listening and rotation data | v0.28.0-dev | Required before multi-device/PWA |
 
 Sprint numbers express the present recommended order, not a promise to implement
 features without re-evaluating production evidence after each sprint.
@@ -110,6 +110,8 @@ See [Phase IX](./sprints/Phase-IX.md) for the next product phase and
 | [Sprint 75.2](./sprints/done/Sprint-75.2.md) | Library-Bindings Enabler | v0.25.7-dev | Done ✅ |
 | [Sprint 75.3](./sprints/done/Sprint-75.3.md) | Library-Bindings UI Bridge | v0.25.8-dev | Done ✅ |
 | [Sprint 76](./sprints/done/Sprint-76.md) | Library-Bindings Integration | v0.26.0-dev | Done ✅ |
+| [Sprint 77](./sprints/done/Sprint-77.md) | Production Acceptance & Release Closure | v0.26.2 | Done ✅ |
+| [Sprint 78](./sprints/done/Sprint-78.md) | Library Findability | v0.27.0-dev | Done ✅ |
 
 ## Long-term Vision
 

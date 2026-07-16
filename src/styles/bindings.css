@@ -237,6 +237,14 @@
    Bindings — warehouse / boilerroom
    ========================================== */
 
+.bindings-workspace {
+    min-height: calc(100vh - 61px);
+    padding: clamp(16px, 3vw, 36px);
+    background:
+        radial-gradient(circle at 15% 10%, rgba(86, 111, 124, .16), transparent 32rem),
+        linear-gradient(135deg, #111a20 0%, #172229 52%, #10181d 100%);
+}
+
 .bindings-page {
     position: relative;
     max-width: 1080px;
@@ -436,6 +444,11 @@
 }
 
 @media (max-width: 760px) {
+    .bindings-workspace {
+        min-height: calc(100vh - 59px);
+        padding: 8px 0 24px;
+    }
+
     .bindings-page {
         margin-inline: 8px;
         padding: 24px 16px;

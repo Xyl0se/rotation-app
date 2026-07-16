@@ -2,6 +2,16 @@
 
 ## v0.26.1-dev
 
+- **Release-candidate acceptance**
+  - Completed the production NAS acceptance path from Album Capture and confirmed Binding through Rotation export and Syncthing delivery.
+  - Verified clean deployment as UID/GID `1026:100`, persistence across restart, Syncthing metadata preservation, and SQLite backup/restore.
+  - Closed Sprints 77 and 78. The archived acceptance record retains the approved exception that an in-place `v0.26.0` upgrade was not executable after intentional deletion of the source database.
+
+- **Library editor follow-up**
+  - Fixed bound-folder visibility in the Album editor by correlating the server Binding with the canonical Library album ID.
+  - Added Album Coach reassessment for albums that already have a role and localized the updated editor guidance.
+  - Gave the Album editor a darker, subtly blue maintenance-workspace treatment distinct from the Home page.
+
 - **Pre-acceptance intake and Bindings polish**
   - Redesigned the shared Discover/Binding-Capture dialog as a responsive skeuomorphic catalog intake station, with fully localized metadata states and an optional Album Story step for acquisition reason, life phase, and memory note.
   - Redesigned Bindings as a darker warehouse/boilerroom workspace with higher-contrast state badges, clearer hierarchy, generous row/action padding, and responsive button grids.

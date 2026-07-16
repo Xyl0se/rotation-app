@@ -422,8 +422,9 @@ export const en = {
 
     editDialog: {
         startCoach: "Determine role with Album Coach",
+        changeRole: "Change role with Album Coach",
         title: "Edit Album Metadata",
-        subtitle: "Correct the metadata of this album. The role remains unchanged.",
+        subtitle: "Correct metadata and album history or reassess its role.",
         titleLabel: "Title",
         artistLabel: "Artist",
         yearLabel: "Year",

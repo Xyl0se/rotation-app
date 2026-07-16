@@ -99,6 +99,12 @@
 
 /* ---- Library Maintenance Dialog ---- */
 
+.dialog:has(> .library-maintenance-dialog) {
+    border: 1px solid #6d7f8d;
+    background: #cbd3d8;
+    box-shadow: 0 28px 80px rgba(25, 38, 48, .34);
+}
+
 .library-maintenance-dialog {
     display: flex;
     flex-direction: column;
@@ -114,13 +120,21 @@
 .library-maintenance-dialog label span {
     font-size: .8rem;
     font-weight: 600;
-    color: var(--color-smoke);
+    color: #465864;
     text-transform: none;
     letter-spacing: 0;
 }
 
 .library-maintenance-dialog strong {
-    color: var(--color-text);
+    color: #17242d;
+}
+
+.dialog .library-maintenance-dialog h2 {
+    color: #17242d;
+}
+
+.dialog .library-maintenance-dialog > p {
+    color: #465864;
 }
 
 /* ---- Dialog Actions ---- */

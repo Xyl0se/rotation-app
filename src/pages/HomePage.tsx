@@ -96,7 +96,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         logListen,
     } = useListenEvents(repositories.listenEvents, albums, adapter)
 
-    const { orphans } = useBindings()
+    const { orphans, getBindingForLibraryAlbum } = useBindings()
 
     const [orphanPromptDismissed, setOrphanPromptDismissed] = useState(() => {
         try {
@@ -308,6 +308,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                     <EditAlbumDialog
                         key={editingAlbum.id}
                         album={editingAlbum}
+                        binding={getBindingForLibraryAlbum(editingAlbum.id)}
                         onClose={() => setEditingAlbumId(null)}
                         onSave={updateAlbum}
                         onUpdateCoverOverride={updateAlbumCoverOverride}

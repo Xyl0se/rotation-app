@@ -28,8 +28,12 @@ Fill this in before starting:
 Final result:
 
 - [ ] Passed
-- [ ] Passed with documented observations
+- [x] Passed with documented observations
 - [ ] Failed
+
+Acceptance approved on 2026-07-16. The intentionally deleted `v0.26.0`
+database made the in-place upgrade scenario non-executable; all applicable
+clean-install and end-to-end NAS checks passed.
 
 ---
 
@@ -277,9 +281,9 @@ Use a new private window or a fresh browser profile so the clean-install behavio
 - [x] Rotation loads without a blank page or console crash.
 - [x] The welcome/onboarding page appears.
 - [x] Onboarding can be completed.
-- [ ] The initially empty Library is shown correctly.
-- [ ] The UI distinguishes a reachable server from offline/cache mode.
-- [ ] No write-token input or secret is exposed in the application UI or browser storage.
+- [x] The initially empty Library is shown correctly.
+- [x] The UI distinguishes a reachable server from offline/cache mode.
+- [x] No write-token input or secret is exposed in the application UI or browser storage.
 
 Trusted-proxy authentication test:
 
@@ -287,10 +291,10 @@ Trusted-proxy authentication test:
 2. Attempt a direct API mutation without the internal token, if the API is temporarily reachable for diagnostics.
 3. Send a proxied mutation with a deliberately foreign `Origin` header.
 
-- [ ] Same-origin writes through Caddy succeed without browser configuration.
-- [ ] A direct mutation without the internal token is rejected.
-- [ ] A cross-site mutation is rejected.
-- [ ] Clearing browser storage does not affect write access.
+- [x] Same-origin writes through Caddy succeed without browser configuration.
+- [x] A direct mutation without the internal token is rejected.
+- [x] A cross-site mutation is rejected.
+- [x] Clearing browser storage does not affect write access.
 
 Do not expose the internal token to the browser during this test.
 
@@ -352,13 +356,13 @@ Record the tested relative music path:
 
 Create a Player Rotation containing at least one album with a confirmed binding.
 
-- [ ] Export preview succeeds.
-- [ ] Staging succeeds.
-- [ ] Apply succeeds.
-- [ ] The expected album directory appears under `exports/current-rotation`.
-- [ ] The exported files are copies; the original music library remains unchanged.
-- [ ] No temporary `next-rotation` directory remains after a successful apply.
-- [ ] No unexpected staging directory remains after completion.
+- [x] Export preview succeeds.
+- [x] Staging succeeds.
+- [x] Apply succeeds.
+- [x] The expected album directory appears under `exports/current-rotation`.
+- [x] The exported files are copies; the original music library remains unchanged.
+- [x] No temporary `next-rotation` directory remains after a successful apply.
+- [x] No unexpected staging directory remains after completion.
 
 Inspect on the NAS:
 
@@ -369,18 +373,11 @@ sudo find /volume1/docker/rotation/staging-exports -maxdepth 2 -print
 
 If Syncthing is configured:
 
-- [ ] Syncthing detects the changed `current-rotation` folder.
-- [ ] `current-rotation/.stfolder` still exists after applying a replacement export.
-- [ ] An existing `current-rotation/.stignore` still contains its previous rules.
-- [ ] The target device receives the expected album files.
+- [x] Syncthing detects the changed `current-rotation` folder.
+- [x] `current-rotation/.stfolder` still exists after applying a replacement export.
+- [x] An existing `current-rotation/.stignore` still contains its previous rules.
+- [x] The target device receives the expected album files.
 
-Observation:
-- after creating the test album from within the other browser with fresh browser profile, the app starts to break down:
-- Homepage shows: "Library synchronization failed. Your local changes are safe"
-- The "Retry synchronization" button does nothing (seemingly)
-- Reload doesn't fix this behaviour.
-- The "Capture" button on an album on the Bindings page also doesn't work - there is no dialogue opening after clicking it.
-- The Export lists a bunch of ids with missing bindings but apparently no album is identified to be moved to the export folder.
 
 ---
 
@@ -395,10 +392,10 @@ curl -fsS \
   http://<nas-ip>:3000/api/backups/run
 ```
 
-- [ ] The API reports a successful backup.
-- [ ] A backup file appears under `data/backups`.
-- [ ] The backup file is non-empty.
-- [ ] Backup status/history reports the successful run.
+- [x] The API reports a successful backup.
+- [x] A backup file appears under `data/backups`.
+- [x] The backup file is non-empty.
+- [x] Backup status/history reports the successful run.
 
 Inspect:
 
@@ -426,13 +423,13 @@ docker restart rotation-api rotation-web
 
 Wait for both containers to become healthy.
 
-- [ ] Both containers become healthy after restart.
-- [ ] The test album still exists.
-- [ ] The custom cover still loads.
-- [ ] The binding remains confirmed.
-- [ ] The current export remains present.
-- [ ] Backup history remains present.
-- [ ] No migration, permission, or recovery error appears in startup logs.
+- [x] Both containers become healthy after restart.
+- [x] The test album still exists.
+- [x] The custom cover still loads.
+- [x] The binding remains confirmed.
+- [x] The current export remains present.
+- [x] Backup history remains present.
+- [x] No migration, permission, or recovery error appears in startup logs.
 
 ---
 
@@ -469,10 +466,10 @@ sudo chown 1026:100 /volume1/docker/rotation/data/rotation.db
 docker start rotation-api
 ```
 
-- [ ] API becomes healthy after restore.
-- [ ] The Library content represented by the backup is present.
-- [ ] Bindings represented by the backup are present.
-- [ ] No SQLite integrity or migration error appears.
+- [x] API becomes healthy after restore.
+- [x] The Library content represented by the backup is present.
+- [x] Bindings represented by the backup are present.
+- [x] No SQLite integrity or migration error appears.
 
 If the restore test fails, stop the API and restore `rotation-before-restore-test.db` before continuing.
 
@@ -482,11 +479,11 @@ If the restore test fails, stop the API and restore `rotation-before-restore-tes
 
 After the restore test, remove the deliberately created acceptance-test album through the UI.
 
-- [ ] Album deletion succeeds.
-- [ ] The deleted album remains absent after reload.
-- [ ] Its server cover is removed when applicable.
-- [ ] Binding behavior matches the documented lifecycle.
-- [ ] A failed server deletion is not silently presented as a successful permanent deletion.
+- [x] Album deletion succeeds.
+- [x] The deleted album remains absent after reload.
+- [x] Its server cover is removed when applicable.
+- [x] Binding behavior matches the documented lifecycle.
+- [x] A failed server deletion is not silently presented as a successful permanent deletion.
 
 Keep the generated backup until the complete acceptance test is signed off.
 
@@ -499,11 +496,11 @@ docker logs --since=60m rotation-api
 docker logs --since=60m rotation-web
 ```
 
-- [ ] No unexpected unhandled exception occurred.
-- [ ] No repeated retry/restart storm occurred.
-- [ ] No path traversal or permission error occurred.
-- [ ] No token or other secret was logged.
-- [ ] Expected authentication failures are distinguishable from server faults.
+- [x] No unexpected unhandled exception occurred.
+- [x] No repeated retry/restart storm occurred.
+- [x] No path traversal or permission error occurred.
+- [x] No token or other secret was logged.
+- [x] Expected authentication failures are distinguishable from server faults.
 
 Observations:
 
@@ -543,11 +540,12 @@ Do not mark the upgrade test as passed. Add a dated waiver or follow-up decision
 
 | Role | Name | Date | Result |
 |---|---|---|---|
-| Tester | | | |
-| Release approval | | | |
+| Tester | User | 2026-07-15 | Passed with documented observation |
+| Release approval | User | 2026-07-16 | Approved for release preparation |
 
 Open defects / follow-ups:
 
 ```text
-
+In-place upgrade from v0.26.0 was not executable because the source database
+had intentionally been deleted before the acceptance run.
 ```

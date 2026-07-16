@@ -6,7 +6,7 @@
 
 **Type:** Focused bugfix and vertical integration sprint
 
-**Source:** [`NAS-REDEPLOY-ACCEPTANCE-TEST.md`](../NAS-REDEPLOY-ACCEPTANCE-TEST.md), manual test on Synology DS218+ / DSM 7.3.2.
+**Source:** [`NAS-REDEPLOY-ACCEPTANCE-TEST.md`](../archive/NAS-REDEPLOY-ACCEPTANCE-TEST.md), manual test on Synology DS218+ / DSM 7.3.2.
 
 ---
 
@@ -381,7 +381,7 @@ If the same synchronization failure occurs in the single-browser reproduction, i
 
 ### Operations and Documentation
 
-- `docs/NAS-REDEPLOY-ACCEPTANCE-TEST.md`
+- `docs/archive/NAS-REDEPLOY-ACCEPTANCE-TEST.md`
 - `docs/sprints/Sprint-76.1.md`
 - `docs/ROADMAP.md`
 - `docs/CHANGELOG.md`

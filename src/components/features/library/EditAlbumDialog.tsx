@@ -424,12 +424,14 @@ function EditAlbumDialog({
                 </div>
 
                 <div className="dialog-actions">
-                    {!album.category && onStartCoach && (
+                    {onStartCoach && (
                         <Button
                             variant="secondary"
                             onClick={() => onStartCoach(album.id)}
                         >
-                            {t.editDialog.startCoach}
+                            {album.category
+                                ? t.editDialog.changeRole
+                                : t.editDialog.startCoach}
                         </Button>
                     )}
                     <Button

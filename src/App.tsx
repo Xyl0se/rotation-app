@@ -69,7 +69,11 @@ function App() {
                 </button>
             </nav>
             {page === "home" && <HomePage adapter={adapter} onNavigateToBindings={() => setPage("bindings")} highlightAlbumId={highlightAlbumId} />}
-            {page === "bindings" && <BindingsPage onNavigateToLibrary={handleNavigateToLibrary} />}
+            {page === "bindings" && (
+                <main className="bindings-workspace">
+                    <BindingsPage onNavigateToLibrary={handleNavigateToLibrary} />
+                </main>
+            )}
             {page === "export" && <ExportPage />}
             <ToastContainer />
         </>

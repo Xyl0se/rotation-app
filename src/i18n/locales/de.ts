@@ -423,8 +423,9 @@ export const de: Translation = {
 
     editDialog: {
         startCoach: "Rolle mit Album Coach bestimmen",
+        changeRole: "Rolle mit Album Coach ändern",
         title: "Album-Metadaten bearbeiten",
-        subtitle: "Korrigiere die Metadaten dieses Albums. Die Rolle bleibt unverändert.",
+        subtitle: "Korrigiere Metadaten und Albumgeschichte oder bestimme die Rolle neu.",
         titleLabel: "Titel",
         artistLabel: "Künstler",
         yearLabel: "Jahr",

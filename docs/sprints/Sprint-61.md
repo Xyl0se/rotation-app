@@ -1,6 +1,6 @@
 # Misnumbered Search & Discovery Backlog Note
 
-**Status:** Superseded by [Sprint 78](./Sprint-78.md)
+**Status:** Superseded by completed [Sprint 78](./done/Sprint-78.md)
 
 ---
 
