@@ -52,6 +52,8 @@ export interface RotationPlan {
     acceptedAt?: string
     archivedAt?: string
 
+    exports?: Array<{ id: string; appliedAt: string; totalSizeBytes: number | null; fileCount: number | null }>
+
 }
 
 export const defaultRotationTargetSize = 25

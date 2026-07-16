@@ -14,7 +14,9 @@ export interface RotationPlan {
     acceptedAt?: string
     archivedAt?: string
     focusAlbumId: string | null
+    exports?: RotationExportSummary[]
 }
+export interface RotationExportSummary { id: string; appliedAt: string; totalSizeBytes: number | null; fileCount: number | null }
 export interface ListenEvent { id: string; albumId: string; listenedAt: string }
 export interface RotationSettings {
     targetSize: number

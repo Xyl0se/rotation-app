@@ -505,7 +505,7 @@ export const de: Translation = {
         generate: "Rotation vorschlagen",
         newSuggestion: "Neuer Vorschlag",
         accept: "Mitnehmen",
-        handover: { title: "Rotation wechseln?", summary: (entering: number, leaving: number, unchanged: number) => `${entering} kommen hinzu · ${leaving} verlassen die Rotation · ${unchanged} bleiben`, size: (size: number, target: number) => `${size} von maximal ${target} Alben`, confirm: "Bestätigen und mitnehmen" },
+        handover: { title: "Rotation wechseln?", summary: (entering: number, leaving: number, unchanged: number) => `${entering} kommen hinzu · ${leaving} verlassen die Rotation · ${unchanged} bleiben`, size: (size: number, target: number) => `${size} von maximal ${target} Alben`, confirm: "Bestätigen und mitnehmen",error:"Die Wechselvorschau konnte nicht geladen werden.",missingQuota:(count:number)=>`${count} unter der Quote`,exportEstimate:(size:string,files:number)=>`Geschätzter Export: ${size} · ${files} Dateien`,bindingWarning:(missing:number,unconfirmed:number)=>`${missing} fehlende und ${unconfirmed} unbestätigte Bindings`,acceptButNotExportable:"Du kannst diese Rotation übernehmen; der Export bleibt bis zur Klärung der Bindings gesperrt." },
         remove: "Aus der Rotation entfernen",
         replace: "Ersetzen",
         replaceTitle: "Ersatzkandidaten",
@@ -663,9 +663,9 @@ export const de: Translation = {
         saving: "Wird gespeichert…",
         loadError: "Einstellungen konnten nicht geladen werden.",
         saveError: "Einstellungen konnten nicht gespeichert werden.",
-        undoTitle: "Letzte sichere Änderung", undoDescription: "Mache die letzte Rollen- oder Archiventscheidung nur rückgängig, solange keine widersprechende Änderung gefolgt ist.", undo: "Letzte Rollenänderung rückgängig", undoError: "Die Änderung kann nicht mehr sicher rückgängig gemacht werden.",
+        undoTitle: "Letzte sichere Änderung", undoDescription: "Mache die letzte Rollen- oder Archiventscheidung nur rückgängig, solange keine widersprechende Änderung gefolgt ist.", undo: "Letzte Rollenänderung rückgängig", undoError: "Die Änderung kann nicht mehr sicher rückgängig gemacht werden.", undoPreview: (album:string, role:string) => `${album} wird auf die Rolle „${role}“ zurückgesetzt.`, undoConfirmTitle: "Diese Rolle wiederherstellen?", undoConfirm: "Wiederherstellung bestätigen",
     },
-    history: { title: "Rotationsverlauf", description: "Auswahlen, die du bewusst mitgenommen hast.", empty: "Noch keine frühere Rotation.", loadError: "Der Verlauf konnte nicht geladen werden.", archivedAt: (date: string) => `Archiviert am ${new Date(date).toLocaleDateString()}`, albumCount: (count: number) => `${count} Alben`, previous: "Zurück", next: "Weiter" },
+    history: { title: "Rotationsverlauf", description: "Auswahlen, die du bewusst mitgenommen hast.", empty: "Noch keine frühere Rotation.", loadError: "Der Verlauf konnte nicht geladen werden.", archivedAt: (date: string) => `Archiviert am ${new Date(date).toLocaleDateString()}`, albumCount: (count: number) => `${count} Alben`, previous: "Zurück", next: "Weiter",exports:"Ausgelieferte Exporte",noExport:"Diese Rotation wurde nicht exportiert.",exportedAt:(date:string)=>`Exportiert am ${new Date(date).toLocaleDateString()}`,useAsDraft:"Als neuen Vorschlag verwenden",draftError:"Es konnte kein neuer Vorschlag erstellt werden." },
 
     exportPage: {
         title: "Auf Gerät exportieren",

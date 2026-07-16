@@ -4,7 +4,7 @@ import { LanguageSwitcher } from "../components/features/LanguageSwitcher"
 import { useI18n } from "../i18n/useI18n"
 import { fetchRotationSettings, saveRotationSettings, type RotationSettings } from "../services/api/rotationStateService"
 import type { RoleId } from "../domain/roles"
-import { fetchAuditEvents, undoLastAuditEvent, type AuditEvent } from "../services/api/auditService"
+import { fetchAuditEvents, fetchUndoPreview, undoLastAuditEvent, type AuditEvent } from "../services/api/auditService"
 
 const roles: RoleId[] = ["new", "comfort-food", "classic", "growing"]
 
@@ -14,14 +14,31 @@ export default function SettingsPage() {
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
     const [auditEvents,setAuditEvents]=useState<AuditEvent[]>([])
+    const [undoCandidate,setUndoCandidate]=useState<AuditEvent|null>(null)
+    const [confirmingUndo,setConfirmingUndo]=useState(false)
 
     const load = useCallback(async () => {
         try { setSettings(await fetchRotationSettings()); setError(null) }
         catch (cause) { setError(cause instanceof Error ? cause.message : t.settings.loadError) }
     }, [t.settings.loadError])
-    useEffect(() => { queueMicrotask(() => { void load(); void fetchAuditEvents().then(result=>setAuditEvents(result.events)).catch(()=>undefined) }) }, [load])
+    const loadAudit = useCallback(async () => {
+        const result = await fetchAuditEvents()
+        setAuditEvents(result.events)
+        setUndoCandidate(await fetchUndoPreview().catch(() => null))
+    }, [])
+    useEffect(() => { queueMicrotask(() => { void load(); void loadAudit().catch(()=>undefined) }) }, [load, loadAudit])
 
     const quotaSum = useMemo(() => settings?.roleQuotas.reduce((sum, quota) => sum + quota.targetCount, 0) ?? 0, [settings])
+    const undoRole = undoCandidate?.before.category
+        ? ({
+            new: t.roles.new.title,
+            "comfort-food": t.roles["comfort-food"].title,
+            classic: t.roles.classic.title,
+            growing: t.roles.growing.title,
+            admire: t.roles.admire.title,
+            archive: t.roles.archive.title,
+        } as Record<string, string>)[undoCandidate.before.category] ?? undoCandidate.before.category
+        : "—"
     function setQuota(role: RoleId, targetCount: number) {
         setSettings(current => current ? { ...current, roleQuotas: current.roleQuotas.map(quota => quota.role === role ? { ...quota, targetCount } : quota) } : current)
     }
@@ -55,7 +72,25 @@ export default function SettingsPage() {
                 {error && <p className="settings-error" role="alert">{error}</p>}
             </div>
             <div className="settings-module"><h2>{t.settings.undoTitle}</h2><p>{t.settings.undoDescription}</p>
-                <Button variant="secondary" disabled={!auditEvents.some(event=>!event.undoneAt)} onClick={async()=>{try{await undoLastAuditEvent(); const result=await fetchAuditEvents();setAuditEvents(result.events);setError(null)}catch(cause){setError(cause instanceof Error?cause.message:t.settings.undoError)}}}>{t.settings.undo}</Button>
+                {undoCandidate && <p>{t.settings.undoPreview(undoCandidate.before.title ?? undoCandidate.entityId, undoRole)}</p>}
+                <Button variant="secondary" disabled={!undoCandidate || !auditEvents.some(event=>!event.undoneAt)} onClick={()=>setConfirmingUndo(true)}>{t.settings.undo}</Button>
+                {confirmingUndo && undoCandidate && <div role="dialog" aria-modal="true" aria-label={t.settings.undoConfirmTitle} className="rotation-handover">
+                    <h3>{t.settings.undoConfirmTitle}</h3>
+                    <p>{t.settings.undoPreview(undoCandidate.before.title ?? undoCandidate.entityId, undoRole)}</p>
+                    <div className="player-rotation-actions">
+                        <Button variant="secondary" onClick={()=>setConfirmingUndo(false)}>{t.exportPage.cancel}</Button>
+                        <Button onClick={async () => {
+                            try {
+                                await undoLastAuditEvent()
+                                await loadAudit()
+                                setConfirmingUndo(false)
+                                setError(null)
+                            } catch (cause) {
+                                setError(cause instanceof Error ? cause.message : t.settings.undoError)
+                            }
+                        }}>{t.settings.undoConfirm}</Button>
+                    </div>
+                </div>}
             </div>
         </section>
     </main>

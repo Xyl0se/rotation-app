@@ -37,7 +37,7 @@ describe("SQLite schema migrations", () => {
     it("records every migration and sets the user version", () => {
         const db = initDatabase(":memory:")
 
-        expect(db.pragma("user_version", { simple: true })).toBe(9)
+        expect(db.pragma("user_version", { simple: true })).toBe(10)
         expect(db.prepare("SELECT version, name FROM schema_migrations ORDER BY version").all())
             .toEqual([
                 { version: 1, name: "initial-schema" },
@@ -49,6 +49,7 @@ describe("SQLite schema migrations", () => {
                 { version: 7, name: "server-owned-rotation-settings" },
                 { version: 8, name: "rotation-lifecycle-history" },
                 { version: 9, name: "domain-audit-trail" },
+                { version: 10, name: "expanded-domain-audit-trail" },
             ])
         db.close()
     })
@@ -97,7 +98,30 @@ describe("SQLite schema migrations", () => {
         const second = initDatabase(path)
 
         expect(second.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get())
-            .toEqual({ count: 9 })
+            .toEqual({ count: 10 })
         second.close()
+    })
+
+    it("upgrades a representative supported v7 database through Sprint 82 without data loss", () => {
+        const { path } = legacyDatabase()
+        const v7 = initDatabase(path, 7)
+        v7.prepare("INSERT INTO albums (id,title,artist,year,category,role_history,listen_count,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)")
+            .run("album-v7", "Preserved", "Artist", "2026", "new", "[]", 0, "created", "updated")
+        v7.prepare("INSERT INTO rotation_plans VALUES (?,?,?,?,?,?,?,?)")
+            .run("rotation-v7", "Supported", 1, '[{"role":"new","targetCount":1}]', "active", "album-v7", "created", "accepted")
+        v7.prepare("INSERT INTO rotation_plan_items VALUES (?,?,?,?,?)")
+            .run("rotation-v7", "album-v7", 0, "new", "quota")
+        v7.prepare("INSERT INTO listen_events VALUES (?,?,?)").run("listen-v7", "album-v7", "listened")
+        v7.close()
+
+        const upgraded = initDatabase(path)
+        expect(upgraded.pragma("user_version", { simple: true })).toBe(10)
+        expect(upgraded.prepare("SELECT title FROM albums WHERE id='album-v7'").get()).toEqual({ title: "Preserved" })
+        expect(upgraded.prepare("SELECT status, archived_at FROM rotation_plans WHERE id='rotation-v7'").get()).toEqual({ status: "active", archived_at: null })
+        expect(upgraded.prepare("SELECT album_title_snapshot, album_artist_snapshot FROM rotation_plan_items WHERE rotation_plan_id='rotation-v7'").get())
+            .toEqual({ album_title_snapshot: "Preserved", album_artist_snapshot: "Artist" })
+        expect(upgraded.prepare("SELECT album_id FROM listen_events WHERE id='listen-v7'").get()).toEqual({ album_id: "album-v7" })
+        expect(upgraded.prepare("SELECT COUNT(*) count FROM domain_audit_events").get()).toEqual({ count: 0 })
+        upgraded.close()
     })
 })

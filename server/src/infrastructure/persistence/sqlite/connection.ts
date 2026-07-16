@@ -5,7 +5,7 @@ import { mkdirSync, accessSync, constants } from "node:fs"
 const DATA_DIR = process.env.ROTATION_DATA_DIR || "./data"
 const DB_PATH = join(DATA_DIR, "rotation.db")
 
-export function initDatabase(path?: string): Database.Database {
+export function initDatabase(path?: string, maxMigrationVersion = Number.POSITIVE_INFINITY): Database.Database {
     const dbPath = path ?? DB_PATH
     if (!path) {
         mkdirSync(DATA_DIR, { recursive: true })
@@ -21,7 +21,7 @@ export function initDatabase(path?: string): Database.Database {
     const db = new Database(dbPath)
     db.pragma("journal_mode = WAL")
     db.pragma("foreign_keys = ON")
-    migrate(db)
+    migrate(db, maxMigrationVersion)
     return db
 }
 
@@ -360,9 +360,30 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 10,
+        name: "expanded-domain-audit-trail",
+        run(db) {
+            db.exec(`
+                CREATE TABLE domain_audit_events_v10 (
+                    id TEXT PRIMARY KEY,
+                    event_type TEXT NOT NULL CHECK(event_type IN ('album-role-changed','binding-reassigned','draft-item-removed','draft-item-replaced','rotation-accepted','album-role-change-undone')),
+                    entity_id TEXT NOT NULL,
+                    before_json TEXT NOT NULL CHECK(json_valid(before_json)),
+                    after_json TEXT NOT NULL CHECK(json_valid(after_json)),
+                    created_at TEXT NOT NULL,
+                    undone_at TEXT
+                );
+                INSERT INTO domain_audit_events_v10 SELECT * FROM domain_audit_events;
+                DROP TABLE domain_audit_events;
+                ALTER TABLE domain_audit_events_v10 RENAME TO domain_audit_events;
+                CREATE INDEX idx_audit_latest ON domain_audit_events(undone_at, created_at DESC);
+            `)
+        },
+    },
 ]
 
-function migrate(db: Database.Database): void {
+function migrate(db: Database.Database, maxMigrationVersion: number): void {
     db.exec(`
         CREATE TABLE IF NOT EXISTS schema_migrations (
             version INTEGER PRIMARY KEY,
@@ -377,6 +398,7 @@ function migrate(db: Database.Database): void {
     const record = db.prepare("INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)")
 
     for (const migration of migrations) {
+        if (migration.version > maxMigrationVersion) continue
         if (applied.has(migration.version)) continue
         if (migration.disableForeignKeys) db.pragma("foreign_keys = OFF")
         try {
@@ -385,6 +407,9 @@ function migrate(db: Database.Database): void {
                 record.run(migration.version, migration.name, new Date().toISOString())
                 db.pragma(`user_version = ${migration.version}`)
             })()
+        } catch (error) {
+            const detail = error instanceof Error ? error.message : String(error)
+            throw new Error(`Database migration ${migration.version} (${migration.name}) failed: ${detail}`, { cause: error })
         } finally {
             if (migration.disableForeignKeys) db.pragma("foreign_keys = ON")
         }

@@ -504,7 +504,7 @@ export const en = {
         generate: "Generate Rotation",
         newSuggestion: "New Suggestion",
         accept: "Take With Me",
-        handover: { title: "Change Rotation?", summary: (entering: number, leaving: number, unchanged: number) => `${entering} entering · ${leaving} leaving · ${unchanged} unchanged`, size: (size: number, target: number) => `${size} of up to ${target} Albums`, confirm: "Confirm and take along" },
+        handover: { title: "Change Rotation?", summary: (entering: number, leaving: number, unchanged: number) => `${entering} entering · ${leaving} leaving · ${unchanged} unchanged`, size: (size: number, target: number) => `${size} of up to ${target} Albums`, confirm: "Confirm and take along",error:"Handover preview could not be loaded.",missingQuota:(count:number)=>`${count} below quota`,exportEstimate:(size:string,files:number)=>`Estimated export: ${size} · ${files} files`,bindingWarning:(missing:number,unconfirmed:number)=>`${missing} missing and ${unconfirmed} unconfirmed Bindings`,acceptButNotExportable:"You may accept this Rotation, but Export remains blocked until its Bindings are ready." },
         remove: "Remove from Rotation",
         replace: "Replace",
         replaceTitle: "Replacement Candidates",
@@ -662,9 +662,9 @@ export const en = {
         saving: "Saving…",
         loadError: "Settings could not be loaded.",
         saveError: "Settings could not be saved.",
-        undoTitle: "Last safe change", undoDescription: "Undo the latest role or Archive decision only while no conflicting change followed it.", undo: "Undo last role change", undoError: "The change can no longer be safely undone.",
+        undoTitle: "Last safe change", undoDescription: "Undo the latest role or Archive decision only while no conflicting change followed it.", undo: "Undo last role change", undoError: "The change can no longer be safely undone.", undoPreview: (album:string, role:string) => `${album} will be restored to the role “${role}”.`, undoConfirmTitle: "Restore this role?", undoConfirm: "Confirm restoration",
     },
-    history: { title: "Rotation history", description: "Selections you deliberately took along.", empty: "No earlier Rotation yet.", loadError: "History could not be loaded.", archivedAt: (date: string) => `Archived ${new Date(date).toLocaleDateString()}`, albumCount: (count: number) => `${count} Albums`, previous: "Previous", next: "Next" },
+    history: { title: "Rotation history", description: "Selections you deliberately took along.", empty: "No earlier Rotation yet.", loadError: "History could not be loaded.", archivedAt: (date: string) => `Archived ${new Date(date).toLocaleDateString()}`, albumCount: (count: number) => `${count} Albums`, previous: "Previous", next: "Next", exports:"Delivered exports",noExport:"This Rotation was not exported.",exportedAt:(date:string)=>`Exported ${new Date(date).toLocaleDateString()}`,useAsDraft:"Use as new suggestion",draftError:"A new draft could not be created." },
 
     exportPage: {
         title: "Export to Device",

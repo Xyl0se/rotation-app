@@ -6,7 +6,10 @@ Early tags remain as historical markers. Versions are not retroactively added.
 
 ## Current Anchor
 
-`v0.26.1-dev` is the current development line for the Sprint 76.1 integrity and deployment hardening work. `v0.26.0` remains the last historical anchor.
+`v0.29.0-rc.1` is the first deliberately versioned release candidate. It advances
+the minor version after Sprint 80/81 established the `v0.28.x-dev` line and Sprint 82
+added a durable Rotation lifecycle. The `rc.1` suffix is retained until the production
+NAS gate—including narrow-viewport visual acceptance—has been recorded.
 
 Includes:
 
@@ -41,5 +44,5 @@ Patch examples:
 2. Cut `docs/CHANGELOG.md` from `Unreleased` to the target version.
 3. Run `npm run validate` and both Compose configuration checks.
 4. Create versioning commit.
-5. Set Git tag with the target version. The image workflows publish the tested commit as SHA, version, and (on `main`) `latest` tags.
+5. Set Git tag with the target version. The image workflows publish the tested commit as SHA, version, and (on `main`) `latest` tags. Production Compose uses the immutable version tag, never `latest`.
 6. The next sprint starts again under `Unreleased`.

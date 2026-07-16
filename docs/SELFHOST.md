@@ -82,7 +82,7 @@ Save the token as Portainer stack configuration. Users do not need to know it.
    | Name | `rotation` |
    | Repository URL | `https://github.com/Xyl0se/rotation-app` |
    | Repository reference | `refs/heads/main` |
-   | Compose path | `docker-compose.prod.yml` |
+   | Compose path | `docker-compose.prod.yml` (pins the matching immutable release-candidate tag for API and Web) |
    | Automatic updates | ✅ Enable |
    | Mechanism | Webhook (recommended) or Polling |
    | Fetch interval | `5m` (if using Polling) |
@@ -240,6 +240,11 @@ docker compose -f docker-compose.prod.yml up -d
 ```
 
 Database migrations run automatically on startup. Always back up the database before major version updates.
+
+For `v0.29.0-rc.1`, record deployment evidence and the desktop/390 px visual gate in
+[`SPRINT-82-RELEASE-ACCEPTANCE.md`](./SPRINT-82-RELEASE-ACCEPTANCE.md). The documented
+rollback restores both the previous database backup and matching API/Web SHA tags;
+never start an older image against a database already migrated to schema 10.
 
 ---
 

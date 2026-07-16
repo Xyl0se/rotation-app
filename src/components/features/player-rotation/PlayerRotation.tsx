@@ -17,14 +17,14 @@ import type { ListenEvent } from "../../../domain/listening/listenEvents"
 import AlbumCover from "../../ui/AlbumCover"
 import RotationTileTooltip from "./RotationTileTooltip"
 import { useI18n } from "../../../i18n/useI18n"
+import { fetchRotationHandover, type RotationHandoverPreview } from "../../../services/api/rotationStateService"
+import { formatFileSize } from "../../../utils/formatFileSize"
 
 type PlayerRotationProps = {
 
     albums: Album[]
 
     plan: RotationPlan | null
-
-    activePlan?: RotationPlan | null
 
     listenEvents: ListenEvent[]
 
@@ -63,8 +63,6 @@ function PlayerRotation({
 
     plan,
 
-    activePlan,
-
     listenEvents,
 
     onGenerate,
@@ -78,14 +76,13 @@ function PlayerRotation({
     onGetReplacementCandidates,
 
 }: PlayerRotationProps) {
-
     const { t } = useI18n()
     const isDraft =
         plan?.status === "draft"
     const [confirmingAcceptance, setConfirmingAcceptance] = useState(false)
-    const entering = plan && isDraft ? plan.albumIds.filter(id => !activePlan?.albumIds.includes(id)) : []
-    const leaving = plan && isDraft ? (activePlan?.albumIds ?? []).filter(id => !plan.albumIds.includes(id)) : []
-    const unchanged = plan && isDraft ? plan.albumIds.filter(id => activePlan?.albumIds.includes(id)) : []
+    const [handover,setHandover]=useState<RotationHandoverPreview|null>(null)
+    const [handoverError,setHandoverError]=useState<string|null>(null)
+    const [handoverLoading,setHandoverLoading]=useState(false)
 
     const albumsById =
         new Map(albums.map(album => [album.id, album]))
@@ -161,7 +158,21 @@ function PlayerRotation({
 
                             <button
                                 className="player-rotation-action accept"
-                                onClick={() => setConfirmingAcceptance(true)}
+                                onClick={async () => {
+                                    setHandoverLoading(true)
+                                    setHandoverError(null)
+                                    try {
+                                        setHandover(await fetchRotationHandover())
+                                        setConfirmingAcceptance(true)
+                                    } catch (cause) {
+                                        setHandoverError(cause instanceof Error
+                                            ? cause.message
+                                            : t.playerRotation.handover.error)
+                                    } finally {
+                                        setHandoverLoading(false)
+                                    }
+                                }}
+                                disabled={handoverLoading}
                             >
                                 {t.playerRotation.accept}
                             </button>
@@ -215,11 +226,16 @@ function PlayerRotation({
                 )
             }
 
-            {isDraft && confirmingAcceptance && onAccept && (
+            {handoverError && <p className="sync-status sync-status--warning" role="alert">{handoverError}</p>}
+            {isDraft && confirmingAcceptance && onAccept && handover && (
                 <div className="rotation-handover" role="dialog" aria-modal="true" aria-label={t.playerRotation.handover.title}>
                     <h3>{t.playerRotation.handover.title}</h3>
-                    <p>{t.playerRotation.handover.summary(entering.length, leaving.length, unchanged.length)}</p>
-                    <p>{t.playerRotation.handover.size(plan.items.length, plan.targetSize)}</p>
+                    <p>{t.playerRotation.handover.summary(handover.entering.length, handover.leaving.length, handover.unchanged.length)}</p>
+                    <p>{t.playerRotation.handover.size(handover.size, handover.targetSize)}</p>
+                    <div className="handover-role-grid">{(["new","comfort-food","classic","growing"] as RoleId[]).map(role=><span key={role}>{getRoleIcon(role)} {t.roles[role].title}: {handover.beforeRoles[role]??0} → {handover.afterRoles[role]??0}{(handover.quotaGaps[role]??0)>0?` · ${t.playerRotation.handover.missingQuota(handover.quotaGaps[role]!)}`:""}</span>)}</div>
+                    <p>{t.playerRotation.handover.exportEstimate(formatFileSize(handover.estimatedSizeBytes),handover.fileCount)}</p>
+                    {(handover.missingBindings.length>0||handover.unconfirmedBindings.length>0)&&<p className="export-warning">{t.playerRotation.handover.bindingWarning(handover.missingBindings.length,handover.unconfirmedBindings.length)}</p>}
+                    {!handover.exportReady&&<p>{t.playerRotation.handover.acceptButNotExportable}</p>}
                     <div className="player-rotation-actions">
                         <button className="player-rotation-action" onClick={() => setConfirmingAcceptance(false)}>{t.exportPage.cancel}</button>
                         <button className="player-rotation-action accept" onClick={() => { setConfirmingAcceptance(false); onAccept() }}>{t.playerRotation.handover.confirm}</button>

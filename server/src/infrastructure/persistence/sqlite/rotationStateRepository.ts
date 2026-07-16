@@ -44,6 +44,8 @@ export function createRotationStateRepository(db: Database.Database) {
         if (!row) return null
         const items = db.prepare("SELECT album_id,role,reason,album_title_snapshot,album_artist_snapshot FROM rotation_plan_items WHERE rotation_plan_id=? ORDER BY position")
             .all(row.id as string) as Array<{ album_id: string; role: RotationPlan["items"][number]["role"]; reason: RotationPlan["items"][number]["reason"]; album_title_snapshot:string;album_artist_snapshot:string }>
+        const exports = db.prepare(`SELECT id,created_at,total_size_bytes,file_count FROM export_operations
+            WHERE rotation_plan_id=? AND status='applied' ORDER BY created_at DESC`).all(row.id as string) as Array<{id:string;created_at:string;total_size_bytes:number|null;file_count:number|null}>
         return {
             id: row.id as string, name: row.name as string, targetSize: row.target_size as number,
             roleQuotas: JSON.parse(row.role_quotas_json as string) as RotationPlan["roleQuotas"],
@@ -52,6 +54,7 @@ export function createRotationStateRepository(db: Database.Database) {
             archivedAt: row.archived_at as string | undefined,
             items: items.map(item => ({ albumId: item.album_id, role: item.role, reason: item.reason, albumTitleSnapshot: item.album_title_snapshot, albumArtistSnapshot: item.album_artist_snapshot })),
             albumIds: items.map(item => item.album_id),
+            exports: exports.map(item => ({ id:item.id, appliedAt:item.created_at, totalSizeBytes:item.total_size_bytes, fileCount:item.file_count })),
         }
     }
 
@@ -63,6 +66,25 @@ export function createRotationStateRepository(db: Database.Database) {
             const rows = db.prepare("SELECT * FROM rotation_plans WHERE status='archived' ORDER BY archived_at DESC, created_at DESC LIMIT ? OFFSET ?").all(limit, offset) as Record<string, unknown>[]
             const total = (db.prepare("SELECT COUNT(*) count FROM rotation_plans WHERE status='archived'").get() as { count: number }).count
             return { items: rows.map(row => hydrate(row)!), total }
+        },
+        createDraftFromArchived(id: string, draftId: string, createdAt: string): RotationPlan {
+            return db.transaction(() => {
+                const source = hydrate(db.prepare("SELECT * FROM rotation_plans WHERE id=? AND status='archived'").get(id) as Record<string,unknown>|undefined)
+                if (!source) throw new Error("ARCHIVED_ROTATION_NOT_FOUND")
+                db.prepare("DELETE FROM rotation_plans WHERE status='draft'").run()
+                const availableItems = source.items.filter(item => {
+                    const album = db.prepare("SELECT category FROM albums WHERE id=?").get(item.albumId) as {category:string|null}|undefined
+                    return album && ["new","growing","comfort-food","classic"].includes(album.category ?? "")
+                })
+                if (!availableItems.length) throw new Error("NO_AVAILABLE_ALBUMS")
+                savePlanTx({
+                    id:draftId,name:`${source.name} — Draft`,targetSize:source.targetSize,
+                    items:availableItems.map(({albumId,role,reason})=>({albumId,role,reason})),
+                    albumIds:availableItems.map(item=>item.albumId),roleQuotas:source.roleQuotas,
+                    createdAt,status:"draft",focusAlbumId:null,
+                })
+                return this.findDraft()!
+            })()
         },
         setFocus(albumId: string | null): RotationPlan {
             const active = this.findActive()

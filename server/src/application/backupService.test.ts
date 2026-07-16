@@ -196,7 +196,7 @@ describe("createBackupService", () => {
             expect(result.error).toContain("integrity")
         })
 
-        it("restores Rotation, Focus, and listening history together", () => {
+        it("restores the complete lifecycle, settings, audit, export, Focus, and listening state", () => {
             const albumId = "550e8400-e29b-41d4-a716-446655440010"
             const planId = "550e8400-e29b-41d4-a716-446655440020"
             const eventId = "550e8400-e29b-41d4-a716-446655440030"
@@ -215,6 +215,12 @@ describe("createBackupService", () => {
                 status: "active", focusAlbumId: albumId,
             })
             repository.saveListenEvent({ id: eventId, albumId, listenedAt: "2026-07-16T11:00:00.000Z" })
+            canonicalDb.prepare("UPDATE rotation_settings SET target_size=1, role_quotas_json=? WHERE singleton=1")
+                .run('[{"role":"new","targetCount":1}]')
+            canonicalDb.prepare("INSERT INTO domain_audit_events VALUES (?,?,?,?,?,?,NULL)")
+                .run("audit-1", "rotation-accepted", planId, '{"status":"draft"}', '{"status":"active"}', "2026-07-16T10:01:00.000Z")
+            canonicalDb.prepare("INSERT INTO export_operations (id,rotation_plan_id,created_at,status,album_ids,total_size_bytes,file_count) VALUES (?,?,?,?,?,?,?)")
+                .run("export-1", planId, "2026-07-16T12:00:00.000Z", "applied", JSON.stringify([albumId]), 1024, 1)
             canonicalDb.close()
 
             const canonicalService = createBackupService(canonicalPath, backupDir, 7)
@@ -222,7 +228,7 @@ describe("createBackupService", () => {
             expect(backup.success).toBe(true)
 
             const changedDb = new Database(canonicalPath)
-            changedDb.exec("DELETE FROM rotation_plans; DELETE FROM listen_events")
+            changedDb.exec("DELETE FROM export_operations; DELETE FROM domain_audit_events; DELETE FROM rotation_plans; DELETE FROM listen_events; UPDATE rotation_settings SET target_size=25")
             changedDb.close()
             expect(canonicalService.restoreBackup(backup.path).success).toBe(true)
 
@@ -230,6 +236,9 @@ describe("createBackupService", () => {
             const restoredRepository = createRotationStateRepository(restored)
             expect(restoredRepository.findActive()).toMatchObject({ id: planId, focusAlbumId: albumId })
             expect(restoredRepository.findListenEvents()).toEqual([{ id: eventId, albumId, listenedAt: "2026-07-16T11:00:00.000Z" }])
+            expect(restored.prepare("SELECT target_size FROM rotation_settings WHERE singleton=1").get()).toEqual({ target_size: 1 })
+            expect(restored.prepare("SELECT event_type FROM domain_audit_events WHERE id='audit-1'").get()).toEqual({ event_type: "rotation-accepted" })
+            expect(restored.prepare("SELECT rotation_plan_id, status FROM export_operations WHERE id='export-1'").get()).toEqual({ rotation_plan_id: planId, status: "applied" })
             restored.close()
         })
     })

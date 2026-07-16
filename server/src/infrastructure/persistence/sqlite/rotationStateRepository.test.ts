@@ -8,9 +8,9 @@ const B = "22222222-2222-4222-8222-222222222222"
 
 function setup() {
     const db = initDatabase(":memory:")
-    const insert = db.prepare("INSERT INTO albums (id,title,artist,role_history,listen_count,created_at,updated_at) VALUES (?,?,?,'[]',0,?,?)")
-    insert.run(A, "A", "Artist", "2026-01-01", "2026-01-01")
-    insert.run(B, "B", "Artist", "2026-01-01", "2026-01-01")
+    const insert = db.prepare("INSERT INTO albums (id,title,artist,category,role_history,listen_count,created_at,updated_at) VALUES (?,?,?,?,'[]',0,?,?)")
+    insert.run(A, "A", "Artist", "classic", "2026-01-01", "2026-01-01")
+    insert.run(B, "B", "Artist", "new", "2026-01-01", "2026-01-01")
     return { db, repository: createRotationStateRepository(db) }
 }
 
@@ -76,6 +76,23 @@ describe("rotation state repository", () => {
         db.prepare("UPDATE albums SET category = 'admire' WHERE id = ?").run(A)
         expect(repository.findActive()?.albumIds).toEqual([])
         expect(repository.findActive()?.focusAlbumId).toBeNull()
+        db.close()
+    })
+
+    it("exposes successful exports and copies an archived Rotation into a new draft", () => {
+        const { db, repository } = setup()
+        const original=plan(null); repository.savePlan(original)
+        const replacement={...plan(null),id:"66666666-6666-4666-8666-666666666666",name:"Replacement"}
+        repository.savePlan(replacement)
+        db.prepare(`INSERT INTO export_operations
+            (id,rotation_plan_id,created_at,status,album_ids,total_size_bytes,file_count)
+            VALUES (?,?,?,'applied','[]',?,?)`).run("77777777-7777-4777-8777-777777777777",original.id,"2026-01-03T00:00:00.000Z",1234,7)
+        expect(repository.findHistory().items[0]?.exports).toEqual([{
+            id:"77777777-7777-4777-8777-777777777777",appliedAt:"2026-01-03T00:00:00.000Z",totalSizeBytes:1234,fileCount:7,
+        }])
+        const draft=repository.createDraftFromArchived(original.id,"88888888-8888-4888-8888-888888888888","2026-01-04T00:00:00.000Z")
+        expect(draft).toMatchObject({id:"88888888-8888-4888-8888-888888888888",status:"draft",albumIds:[A]})
+        expect(repository.findHistory().items[0]?.id).toBe(original.id)
         db.close()
     })
 })

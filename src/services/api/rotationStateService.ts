@@ -13,6 +13,7 @@ export interface RotationStateResponse {
 }
 export interface RotationSettings { targetSize: number; roleQuotas: RotationRoleQuota[] }
 export interface RotationHistoryResponse { items: ServerRotationPlan[]; total: number; limit: number; offset: number }
+export interface RotationHandoverPreview { draftId:string;activeId:string|null;entering:string[];leaving:string[];unchanged:string[];beforeRoles:Record<string,number>;afterRoles:Record<string,number>;quotaGaps:Record<string,number>;size:number;targetSize:number;missingBindings:string[];unconfirmedBindings:string[];estimatedSizeBytes:number;fileCount:number;exportReady:boolean }
 
 
 export function fetchRotationState(): Promise<RotationStateResponse> {
@@ -20,6 +21,8 @@ export function fetchRotationState(): Promise<RotationStateResponse> {
 }
 export function fetchRotationSettings(): Promise<RotationSettings> { return get("/rotation-state/settings") }
 export function fetchRotationHistory(limit = 20, offset = 0): Promise<RotationHistoryResponse> { return get(`/rotation-state/history?limit=${limit}&offset=${offset}`) }
+export function createDraftFromHistory(id: string): Promise<ServerRotationPlan> { return post(`/rotation-state/history/${encodeURIComponent(id)}/draft`) }
+export function fetchRotationHandover(): Promise<RotationHandoverPreview> { return get("/rotation-state/handover") }
 export function saveRotationSettings(settings: RotationSettings): Promise<RotationSettings> { return put("/rotation-state/settings", settings) }
 
 export function saveRotationPlan(plan: RotationPlan, focusAlbumId: string | null = null): Promise<ServerRotationPlan> {

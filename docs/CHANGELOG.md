@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.29.0-rc.1
+
+- **Sprint 82 — Rotation lifecycle and release candidate**
+  - Added immutable archived Rotation history, Album identity snapshots, linked successful exports, pagination, and safe reuse of historical compositions as new drafts.
+  - Added a server-confirmed handover comparison with membership and role deltas, quota gaps, Binding readiness, target size, and estimated export size.
+  - Added a bounded audit trail for role/Archive decisions, Binding reassignment, draft changes, and Rotation acceptance. Safe Undo now previews the exact restoration and records a compensating event.
+  - Added SQLite migrations 8–10 with automated supported-v7 upgrade and complete lifecycle backup/restore coverage.
+  - Hardened remote cover resolution through validated server-side caching, bounded retries, and manual re-resolution.
+  - Removed the completed one-time browser Rotation/Listening import bridge while retaining supported historical migrations and Album portability.
+  - Reconciled root/API versions and production API/Web image tags at `v0.29.0-rc.1`, added curated GitHub Release automation, immutable production Compose tags, release notes, and a NAS acceptance/rollback runbook.
+
 ## v0.26.1-dev
 
 - **Sprint 81 — Product Shell, Settings & Interaction Polish**

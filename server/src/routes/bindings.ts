@@ -5,6 +5,7 @@ import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
 import type { BindingCaptureService } from "../application/bindingCaptureService.js"
 import type { BindingCandidateRepository } from "../infrastructure/persistence/sqlite/bindingCandidateRepository.js"
 import { existsSync } from "node:fs"
+import type { AuditRepository } from "../infrastructure/persistence/sqlite/auditRepository.js"
 import {
     BindingAlbumIdBodySchema,
     CaptureBindingBodySchema,
@@ -87,6 +88,7 @@ export function createBindingsRouter(
     musicGuard: PathGuard,
     captureService?: BindingCaptureService,
     candidateRepo?: BindingCandidateRepository,
+    auditRepo?: AuditRepository,
 ): Router {
     const router = Router()
 
@@ -102,9 +104,12 @@ export function createBindingsRouter(
         const albumId = req.params.albumId as string
         const body = parseRequest(SelectBindingCandidateSchema, req.body, res)
         if (!body) return
+        const before = bindingRepo.findById(albumId)
         const result = candidateRepo.selectCandidate(albumId, body.libraryAlbumId, body.scanId, new Date().toISOString())
         if (result === "NOT_FOUND") return void res.status(404).json({ error: "Candidate not found" })
         if (result !== "SELECTED") return void res.status(409).json({ error: result })
+        const after = bindingRepo.findById(albumId)
+        if (auditRepo && before?.library_album_id !== after?.library_album_id) auditRepo.record("binding-reassigned", albumId, before, after)
         res.json(toDTO(bindingRepo.findWithAlbumDataById(albumId), musicGuard))
     })
 
@@ -121,9 +126,12 @@ export function createBindingsRouter(
         const albumId = req.params.albumId as string
         const body = parseRequest(LinkBindingBodySchema.omit({ albumId: true }), req.body, res)
         if (!body) return
+        const before = bindingRepo.findById(albumId)
         const result = candidateRepo.selectLibraryAlbum(albumId, body.libraryAlbumId, new Date().toISOString())
         if (result === "NOT_FOUND") return void res.status(404).json({ error: "Binding not found" })
         if (result !== "SELECTED") return void res.status(409).json({ error: result })
+        const after = bindingRepo.findById(albumId)
+        if (auditRepo && before?.library_album_id !== after?.library_album_id) auditRepo.record("binding-reassigned", albumId, before, after)
         res.json(toDTO(bindingRepo.findWithAlbumDataById(albumId), musicGuard))
     })
 
@@ -188,6 +196,7 @@ export function createBindingsRouter(
             return
         }
         const updated = bindingRepo.findWithAlbumDataById(albumId)!
+        if (auditRepo && record.library_album_id !== updated.library_album_id) auditRepo.record("binding-reassigned", albumId, record, updated)
         res.json(toDTO(updated, musicGuard))
     })
 
@@ -212,6 +221,7 @@ export function createBindingsRouter(
             return
         }
         const updated = bindingRepo.findWithAlbumDataById(albumId)!
+        if (auditRepo && record.library_album_id !== updated.library_album_id) auditRepo.record("binding-reassigned", albumId, record, updated)
         res.json(toDTO(updated, musicGuard))
     })
 
@@ -261,6 +271,7 @@ export function createBindingsRouter(
         }
         bindingRepo.updateLibraryAlbumId(albumId, null)
         const updated = bindingRepo.findWithAlbumDataById(albumId)!
+        if (auditRepo && record.library_album_id !== updated.library_album_id) auditRepo.record("binding-reassigned", albumId, record, updated)
         res.json(toDTO(updated, musicGuard))
     })
 

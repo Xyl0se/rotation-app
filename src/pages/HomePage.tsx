@@ -62,7 +62,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
 
     const {
         rotationPlan,
-        activeRotation,
         generatePlan,
         removeFromPlan,
         replaceAlbum,
@@ -226,7 +225,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                             <PlayerRotation
                                 albums={albums}
                                 plan={rotationPlan}
-                                activePlan={activeRotation}
                                 listenEvents={listenEvents}
                                 onGenerate={generatePlan}
                                 onRemove={removeFromPlan}

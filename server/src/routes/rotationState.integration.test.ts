@@ -2,12 +2,17 @@ import express from "express"
 import type Database from "better-sqlite3"
 import type { Server } from "node:http"
 import type { AddressInfo } from "node:net"
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs"
+import { join } from "node:path"
+import { tmpdir } from "node:os"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { initDatabase } from "../infrastructure/persistence/sqlite/connection.js"
 import { createAlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
 import { createRotationStateRepository } from "../infrastructure/persistence/sqlite/rotationStateRepository.js"
 import { createRequireWriteTokenForMutations } from "./middleware/writeToken.js"
 import { createRotationStateRouter } from "./rotationState.js"
+import { createPathGuard } from "../infrastructure/filesystem/pathGuard.js"
+import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
 
 const TOKEN = "rotation-state-integration-token"
 const ALBUM_A = "550e8400-e29b-41d4-a716-446655440010"
@@ -41,16 +46,35 @@ describe("rotation state route contract", () => {
     let database: Database.Database
     let server: Server
     let baseUrl: string
+    let musicRoot: string
 
     beforeAll(async () => {
         database = initDatabase(":memory:")
         const albums = createAlbumRepository(database)
         for (const [id, title] of [[ALBUM_A, "Alpha"], [ALBUM_B, "Beta"], [OUTSIDER, "Outside"]]) {
-            albums.save({ id, title, artist: "Artist", year: "2026", roleHistory: [], listenCount: 0, lastListened: null })
+            albums.save({ id, title, artist: "Artist", year: "2026", category: id === ALBUM_B ? "growing" : "new", roleHistory: [], listenCount: 0, lastListened: null })
         }
+        musicRoot = mkdtempSync(join(tmpdir(), "rotation-handover-"))
+        mkdirSync(join(musicRoot, "Artist", "Alpha"), { recursive: true })
+        writeFileSync(join(musicRoot, "Artist", "Alpha", "track.mp3"), "audio")
+        const bindings = {
+            findAll: () => [{
+                album_id: "binding-alpha",
+                relative_path: "Artist/Alpha",
+                state: "confirmed",
+                match_source: "manual",
+                proposed_at: null,
+                confirmed_at: "2026-07-16T10:00:00.000Z",
+                library_album_id: ALBUM_A,
+            }],
+        } as unknown as BindingRepository
         const app = express()
         app.use(express.json())
-        app.use("/rotation-state", createRequireWriteTokenForMutations(TOKEN), createRotationStateRouter(createRotationStateRepository(database)))
+        app.use("/rotation-state", createRequireWriteTokenForMutations(TOKEN), createRotationStateRouter(
+            createRotationStateRepository(database),
+            bindings,
+            createPathGuard(musicRoot),
+        ))
         await new Promise<void>((resolve, reject) => {
             server = app.listen(0, "127.0.0.1")
             server.once("listening", () => {
@@ -64,6 +88,7 @@ describe("rotation state route contract", () => {
     afterAll(async () => {
         await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve()))
         database.close()
+        rmSync(musicRoot, { recursive: true, force: true })
     })
 
     function request(method: string, path: string, body?: unknown, token = TOKEN) {
@@ -143,6 +168,39 @@ describe("rotation state route contract", () => {
             listenedAt: "2026-07-16T12:00:00.000Z",
         })
         expect(response.status).toBe(409)
+    })
+
+    it("creates a new draft from immutable archived history", async () => {
+        const oldId="550e8400-e29b-41d4-a716-446655440040"
+        expect((await request("PUT","/rotation-state/plan",{...plan(),id:oldId,name:"Old"})).status).toBe(200)
+        expect((await request("PUT","/rotation-state/plan",{...plan(),id:PLAN_ID,name:"Current"})).status).toBe(200)
+        const response=await request("POST",`/rotation-state/history/${oldId}/draft`)
+        expect(response.status).toBe(201)
+        await expect(response.json()).resolves.toMatchObject({status:"draft",albumIds:[ALBUM_A,ALBUM_B]})
+        const history=await (await fetch(`${baseUrl}/rotation-state/history`)).json()
+        expect(history.items).toEqual(expect.arrayContaining([expect.objectContaining({id:oldId,status:"archived"})]))
+    })
+
+    it("previews a localized-safe handover contract without requiring a write token", async () => {
+        const response = await fetch(`${baseUrl}/rotation-state/handover`)
+        expect(response.status).toBe(200)
+        const preview = await response.json()
+        expect(preview).toMatchObject({
+            draftId: expect.any(String),
+            activeId: PLAN_ID,
+            entering: [],
+            leaving: [],
+            unchanged: [ALBUM_A, ALBUM_B],
+            beforeRoles: { new: 1, growing: 1 },
+            afterRoles: { new: 1, growing: 1 },
+            size: 2,
+            targetSize: 2,
+            missingBindings: [ALBUM_B],
+            unconfirmedBindings: [],
+            estimatedSizeBytes: 5,
+            fileCount: 1,
+            exportReady: false,
+        })
     })
 
 })
