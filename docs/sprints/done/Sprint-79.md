@@ -1,6 +1,6 @@
 # Sprint 79 — Binding Candidate Review
 
-**Status:** Implemented — production candidate-quality verification pending
+**Status:** Completed — production candidate-quality verification passed 2026-07-16
 
 **Target version:** `v0.27.1-dev`
 
@@ -66,9 +66,9 @@ absence of a matcher.
 
 ## Remaining Production Check
 
-Run a fresh NAS scan and review candidate quality on the real unmatched folders.
-Threshold tuning may follow from observed false positives or missed candidates, but
-does not require changing the persisted/API contract.
+A fresh production NAS scan and candidate review passed. Real unmatched folders
+produced useful, conservative proposals without uncertain automatic confirmation;
+no threshold adjustment was required for acceptance.
 
 ## Non-Goals
 

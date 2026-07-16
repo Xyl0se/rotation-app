@@ -2,7 +2,7 @@
    Album Coach — reflective blue room
    ========================================== */
 
-.dialog:has(> .album-coach) {
+.dialog:has(> .album-coach), .dialog:has(> .archive-coach) {
     position: relative;
     width: min(760px, calc(100vw - 32px));
     max-width: 760px;

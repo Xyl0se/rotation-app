@@ -246,6 +246,41 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 6,
+        name: "restore-classic-rotation-eligibility",
+        run(db) {
+            db.exec(`
+                DROP TRIGGER IF EXISTS remove_ineligible_album_from_rotations;
+                CREATE TRIGGER remove_ineligible_album_from_rotations
+                AFTER UPDATE OF category ON albums
+                WHEN NEW.category IN ('admire', 'archive')
+                BEGIN
+                    DELETE FROM rotation_plan_items WHERE album_id = NEW.id;
+                    UPDATE rotation_plans SET focus_album_id = NULL WHERE focus_album_id = NEW.id;
+                END;
+            `)
+        },
+    },
+    {
+        version: 7,
+        name: "server-owned-rotation-settings",
+        run(db) {
+            db.exec(`
+                CREATE TABLE rotation_settings (
+                    singleton INTEGER PRIMARY KEY CHECK(singleton = 1),
+                    target_size INTEGER NOT NULL CHECK(target_size > 0 AND target_size <= 100),
+                    role_quotas_json TEXT NOT NULL CHECK(json_valid(role_quotas_json)),
+                    updated_at TEXT NOT NULL
+                );
+                INSERT INTO rotation_settings VALUES (
+                    1, 25,
+                    '[{"role":"new","targetCount":10},{"role":"comfort-food","targetCount":5},{"role":"classic","targetCount":5},{"role":"growing","targetCount":5}]',
+                    CURRENT_TIMESTAMP
+                );
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database): void {

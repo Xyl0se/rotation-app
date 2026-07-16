@@ -1,10 +1,13 @@
 import Database from "better-sqlite3"
-import type { ListenEvent, RotationPlan } from "../../../domain/rotationTypes.js"
+import type { ListenEvent, RotationPlan, RotationSettings } from "../../../domain/rotationTypes.js"
 
 export function createRotationStateRepository(db: Database.Database) {
     const saveListen = db.prepare("INSERT INTO listen_events VALUES (?,?,?) ON CONFLICT(id) DO NOTHING")
     const savePlanTx = db.transaction((plan: RotationPlan) => {
-        if (plan.status === "active") db.prepare("UPDATE rotation_plans SET status = 'draft', focus_album_id = NULL WHERE status = 'active' AND id != ?").run(plan.id)
+        // Accepting a Rotation replaces every previous proposal/active selection.
+        // Keeping the former active plan as a draft made reload prefer that stale
+        // proposal over the newly accepted plan.
+        if (plan.status === "active") db.prepare("DELETE FROM rotation_plans WHERE id != ?").run(plan.id)
         db.prepare(`INSERT INTO rotation_plans (id,name,target_size,role_quotas_json,status,focus_album_id,created_at,accepted_at)
             VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,target_size=excluded.target_size,
             role_quotas_json=excluded.role_quotas_json,status=excluded.status,focus_album_id=NULL,
@@ -72,6 +75,15 @@ export function createRotationStateRepository(db: Database.Database) {
         },
         importLegacy(draft: RotationPlan | null, active: RotationPlan | null, events: ListenEvent[]): void {
             importLegacyTx(draft, active, events)
+        },
+        findSettings(): RotationSettings {
+            const row = db.prepare("SELECT target_size, role_quotas_json FROM rotation_settings WHERE singleton = 1").get() as { target_size: number; role_quotas_json: string }
+            return { targetSize: row.target_size, roleQuotas: JSON.parse(row.role_quotas_json) as RotationSettings["roleQuotas"] }
+        },
+        saveSettings(settings: RotationSettings): RotationSettings {
+            db.prepare("UPDATE rotation_settings SET target_size = ?, role_quotas_json = ?, updated_at = ? WHERE singleton = 1")
+                .run(settings.targetSize, JSON.stringify(settings.roleQuotas), new Date().toISOString())
+            return this.findSettings()
         },
     }
 }

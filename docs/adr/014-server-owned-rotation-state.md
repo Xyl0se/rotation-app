@@ -35,4 +35,8 @@ the same event/plan IDs are harmless.
 - Backup/restore now covers the complete intended workflow.
 - Reloads and other browsers see the same Rotation, Focus, and Listening History.
 - Rotation composition Settings must use the server contract.
+- The 25-Album `10/5/5/5` composition is the initial server default, not a fixed
+  invariant. A later Settings contract may change the total maximum and eligible-role
+  quotas, while existing Rotation Plans retain the composition snapshot with which
+  they were created.
 - Local-storage repositories remain temporarily only for explicit migration.

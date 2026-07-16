@@ -29,12 +29,6 @@ function CoachIntro({
 
         <section className="album-coach coach-intro">
 
-            <h2>
-
-                Album Coach
-
-            </h2>
-
             <h1>
 
                 {albumTitle}

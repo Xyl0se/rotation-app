@@ -113,9 +113,16 @@ export const StageExportSchema = z.object({ exportId: UUIDSchema, albumIds: Albu
 export const ApplyExportSchema = z.object({ exportId: UUIDSchema })
 export const CoverAlbumIdSchema = z.object({ albumId: UUIDSchema })
 
-const RotationRoleSchema = z.enum(["new", "growing", "comfort-food"])
+const RotationRoleSchema = z.enum(["new", "growing", "comfort-food", "classic"])
 const RotationItemSchema = z.object({ albumId: UUIDSchema, role: RotationRoleSchema, reason: z.enum(["quota", "fill"]) })
 const RotationQuotaSchema = z.object({ role: RotationRoleSchema, targetCount: z.number().int().nonnegative() })
+export const RotationSettingsSchema = z.object({
+    targetSize: z.number().int().positive().max(100),
+    roleQuotas: z.array(RotationQuotaSchema).length(4),
+}).superRefine((settings, context) => {
+    const roles = settings.roleQuotas.map(quota => quota.role)
+    if (new Set(roles).size !== 4) context.addIssue({ code: z.ZodIssueCode.custom, path: ["roleQuotas"], message: "Each eligible role must occur once" })
+})
 export const RotationPlanSchema = z.object({
     id: UUIDSchema,
     name: z.string().trim().min(1).max(200),

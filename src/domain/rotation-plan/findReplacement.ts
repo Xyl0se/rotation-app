@@ -5,7 +5,7 @@ import type {
     RotationPlanItem,
 } from "./rotationPlan"
 
-const ROTATION_ROLES = new Set(["new", "growing", "comfort-food"])
+const ROTATION_ROLES = new Set(["new", "growing", "comfort-food", "classic"])
 
 function getLastListenedTime(album: Album): number {
 

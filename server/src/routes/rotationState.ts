@@ -1,7 +1,7 @@
 import { randomInt } from "node:crypto"
 import { Router } from "express"
 import type { RotationStateRepository } from "../infrastructure/persistence/sqlite/rotationStateRepository.js"
-import { FocusAlbumSchema, ListenEventSchema, RotationLegacyImportSchema, RotationPlanSchema, parseRequest } from "./validation.js"
+import { FocusAlbumSchema, ListenEventSchema, RotationLegacyImportSchema, RotationPlanSchema, RotationSettingsSchema, parseRequest } from "./validation.js"
 import type { RotationPlan } from "../domain/rotationTypes.js"
 
 function canonicalPlan(plan: Omit<RotationPlan, "focusAlbumId"> & { focusAlbumId?: string | null }): RotationPlan {
@@ -11,6 +11,11 @@ function canonicalPlan(plan: Omit<RotationPlan, "focusAlbumId"> & { focusAlbumId
 export function createRotationStateRouter(repository: RotationStateRepository): Router {
     const router = Router()
     router.get("/", (_req, res) => res.json({ active: repository.findActive(), draft: repository.findDraft() }))
+    router.get("/settings", (_req, res) => res.json(repository.findSettings()))
+    router.put("/settings", (req, res) => {
+        const settings = parseRequest(RotationSettingsSchema, req.body, res)
+        if (settings) res.json(repository.saveSettings(settings))
+    })
     router.put("/plan", (req, res) => {
         const plan = parseRequest(RotationPlanSchema, req.body, res)
         if (!plan) return

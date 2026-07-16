@@ -55,9 +55,9 @@ Not optimization.
 | Now | Release preparation | Version alignment, immutable API/Web tags, post-release smoke test | Release candidate | NAS acceptance passed |
 | Done | [Sprint 77](./sprints/done/Sprint-77.md) | Production acceptance and release closure | v0.26.2 | Done ✅ |
 | Done | [Sprint 78](./sprints/done/Sprint-78.md) | Library findability | v0.27.0-dev | Done ✅ |
-| 1 | [Sprint 79](./sprints/Sprint-79.md) | Safe ranked binding candidates | v0.27.1-dev | Revalidate from real unmatched folders |
-| 2 | [Sprint 80](./sprints/Sprint-80.md) | Server-owned listening and rotation data | v0.28.0-dev | In progress |
-| 3 | [Sprint 81](./sprints/Sprint-81.md) | Product shell, Settings, and interaction polish | v0.28.1-dev | Approved; follows Sprint 80 |
+| Done | [Sprint 79](./sprints/done/Sprint-79.md) | Safe ranked binding candidates | v0.27.1-dev | Done ✅ |
+| Done | [Sprint 80](./sprints/done/Sprint-80.md) | Server-owned listening and rotation data | v0.28.0-dev | Done ✅ |
+| 1 | [Sprint 81](./sprints/Sprint-81.md) | Product shell, Settings, and interaction polish | v0.28.1-dev | Approved; next |
 
 Sprint numbers express the present recommended order, not a promise to implement
 features without re-evaluating production evidence after each sprint.

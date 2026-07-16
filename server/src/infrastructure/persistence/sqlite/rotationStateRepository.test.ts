@@ -63,10 +63,25 @@ describe("rotation state repository", () => {
         db.close()
     })
 
-    it("removes an Album from Rotation and Focus when it becomes Classic", () => {
+    it("leaves no stale draft when a new Rotation is accepted", () => {
+        const { db, repository } = setup()
+        repository.savePlan({ ...plan(null), status: "draft", acceptedAt: undefined })
+        const replacement = { ...plan(null), id: "66666666-6666-4666-8666-666666666666", name: "Replacement", status: "draft" as const, acceptedAt: undefined }
+        repository.savePlan(replacement)
+        repository.savePlan({ ...replacement, status: "active", acceptedAt: "2026-01-02T00:00:00.000Z" })
+
+        expect(repository.findDraft()).toBeNull()
+        expect(repository.findActive()).toMatchObject({ id: replacement.id, status: "active" })
+        db.close()
+    })
+
+    it("keeps a Classic in Rotation but removes it when it becomes Admired", () => {
         const { db, repository } = setup()
         repository.savePlan(plan())
         db.prepare("UPDATE albums SET category = 'classic' WHERE id = ?").run(A)
+        expect(repository.findActive()?.albumIds).toEqual([A])
+        expect(repository.findActive()?.focusAlbumId).toBe(A)
+        db.prepare("UPDATE albums SET category = 'admire' WHERE id = ?").run(A)
         expect(repository.findActive()?.albumIds).toEqual([])
         expect(repository.findActive()?.focusAlbumId).toBeNull()
         db.close()

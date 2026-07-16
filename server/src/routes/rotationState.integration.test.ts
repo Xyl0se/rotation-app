@@ -79,6 +79,27 @@ describe("rotation state route contract", () => {
         expect((await request("PUT", "/rotation-state/plan", plan(), "wrong-token")).status).toBe(403)
     })
 
+    it("serves and updates validated server-owned Rotation settings", async () => {
+        const initial = await (await fetch(`${baseUrl}/rotation-state/settings`)).json()
+        expect(initial).toEqual({
+            targetSize: 25,
+            roleQuotas: [
+                { role: "new", targetCount: 10 },
+                { role: "comfort-food", targetCount: 5 },
+                { role: "classic", targetCount: 5 },
+                { role: "growing", targetCount: 5 },
+            ],
+        })
+        const custom = { ...initial, targetSize: 12, roleQuotas: initial.roleQuotas.map((quota: { role: string; targetCount: number }) => ({ ...quota, targetCount: 3 })) }
+        const saved = await request("PUT", "/rotation-state/settings", custom)
+        expect(saved.status).toBe(200)
+        await expect(saved.json()).resolves.toEqual(custom)
+
+        const invalid = await request("PUT", "/rotation-state/settings", { targetSize: 0, roleQuotas: [] })
+        expect(invalid.status).toBe(400)
+        await expect(fetch(`${baseUrl}/rotation-state/settings`).then(response => response.json())).resolves.toEqual(custom)
+    })
+
     it("rejects malformed or internally inconsistent plans", async () => {
         const response = await request("PUT", "/rotation-state/plan", { ...plan(), albumIds: [ALBUM_A] })
         expect(response.status).toBe(400)
@@ -89,6 +110,7 @@ describe("rotation state route contract", () => {
         expect((await request("PUT", "/rotation-state/plan", plan())).status).toBe(200)
         const state = await (await fetch(`${baseUrl}/rotation-state`)).json()
         expect(state.active).toMatchObject({ id: PLAN_ID, albumIds: [ALBUM_A, ALBUM_B], focusAlbumId: null })
+        expect(state.draft).toBeNull()
     })
 
     it("rejects focus outside the active Rotation and accepts a member", async () => {

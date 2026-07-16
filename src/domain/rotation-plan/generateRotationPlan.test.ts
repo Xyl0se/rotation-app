@@ -13,7 +13,7 @@ describe("generateRotationPlan", () => {
         const plan = generateRotationPlan(albums)
         expect(plan.status).toBe("draft")
         expect(plan.targetSize).toBe(defaultRotationTargetSize)
-        expect(plan.items).toHaveLength(2)
+        expect(plan.items).toHaveLength(3)
     })
 
     it("excludes archive albums", () => {
@@ -25,13 +25,13 @@ describe("generateRotationPlan", () => {
         expect(plan.items.some(item => item.albumId === "a2")).toBe(false)
     })
 
-    it("excludes Classic and Admired albums", () => {
+    it("includes Classic but excludes Admired albums", () => {
         const albums = [
             makeAlbum({ id: "new", category: "new" }),
             makeAlbum({ id: "classic", category: "classic" }),
             makeAlbum({ id: "admired", category: "admire" }),
         ]
-        expect(generateRotationPlan(albums).albumIds).toEqual(["new"])
+        expect(generateRotationPlan(albums).albumIds).toEqual(["new", "classic"])
     })
 
     it("excludes albums without a category", () => {
@@ -57,9 +57,11 @@ describe("generateRotationPlan", () => {
         const plan = generateRotationPlan(albums)
         const newItems = plan.items.filter(item => item.role === "new")
         const comfortItems = plan.items.filter(item => item.role === "comfort-food")
+        const classicItems = plan.items.filter(item => item.role === "classic")
         expect(newItems.length).toBeGreaterThanOrEqual(2)
         expect(comfortItems.length).toBeGreaterThanOrEqual(2)
-        expect(plan.items.some(item => item.role === "classic" || item.role === "admire")).toBe(false)
+        expect(classicItems).toHaveLength(1)
+        expect(plan.items.some(item => item.role === "admire")).toBe(false)
     })
 
     it("prefers albums with lower listenCount", () => {
@@ -85,15 +87,16 @@ describe("generateRotationPlan", () => {
         expect(plan.targetSize).toBe(5)
     })
 
-    it("fills remaining slots after quotas", () => {
-        const albums = Array.from({ length: 40 }, (_, i) =>
-            makeAlbum({
-                id: `album-${i}`,
-                category: i % 2 === 0 ? "new" : "comfort-food",
-                listenCount: i,
-            })
-        )
+    it("caps the default mix at 10 New and 5 per other eligible role", () => {
+        const roles = ["new", "comfort-food", "classic", "growing"] as const
+        const albums = roles.flatMap(role => Array.from({ length: 20 }, (_, i) =>
+            makeAlbum({ id: `${role}-${i}`, category: role, listenCount: i })
+        ))
         const plan = generateRotationPlan(albums)
-        expect(plan.items.length).toBeLessThanOrEqual(defaultRotationTargetSize)
+        expect(plan.items).toHaveLength(25)
+        expect(plan.items.filter(item => item.role === "new")).toHaveLength(10)
+        for (const role of roles.slice(1)) {
+            expect(plan.items.filter(item => item.role === role)).toHaveLength(5)
+        }
     })
 })

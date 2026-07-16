@@ -49,7 +49,7 @@ function ArchiveProtectionCoach({
 
         return (
 
-            <section className="archive-coach">
+            <section className="archive-coach album-coach">
 
                 <p className="coach-album-title">
 
@@ -97,10 +97,11 @@ function ArchiveProtectionCoach({
         archiveProtectionQuestions[
             evaluation.nextQuestion
         ]
+    const questionCopy = t.archive.protection.questions[evaluation.nextQuestion]
 
     return (
 
-        <section className="archive-coach">
+        <section className="archive-coach album-coach">
 
             <p className="coach-album-title">
 
@@ -110,13 +111,13 @@ function ArchiveProtectionCoach({
 
             <h2>
 
-                {question.title}
+                {questionCopy.title}
 
             </h2>
 
             <p>
 
-                {question.description}
+                {questionCopy.description}
 
             </p>
 

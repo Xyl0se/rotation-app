@@ -10,7 +10,6 @@ import { useBindings } from "../hooks/useBindings"
 import { createRepositories } from "../repositories/factory"
 import { useConnection } from "../contexts/connectionState"
 
-import Header from "../components/features/Header"
 import EmptyLibrary from "../components/features/EmptyLibrary"
 import Library from "../components/features/library/Library"
 import DeleteAlbumDialog from "../components/features/library/DeleteAlbumDialog"
@@ -26,7 +25,6 @@ import CoachOrphanPrompt from "../components/features/album-coach/CoachOrphanPro
 import ArchiveProtectionCoach from "../components/features/archive/ArchiveProtectionCoach"
 import ArchiveReturnCoach from "../components/features/archive/ArchiveReturnCoach"
 import BackupControls from "../components/features/backup/BackupControls"
-import { LanguageSwitcher } from "../components/features/LanguageSwitcher"
 
 import { evaluateReflection } from "../domain/reflection/evaluateReflection"
 import { useI18n } from "../i18n/useI18n"
@@ -186,7 +184,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
 
     return (
         <main className="container">
-            <Header />
             {isLibraryLoading && (
                 <div className="sync-status" role="status">
                     {t.home.syncingLibrary}
@@ -396,9 +393,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                     )
                 }
             </Dialog>
-            <footer className="home-footer">
-                <LanguageSwitcher />
-            </footer>
         </main>
     )
 }

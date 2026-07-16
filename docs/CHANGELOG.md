@@ -2,6 +2,18 @@
 
 ## v0.26.1-dev
 
+- **Sprint 81 — Product Shell, Settings & Interaction Polish**
+  - Added a responsive global Rotation header with a repository-native record/recurrence SVG mark and navigation across Home, Bindings, Export, and Settings.
+  - Added a metallic machine-room Settings page with language controls and server-owned total/per-role Rotation composition, validation feedback, confirmed saves, and migration 7 persistence.
+  - Made new Rotation generation consume the current server settings while preserving existing plan snapshots.
+  - Moved Focus history into an accessible disclosure, compacted the unbound-folder notice, removed the internal Album Coach label, localized Insights and archive questions, and aligned archive dialogs with the reflective Coach design.
+  - Fixed accepted Rotations reverting to proposal mode after reload by removing stale draft/previous-active plans transactionally when “Take along” confirms the new canonical active Rotation.
+
+- **Focused 25-Album Rotation correction**
+  - Restored Classic as an eligible Rotation role while keeping Admired and Archive excluded.
+  - Reduced the default maximum from 30 to 25 Albums with hard caps of 10 Newly Discovered and 5 each for Comfort Food, Classic, and Still Growing.
+  - Added migration 6 so existing installations no longer remove Classics from Rotation when their role is updated; newly generated Rotations use the corrected mix.
+
 - **Sprint 80 foundation — Server-owned Rotation state**
   - Accepted ADR 014 and added SQLite schema/repositories for draft/active Rotation Plans, role quotas, Focus Album, Rotation items, and Listening Events.
   - Enforced that Focus is null or belongs to the active Rotation, with server-side random Focus selection restricted to active items.
@@ -9,12 +21,14 @@
   - Cut Home and Export over to confirmed server state, added a deliberate browser-data migration with preview counts, and removes legacy keys only after confirmed import.
   - Restricted Focus selection to the active Rotation and made Listening Event creation update the Album's derived listening fields transactionally.
   - Added route-level coverage for canonical reloads, validation, Focus membership, random Focus, listening idempotency, and legacy-import conflicts; added UI failure/retry coverage and verified real SQLite backup/restore of Rotation, Focus, and Listening Events.
+  - Passed production NAS acceptance for legacy import, reload and second-browser consistency, Focus membership, listening history, role cleanup, and operational backup/restore.
 
 - **Sprint 79 — Safe Binding Candidate Review**
   - Added Unicode-safe, precision-oriented candidate ranking with separate title/artist signals, volume-conflict penalties, ambiguity detection, and a bounded top-three result.
   - Persisted candidate evidence per scan and added stale-scan and duplicate-Library guards around transactional candidate selection.
   - Added localized candidate review, reasons, selection, rejection, and Capture fallback directly to the Bindings workspace.
   - Restricted Reconcile so folder existence alone can no longer confirm an unlinked proposal.
+  - Passed the production candidate-quality review against real unmatched NAS folders without requiring threshold changes.
 
 - **Long-running NAS export resilience and visual refresh**
   - Replaced blocking synchronous staging copies with asynchronous filesystem operations so API health and progress endpoints remain responsive during multi-minute NAS exports.

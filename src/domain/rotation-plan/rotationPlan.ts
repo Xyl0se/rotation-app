@@ -48,7 +48,7 @@ export interface RotationPlan {
 
 }
 
-export const defaultRotationTargetSize = 30
+export const defaultRotationTargetSize = 25
 
 export const defaultRotationRoleQuotas: RotationRoleQuota[] = [
 
@@ -59,12 +59,17 @@ export const defaultRotationRoleQuotas: RotationRoleQuota[] = [
 
     {
         role: "comfort-food",
-        targetCount: 8,
+        targetCount: 5,
+    },
+
+    {
+        role: "classic",
+        targetCount: 5,
     },
 
     {
         role: "growing",
-        targetCount: 12,
+        targetCount: 5,
     },
 
 ]

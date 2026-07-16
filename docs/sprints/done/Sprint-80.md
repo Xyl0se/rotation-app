@@ -1,6 +1,6 @@
 # Sprint 80 — Canonical Listening & Rotation Persistence
 
-**Status:** Implementation complete — production NAS acceptance pending
+**Status:** Completed — production NAS acceptance passed 2026-07-16
 
 **Target version:** `v0.28.0-dev`
 
@@ -51,7 +51,7 @@ and server-authoritative hooks remain the next implementation step.
 - [x] Load listening, Focus Album, and rotation state from the API.
 - [x] Apply confirmed-mutation semantics consistent with the server Library.
 - [x] Define clear unavailable/retry states; do not add an offline mutation queue.
-- [ ] Verify behavior in a second browser as a consequence of server ownership, not as a
+- [x] Verify behavior in a second browser as a consequence of server ownership, not as a
   separate synchronization engine.
 
 Home and Export now read the same canonical server Rotation. Focus selection is no
@@ -63,7 +63,7 @@ derived count and timestamp in the same transaction.
 
 - [x] ADR, schema, repositories, and API contracts define one canonical owner.
 - [x] Existing valid browser data can be imported once without loss or duplication.
-- [ ] Reload and a second browser show the same confirmed listening/rotation state.
+- [x] Reload and a second browser show the same confirmed listening/rotation state.
 - [x] Album deletion and archival behavior preserve referential integrity.
 - [x] Backup/restore covers all newly server-owned data.
 - [x] Obsolete canonical local-storage keys are removed only after safe migration.
@@ -73,8 +73,8 @@ Automated verification now covers authenticated mutations, validation, canonical
 reloads, Focus membership, random Focus selection, idempotent Listening Events,
 legacy-import conflicts, confirmed-state UI behavior, explicit retry, and a real
 SQLite backup/restore containing Rotation, Focus, and Listening Events. The remaining
-gate is the deployed two-browser acceptance described in
-[`SPRINT-80-NAS-ACCEPTANCE-TEST.md`](../SPRINT-80-NAS-ACCEPTANCE-TEST.md).
+deployed two-browser and backup/restore gate passed as recorded in the archived
+[`SPRINT-80-NAS-ACCEPTANCE-TEST.md`](../../archive/SPRINT-80-NAS-ACCEPTANCE-TEST.md).
 
 ## Non-Goals
 

@@ -48,7 +48,7 @@ The server is authoritative only for domains that already have a server reposito
 
 ## Follow-up
 
-[Sprint 80 — Canonical Listening & Rotation Persistence](../sprints/Sprint-80.md)
+[Sprint 80 — Canonical Listening & Rotation Persistence](../sprints/done/Sprint-80.md)
 must be completed before multi-device or PWA work. It migrates Listening History,
 RotationPlan, and Focus Album to server ownership without silently discarding legacy
 browser data.

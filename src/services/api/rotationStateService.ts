@@ -1,6 +1,7 @@
 import type { RotationPlan } from "../../domain/rotation-plan/rotationPlan"
 import type { ListenEvent } from "../../domain/listening/listenEvents"
 import { get, post, put } from "./apiClient"
+import type { RotationRoleQuota } from "../../domain/rotation-plan/rotationPlan"
 
 export interface ServerRotationPlan extends RotationPlan {
     focusAlbumId: string | null
@@ -10,6 +11,7 @@ export interface RotationStateResponse {
     active: ServerRotationPlan | null
     draft: ServerRotationPlan | null
 }
+export interface RotationSettings { targetSize: number; roleQuotas: RotationRoleQuota[] }
 
 export interface LegacyRotationImport extends RotationStateResponse {
     listenEvents: ListenEvent[]
@@ -18,6 +20,8 @@ export interface LegacyRotationImport extends RotationStateResponse {
 export function fetchRotationState(): Promise<RotationStateResponse> {
     return get("/rotation-state")
 }
+export function fetchRotationSettings(): Promise<RotationSettings> { return get("/rotation-state/settings") }
+export function saveRotationSettings(settings: RotationSettings): Promise<RotationSettings> { return put("/rotation-state/settings", settings) }
 
 export function saveRotationPlan(plan: RotationPlan, focusAlbumId: string | null = null): Promise<ServerRotationPlan> {
     return put("/rotation-state/plan", { ...plan, focusAlbumId })

@@ -252,13 +252,12 @@ function FocusAlbumCard({
                 <AlbumStory story={album.story} />
             )}
 
-            <AlbumTimeline
-
-                album={album}
-
-                listenEvents={listenEvents}
-
-            />
+            <details className="focus-timeline-popover">
+                <summary>{t.focusAlbum.timeline}</summary>
+                <div className="focus-timeline-panel">
+                    <AlbumTimeline album={album} listenEvents={listenEvents} />
+                </div>
+            </details>
 
         </section>
 

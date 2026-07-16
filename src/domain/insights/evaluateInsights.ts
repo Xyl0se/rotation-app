@@ -12,8 +12,6 @@ export type InsightCode =
 export interface Insight {
     code: InsightCode
     priority: "info" | "reflection"
-    title: string
-    description: string
 }
 
 function countRole(
@@ -46,9 +44,6 @@ export function evaluateInsights(
             {
                 code: "building-library",
                 priority: "info",
-                title: "Your collection is taking shape",
-                description:
-                    "With a few more albums, Rotation can start recognizing first patterns in your collection.",
             },
         ]
     }
@@ -65,9 +60,6 @@ export function evaluateInsights(
         insights.push({
             code: "discovery-phase",
             priority: "info",
-            title: "You're in a discovery phase",
-            description:
-                "Many albums in your collection still want to grow or be discovered.",
         })
     }
 
@@ -75,9 +67,6 @@ export function evaluateInsights(
         insights.push({
             code: "archive-heavy",
             priority: "reflection",
-            title: "A noticeable part of your collection is resting",
-            description:
-                "The archive has gained weight. Maybe there's a rediscovery candidate in there soon.",
         })
     }
 
@@ -85,9 +74,6 @@ export function evaluateInsights(
         insights.push({
             code: "comfort-heavy",
             priority: "info",
-            title: "Your collection is seeking familiarity",
-            description:
-                "Comfort-food albums are taking up a lot of space right now. This can be a very stable listening phase.",
         })
     }
 
@@ -98,9 +84,6 @@ export function evaluateInsights(
         insights.push({
             code: "classic-core",
             priority: "info",
-            title: "Your collection has a clear classic core",
-            description:
-                "A part of your collection now feels permanently formative.",
         })
     }
 

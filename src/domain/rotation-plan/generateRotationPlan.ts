@@ -27,13 +27,7 @@ export interface GenerateRotationPlanOptions {
 
 }
 
-function getAlbumRole(album: Album): RoleId | null {
-
-    return album.category ?? null
-
-}
-
-const ROTATION_ROLES = new Set<RoleId>(["new", "growing", "comfort-food"])
+const ROTATION_ROLES = new Set<RoleId>(["new", "growing", "comfort-food", "classic"])
 
 function getLastListenedTime(album: Album): number {
 
@@ -101,6 +95,15 @@ export function generateRotationPlan(
 
     for (const quota of roleQuotas) {
 
+        const availableSlots =
+            Math.max(targetSize - items.length, 0)
+
+        if (availableSlots === 0) {
+
+            break
+
+        }
+
         const candidates =
             sortCandidates(
                 eligibleAlbums.filter(album =>
@@ -112,7 +115,7 @@ export function generateRotationPlan(
         for (
             const album of candidates.slice(
                 0,
-                quota.targetCount,
+                Math.min(quota.targetCount, availableSlots),
             )
         ) {
 
@@ -122,47 +125,6 @@ export function generateRotationPlan(
                 albumId: album.id,
                 role: quota.role,
                 reason: "quota",
-            })
-
-        }
-
-    }
-
-    const remainingSlots =
-        Math.max(targetSize - items.length, 0)
-
-    if (remainingSlots > 0) {
-
-        const fillCandidates =
-            sortCandidates(
-                eligibleAlbums.filter(album =>
-                    !selected.has(album.id) &&
-                    getAlbumRole(album) !== null
-                ),
-            )
-
-        for (
-            const album of fillCandidates.slice(
-                0,
-                remainingSlots,
-            )
-        ) {
-
-            const role =
-                getAlbumRole(album)
-
-            if (!role) {
-
-                continue
-
-            }
-
-            selected.add(album.id)
-
-            items.push({
-                albumId: album.id,
-                role,
-                reason: "fill",
             })
 
         }

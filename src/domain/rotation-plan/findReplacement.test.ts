@@ -80,10 +80,15 @@ describe("findReplacementCandidates", () => {
         expect(candidates).toHaveLength(0)
     })
 
-    it("does not offer replacements for non-rotation roles", () => {
+    it("offers replacements for Classic but not for Admired", () => {
         const removedItem: RotationPlanItem = { albumId: "removed", role: "classic", reason: "quota" }
-        const albums = [makeAlbum({ id: "classic", category: "classic" })]
-        expect(findReplacementCandidates(removedItem, makePlan([removedItem]), albums)).toEqual([])
+        const albums = [
+            makeAlbum({ id: "classic", category: "classic" }),
+            makeAlbum({ id: "admired", category: "admire" }),
+        ]
+        expect(findReplacementCandidates(removedItem, makePlan([removedItem]), albums).map(album => album.id)).toEqual(["classic"])
+        const admiredItem: RotationPlanItem = { albumId: "removed", role: "admire", reason: "quota" }
+        expect(findReplacementCandidates(admiredItem, makePlan([admiredItem]), albums)).toEqual([])
     })
 
     it("returns at most 'limit' candidates", () => {

@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { chooseRandomServerFocus, fetchRotationState, saveRotationPlan, setServerFocus } from "../services/api/rotationStateService"
+import { chooseRandomServerFocus, fetchRotationSettings, fetchRotationState, saveRotationPlan, setServerFocus } from "../services/api/rotationStateService"
 import { useRotationPlan } from "./useRotationPlan"
 
 vi.mock("../services/api/rotationStateService", () => ({
@@ -8,6 +8,7 @@ vi.mock("../services/api/rotationStateService", () => ({
     saveRotationPlan: vi.fn(),
     setServerFocus: vi.fn(),
     chooseRandomServerFocus: vi.fn(),
+    fetchRotationSettings: vi.fn(),
 }))
 
 const active = {
@@ -22,6 +23,7 @@ describe("useRotationPlan server ownership", () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.mocked(fetchRotationState).mockResolvedValue({ active, draft: null })
+        vi.mocked(fetchRotationSettings).mockResolvedValue({ targetSize: 25, roleQuotas: [{ role: "new", targetCount: 10 }, { role: "comfort-food", targetCount: 5 }, { role: "classic", targetCount: 5 }, { role: "growing", targetCount: 5 }] })
     })
 
     it("loads confirmed state and recovers through explicit refresh after failure", async () => {
@@ -51,5 +53,19 @@ describe("useRotationPlan server ownership", () => {
         await act(async () => expect(await result.current.suggestFocusAlbum()).toBe(true))
         expect(result.current.focusAlbumId).toBe(active.albumIds[0])
         expect(saveRotationPlan).not.toHaveBeenCalled()
+    })
+
+    it("keeps the server-confirmed active status after acceptance and reload", async () => {
+        const draft = { ...active, status: "draft" as const, acceptedAt: undefined, focusAlbumId: null }
+        vi.mocked(fetchRotationState).mockResolvedValueOnce({ active: null, draft })
+        vi.mocked(saveRotationPlan).mockResolvedValueOnce(active)
+        const { result } = renderHook(() => useRotationPlan([], true))
+        await waitFor(() => expect(result.current.rotationPlan?.status).toBe("draft"))
+        await act(async () => expect(await result.current.acceptPlan()).toBe(true))
+        expect(result.current.rotationPlan?.status).toBe("active")
+
+        vi.mocked(fetchRotationState).mockResolvedValueOnce({ active, draft: null })
+        await act(async () => expect(await result.current.refresh()).toBe(true))
+        expect(result.current.rotationPlan?.status).toBe("active")
     })
 })

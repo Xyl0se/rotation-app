@@ -15,3 +15,7 @@ export interface RotationPlan {
     focusAlbumId: string | null
 }
 export interface ListenEvent { id: string; albumId: string; listenedAt: string }
+export interface RotationSettings {
+    targetSize: number
+    roleQuotas: RotationRoleQuota[]
+}

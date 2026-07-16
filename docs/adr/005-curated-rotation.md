@@ -9,7 +9,8 @@ Accepted
 Rotation meant in early product development a single currently highlighted album.
 
 The original product idea is broader:
-Rotation should suggest a conscious selection from the library for the music player, for example 30 albums with weighted proportions from multiple roles.
+Rotation should suggest a conscious selection from the library for the music player,
+with a focused upper bound and weighted proportions from multiple roles.
 
 ## Decision
 
@@ -20,6 +21,10 @@ Album roles describe the relationship with an album. They are candidate classes 
 A Focus Album is a single highlighted album in the UI. It replaces the old single-album semantics without immediately removing the existing local data field `isCurrent`.
 
 Listening sessions are album events. They are not bound to whether an album is part of a rotation or the current Focus Album.
+
+The current default is a maximum of 25 Albums: 10 Newly Discovered, 5 Comfort Food,
+5 Classic, and 5 Still Growing. Role quotas are hard maxima; Admired and Archive are
+not Rotation roles.
 
 ## Consequences
 

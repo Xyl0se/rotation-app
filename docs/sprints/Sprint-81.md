@@ -1,6 +1,6 @@
 # Sprint 81 — Product Shell & Interaction Polish
 
-**Status:** Planned — begins after Sprint 80 establishes server-owned settings
+**Status:** Implemented — production visual acceptance pending
 
 **Target version:** `v0.28.1-dev`
 
@@ -23,7 +23,23 @@ dedicated Settings area, while reducing persistent visual weight on the Home pag
 
 - Add a fourth Settings page with a metallic/chrome machine-room identity.
 - Move DE/EN language selection from the Home footer into Settings.
-- Display server-owned Rotation composition controls once Sprint 80 exposes them.
+- Add a server-owned Rotation default-settings contract instead of storing composition
+  preferences in the browser or deriving them from the most recent RotationPlan.
+- Let the user configure both the maximum Rotation size and the quota for every
+  eligible role: Newly Discovered, Comfort Food, Classic, and Still Growing.
+- Start from the accepted default of at most 25 Albums: 10 Newly Discovered and 5
+  each of Comfort Food, Classic, and Still Growing. These values are defaults, not
+  permanent hard-coded product limits.
+- Require non-negative integer role quotas and a positive maximum size. The effective
+  selection must never exceed either a role quota or the configured total maximum.
+- Show the quota sum and a clear warning when it differs from the maximum. If the sum
+  is greater, the total maximum wins; if it is smaller or the Library lacks candidates,
+  the generated Rotation remains smaller rather than silently reallocating slots.
+- Apply changed defaults only to newly generated Rotations. Existing draft and active
+  Rotations remain stable until the user deliberately generates a new one.
+- Persist and return the settings through explicit API endpoints, include them in
+  backup/restore, and use confirmed-mutation plus retry behavior consistent with the
+  other server-owned state.
 - Keep controls legible, keyboard accessible, and usable on touch devices.
 
 ## Workstream 81C — Focus and Home Density
@@ -50,15 +66,33 @@ dedicated Settings area, while reducing persistent visual weight on the Home pag
 
 ## Definition of Done
 
-- [ ] One responsive branded header serves all four pages.
-- [ ] Settings contains language and server-owned Rotation composition controls.
-- [ ] Focus history is available through an accessible popover on pointer and touch.
-- [ ] The unbound-folder notice is compact and actionable.
-- [ ] No internal Album Coach label is visible to users.
-- [ ] Insights display no English fallback prose when German is active.
-- [ ] Archive Protection and Archive Return visually match the Album Coach across
+- [x] One responsive branded header serves all four pages.
+- [x] Settings contains language, total Rotation size, and per-role server-owned
+  composition controls with the documented validation and precedence rules.
+- [x] Reload and a second browser show the same confirmed Rotation settings; new
+  settings affect only newly generated Rotations.
+- [x] API, migration, backup/restore, generator, and UI regression tests cover default,
+  custom, invalid, over-subscribed, and under-subscribed compositions.
+- [x] Focus history is available through an accessible popover on pointer and touch.
+- [x] The unbound-folder notice is compact and actionable.
+- [x] No internal Album Coach label is visible to users.
+- [x] Insights display no English fallback prose when German is active.
+- [x] Archive Protection and Archive Return visually match the Album Coach across
   desktop and mobile while retaining their own localized content.
-- [ ] Accessibility and responsive regression tests cover the new shell.
+- [x] Accessibility and responsive regression tests cover the new shell.
+
+## Implementation Notes
+
+- Migration 7 persists one server-owned settings record with the accepted `25 / 10–5–5–5`
+  defaults; `GET` and `PUT /rotation-state/settings` provide the confirmed contract.
+- Newly generated plans load the current settings immediately before generation.
+  Existing plans retain their stored target and quota snapshot.
+- The Settings machine room exposes language, total size, every eligible role quota,
+  quota-sum warnings, and explicit save/retry behavior.
+- The global SVG product mark and responsive navigation now frame Home, Bindings,
+  Export, and Settings consistently.
+- Focus history uses native accessible disclosure, Insights and archive questions use
+  DE/EN catalog copy, and reflective archive dialogs reuse the Coach visual system.
 
 ## Non-Goals
 

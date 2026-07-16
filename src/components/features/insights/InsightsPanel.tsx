@@ -3,6 +3,15 @@ import type { Album } from "../../../types/album"
 import {
     evaluateInsights,
 } from "../../../domain/insights/evaluateInsights"
+import { useI18n } from "../../../i18n/useI18n"
+
+const insightTranslationKeys = {
+    "building-library": "buildingLibrary",
+    "discovery-phase": "discoveryPhase",
+    "archive-heavy": "archiveHeavy",
+    "comfort-heavy": "comfortHeavy",
+    "classic-core": "classicCore",
+} as const
 
 type InsightsPanelProps = {
 
@@ -15,6 +24,7 @@ function InsightsPanel({
     albums,
 
 }: InsightsPanelProps) {
+    const { t } = useI18n()
 
     const insights =
         evaluateInsights(albums)
@@ -27,13 +37,13 @@ function InsightsPanel({
 
                 <h2>
 
-                    Insights
+                    {t.dashboard.insights}
 
                 </h2>
 
                 <p>
 
-                    Was deine Sammlung gerade erzählt.
+                    {t.dashboard.subtitle}
 
                 </p>
 
@@ -55,13 +65,13 @@ function InsightsPanel({
 
                             <h3>
 
-                                {insight.title}
+                                {t.insights[insightTranslationKeys[insight.code]].title}
 
                             </h3>
 
                             <p>
 
-                                {insight.description}
+                                {t.insights[insightTranslationKeys[insight.code]].description}
 
                             </p>
 

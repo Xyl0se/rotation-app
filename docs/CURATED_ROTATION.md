@@ -4,7 +4,7 @@ Rotation means from Sprint 43 onwards a curated player selection.
 
 The app should not just highlight one album, but from a large library make a conscious selection:
 
-- Target size, initially typically 30 albums
+- Target size of at most 25 albums for focused listening sessions
 - Weighted proportions from multiple roles
 - Traceable selection from more candidates than slots
 - No automatic removal from the library
@@ -39,11 +39,12 @@ Sprint 44 generates the first visible player rotation suggestion from this.
 
 `generateRotationPlan(albums)` creates a first selection:
 
-- Default target is 30 albums.
-- Archived albums are excluded.
-- Role quotas favor Newly Discovered, Comfort Food, Classic, Growing, and Admiration.
-- When roles don't have enough candidates, free slots are robustly filled.
-- Each item remembers whether it came in via a role slot or a fill slot.
+- Default target is at most 25 albums: 10 Newly Discovered, 5 Comfort Food,
+  5 Classic, and 5 Still Growing.
+- Admired and Archived albums are excluded.
+- Role quotas are hard maxima. A missing role leaves the Rotation smaller instead of
+  being overfilled from another role.
+- Each item records the role quota through which it entered the Rotation.
 
 The generator is deliberately simple and traceable.
 

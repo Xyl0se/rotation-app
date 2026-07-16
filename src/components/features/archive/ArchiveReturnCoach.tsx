@@ -49,7 +49,7 @@ function ArchiveReturnCoach({
 
         return (
 
-            <section className="archive-coach">
+            <section className="archive-coach album-coach">
 
                 <p className="coach-album-title">
 
@@ -97,10 +97,11 @@ function ArchiveReturnCoach({
         archiveReturnQuestions[
             evaluation.nextQuestion
         ]
+    const questionCopy = t.archive.return.questions[evaluation.nextQuestion]
 
     return (
 
-        <section className="archive-coach">
+        <section className="archive-coach album-coach">
 
             <p className="coach-album-title">
 
@@ -110,13 +111,13 @@ function ArchiveReturnCoach({
 
             <h2>
 
-                {question.title}
+                {questionCopy.title}
 
             </h2>
 
             <p>
 
-                {question.description}
+                {questionCopy.description}
 
             </p>
 
@@ -177,7 +178,9 @@ function ArchiveReturnCoach({
                                     }
                                 >
 
-                                    {option.label}
+                                    {question.id === "reason"
+                                        ? t.archive.return.questions.reason.options[option.value as keyof typeof t.archive.return.questions.reason.options]
+                                        : t.archive.return.questions.listeningNeed.options[option.value as keyof typeof t.archive.return.questions.listeningNeed.options]}
 
                                 </Button>
 

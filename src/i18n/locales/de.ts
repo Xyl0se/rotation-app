@@ -84,6 +84,7 @@ export const de: Translation = {
         lastListenedLabel: "Zuletzt gehört",
         noListenSession: "Noch keine Hörsession",
         listened: "Gehört",
+        timeline: "Albumhistorie",
         emptyTitle: "Noch kein Fokusalbum ausgewählt",
         emptyDescription: "Lass dir ein zufälliges Album aus deiner aktiven Rotation vorschlagen.",
         needsRotation: "Aktiviere zuerst eine Rotation, um daraus ein Fokusalbum auszuwählen.",
@@ -635,6 +636,7 @@ export const de: Translation = {
         home: "Start",
         bindings: "Bindings",
         export: "Export",
+        settings: "Einstellungen",
         offline: "Offline — warte auf Verbindung",
         apiUnavailable: "Server nicht erreichbar — lokaler Cache aktiv",
         retrying: "Wiederhole…",
@@ -644,6 +646,20 @@ export const de: Translation = {
         label: "Sprache",
         de: "Deutsch",
         en: "English",
+    },
+
+    settings: {
+        kicker: "Maschinenraum",
+        title: "Einstellungen",
+        description: "Passe Rotation an, ohne die aktive Auswahl unerwartet zu verändern.",
+        composition: "Zusammensetzung der Rotation",
+        maximum: "Maximale Anzahl Alben",
+        quotaSum: (sum: number, maximum: number) => `Summe der Rollenquoten: ${sum} · Maximum: ${maximum}`,
+        appliesNext: "Änderungen gelten ab der nächsten neu erzeugten Rotation.",
+        save: "Einstellungen speichern",
+        saving: "Wird gespeichert…",
+        loadError: "Einstellungen konnten nicht geladen werden.",
+        saveError: "Einstellungen konnten nicht gespeichert werden.",
     },
 
     exportPage: {

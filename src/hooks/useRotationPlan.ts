@@ -5,7 +5,7 @@ import type { RotationPlan } from "../domain/rotation-plan/rotationPlan"
 
 import { generateRotationPlan } from "../domain/rotation-plan/generateRotationPlan"
 import { findReplacementCandidates } from "../domain/rotation-plan/findReplacement"
-import { chooseRandomServerFocus, fetchRotationState, saveRotationPlan, setServerFocus } from "../services/api/rotationStateService"
+import { chooseRandomServerFocus, fetchRotationSettings, fetchRotationState, saveRotationPlan, setServerFocus } from "../services/api/rotationStateService"
 
 export function useRotationPlan(
     albums: Album[],
@@ -51,7 +51,15 @@ export function useRotationPlan(
         }
     }, [focusAlbumId])
 
-    const generatePlan = useCallback(async () => persist(generateRotationPlan(albums)), [albums, persist])
+    const generatePlan = useCallback(async () => {
+        try {
+            const settings = await fetchRotationSettings()
+            return persist(generateRotationPlan(albums, settings))
+        } catch (cause) {
+            setError(cause instanceof Error ? cause.message : "Rotation settings request failed")
+            return false
+        }
+    }, [albums, persist])
 
     const removeFromPlan = useCallback(async (albumId: string) => {
         if (!rotationPlan) return false

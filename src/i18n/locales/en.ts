@@ -83,6 +83,7 @@ export const en = {
         lastListenedLabel: "Last Listened",
         noListenSession: "No listen session yet",
         listened: "Listened",
+        timeline: "Album history",
         emptyTitle: "No Focus Album selected yet",
         emptyDescription: "Let Rotation choose a random album from your active Rotation.",
         needsRotation: "Activate a Rotation first to select a Focus Album from it.",
@@ -634,6 +635,7 @@ export const en = {
         home: "Home",
         bindings: "Bindings",
         export: "Export",
+        settings: "Settings",
         offline: "Offline — waiting for connection",
         apiUnavailable: "Server unavailable — using local cache",
         retrying: "Retrying…",
@@ -643,6 +645,20 @@ export const en = {
         label: "Language",
         de: "Deutsch",
         en: "English",
+    },
+
+    settings: {
+        kicker: "Control room",
+        title: "Settings",
+        description: "Tune how Rotation works without changing the active selection unexpectedly.",
+        composition: "Rotation composition",
+        maximum: "Maximum Albums",
+        quotaSum: (sum: number, maximum: number) => `Role quota sum: ${sum} · Maximum: ${maximum}`,
+        appliesNext: "Changes apply when you generate the next Rotation.",
+        save: "Save settings",
+        saving: "Saving…",
+        loadError: "Settings could not be loaded.",
+        saveError: "Settings could not be saved.",
     },
 
     exportPage: {
