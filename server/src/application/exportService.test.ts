@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest"
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import { existsSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { initDatabase } from "../infrastructure/persistence/sqlite/connection.js"
@@ -96,6 +96,24 @@ describe("ExportService canonical Album identity", () => {
                 albumId: LIBRARY_ALBUM_ID,
                 relativePath: FILESYSTEM_ALBUM_ID,
             }),
+        ])
+
+        const repeatedPreview = service.createPreview([LIBRARY_ALBUM_ID])
+        service.runStage(repeatedPreview.exportId, [LIBRARY_ALBUM_ID])
+        await new Promise<void>((resolve) => setImmediate(resolve))
+
+        // Syncthing still sees the complete previous rotation during staging.
+        expect(existsSync(exportedTrack)).toBe(true)
+        expect(readFileSync(exportedTrack, "utf8")).toBe("audio")
+
+        const repeatedApply = service.runApply(repeatedPreview.exportId)
+        expect(repeatedApply.archivePath).not.toBeNull()
+        expect(repeatedApply.diff.added).toEqual([])
+        expect(repeatedApply.diff.removed).toEqual([])
+        expect(repeatedApply.diff.unchanged).toHaveLength(1)
+        expect(existsSync(join(repeatedApply.exportPath, FILESYSTEM_ALBUM_ID, "track.mp3"))).toBe(true)
+        expect(readdirSync(join(repeatedApply.exportPath, "Test Artist"))).toEqual([
+            "Rotation NAS Acceptance Test",
         ])
 
         db.close()

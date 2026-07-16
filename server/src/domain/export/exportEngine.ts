@@ -1,5 +1,5 @@
 import { renameSync, existsSync, rmSync, mkdirSync, readFileSync } from "node:fs"
-import { join } from "node:path"
+import { dirname, join } from "node:path"
 import type { BindingRecord } from "../../infrastructure/persistence/sqlite/bindingRepository.js"
 import type { PathGuard } from "../../infrastructure/filesystem/pathGuard.js"
 import { createManifest, type ExportManifest } from "./manifest.js"
@@ -210,15 +210,11 @@ export function applyExport(
     if (existsSync(nextRotationDir)) {
         rmSync(nextRotationDir, { recursive: true, force: true })
     }
-    mkdirSync(nextRotationDir, { recursive: true })
-
-    for (const source of stagedManifest.albums) {
-        const srcDir = join(stagingPath, source.relativePath)
-        const destDir = join(nextRotationDir, source.relativePath)
-        if (existsSync(srcDir)) {
-            copyDirectory(srcDir, destDir)
-        }
-    }
+    mkdirSync(dirname(nextRotationDir), { recursive: true })
+    // Staging and next-rotation live below the same workspace mount. Renaming the
+    // complete staged tree avoids copying the whole rotation a second time while
+    // current-rotation remains available to Syncthing until the final swap.
+    renameSync(stagingPath, nextRotationDir)
 
     const appliedManifest = createManifest(
         exportId,
@@ -234,14 +230,12 @@ export function applyExport(
     if (existsSync(exportTargetDir)) {
         const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
         archivePath = resolveArchiveDir(timestamp, workspaceGuard)
+        mkdirSync(dirname(archivePath), { recursive: true })
         renameSync(exportTargetDir, archivePath)
     }
 
     // 3. Atomic swap
     renameSync(nextRotationDir, exportTargetDir)
-
-    // 4. Clean up staging
-    rmSync(stagingPath, { recursive: true, force: true })
 
     return { exportPath: exportTargetDir, archivePath, diff }
 }

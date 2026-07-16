@@ -143,11 +143,16 @@ export default function ExportPage() {
                     )}
 
                     <div className="export-album-list">
+                        <div className="export-album-header" aria-hidden="true">
+                            <span>{t.exportPage.sourceArtist}</span>
+                            <span>{t.exportPage.sourceAlbum}</span>
+                            <span>{t.exportPage.sourceFolder}</span>
+                        </div>
                         {state.preview.sources.map(source => (
                             <div key={source.albumId} className="export-album-item">
-                                <span className="export-album-artist">{source.artistName}</span>
-                                <span className="export-album-name">{source.albumName}</span>
-                                <span className="export-album-path">{source.relativePath}</span>
+                                <span className="export-album-artist" data-label={t.exportPage.sourceArtist}>{source.artistName}</span>
+                                <span className="export-album-name" data-label={t.exportPage.sourceAlbum}>{source.albumName}</span>
+                                <span className="export-album-path" data-label={t.exportPage.sourceFolder}>{source.relativePath}</span>
                             </div>
                         ))}
                     </div>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 
 import type { Album } from "../../../types/album"
 
@@ -19,6 +19,13 @@ import type { MainViewMode, PerspectiveMode } from "./LibraryViewSwitcher"
 import { useI18n } from "../../../i18n/useI18n"
 import { useBindings } from "../../../hooks/useBindings"
 import type { Binding } from "../../../services/api/bindingsService"
+import LibraryControls from "./LibraryControls"
+import {
+    emptyLibraryFilters,
+    filterLibraryAlbums,
+    hasActiveLibraryFilters,
+    type LibraryFilters,
+} from "../../../domain/library-search/libraryFilters"
 
 type LibraryProps = {
     albums: Album[]
@@ -77,6 +84,26 @@ function Library({
         useState<PerspectiveMode>("artist")
 
     const [selectedRole, setSelectedRole] = useState<RoleId | null>(null)
+    const [filters, setFilters] = useState<LibraryFilters>(emptyLibraryFilters)
+    const searchRef = useRef<HTMLInputElement>(null)
+    const filteredAlbums = useMemo(
+        () => filterLibraryAlbums(albums, filters, listenEvents),
+        [albums, filters, listenEvents],
+    )
+
+    useEffect(() => {
+        function focusSearch(event: KeyboardEvent) {
+            const target = event.target
+            const isEditing = target instanceof Element
+                && target.matches("input, textarea, select, [contenteditable='true']")
+            if (event.key === "/" && !isEditing) {
+                event.preventDefault()
+                searchRef.current?.focus()
+            }
+        }
+        document.addEventListener("keydown", focusSearch)
+        return () => document.removeEventListener("keydown", focusSearch)
+    }, [])
 
     function handleSelectRole(roleId: RoleId) {
         setSelectedRole(roleId)
@@ -112,13 +139,33 @@ function Library({
 
             </div>
 
-            {viewMode === "all" && (
+            <LibraryControls
+                filters={filters}
+                onChange={setFilters}
+                onReset={() => setFilters(emptyLibraryFilters)}
+                resultCount={filteredAlbums.length}
+                totalCount={albums.length}
+                searchRef={searchRef}
+            />
+
+            {filteredAlbums.length === 0 && (
+                <div className="library-filter-empty" role="status">
+                    <p>{t.library.controls.noResults}</p>
+                    {hasActiveLibraryFilters(filters) && (
+                        <button type="button" onClick={() => setFilters(emptyLibraryFilters)}>
+                            {t.library.controls.reset}
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {viewMode === "all" && filteredAlbums.length > 0 && (
 
                 <div className="library-grid">
 
                     {
 
-                        albums.map(album => (
+                        filteredAlbums.map(album => (
 
                             <AlbumCard
 
@@ -157,7 +204,7 @@ function Library({
 
             {viewMode === "roles" && !selectedRole && (
                 <RoleExplorer
-                    albums={albums}
+                    albums={filteredAlbums}
                     onSelectRole={handleSelectRole}
                 />
             )}
@@ -165,7 +212,7 @@ function Library({
             {viewMode === "roles" && selectedRole && (
                 <RoleDetail
                     roleId={selectedRole}
-                    albums={albums}
+                    albums={filteredAlbums}
                     focusAlbumId={focusAlbumId}
                     onArchive={onArchive}
                     onDelete={onDelete}
@@ -179,7 +226,7 @@ function Library({
 
             {viewMode === "perspectives" && perspectiveMode === "artist" && (
                 <ArtistView
-                    albums={albums}
+                    albums={filteredAlbums}
                     focusAlbumId={focusAlbumId}
                     onArchive={onArchive}
                     onDelete={onDelete}
@@ -193,7 +240,7 @@ function Library({
 
             {viewMode === "perspectives" && perspectiveMode === "year" && (
                 <YearView
-                    albums={albums}
+                    albums={filteredAlbums}
                     focusAlbumId={focusAlbumId}
                     onArchive={onArchive}
                     onDelete={onDelete}
@@ -207,7 +254,7 @@ function Library({
 
             {viewMode === "perspectives" && perspectiveMode === "lastListened" && (
                 <LastListenedView
-                    albums={albums}
+                    albums={filteredAlbums}
                     listenEvents={listenEvents}
                     focusAlbumId={focusAlbumId}
                     onArchive={onArchive}
@@ -222,7 +269,7 @@ function Library({
 
             {viewMode === "perspectives" && perspectiveMode === "roleChange" && (
                 <RoleChangeView
-                    albums={albums}
+                    albums={filteredAlbums}
                     focusAlbumId={focusAlbumId}
                     onArchive={onArchive}
                     onDelete={onDelete}

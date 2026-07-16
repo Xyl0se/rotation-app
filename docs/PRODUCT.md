@@ -40,6 +40,7 @@ The term "Rotation" once again means the original vision: a curated player selec
 - **Library:** Albums are displayed as cards and can be consciously placed in the archive.
 - **Library Maintenance:** Title, artist, year, and cover override can be edited. Albums can be permanently deleted after confirmation.
 - **Library Perspectives:** The library can be grouped by artist, year, last listening session, or last role change.
+- **Library Findability:** Albums can be searched by title, artist, or Album Story and narrowed by role, missing role, archive state, release year, and listening state. Transparent quick views expose their rules and remain ephemeral UI projections.
 - **Focus Album:** Exactly one album can be highlighted for attention.
 - **Capture Listening Session:** On every album card, a listening event can be recorded. This updates `listenCount` and `lastListened`, regardless of whether the album is the Focus Album.
 - **Listening History:** Listening sessions are modeled as real events and can be displayed in the album timeline.

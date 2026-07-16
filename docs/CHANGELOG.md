@@ -2,6 +2,16 @@
 
 ## v0.26.1-dev
 
+- **Sprint 78 — Library Findability**
+  - Added normalized title, artist, and Album Story search with a `/` keyboard shortcut.
+  - Added composable role, missing-role, archive, inclusive year-range, and never-listened filters across All, Roles, and every Library Perspective.
+  - Added transparent “Never listened” and “Recently archived” quick views, result counts, reset actions, accessible empty states, responsive DE/EN controls, and a 10,000-album performance fixture.
+
+- **Export repeat-rotation hardening**
+  - Verified that an existing `current-rotation` remains fully available during staging and that re-exporting unchanged albums produces one final folder per album.
+  - Replaced the second full staging-to-next copy with an atomic workspace rename, halving temporary export I/O while retaining archive-and-swap recovery semantics.
+  - Added a structured responsive export list so artist, album, and filesystem path no longer appear as duplicated concatenated text.
+
 - **Album Coach decision-tree correction**
   - Reworked mature-album classification so Classic, Comfort Food, and Admiration represent long-term influence, familiar automatic return, and explicit musical esteem instead of hidden fallback priorities.
   - Added an explicit differentiator when Classic and Comfort Food overlap, made Classic reachable for currently resting albums, and removed ineffective early/archive questions.

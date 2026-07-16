@@ -1,6 +1,6 @@
 # Sprint 78 — Library Findability
 
-**Status:** Planned — first product sprint after Sprint 77
+**Status:** Implementation complete; production UX verification pending
 
 **Target version:** `v0.27.0-dev`
 
@@ -41,15 +41,33 @@ retained. This sprint adds retrieval and narrowing, not duplicate groupings.
 - Explain the rule for every view in plain language.
 - Avoid opaque recommendations, role targets, or collection grading.
 
+## Architecture
+
+- Search and filters are a pure client-side projection of the confirmed API Library.
+- One `filterLibraryAlbums` pipeline feeds All, Roles, and every Perspective; views
+  do not implement their own divergent filtering rules.
+- Filter state lives only in React memory and resets on reload as intended.
+- Search normalizes case, diacritics, and whitespace. Year bounds are inclusive.
+- “Recently archived” means an album currently in Archive with an Archive role-history
+  entry no more than 30 days old.
+
 ## Definition of Done
 
-- [ ] Title, artist, and story search works with keyboard and pointer input.
-- [ ] Search and filters work across all existing Library perspectives.
-- [ ] Albums without a role can be isolated with a dedicated filter.
-- [ ] Filters use canonical server data and create no browser-owned Library copy.
-- [ ] Saved views are deterministic and their rules are visible.
-- [ ] Accessibility, empty-state, and regression tests cover the primary paths.
-- [ ] Performance is measured with a representative library fixture.
+- [x] Title, artist, and story search works with keyboard and pointer input.
+- [x] Search and filters work across all existing Library perspectives.
+- [x] Albums without a role can be isolated with a dedicated filter.
+- [x] Filters use canonical server data and create no browser-owned Library copy.
+- [x] Saved views are deterministic and their rules are visible.
+- [x] Accessibility, empty-state, and regression tests cover the primary paths.
+- [x] Performance is measured with a representative 10,000-album fixture.
+
+## Verification
+
+- Domain tests cover normalization, composition, roleless albums, listen-event
+  reconciliation, recent Archive semantics, and 10,000-album performance.
+- UI tests cover German labels, Story search, `/` focus, reset, empty state,
+  quick-view toggling, and persistence of the filtered projection across Perspectives.
+- Full frontend/server validation and production builds remain required before merge.
 
 ## Non-Goals
 

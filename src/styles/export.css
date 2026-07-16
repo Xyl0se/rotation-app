@@ -1,0 +1,182 @@
+.export-page {
+    display: grid;
+    gap: var(--space-3);
+    max-width: 1080px;
+    margin-inline: auto;
+}
+
+.export-page > h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.export-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.export-stat {
+    display: grid;
+    gap: 2px;
+    min-height: 108px;
+    padding: var(--space-3);
+    border-radius: var(--radius-medium);
+    background: var(--color-sand);
+}
+
+.export-stat-value {
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    font-weight: 650;
+    line-height: 1.1;
+}
+
+.export-stat-label {
+    color: var(--color-smoke);
+    font-size: .78rem;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.export-album-list {
+    display: grid;
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-medium);
+    background: var(--color-divider);
+    box-shadow: 0 8px 24px rgba(43, 43, 43, .05);
+}
+
+.export-album-header,
+.export-album-item {
+    display: grid;
+    grid-template-columns: minmax(130px, .8fr) minmax(180px, 1fr) minmax(220px, 1.4fr);
+    gap: var(--space-2);
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--color-paper);
+}
+
+.export-album-header {
+    gap: var(--space-2);
+    padding: 10px 16px;
+    background: #ebe5dc;
+    color: var(--color-smoke);
+    font-size: .72rem;
+    font-weight: 750;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+}
+
+.export-album-item {
+    transition: background var(--transition-fast);
+}
+
+.export-album-item:hover {
+    background: #fdfbf7;
+}
+
+.export-album-artist,
+.export-album-name,
+.export-album-path {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.export-album-artist {
+    color: var(--color-smoke);
+}
+
+.export-album-name {
+    color: var(--color-ink);
+    font-weight: 650;
+}
+
+.export-album-path {
+    color: var(--color-smoke);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: .78rem;
+}
+
+.export-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+}
+
+.export-progress,
+.export-warning,
+.export-error,
+.export-success {
+    margin-top: var(--space-3);
+}
+
+.export-progress {
+    padding: var(--space-3);
+    border-radius: var(--radius-medium);
+    background: var(--color-sand);
+}
+
+.export-progress > p {
+    margin: 10px 0 0;
+    color: var(--color-smoke);
+    font-size: .9rem;
+}
+
+.progress-bar {
+    height: 10px;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background: var(--color-sand);
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-primary);
+    transition: width var(--transition-base);
+}
+
+@media (max-width: 700px) {
+    .export-summary,
+    .export-album-item {
+        grid-template-columns: 1fr;
+    }
+
+    .export-album-item {
+        gap: 3px;
+        padding: var(--space-2);
+    }
+
+    .export-album-header {
+        display: none;
+    }
+
+    .export-album-item > span {
+        display: grid;
+        grid-template-columns: 96px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .export-album-item > span::before {
+        content: attr(data-label);
+        color: var(--color-smoke);
+        font-family: var(--font-body);
+        font-size: .68rem;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .export-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+}

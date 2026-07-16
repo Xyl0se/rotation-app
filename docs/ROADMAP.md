@@ -54,7 +54,7 @@ Not optimization.
 |------:|--------|---------|--------|----------|
 | Now | [76.1](./sprints/Sprint-76.1.md), [76.2](./sprints/Sprint-76.2.md), [76.3](./sprints/Sprint-76.3.md) | Implemented stabilization work | v0.26.2-dev | Awaiting final NAS evidence |
 | 1 | [Sprint 77](./sprints/Sprint-77.md) | Production acceptance and release closure | v0.26.2 | Required release gate |
-| 2 | [Sprint 78](./sprints/Sprint-78.md) | Library findability | v0.27.0-dev | First product sprint |
+| 2 | [Sprint 78](./sprints/Sprint-78.md) | Library findability | v0.27.0-dev | Implementation complete; production UX verification pending |
 | 3 | [Sprint 79](./sprints/Sprint-79.md) | Safe ranked binding candidates | v0.27.1-dev | Revalidate from real unmatched folders |
 | 4 | [Sprint 80](./sprints/Sprint-80.md) | Server-owned listening and rotation data | v0.28.0-dev | Required before multi-device/PWA |
 
