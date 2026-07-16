@@ -199,6 +199,11 @@ export const en = {
                 description:
                     "Only after several listens does a reliable impression usually form.",
             },
+            wantsToGiveChance: {
+                title: "Do you want to give this album a real chance?",
+                description:
+                    "Yes keeps it as Newly Discovered in your Rotation. No moves it to the Archive without requiring more listens.",
+            },
             stillReturningConsciously: {
                 title: "Do you still consciously return to this album today?",
                 description:

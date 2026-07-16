@@ -76,7 +76,7 @@ features without re-evaluating production evidence after each sprint.
 | Weekly Reflection, listening patterns, Explainability 2.0 | Product-aligned but not currently blocking the core workflow | Discovery backlog after Sprint 80 |
 
 The misnumbered [Search & Discovery note](./sprints/Sprint-61.md) and historical
-[Sprint 68B](./sprints/Sprint-68B.md) remain as superseded pointers so older
+[Sprint 68B](./sprints/done/Sprint-68B.md) remains as a superseded pointer so older
 references continue to resolve.
 
 ## Conditional Backlog
@@ -111,6 +111,9 @@ See [Phase IX](./sprints/Phase-IX.md) for the next product phase and
 | [Sprint 75.2](./sprints/done/Sprint-75.2.md) | Library-Bindings Enabler | v0.25.7-dev | Done ✅ |
 | [Sprint 75.3](./sprints/done/Sprint-75.3.md) | Library-Bindings UI Bridge | v0.25.8-dev | Done ✅ |
 | [Sprint 76](./sprints/done/Sprint-76.md) | Library-Bindings Integration | v0.26.0-dev | Done ✅ |
+| [Sprint 76.1](./sprints/done/Sprint-76.1.md) | Pre-Release Integrity & Hardening | v0.26.1-dev | Done ✅ |
+| [Sprint 76.2](./sprints/done/Sprint-76.2.md) | Album-to-Syncthing Export Recovery | v0.26.2-dev | Done ✅ |
+| [Sprint 76.3](./sprints/done/Sprint-76.3.md) | Trusted Proxy Write Boundary | v0.26.2-dev | Done ✅ |
 | [Sprint 77](./sprints/done/Sprint-77.md) | Production Acceptance & Release Closure | v0.26.2 | Done ✅ |
 | [Sprint 78](./sprints/done/Sprint-78.md) | Library Findability | v0.27.0-dev | Done ✅ |
 

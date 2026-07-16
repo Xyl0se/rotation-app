@@ -5,6 +5,8 @@ import type {
     RotationPlanItem,
 } from "./rotationPlan"
 
+const ROTATION_ROLES = new Set(["new", "growing", "comfort-food"])
+
 function getLastListenedTime(album: Album): number {
 
     if (!album.lastListened) {
@@ -63,7 +65,7 @@ export function findReplacementCandidates(
                 album.id !== removedItem.albumId &&
                 !selectedIds.has(album.id) &&
                 album.category === removedItem.role &&
-                album.category !== "archive"
+                ROTATION_ROLES.has(album.category)
             )
         )
 

@@ -9,7 +9,11 @@ function expectRole(answers: AlbumCoachAnswers, role: string) {
 describe("evaluateCoach", () => {
     it("starts by establishing whether the album is still new", () => {
         expect(evaluateCoach({})).toEqual({ finished: false, nextQuestion: "heardThreeTimes" })
-        expectRole({ heardThreeTimes: false }, "new")
+        expect(evaluateCoach({ heardThreeTimes: false })).toEqual({
+            finished: false, nextQuestion: "wantsToGiveChance",
+        })
+        expectRole({ heardThreeTimes: false, wantsToGiveChance: true }, "new")
+        expectRole({ heardThreeTimes: false, wantsToGiveChance: false }, "archive")
     })
 
     it("checks current return and long-term influence before classifying mature albums", () => {

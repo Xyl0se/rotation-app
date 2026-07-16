@@ -80,6 +80,12 @@ describe("findReplacementCandidates", () => {
         expect(candidates).toHaveLength(0)
     })
 
+    it("does not offer replacements for non-rotation roles", () => {
+        const removedItem: RotationPlanItem = { albumId: "removed", role: "classic", reason: "quota" }
+        const albums = [makeAlbum({ id: "classic", category: "classic" })]
+        expect(findReplacementCandidates(removedItem, makePlan([removedItem]), albums)).toEqual([])
+    })
+
     it("returns at most 'limit' candidates", () => {
         const removedItem: RotationPlanItem = {
             albumId: "removed",

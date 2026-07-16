@@ -2,6 +2,7 @@ import type { RoleId } from "../roles"
 
 export interface AlbumCoachAnswerValues {
     heardThreeTimes: boolean
+    wantsToGiveChance: boolean
     stillReturningConsciously: boolean
     shapedTasteLongterm: boolean
     comfortAlbum: boolean
@@ -18,7 +19,11 @@ export type AlbumCoachAnswers = Partial<AlbumCoachAnswerValues>
  * biography, familiar return, and musical esteem.
  */
 export function determineRole(answers: AlbumCoachAnswers): RoleId {
-    if (answers.heardThreeTimes === false) return "new"
+    if (answers.heardThreeTimes === false) {
+        if (answers.wantsToGiveChance === true) return "new"
+        if (answers.wantsToGiveChance === false) return "archive"
+        throw new Error("Incomplete answers for determineRole")
+    }
 
     if (answers.stillReturningConsciously === false) {
         if (answers.shapedTasteLongterm === true) return "classic"

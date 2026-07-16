@@ -11,7 +11,12 @@ export function evaluateCoach(answers: AlbumCoachAnswers): CoachEvaluation {
     if (answers.heardThreeTimes === undefined) {
         return { finished: false, nextQuestion: "heardThreeTimes" }
     }
-    if (!answers.heardThreeTimes) return { finished: true, role: "new" }
+    if (!answers.heardThreeTimes) {
+        if (answers.wantsToGiveChance === undefined) {
+            return { finished: false, nextQuestion: "wantsToGiveChance" }
+        }
+        return { finished: true, role: answers.wantsToGiveChance ? "new" : "archive" }
+    }
 
     if (answers.stillReturningConsciously === undefined) {
         return { finished: false, nextQuestion: "stillReturningConsciously" }

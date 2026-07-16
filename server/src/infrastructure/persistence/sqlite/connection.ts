@@ -223,6 +223,29 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 5,
+        name: "rotation-role-eligibility",
+        run(db) {
+            db.exec(`
+                DELETE FROM rotation_plan_items
+                WHERE role IN ('classic', 'admire', 'archive');
+                UPDATE rotation_plans SET focus_album_id = NULL
+                WHERE focus_album_id IS NOT NULL AND NOT EXISTS (
+                    SELECT 1 FROM rotation_plan_items i
+                    WHERE i.rotation_plan_id = rotation_plans.id
+                      AND i.album_id = rotation_plans.focus_album_id
+                );
+                CREATE TRIGGER remove_ineligible_album_from_rotations
+                AFTER UPDATE OF category ON albums
+                WHEN NEW.category IN ('classic', 'admire', 'archive')
+                BEGIN
+                    DELETE FROM rotation_plan_items WHERE album_id = NEW.id;
+                    UPDATE rotation_plans SET focus_album_id = NULL WHERE focus_album_id = NEW.id;
+                END;
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database): void {

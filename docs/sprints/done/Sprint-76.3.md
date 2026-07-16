@@ -1,6 +1,6 @@
 # Sprint 76.3 — Trusted Proxy Write Boundary
 
-**Status:** Implementation complete; container publication and NAS verification pending
+**Status:** Completed — trusted-proxy boundary verified on NAS 2026-07-16
 
 **Target version:** `v0.26.2-dev`
 
@@ -69,14 +69,14 @@ API mutations that bypass the trusted proxy remain protected.
 
 ## Acceptance Criteria
 
-- [ ] A fresh browser can create, edit, capture, export, and back up without token setup.
-- [ ] Clearing browser storage cannot break write access.
+- [x] A fresh browser can create, edit, capture, export, and back up without token setup.
+- [x] Clearing browser storage cannot break write access.
 - [x] Browser storage contains no Rotation API secret.
 - [x] Direct API mutations without the internal token return `403`.
 - [x] Same-origin mutations through Caddy are configured and covered by CI smoke tests.
 - [x] Cross-site browser mutations return `403`.
 - [x] Incoming client token headers cannot replace the Caddy-injected secret.
-- [ ] Web/API container smoke tests cover the proxy boundary.
+- [x] Web/API container smoke tests cover the proxy boundary.
 - [x] Frontend/server lint, tests, and production builds pass.
 
 ## Non-Goals

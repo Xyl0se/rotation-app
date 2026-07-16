@@ -200,6 +200,11 @@ export const de: Translation = {
                 description:
                     "Erst nach mehreren Durchgängen entsteht meist ein belastbarer Eindruck.",
             },
+            wantsToGiveChance: {
+                title: "Möchtest du diesem Album noch eine echte Chance geben?",
+                description:
+                    "Ja hält es als Neu entdeckt in deiner Rotation. Nein legt es ins Archiv, ohne dass du es dir erst mehrfach anhören musst.",
+            },
             stillReturningConsciously: {
                 title: "Kehrst du heute noch bewusst zu diesem Album zurück?",
                 description:

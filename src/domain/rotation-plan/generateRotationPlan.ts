@@ -33,6 +33,8 @@ function getAlbumRole(album: Album): RoleId | null {
 
 }
 
+const ROTATION_ROLES = new Set<RoleId>(["new", "growing", "comfort-food"])
+
 function getLastListenedTime(album: Album): number {
 
     if (!album.lastListened) {
@@ -90,7 +92,7 @@ export function generateRotationPlan(
 
     const eligibleAlbums =
         albums.filter(album =>
-            album.category !== "archive"
+            album.category !== undefined && ROTATION_ROLES.has(album.category)
         )
 
     const selected = new Set<string>()

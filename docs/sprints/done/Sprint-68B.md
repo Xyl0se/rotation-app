@@ -1,6 +1,6 @@
 # Sprint 68B — Fuzzy Matching (Superseded)
 
-**Status:** Superseded by [Sprint 79](./Sprint-79.md)
+**Status:** Superseded and closed by [Sprint 79](../Sprint-79.md)
 
 ---
 

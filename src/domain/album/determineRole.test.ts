@@ -3,7 +3,8 @@ import { determineRole } from "./determineRole"
 
 describe("determineRole", () => {
     it.each([
-        [{ heardThreeTimes: false }, "new"],
+        [{ heardThreeTimes: false, wantsToGiveChance: true }, "new"],
+        [{ heardThreeTimes: false, wantsToGiveChance: false }, "archive"],
         [{ heardThreeTimes: true, stillReturningConsciously: false, shapedTasteLongterm: true }, "classic"],
         [{ heardThreeTimes: true, stillReturningConsciously: false, shapedTasteLongterm: false, musicallyValued: true }, "admire"],
         [{ heardThreeTimes: true, stillReturningConsciously: false, shapedTasteLongterm: false, musicallyValued: false }, "archive"],

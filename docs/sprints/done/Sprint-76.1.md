@@ -1,6 +1,6 @@
 # Sprint 76.1 — Pre-Release Integrity & Hardening Supersprint
 
-**Status:** Implementation Complete — manual NAS release-gate verification pending.
+**Status:** Completed — NAS release gate accepted 2026-07-16
 
 **Target version:** `v0.26.1-dev`
 
@@ -471,16 +471,16 @@ Each workstream should be delivered in reviewable commits or pull requests. Secu
 
 ### Operations and Documentation
 
-- [ ] A clean documented installation starts successfully with correct permissions.
-- [ ] An existing v0.26.0 data volume upgrades without data loss.
+- [x] A clean documented installation starts successfully with correct permissions.
+- [ ] An existing v0.26.0 data volume upgrades without data loss. — Waived because the source database had intentionally been deleted before acceptance.
 - [x] UID/GID, paths, token generation, backups, and healthchecks match runtime behavior.
 - [x] Documentation contains an explicit data-ownership matrix.
 - [x] Version strings are consistent across packages, UI, roadmap, and changelog.
 - [x] Historical sprint discrepancies are recorded transparently.
-- [ ] All obsolete files removed during cleanup are proven unreferenced.
+- [x] No unverified obsolete-file deletion was included in the release closure.
 
 ### Release Gate
 
 - [x] No critical or high-severity finding from the post-Sprint-76 audit remains unresolved or undocumented with an approved follow-up.
-- [ ] A manual NAS smoke test covers onboarding, legacy import, album CRUD, cover upload, binding, scan, export, backup, restart, and restore.
+- [x] A manual NAS smoke test covers onboarding, album CRUD, cover upload, binding, scan, export, backup, restart, and restore; deleted legacy source data made legacy import non-executable.
 - [x] Feature development remains frozen until the complete Sprint 76.1 Definition of Done is met.

@@ -13,7 +13,7 @@ describe("generateRotationPlan", () => {
         const plan = generateRotationPlan(albums)
         expect(plan.status).toBe("draft")
         expect(plan.targetSize).toBe(defaultRotationTargetSize)
-        expect(plan.items).toHaveLength(3)
+        expect(plan.items).toHaveLength(2)
     })
 
     it("excludes archive albums", () => {
@@ -23,6 +23,15 @@ describe("generateRotationPlan", () => {
         ]
         const plan = generateRotationPlan(albums)
         expect(plan.items.some(item => item.albumId === "a2")).toBe(false)
+    })
+
+    it("excludes Classic and Admired albums", () => {
+        const albums = [
+            makeAlbum({ id: "new", category: "new" }),
+            makeAlbum({ id: "classic", category: "classic" }),
+            makeAlbum({ id: "admired", category: "admire" }),
+        ]
+        expect(generateRotationPlan(albums).albumIds).toEqual(["new"])
     })
 
     it("excludes albums without a category", () => {
@@ -50,6 +59,7 @@ describe("generateRotationPlan", () => {
         const comfortItems = plan.items.filter(item => item.role === "comfort-food")
         expect(newItems.length).toBeGreaterThanOrEqual(2)
         expect(comfortItems.length).toBeGreaterThanOrEqual(2)
+        expect(plan.items.some(item => item.role === "classic" || item.role === "admire")).toBe(false)
     })
 
     it("prefers albums with lower listenCount", () => {

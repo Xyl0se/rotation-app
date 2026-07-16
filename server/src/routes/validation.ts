@@ -113,8 +113,9 @@ export const StageExportSchema = z.object({ exportId: UUIDSchema, albumIds: Albu
 export const ApplyExportSchema = z.object({ exportId: UUIDSchema })
 export const CoverAlbumIdSchema = z.object({ albumId: UUIDSchema })
 
-const RotationItemSchema = z.object({ albumId: UUIDSchema, role: RoleSchema, reason: z.enum(["quota", "fill"]) })
-const RotationQuotaSchema = z.object({ role: RoleSchema, targetCount: z.number().int().nonnegative() })
+const RotationRoleSchema = z.enum(["new", "growing", "comfort-food"])
+const RotationItemSchema = z.object({ albumId: UUIDSchema, role: RotationRoleSchema, reason: z.enum(["quota", "fill"]) })
+const RotationQuotaSchema = z.object({ role: RotationRoleSchema, targetCount: z.number().int().nonnegative() })
 export const RotationPlanSchema = z.object({
     id: UUIDSchema,
     name: z.string().trim().min(1).max(200),

@@ -1,12 +1,12 @@
 # Sprint 76.2 — Album-to-Syncthing Export Recovery
 
-**Status:** In progress — export identity, Capture lifecycle, diagnostics, and automated vertical export regression implemented; NAS verification pending.
+**Status:** Completed — end-to-end NAS export and Syncthing delivery accepted 2026-07-16
 
 **Target version:** `v0.26.2-dev`
 
 **Type:** Focused bugfix and vertical integration sprint
 
-**Source:** [`NAS-REDEPLOY-ACCEPTANCE-TEST.md`](../archive/NAS-REDEPLOY-ACCEPTANCE-TEST.md), manual test on Synology DS218+ / DSM 7.3.2.
+**Source:** [`NAS-REDEPLOY-ACCEPTANCE-TEST.md`](../../archive/NAS-REDEPLOY-ACCEPTANCE-TEST.md), manual test on Synology DS218+ / DSM 7.3.2.
 
 ---
 
@@ -382,7 +382,7 @@ If the same synchronization failure occurs in the single-browser reproduction, i
 ### Operations and Documentation
 
 - `docs/archive/NAS-REDEPLOY-ACCEPTANCE-TEST.md`
-- `docs/sprints/Sprint-76.1.md`
+- `docs/sprints/done/Sprint-76.1.md`
 - `docs/ROADMAP.md`
 - `docs/CHANGELOG.md`
 
@@ -409,24 +409,24 @@ If the same synchronization failure occurs in the single-browser reproduction, i
 - [x] Export preview resolves the UUID to the correct Binding and source path.
 - [x] Stage copies the expected files.
 - [x] Apply places them under `exports/current-rotation`.
-- [ ] Syncthing detects the applied directory when configured.
+- [x] Syncthing detects the applied directory when configured.
 
 ### Capture and Diagnostics
 
-- [ ] Binding Capture opens and completes reliably.
-- [ ] Partial Capture failures are retryable without duplicate Albums.
+- [x] Binding Capture opens and completes reliably.
+- [x] Partial Capture failures are retryable without duplicate Albums.
 - [x] Export errors identify Albums by title/artist and categorized binding state.
 - [x] Startup/export path diagnostics are accurate and privacy-safe.
 
 ### Safety and Quality
 
-- [ ] Original music remains unchanged and read-only.
+- [x] Original music remains unchanged and read-only.
 - [x] Stale, ambiguous, or missing references cannot copy another Album.
 - [x] Preview, stage, apply, manifest, diff, rollback, and recovery use one identity contract.
-- [ ] Frontend/server lint, tests, builds, Compose validation, and container smoke checks pass.
-- [ ] Published web/API images originate from the successful validation commit.
-- [ ] The single-browser NAS acceptance test completes through backup, restart, restore, and cleanup.
-- [ ] Feature development remains frozen until the export workflow and Sprint 76.1 NAS gate are complete.
+- [x] Frontend/server lint, tests, builds, Compose validation, and container smoke checks pass.
+- [x] Published web/API images originate from the successful validation commit.
+- [x] The single-browser NAS acceptance test completes through backup, restart, restore, and cleanup.
+- [x] The export workflow and Sprint 76.1 NAS gate are complete.
 
 ---
 

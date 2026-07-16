@@ -38,6 +38,16 @@ dedicated Settings area, while reducing persistent visual weight on the Home pag
 - Convert Insights from hard-coded English prose to localized message codes/params.
 - Audit all Home, Focus, Timeline, and Settings states in German and English.
 
+## Workstream 81E — Reflective Workflow Dialogs
+
+- Give Archive Protection and Archive Return the same reflective blue visual system
+  as the Album Coach instead of presenting them as generic application dialogs.
+- Reuse the Coach's typography, spacious layout, atmospheric background, button
+  treatment, focus states, and responsive behavior without merging their distinct
+  domain questions or outcomes.
+- Keep cancellation/later actions clearly available and accessible on pointer,
+  keyboard, and touch devices.
+
 ## Definition of Done
 
 - [ ] One responsive branded header serves all four pages.
@@ -46,6 +56,8 @@ dedicated Settings area, while reducing persistent visual weight on the Home pag
 - [ ] The unbound-folder notice is compact and actionable.
 - [ ] No internal Album Coach label is visible to users.
 - [ ] Insights display no English fallback prose when German is active.
+- [ ] Archive Protection and Archive Return visually match the Album Coach across
+  desktop and mobile while retaining their own localized content.
 - [ ] Accessibility and responsive regression tests cover the new shell.
 
 ## Non-Goals

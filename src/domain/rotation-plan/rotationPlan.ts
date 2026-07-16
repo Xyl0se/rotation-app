@@ -63,18 +63,8 @@ export const defaultRotationRoleQuotas: RotationRoleQuota[] = [
     },
 
     {
-        role: "classic",
-        targetCount: 5,
-    },
-
-    {
         role: "growing",
-        targetCount: 5,
-    },
-
-    {
-        role: "admire",
-        targetCount: 2,
+        targetCount: 12,
     },
 
 ]

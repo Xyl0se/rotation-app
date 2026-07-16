@@ -62,4 +62,13 @@ describe("rotation state repository", () => {
         expect(repository.findActive()?.id).toBe(plan().id)
         db.close()
     })
+
+    it("removes an Album from Rotation and Focus when it becomes Classic", () => {
+        const { db, repository } = setup()
+        repository.savePlan(plan())
+        db.prepare("UPDATE albums SET category = 'classic' WHERE id = ?").run(A)
+        expect(repository.findActive()?.albumIds).toEqual([])
+        expect(repository.findActive()?.focusAlbumId).toBeNull()
+        db.close()
+    })
 })
