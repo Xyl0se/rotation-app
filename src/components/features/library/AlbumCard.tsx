@@ -31,14 +31,12 @@ type AlbumCardProps = {
 
 function AlbumCard({
     album,
-    isFocus,
     isHighlighted = false,
     onArchive,
     onDelete,
     onEdit,
     onLogListen,
     onReconsider,
-    onSetFocus,
     onStartCoach,
     showRoleLabel = true,
     binding = null,
@@ -131,21 +129,6 @@ function AlbumCard({
                             title={t.albumCard.startCoach}
                         >
                             ✨
-                        </button>
-                    )}
-
-                    {!isArchived && (
-                        <button
-                            className={
-                                isFocus
-                                    ? "focus-button active"
-                                    : "focus-button"
-                            }
-                            onClick={() => onSetFocus(album.id)}
-                            aria-label={t.albumCard.setFocus}
-                            title={t.albumCard.setFocus}
-                        >
-                            {isFocus ? "★" : "☆"}
                         </button>
                     )}
 

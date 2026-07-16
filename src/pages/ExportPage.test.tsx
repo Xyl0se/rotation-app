@@ -31,6 +31,10 @@ vi.mock("../hooks/useExport.js", () => ({
     }),
 }))
 
+vi.mock("../services/api/rotationStateService.js", () => ({
+    fetchRotationState: vi.fn(async () => ({ active: null, draft: null })),
+}))
+
 describe("ExportPage preview errors", () => {
     beforeEach(() => {
         vi.clearAllMocks()

@@ -113,6 +113,36 @@ export const StageExportSchema = z.object({ exportId: UUIDSchema, albumIds: Albu
 export const ApplyExportSchema = z.object({ exportId: UUIDSchema })
 export const CoverAlbumIdSchema = z.object({ albumId: UUIDSchema })
 
+const RotationItemSchema = z.object({ albumId: UUIDSchema, role: RoleSchema, reason: z.enum(["quota", "fill"]) })
+const RotationQuotaSchema = z.object({ role: RoleSchema, targetCount: z.number().int().nonnegative() })
+export const RotationPlanSchema = z.object({
+    id: UUIDSchema,
+    name: z.string().trim().min(1).max(200),
+    targetSize: z.number().int().positive().max(1_000),
+    items: z.array(RotationItemSchema).max(1_000),
+    albumIds: z.array(UUIDSchema).max(1_000),
+    roleQuotas: z.array(RotationQuotaSchema).max(20),
+    createdAt: IsoDateSchema,
+    status: z.enum(["draft", "active"]),
+    acceptedAt: IsoDateSchema.optional(),
+    focusAlbumId: UUIDSchema.nullable().default(null),
+}).superRefine((plan, context) => {
+    const itemIds = plan.items.map(item => item.albumId)
+    if (new Set(itemIds).size !== itemIds.length || itemIds.join("|") !== plan.albumIds.join("|")) {
+        context.addIssue({ code: z.ZodIssueCode.custom, path: ["albumIds"], message: "albumIds must match unique items" })
+    }
+    if (plan.focusAlbumId && (plan.status !== "active" || !itemIds.includes(plan.focusAlbumId))) {
+        context.addIssue({ code: z.ZodIssueCode.custom, path: ["focusAlbumId"], message: "Focus must belong to active Rotation" })
+    }
+})
+export const FocusAlbumSchema = z.object({ albumId: UUIDSchema.nullable() })
+export const ListenEventSchema = z.object({ id: UUIDSchema, albumId: UUIDSchema, listenedAt: IsoDateSchema })
+export const RotationLegacyImportSchema = z.object({
+    draft: RotationPlanSchema.nullable().optional(),
+    active: RotationPlanSchema.nullable().optional(),
+    listenEvents: z.array(ListenEventSchema).max(100_000).default([]),
+})
+
 export function parseRequest<T>(
     schema: z.ZodType<T>,
     input: unknown,

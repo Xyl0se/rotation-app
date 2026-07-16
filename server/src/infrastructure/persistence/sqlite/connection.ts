@@ -189,6 +189,40 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 4,
+        name: "canonical-rotation-and-listening-state",
+        run(db) {
+            db.exec(`
+                CREATE TABLE rotation_plans (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    target_size INTEGER NOT NULL CHECK(target_size > 0),
+                    role_quotas_json TEXT NOT NULL CHECK(json_valid(role_quotas_json)),
+                    status TEXT NOT NULL CHECK(status IN ('draft', 'active')),
+                    focus_album_id TEXT REFERENCES albums(id) ON DELETE SET NULL,
+                    created_at TEXT NOT NULL,
+                    accepted_at TEXT
+                );
+                CREATE UNIQUE INDEX idx_one_active_rotation ON rotation_plans(status) WHERE status = 'active';
+                CREATE TABLE rotation_plan_items (
+                    rotation_plan_id TEXT NOT NULL REFERENCES rotation_plans(id) ON DELETE CASCADE,
+                    album_id TEXT NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
+                    position INTEGER NOT NULL CHECK(position >= 0),
+                    role TEXT NOT NULL CHECK(role IN ('new','growing','comfort-food','classic','admire','archive')),
+                    reason TEXT NOT NULL CHECK(reason IN ('quota','fill')),
+                    PRIMARY KEY (rotation_plan_id, album_id),
+                    UNIQUE (rotation_plan_id, position)
+                );
+                CREATE TABLE listen_events (
+                    id TEXT PRIMARY KEY,
+                    album_id TEXT NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
+                    listened_at TEXT NOT NULL
+                );
+                CREATE INDEX idx_listen_events_album_time ON listen_events(album_id, listened_at DESC);
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database): void {

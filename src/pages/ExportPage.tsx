@@ -4,17 +4,21 @@ import { useExport } from "../hooks/useExport"
 import Button from "../components/ui/Button"
 import Card from "../components/ui/Card"
 import { formatFileSize } from "../utils/formatFileSize"
-import { createRotationPlanRepository } from "../repositories/rotationPlanRepository"
-import { createLocalStorageAdapter } from "../adapters/localStorageAdapter"
 import { useI18n } from "../i18n/useI18n"
+import { fetchRotationState } from "../services/api/rotationStateService"
 
 function useActiveRotationPlan(): RotationPlan | null {
-    const [plan] = useState<RotationPlan | null>(() => {
-        const adapter = createLocalStorageAdapter()
-        const repo = createRotationPlanRepository(adapter)
-        const active = repo.loadActive()
-        return active && Array.isArray(active.items) ? active : null
-    })
+    const [plan, setPlan] = useState<RotationPlan | null>(null)
+
+    useEffect(() => {
+        let active = true
+        fetchRotationState().then(state => {
+            if (active) setPlan(state.active)
+        }).catch(() => {
+            if (active) setPlan(null)
+        })
+        return () => { active = false }
+    }, [])
 
     return plan
 }

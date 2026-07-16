@@ -2,6 +2,13 @@
 
 ## v0.26.1-dev
 
+- **Sprint 80 foundation — Server-owned Rotation state**
+  - Accepted ADR 014 and added SQLite schema/repositories for draft/active Rotation Plans, role quotas, Focus Album, Rotation items, and Listening Events.
+  - Enforced that Focus is null or belongs to the active Rotation, with server-side random Focus selection restricted to active items.
+  - Added canonical Rotation/Listening APIs and an idempotent legacy-import contract.
+  - Cut Home and Export over to confirmed server state, added a deliberate browser-data migration with preview counts, and removes legacy keys only after confirmed import.
+  - Restricted Focus selection to the active Rotation and made Listening Event creation update the Album's derived listening fields transactionally.
+
 - **Sprint 79 — Safe Binding Candidate Review**
   - Added Unicode-safe, precision-oriented candidate ranking with separate title/artist signals, volume-conflict penalties, ambiguity detection, and a bounded top-three result.
   - Persisted candidate evidence per scan and added stale-scan and duplicate-Library guards around transactional candidate selection.

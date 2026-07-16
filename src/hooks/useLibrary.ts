@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from "react"
 import type { Album } from "../types/album"
 import type { RoleId } from "../domain/roles"
 import type { StorageAdapter } from "../adapters/storageAdapter"
-import { STORAGE } from "../config/storage"
 import {
     clearCoverCache,
     removeCustomCover,
@@ -34,16 +33,13 @@ function normalizeAlbum(album: Album): Album {
  * Server-authoritative Library state.
  *
  * Albums only enter React state after the API has confirmed the mutation. The
- * storage adapter is used exclusively for the focus Album ID; it never stores
- * Library records or a mutation queue.
+ * The legacy storage adapter remains in the signature during Sprint 80 migration;
+ * this hook never stores Library, Focus, or mutation-queue state in it.
  */
-export function useLibrary(adapter: StorageAdapter, isConnected: boolean = false) {
+export function useLibrary(_adapter: StorageAdapter, isConnected: boolean = false) {
     const [albums, setAlbums] = useState<Album[]>([])
     const [isLoading, setIsLoading] = useState(isConnected)
     const [libraryError, setLibraryError] = useState<string | null>(null)
-    const [focusAlbumId, setFocusAlbumId] = useState<string | null>(() =>
-        adapter.get(STORAGE.FOCUS_ALBUM),
-    )
 
     const refresh = useCallback(async (): Promise<boolean> => {
         if (!isConnected) {
@@ -75,11 +71,6 @@ export function useLibrary(adapter: StorageAdapter, isConnected: boolean = false
             })
         }
     }, [isConnected, refresh])
-
-    useEffect(() => {
-        if (focusAlbumId) adapter.set(STORAGE.FOCUS_ALBUM, focusAlbumId)
-        else adapter.remove(STORAGE.FOCUS_ALBUM)
-    }, [focusAlbumId, adapter])
 
     const runMutation = useCallback(async (
         operation: () => Promise<Album>,
@@ -216,8 +207,6 @@ export function useLibrary(adapter: StorageAdapter, isConnected: boolean = false
         isLoading,
         libraryError,
         refresh,
-        focusAlbumId,
-        setFocusAlbumId,
         addAlbum,
         deleteAlbum,
         updateAlbum,

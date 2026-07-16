@@ -91,14 +91,12 @@ describe("useLibrary server ownership", () => {
         expect(adapter.get(STORAGE.LIBRARY_PENDING_OPERATIONS)).toBeNull()
     })
 
-    it("keeps only the focus Album in browser storage", async () => {
+    it("does not write canonical Library or Focus state to browser storage", async () => {
         const adapter = createMemoryStorageAdapter()
         const { result } = renderHook(() => useLibrary(adapter, true))
         await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-        act(() => result.current.setFocusAlbumId(album().id))
-
-        expect(adapter.get(STORAGE.FOCUS_ALBUM)).toBe(album().id)
+        expect(adapter.get(STORAGE.FOCUS_ALBUM)).toBeNull()
         expect(adapter.get(STORAGE.LIBRARY)).toBeNull()
         expect(adapter.get(STORAGE.LIBRARY_PENDING_OPERATIONS)).toBeNull()
     })

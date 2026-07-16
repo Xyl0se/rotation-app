@@ -21,6 +21,8 @@ import { createBackupService } from "./application/backupService.js"
 import { createBackupStatusRepository } from "./infrastructure/persistence/sqlite/backupStatusRepository.js"
 import { createBackupScheduler } from "./application/backupScheduler.js"
 import { createBackupsRouter } from "./routes/backups.js"
+import { createRotationStateRepository } from "./infrastructure/persistence/sqlite/rotationStateRepository.js"
+import { createRotationStateRouter } from "./routes/rotationState.js"
 
 import { createHealthRouter } from "./routes/health.js"
 import { createConfigRouter } from "./routes/config.js"
@@ -58,6 +60,7 @@ const albumRepo = createAlbumRepository(db)
 const exportRepo = createExportOperationRepository(db)
 const scanRunRepo = createScanRunRepository(db)
 const bindingCandidateRepo = createBindingCandidateRepository(db)
+const rotationStateRepo = createRotationStateRepository(db)
 const coverService = createCoverService(config.ROTATION_DATA_DIR)
 
 const musicGuard = createPathGuard(config.ROTATION_MUSIC_PATH)
@@ -125,6 +128,7 @@ app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo
 
 app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, bindingCaptureService, bindingCandidateRepo))
 app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo))
+app.use("/rotation-state", requireWriteTokenForMutations, createRotationStateRouter(rotationStateRepo))
 app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))
 app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))

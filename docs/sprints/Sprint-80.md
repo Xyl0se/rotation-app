@@ -1,6 +1,6 @@
 # Sprint 80 — Canonical Listening & Rotation Persistence
 
-**Status:** Planned — architectural prerequisite, not required for the first release
+**Status:** In progress — contract and server persistence foundation underway
 
 **Target version:** `v0.28.0-dev`
 
@@ -17,30 +17,47 @@ data. This closes the remaining backup gap before any multi-device or PWA work.
 This sprint is about durability and a single coherent source of truth. It does not
 promise offline editing or general-purpose synchronization.
 
+The Focus Album is part of the active Rotation, not an independent Library choice.
+The server must reject every Focus assignment whose Album is not contained in the
+active Rotation. Random Focus selection is therefore also a server operation over
+the active Rotation only.
+
 ## Workstream 80A — Contract and Schema
 
-- Write an ADR for server ownership, referential integrity, deletion behavior, and
+- [x] Write an ADR for server ownership, referential integrity, deletion behavior, and
   conflict semantics.
-- Add SQLite migrations and repositories for listening events, Focus Album, draft
+- [x] Add SQLite migrations and repositories for listening events, Focus Album, draft
   rotation, and active rotation.
-- Define APIs with stable identifiers and idempotent mutation behavior.
+- [x] Define initial APIs with stable identifiers and idempotent mutation behavior.
 - Include the new data in backup/restore verification.
+- [x] Persist Rotation composition settings with the Rotation so the future Settings UI
+  can adjust role quotas without introducing another browser-owned source of truth.
+
+Initial implementation provides schema migration 4, transactional Rotation/Focus
+storage, idempotent Listening Event storage, canonical state reads, Focus assignment,
+server-side random Focus, and an idempotent legacy-import endpoint. Client migration
+and server-authoritative hooks remain the next implementation step.
 
 ## Workstream 80B — Legacy Browser Import
 
-- Detect valid browser-local history and rotation data without treating it as a cache.
-- Preview what will be imported and require a deliberate migration action.
-- Make import idempotent and preserve timestamps and event identities.
-- Delete legacy canonical keys only after server confirmation; retain recovery guidance
+- [x] Detect valid browser-local history and rotation data without treating it as a cache.
+- [x] Preview counts and require a deliberate migration action.
+- [x] Make import idempotent and preserve timestamps and event identities.
+- [x] Delete legacy canonical keys only after server confirmation; retain recovery guidance
   for partial failures.
 
 ## Workstream 80C — Server-Authoritative UI
 
-- Load listening, Focus Album, and rotation state from the API.
-- Apply confirmed-mutation semantics consistent with the server Library.
-- Define clear unavailable/retry states; do not add an offline mutation queue.
-- Verify behavior in a second browser as a consequence of server ownership, not as a
+- [x] Load listening, Focus Album, and rotation state from the API.
+- [x] Apply confirmed-mutation semantics consistent with the server Library.
+- [x] Define clear unavailable/retry states; do not add an offline mutation queue.
+- [ ] Verify behavior in a second browser as a consequence of server ownership, not as a
   separate synchronization engine.
+
+Home and Export now read the same canonical server Rotation. Focus selection is no
+longer offered from arbitrary Library cards; the Focus card asks the server for a
+random Album from the active Rotation. Listening Event creation updates the Album's
+derived count and timestamp in the same transaction.
 
 ## Definition of Done
 
@@ -58,3 +75,4 @@ promise offline editing or general-purpose synchronization.
 - User accounts or multi-user editing
 - Native applications
 - Device-specific preference synchronization
+- Product-shell redesign, logo, Settings visuals, and general UI polish (Sprint 81)

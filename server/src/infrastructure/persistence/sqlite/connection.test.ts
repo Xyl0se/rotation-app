@@ -37,12 +37,13 @@ describe("SQLite schema migrations", () => {
     it("records every migration and sets the user version", () => {
         const db = initDatabase(":memory:")
 
-        expect(db.pragma("user_version", { simple: true })).toBe(3)
+        expect(db.pragma("user_version", { simple: true })).toBe(4)
         expect(db.prepare("SELECT version, name FROM schema_migrations ORDER BY version").all())
             .toEqual([
                 { version: 1, name: "initial-schema" },
                 { version: 2, name: "album-integrity-and-binding-foreign-key" },
                 { version: 3, name: "binding-candidate-review" },
+                { version: 4, name: "canonical-rotation-and-listening-state" },
             ])
         db.close()
     })
@@ -91,7 +92,7 @@ describe("SQLite schema migrations", () => {
         const second = initDatabase(path)
 
         expect(second.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get())
-            .toEqual({ count: 3 })
+            .toEqual({ count: 4 })
         second.close()
     })
 })

@@ -64,6 +64,9 @@ export const de: Translation = {
         syncingLibrary: "Bibliothek wird synchronisiert…",
         libraryUnavailable: "Die Server-Bibliothek ist nicht verfügbar",
         retryLibrary: "Bibliothek neu laden",
+        legacyRotationFound: "Browser-lokale Rotation oder Hörhistorie gefunden. Importiere sie einmalig auf den Server, bevor du fortfährst.",
+        importLegacyRotation: "Auf Server importieren",
+        legacyRotationSummary: (plans: number, events: number) => `${plans} Rotation(en), ${events} Hörereignis(se).`,
     },
 
     emptyLibrary: {

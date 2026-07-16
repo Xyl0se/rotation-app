@@ -63,6 +63,9 @@ export const en = {
         syncingLibrary: "Synchronizing Library…",
         libraryUnavailable: "The server Library is unavailable",
         retryLibrary: "Reload Library",
+        legacyRotationFound: "A browser-local Rotation or listening history was found. Import it to the server once before continuing.",
+        importLegacyRotation: "Import to server",
+        legacyRotationSummary: (plans: number, events: number) => `${plans} Rotation plan(s), ${events} listening event(s).`,
     },
 
     emptyLibrary: {

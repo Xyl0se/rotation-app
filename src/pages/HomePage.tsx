@@ -29,6 +29,8 @@ import { LanguageSwitcher } from "../components/features/LanguageSwitcher"
 
 import { evaluateReflection } from "../domain/reflection/evaluateReflection"
 import { useI18n } from "../i18n/useI18n"
+import { importLegacyRotationState } from "../services/api/rotationStateService"
+import { STORAGE } from "../config/storage"
 
 interface HomePageProps {
     adapter: StorageAdapter
@@ -54,12 +56,9 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         isLoading: isLibraryLoading,
         libraryError,
         refresh: refreshLibrary,
-        focusAlbumId,
-        setFocusAlbumId,
         deleteAlbum,
         updateAlbum,
         updateAlbumRole,
-        logListenForAlbum,
         updateAlbumCoverOverride,
         setCoverUrlOverride,
         removeAlbumCoverOverride,
@@ -72,12 +71,31 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         replaceAlbum,
         acceptPlan,
         getReplacementCandidates,
-    } = useRotationPlan(repositories.rotationPlan, albums)
+        focusAlbumId,
+        setFocusAlbumId,
+        suggestFocusAlbum,
+        refresh: refreshRotation,
+        error: rotationError,
+    } = useRotationPlan(albums, serverConnected)
 
     const {
         listenEvents,
         logListen,
-    } = useListenEvents(repositories.listenEvents, albums, adapter)
+        refresh: refreshListens,
+        error: listenError,
+    } = useListenEvents(albums, serverConnected)
+
+    const [legacyMigrationPending, setLegacyMigrationPending] = useState(() =>
+        repositories.rotationPlan.loadDraft() !== null
+        || repositories.rotationPlan.loadActive() !== null
+        || repositories.listenEvents.load().length > 0,
+    )
+    const [legacyMigrationError, setLegacyMigrationError] = useState<string | null>(null)
+    const legacyMigrationSummary = useMemo(() => {
+        const plans = Number(repositories.rotationPlan.loadDraft() !== null)
+            + Number(repositories.rotationPlan.loadActive() !== null)
+        return t.home.legacyRotationSummary(plans, repositories.listenEvents.load().length)
+    }, [repositories, t])
 
     const { orphans, getBindingForLibraryAlbum } = useBindings()
 
@@ -98,22 +116,27 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         }
     }
 
-    function handleSuggestFocusAlbum() {
-        const candidates = albums.filter(
-            a => a.id !== focusAlbumId && a.category !== "archive",
-        )
-
-        if (candidates.length === 0) {
-            return
+    async function handleLegacyMigration() {
+        setLegacyMigrationError(null)
+        try {
+            await importLegacyRotationState({
+                draft: repositories.rotationPlan.loadDraft(),
+                active: repositories.rotationPlan.loadActive(),
+                listenEvents: repositories.listenEvents.load(),
+                focusAlbumId: adapter.get(STORAGE.FOCUS_ALBUM),
+            })
+            repositories.rotationPlan.clear()
+            repositories.listenEvents.clear()
+            adapter.remove(STORAGE.FOCUS_ALBUM)
+            await Promise.all([refreshRotation(), refreshListens()])
+            setLegacyMigrationPending(false)
+        } catch (cause) {
+            setLegacyMigrationError(cause instanceof Error ? cause.message : "Migration failed")
         }
-
-        const randomIndex = Math.floor(Math.random() * candidates.length)
-        setFocusAlbumId(candidates[randomIndex].id)
     }
 
-    function handleLogListen(id: string) {
-        logListen(id)
-        logListenForAlbum(id)
+    async function handleLogListen(id: string) {
+        if (await logListen(id)) await refreshLibrary()
     }
 
     async function handleDeleteAlbum(id: string) {
@@ -176,6 +199,20 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                     </Button>
                 </div>
             )}
+            {legacyMigrationPending && (
+                <div className="sync-status sync-status--warning" role="status">
+                    <span>{t.home.legacyRotationFound} {legacyMigrationSummary}</span>
+                    <Button onClick={() => void handleLegacyMigration()} disabled={!serverConnected}>
+                        {t.home.importLegacyRotation}
+                    </Button>
+                    {legacyMigrationError && <span>{legacyMigrationError}</span>}
+                </div>
+            )}
+            {(rotationError || listenError) && (
+                <div className="sync-status sync-status--warning" role="status">
+                    {rotationError ?? listenError}
+                </div>
+            )}
             {
                 orphans.length > 0 && !orphanPromptDismissed && (
                     <CoachOrphanPrompt
@@ -207,9 +244,9 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                                         album={focusAlbum}
                                         listenEvents={listenEvents}
                                         onLogListen={() =>
-                                            handleLogListen(focusAlbum.id)
+                                            void handleLogListen(focusAlbum.id)
                                         }
-                                        onSuggestAnother={handleSuggestFocusAlbum}
+                                        onSuggestAnother={() => void suggestFocusAlbum()}
                                     />
                                 )
                             }
@@ -244,7 +281,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                                 onArchive={setArchiveAlbumId}
                                 onDelete={setDeleteAlbumId}
                                 onEdit={setEditingAlbumId}
-                                onLogListen={handleLogListen}
+                                onLogListen={(id) => void handleLogListen(id)}
                                 onReconsider={setArchiveReturnAlbumId}
                                 onSetFocus={setFocusAlbumId}
                                 onStartCoach={setManualCoachAlbumId}
