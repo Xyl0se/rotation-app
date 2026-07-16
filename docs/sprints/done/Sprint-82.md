@@ -77,7 +77,7 @@ the earlier one. Only one Rotation is active, but any number may be archived.
 - [x] Document deployment, post-release smoke test, previous-image rollback, database
   restore boundary, and release acceptance evidence.
 - [x] Complete visual acceptance of Sprint 81 on desktop and a narrow browser viewport
-  using `docs/archive/SPRINT-82-RELEASE-ACCEPTANCE.md` after the images are published.
+  using `docs/archive/acceptance-tests/SPRINT-82-RELEASE-ACCEPTANCE.md` after the images are published.
 
 ## Workstream 82E — Legacy Cleanup & Production-Code Hygiene — ✅ abgeschlossen
 
@@ -228,7 +228,7 @@ the earlier one. Only one Rotation is active, but any number may be archived.
   curated release notes, and GitHub tag-release automation now agree on
   `v0.29.0`. The supported schema-7 upgrade through migrations 8–11 and complete
   lifecycle backup/restore are automated; the production NAS/visual checklist and
-  explicit database/image rollback boundary live in `docs/archive/SPRINT-82-RELEASE-ACCEPTANCE.md`.
+  explicit database/image rollback boundary live in `docs/archive/acceptance-tests/SPRINT-82-RELEASE-ACCEPTANCE.md`.
 - New Album capture now asks the API to try up to three ordered matching MusicBrainz
   Releases and their Release Group, download the first valid image from an explicit
   provider allowlist, validate type/size/signature, and retry temporary failures.

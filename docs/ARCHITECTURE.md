@@ -27,7 +27,7 @@ Reflection, Explainability, and future recommendations refer exclusively to this
 - React 19
 - TypeScript
 - Vite
-- SQLite-backed server Library with browser `localStorage` as last-known-good cache
+- SQLite-backed server state for Library, Listening History, Rotation Plans, and Focus Album
 - IndexedDB (Cover Cache, Custom Covers)
 - External metadata: MusicBrainz and Cover Art Archive
 
@@ -194,9 +194,9 @@ Ownership is defined in [ADR 013](./adr/013-data-ownership-boundaries.md). In su
 |-------|------|---------|
 | SQLite/API | Library, bindings, scans, export/backup state | Canonical server data |
 | Server filesystem | Covers, exports, staging, archives | Canonical or operational server data |
-| Browser `localStorage` | Listening History, RotationPlan, Focus Album | Temporarily browser-owned canonical data; follow-up migration required |
+| SQLite/API | Listening History, RotationPlan, Focus Album | Canonical server data |
 | IndexedDB | Downloaded covers | Reconstructable cache |
-| Browser preferences | Language, onboarding, dismissed prompts | Device-local state |
+| Browser `localStorage` | Language, onboarding, dismissed prompts | Device-local preferences only |
 
 Mutating browser requests use the same-origin `/api` proxy. Caddy overwrites and
 injects the internal write token; the browser never receives or persists it. The
@@ -211,7 +211,7 @@ reverse proxies may rewrite externally visible host and protocol information.
 - discover-album
 - album-coach
 - archive
-- dashboard (Reflection, Insights, and neutral role overview)
+- insights page (Reflection, Insights, and neutral role overview)
 - library
 - library dialogs
 - focus-album
@@ -222,7 +222,8 @@ reverse proxies may rewrite externally visible host and protocol information.
 - role-explorer
 - ui
 
-The `rotation-dashboard` area serves exclusively as the entry point for Reflection, Insights, and Explainability.
+The Insights page composes Reflection, linguistic Insights, and the neutral role
+overview without owning their domain logic.
 
 It does not evaluate the library.
 
@@ -259,18 +260,6 @@ Archive protection
 Rediscovery
 
 Archive questions
-
----
-
-### Dashboard
-
-`domain/dashboard/*`
-
-Composition of dashboard building blocks.
-
-Linguistic summaries.
-
-No evaluation logic.
 
 ---
 
@@ -439,7 +428,7 @@ Not categories.
 
 Not quotas.
 
-### Dashboard observes.
+### Insights observes.
 
 Does not optimize.
 
@@ -457,4 +446,3 @@ Not rules.
 
 - `listenCount` and `lastListened` are legacy fields and should long-term be fully derived from `listenEvents`.
 - `StorageQuotaError` is currently not communicated to the UI.
-- Parts of the Dashboard domain still rely on historical role balance. This logic will be completely removed in a later sprint and replaced by Explainability of the Player Rotation.

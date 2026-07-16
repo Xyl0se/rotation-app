@@ -45,9 +45,10 @@ function makeEmptyAlbum(): Album {
 
 interface BindingsPageProps {
     onNavigateToLibrary?: (albumId: string) => void
+    onBindingsChanged?: () => void
 }
 
-export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps) {
+export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }: BindingsPageProps) {
     const { t } = useI18n()
     const toast = useToast()
     const [bindings, setBindings] = useState<Binding[]>([])
@@ -78,12 +79,13 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
             const state = filter === "all" ? undefined : filter
             const response = await fetchBindings(state)
             setBindings(response.bindings)
+            onBindingsChanged?.()
         } catch (e) {
             setError(getApiErrorMessage(e))
         } finally {
             setLoading(false)
         }
-    }, [filter])
+    }, [filter, onBindingsChanged])
 
     useEffect(() => {
         void Promise.resolve().then(load)

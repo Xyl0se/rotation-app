@@ -74,7 +74,7 @@ reloads, Focus membership, random Focus selection, idempotent Listening Events,
 legacy-import conflicts, confirmed-state UI behavior, explicit retry, and a real
 SQLite backup/restore containing Rotation, Focus, and Listening Events. The remaining
 deployed two-browser and backup/restore gate passed as recorded in the archived
-[`SPRINT-80-NAS-ACCEPTANCE-TEST.md`](../../archive/SPRINT-80-NAS-ACCEPTANCE-TEST.md).
+[`SPRINT-80-NAS-ACCEPTANCE-TEST.md`](../../archive/acceptance-tests/SPRINT-80-NAS-ACCEPTANCE-TEST.md).
 
 ## Non-Goals
 

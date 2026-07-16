@@ -125,6 +125,12 @@ export const en = {
         roleOverview: "Role Overview",
     },
 
+    insightsPage: {
+        kicker: "A quiet look at your collection",
+        title: "Insights",
+        description: "Questions, observations, and the roles your albums currently hold.",
+    },
+
     insights: {
         buildingLibrary: {
             title: "Your collection is taking shape",
@@ -154,6 +160,11 @@ export const en = {
     },
 
     reflection: {
+        empty: {
+            label: "Reflection",
+            title: "No open question right now",
+            description: "Your collection feels settled at the moment. When an album needs attention again, Rotation will ask here.",
+        },
         newAfterListens: {
             title: "Maybe this album isn't new anymore",
             description:
@@ -607,11 +618,13 @@ export const en = {
         home: "Home",
         bindings: "Bindings",
         export: "Export",
+        insights: "Insights",
         settings: "Settings",
         history: "History",
         offline: "Offline — waiting for connection",
         apiUnavailable: "Server unavailable — using local cache",
         retrying: "Retrying…",
+        bindingsAttention: (count: number) => `${count} ${count === 1 ? "unbound album is" : "unbound albums are"} waiting for you`,
     },
 
     language: {

@@ -25,7 +25,7 @@ capture album → identify Library album → scan music folder → confirm bindi
 
 ## Workstream 77A — NAS Acceptance Gate
 
-- Execute [`NAS-REDEPLOY-ACCEPTANCE-TEST.md`](../../archive/NAS-REDEPLOY-ACCEPTANCE-TEST.md)
+- Execute [`NAS-REDEPLOY-ACCEPTANCE-TEST.md`](../../archive/acceptance-tests/NAS-REDEPLOY-ACCEPTANCE-TEST.md)
   against the production Compose stack.
 - Record image tags, configuration, timestamps, and relevant diagnostics.
 - Verify the first export, a repeat export, and replacement of an existing export.

@@ -2,8 +2,8 @@
 
 ## Status
 
-Superseded by ADR 014 and server-side validation/persistence. Retained as historical
-context for the removed browser repository layer.
+Superseded by [ADR 014](./014-server-owned-rotation-state.md) and server-side
+validation/persistence. Retained as historical context for the removed browser repository layer.
 
 ## Context
 

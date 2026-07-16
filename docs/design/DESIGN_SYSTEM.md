@@ -323,6 +323,20 @@ Typical spacing
 
 ---
 
+# Shape Contract
+
+Rotation uses purpose-based radii rather than arbitrary per-component values.
+
+- Standard controls, Album Cards, ordinary panels, Rotation tiles, and covers: `8px`
+- Dialog shells and deliberately elevated journeys: `12px`
+- Semantic role/status/composition chips only: `999px`
+- Genuinely circular icon controls only: `50%`
+
+Clickable elements are not pills by default. New one-off radius values require an
+explicit Design System amendment.
+
+---
+
 # Cards
 
 Cards float lightly.
@@ -333,7 +347,7 @@ Example
 
 Radius
 
-16 px
+8 px
 
 Shadow
 
@@ -353,7 +367,7 @@ Darker green tone
 
 White text
 
-Large radius
+8 px radius
 
 ---
 
@@ -383,7 +397,7 @@ Always with slightly rounded corners.
 
 Radius
 
-12 px
+8 px
 
 ---
 

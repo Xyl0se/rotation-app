@@ -1,6 +1,6 @@
 /* ==========================================
    Design Tokens — Rotation Identity Refresh
-   Quelle: docs/DESIGN_SYSTEM.md
+   Quelle: docs/design/DESIGN_SYSTEM.md
    ========================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
@@ -56,6 +56,10 @@
     --space-7:  96px;
 
     /* ---- Radien ---- */
+
+    --radius-standard: 8px;
+    --radius-dialog:   12px;
+    --radius-round:    999px;
 
     --radius-small:   8px;
     --radius-medium:  12px;

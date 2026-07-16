@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- **Homepage design alignment**
+  - Restored the original warm editorial palette on Home, standardized ordinary
+    Homepage controls, Cards, covers, and containers on an 8px radius, and reduced
+    shadows and hover movement without restyling the app's intentional specialist
+    pages and dialogs.
+  - Reduced Home to Focus Album, Player Rotation, and Library while preserving the
+    current Rotation review layout and behavior.
+  - Added a dedicated Insights page for localized Reflection, linguistic observations,
+    and the neutral role overview; removed the obsolete Dashboard composition.
+  - Added an accessible Focus Album edit action that opens the existing Album editor.
+  - Replaced the dismissible unbound-Album Homepage banner with an accessible,
+    centrally refreshed attention dot on Bindings navigation.
+
 ## v0.29.0
 
 - **Sprint 82 — Rotation lifecycle and release candidate**

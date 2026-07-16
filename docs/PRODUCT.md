@@ -26,7 +26,9 @@ Recommendations refer exclusively to the active Player Rotation or to the reflec
 
 Rotation is a self-hosted client/server application for a conscious album collection.
 
-The user first goes through a short welcome page. After that, the application lives on the HomePage: collection, Focus Album, Dashboard, Player Rotation, and the dialog for discovering a new album.
+The user first goes through a short welcome page. After that, the application is
+organized around Home, Bindings, Export, and Settings. Albums enter the Library from
+music folders discovered on the Bindings page.
 
 The term "Rotation" once again means the original vision: a curated player selection of multiple albums. The individually highlighted album is called the Focus Album.
 
@@ -34,7 +36,8 @@ The term "Rotation" once again means the original vision: a curated player selec
 
 ## Core Features
 
-- **Discover New Album:** Title and artist are entered manually.
+- **Capture Album:** A discovered music folder is matched with metadata and captured
+  into the Library together with its file binding.
 - **Metadata Lookup:** MusicBrainz provides release data, Cover Art Archive provides the front cover.
 - **Album Coach:** A short decision tree assigns the album a role.
 - **Library:** Albums are displayed as cards and can be consciously placed in the archive.
@@ -53,7 +56,9 @@ The term "Rotation" once again means the original vision: a curated player selec
 - **Archive Workflow:** A classic protection checks whether an album may really rest. Archived albums can later appear as rediscovery candidates.
 - **Role Explorer:** All six roles as standalone overview pages within the library.
 - **Insights:** Rotation formulates linguistic observations about listening habits and the development of the collection. Insights do not evaluate the collection.
-- **Dashboard:** Reflection, Insights, and a neutral overview of the library together form the entry point into Rotation.
+- **Insights Page:** Reflection, linguistic observations, and a neutral role overview
+  live on their own editorial page. Home remains focused on Focus Album, Player
+  Rotation, and Library.
 - **Cover Override System:** Users can manually adjust covers — via upload, external URL, or as an alternative from the Cover Art Archive.
 
 ---
@@ -97,7 +102,7 @@ Rotation does not assign points or scores to a collection.
 
 - Rotation knows only albums, not songs.
 - The Library, covers, bindings, scans, and export operations are server-backed. Library state is loaded from the API and is not persisted in browser storage.
-- Listening History, RotationPlan, and Focus Album remain canonical browser-local data until their planned server migration.
+- Listening History, RotationPlan, and Focus Album are canonical server data in SQLite. Reloads and other browsers therefore see the same confirmed state.
 - Language, onboarding state, and dismissed prompts are intentionally device-local. Authentication is an internal trusted-proxy concern, not browser state.
 - There are no user accounts or multi-user conflict semantics yet.
 - The Metadata Lookup is a helper, but not a prerequisite for saving an album.

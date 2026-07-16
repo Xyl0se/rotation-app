@@ -2,8 +2,8 @@
 
 ## Status
 
-Superseded by ADR 014 and the versioned SQLite migrations. Retained as historical
-context for the removed browser-storage architecture.
+Superseded by [ADR 014](./014-server-owned-rotation-state.md) and the versioned SQLite
+migrations. Retained as historical context for the removed browser-storage architecture.
 
 ## Context
 

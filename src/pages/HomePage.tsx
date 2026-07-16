@@ -14,16 +14,13 @@ import DeleteAlbumDialog from "../components/features/library/DeleteAlbumDialog"
 import EditAlbumDialog from "../components/features/library/EditAlbumDialog"
 import FocusAlbumCard from "../components/features/focus-album/FocusAlbumCard"
 import EmptyFocusAlbumCard from "../components/features/focus-album/EmptyFocusAlbumCard"
-import Dashboard from "../components/features/dashboard/Dashboard"
 import PlayerRotation from "../components/features/player-rotation/PlayerRotation"
 import Button from "../components/ui/Button"
 import Dialog from "../components/ui/Dialog"
 import AlbumCoach from "../components/features/album-coach/AlbumCoach"
-import CoachOrphanPrompt from "../components/features/album-coach/CoachOrphanPrompt"
 import ArchiveProtectionCoach from "../components/features/archive/ArchiveProtectionCoach"
 import ArchiveReturnCoach from "../components/features/archive/ArchiveReturnCoach"
 
-import { evaluateReflection } from "../domain/reflection/evaluateReflection"
 import { useI18n } from "../i18n/useI18n"
 
 interface HomePageProps {
@@ -33,7 +30,6 @@ interface HomePageProps {
 
 function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     const { t } = useI18n()
-    const [reflectionAlbumId, setReflectionAlbumId] = useState<string | null>(null)
     const [archiveAlbumId, setArchiveAlbumId] = useState<string | null>(null)
     const [archiveReturnAlbumId, setArchiveReturnAlbumId] = useState<string | null>(null)
     const [deleteAlbumId, setDeleteAlbumId] = useState<string | null>(null)
@@ -76,24 +72,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
         error: listenError,
     } = useListenEvents(albums, serverConnected)
 
-    const { orphans, getBindingForLibraryAlbum } = useBindings()
-
-    const [orphanPromptDismissed, setOrphanPromptDismissed] = useState(() => {
-        try {
-            return localStorage.getItem("rotation:orphanPromptDismissed") === "true"
-        } catch {
-            return false
-        }
-    })
-
-    function handleDismissOrphanPrompt() {
-        setOrphanPromptDismissed(true)
-        try {
-            localStorage.setItem("rotation:orphanPromptDismissed", "true")
-        } catch {
-            // ignore
-        }
-    }
+    const { getBindingForLibraryAlbum } = useBindings()
 
     async function handleLogListen(id: string) {
         if (await logListen(id)) await refreshLibrary()
@@ -101,14 +80,6 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
 
     async function handleDeleteAlbum(id: string) {
         if (await deleteAlbum(id)) setDeleteAlbumId(null)
-    }
-
-    function handleReflectionComplete(role: RoleId) {
-        if (!reflectionAlbumId) {
-            return
-        }
-        updateAlbumRole(reflectionAlbumId, role, "reflection")
-        setReflectionAlbumId(null)
     }
 
     function handleArchiveComplete(role: RoleId) {
@@ -128,8 +99,6 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     }
 
     const focusAlbum = albums.find(album => album.id === focusAlbumId)
-    const reflectionPrompt = evaluateReflection(albums).prompts[0]
-    const reflectionAlbum = albums.find(album => album.id === reflectionAlbumId)
     const archiveAlbum = albums.find(album => album.id === archiveAlbumId)
     const archiveReturnAlbum = albums.find(album => album.id === archiveReturnAlbumId)
     const deleteAlbumData = albums.find(album => album.id === deleteAlbumId)
@@ -144,7 +113,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     }
 
     return (
-        <main className="container">
+        <main className="container home-page">
             {isLibraryLoading && (
                 <div className="sync-status" role="status">
                     {t.home.syncingLibrary}
@@ -164,20 +133,6 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                 </div>
             )}
             {
-                orphans.length > 0 && !orphanPromptDismissed && (
-                    <CoachOrphanPrompt
-                        title={t.coach.orphanPrompt.title}
-                        description={t.coach.orphanPrompt.description}
-                        dismissLabel={t.coach.orphanPrompt.dismiss}
-                        captureLabel={t.coach.orphanPrompt.capture}
-                        onDismiss={handleDismissOrphanPrompt}
-                        onCapture={() => {
-                            onNavigateToBindings?.()
-                        }}
-                    />
-                )
-            }
-            {
                 albums.length === 0
                     ? (
                         <EmptyLibrary
@@ -195,6 +150,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                                             void handleLogListen(focusAlbum.id)
                                         }
                                         onSuggestAnother={() => void suggestFocusAlbum()}
+                                        onEdit={() => setEditingAlbumId(focusAlbum.id)}
                                     />
                                 ) : (
                                     <EmptyFocusAlbumCard
@@ -203,20 +159,6 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                                     />
                                 )
                             }
-                            <Dashboard
-                                albums={albums}
-                                reflectionPrompt={reflectionPrompt}
-                                onReflect={() => {
-                                    if (!reflectionPrompt) {
-                                        return
-                                    }
-                                    if (reflectionPrompt.code === "archive-return-candidate") {
-                                        setArchiveReturnAlbumId(reflectionPrompt.album.id)
-                                        return
-                                    }
-                                    setReflectionAlbumId(reflectionPrompt.album.id)
-                                }}
-                            />
                             <PlayerRotation
                                 albums={albums}
                                 plan={rotationPlan}
@@ -275,28 +217,6 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                         onComplete={handleManualCoachComplete}
                     />
                 )}
-            </Dialog>
-            <Dialog open={reflectionAlbum !== undefined}>
-                {
-                    reflectionAlbum && (
-                        <>
-                            <AlbumCoach
-                                key={`${reflectionAlbum.id}-${reflectionAlbum.roleHistory.length}`}
-                                albumTitle={reflectionAlbum.title}
-                                album={reflectionAlbum}
-                                onComplete={handleReflectionComplete}
-                            />
-                            <div className="dialog-actions">
-                                <Button
-                                    variant="secondary"
-                                    onClick={() => setReflectionAlbumId(null)}
-                                >
-                                    {t.reflection.later}
-                                </Button>
-                            </div>
-                        </>
-                    )
-                }
             </Dialog>
             <Dialog open={archiveAlbum !== undefined}>
                 {

@@ -42,8 +42,9 @@ Sprint 44 generates the first visible player rotation suggestion from this.
 - Default target is at most 25 albums: 10 Newly Discovered, 5 Comfort Food,
   5 Classic, and 5 Still Growing.
 - Admired and Archived albums are excluded.
-- Role quotas are hard maxima. A missing role leaves the Rotation smaller instead of
-  being overfilled from another role.
+- Role quotas describe the preferred first pass. If an eligible role cannot fill its
+  quota, remaining slots are filled randomly from other eligible roles up to the
+  configured target size.
 - Each item records the role quota through which it entered the Rotation.
 
 The generator is deliberately simple and traceable.

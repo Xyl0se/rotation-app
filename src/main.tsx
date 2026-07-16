@@ -7,6 +7,7 @@ import { I18nProvider } from './i18n/I18nProvider.tsx'
 import { ConnectionProvider } from './contexts/ConnectionContext.tsx'
 import { ToastProvider } from './contexts/ToastContext.tsx'
 import { ErrorBoundary } from './components/ui/ErrorBoundary.tsx'
+import { BindingsProvider } from './contexts/BindingsProvider.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -14,7 +15,9 @@ createRoot(document.getElementById('root')!).render(
       <I18nProvider>
         <ConnectionProvider>
           <ToastProvider>
-            <App />
+            <BindingsProvider>
+              <App />
+            </BindingsProvider>
           </ToastProvider>
         </ConnectionProvider>
       </I18nProvider>

@@ -25,7 +25,7 @@ The implementation is not a pixel-perfect replica, but a consistent translation 
 
 ## Consequences
 
-- `docs/DESIGN_SYSTEM.md` is a binding foundation throughout the entire development.
+- `docs/design/DESIGN_SYSTEM.md` is a binding foundation throughout the entire development.
 - Colors come exclusively from the Design System.
 - Buttons, cards, dialogs, and forms have a uniform design language.
 - Animations are subtle and uniform.

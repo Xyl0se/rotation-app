@@ -1,6 +1,6 @@
 # ADR 013 — Data Ownership Boundaries
 
-**Status:** Accepted
+**Status:** Accepted; amended by [ADR 014](./014-server-owned-rotation-state.md)
 
 **Date:** 2026-07-15
 
@@ -22,12 +22,13 @@ Rotation classifies every persisted value as one of four ownership types:
 | Current export, staging, and archive directories | Server filesystem | Canonical/reconstructable operational data by directory | Included only in full data-directory backup |
 | Library view state | React memory | Ephemeral projection of the API response | Rebuilt from SQLite/API after reload |
 | Downloaded cover cache | IndexedDB | Reconstructable cache | May be deleted without losing canonical cover ownership |
-| Listening History | `localStorage` | Canonical user data, temporarily browser-owned | Not covered by server backup; server migration required in a dedicated follow-up |
-| RotationPlan and Focus Album | `localStorage` | Canonical user data, temporarily browser-owned | Not covered by server backup; server migration required in a dedicated follow-up |
+| Listening History | SQLite/API | Canonical server data | Included in SQLite backups |
+| RotationPlan and Focus Album | SQLite/API | Canonical server data | Included in SQLite backups |
 | Language, onboarding, dismissed prompts | `localStorage` | Device-local preference | Intentionally not synchronized |
 | Internal write token | API and Caddy environment | Deployment secret for trusted proxy authentication | Must not reach browser storage, product exports, or logs |
 
-The server is authoritative only for domains that already have a server repository and migration path. Browser-owned canonical data must not be called server-backed until an explicit schema, API, migration, conflict policy, and backup/restore test exist.
+The server is authoritative for all durable domain data. Browser storage is limited to
+device-local preferences and reconstructable caches; it is not a canonical domain store.
 
 ## Library Rules
 
@@ -41,14 +42,13 @@ The server is authoritative only for domains that already have a server reposito
 
 ## Consequences
 
-- Self-hosting documentation must distinguish SQLite backup from full data-directory backup and browser-local data.
-- A second browser reads the same server Library but not Listening History, RotationPlan, Focus Album, or device preferences.
-- Moving the remaining browser-owned canonical data requires a separate sprint/ADR. It must cover schema design, referential integrity, legacy import, multi-device conflict behavior, and restore testing.
-- Browser cache loss is acceptable for reconstructable data but not for temporarily browser-owned canonical data.
+- Self-hosting documentation distinguishes SQLite backup from full data-directory backup
+  and intentionally device-local preferences.
+- A second browser reads the same Library, Listening History, RotationPlan, and Focus
+  Album, but retains its own device preferences.
+- Browser cache loss is acceptable because canonical domain data remains on the server.
 
 ## Follow-up
 
 [Sprint 80 — Canonical Listening & Rotation Persistence](../sprints/done/Sprint-80.md)
-must be completed before multi-device or PWA work. It migrates Listening History,
-RotationPlan, and Focus Album to server ownership without silently discarding legacy
-browser data.
+completed this follow-up and established ADR 014.

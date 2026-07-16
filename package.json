@@ -14,7 +14,8 @@
     "test:frontend": "vitest run --config vitest.config.ts",
     "test:server": "npm --prefix server test",
     "test:watch": "vitest --config vitest.config.ts",
-    "validate": "npm run lint && npm test && npm run build && npm --prefix server run build"
+    "docs:check": "node scripts/check-markdown-links.mjs",
+    "validate": "npm run lint && npm test && npm run docs:check && npm run build && npm --prefix server run build"
   },
   "dependencies": {
     "react": "^19.2.7",

@@ -1,0 +1,279 @@
+/* Homepage-only return to the Rotation Design Language. */
+
+.home-page {
+    --radius-small: var(--radius-standard);
+    --radius-medium: var(--radius-standard);
+    --radius-large: var(--radius-standard);
+    --color-primary: var(--color-ink);
+    --color-primary-hover: color-mix(in srgb, var(--color-ink) 88%, var(--color-sage));
+    max-width: 1040px;
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-7);
+}
+
+.home-page > section {
+    margin-bottom: var(--space-5);
+}
+
+.home-page .button,
+.home-page .listen-button,
+.home-page .player-rotation-action,
+.home-page .album-listen-button,
+.home-page .library-pagination button,
+.home-page .library-quick-views button,
+.home-page .library-reset,
+.home-page .library-filter-empty button,
+.home-page .view-switcher-button,
+.home-page .perspective-button {
+    border-radius: var(--radius-standard);
+}
+
+.home-page .button.primary,
+.home-page .listen-button,
+.home-page .player-rotation-action {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    box-shadow: 0 2px 6px rgba(43, 43, 43, .12);
+}
+
+.home-page .button.primary:hover,
+.home-page .listen-button:hover,
+.home-page .player-rotation-action:hover {
+    background: color-mix(in srgb, var(--color-ink) 88%, var(--color-sage));
+    box-shadow: 0 3px 8px rgba(43, 43, 43, .14);
+    transform: translateY(-1px);
+}
+
+.home-page .button.secondary {
+    border: 1px solid var(--color-ink);
+    background: var(--color-paper);
+    color: var(--color-ink);
+}
+
+.home-page .card,
+.home-page .focus-album-hero,
+.home-page .focus-album-empty-card,
+.home-page .player-rotation,
+.home-page .player-rotation-tile,
+.home-page .library-controls,
+.home-page .library-filter-empty,
+.home-page .rotation-handover {
+    border-radius: var(--radius-standard);
+}
+
+.home-page .card,
+.home-page .focus-album-hero,
+.home-page .player-rotation {
+    border: 1px solid rgba(232, 226, 218, .8);
+    box-shadow: 0 3px 10px rgba(43, 43, 43, .055);
+}
+
+.home-page .card:hover,
+.home-page .rotation-overview-card:hover {
+    box-shadow: 0 4px 12px rgba(43, 43, 43, .07);
+    transform: none;
+}
+
+.home-page .album-cover-small,
+.home-page .focus-album-cover,
+.home-page .player-rotation-cover,
+.home-page .player-rotation-tile img,
+.home-page .replacement-cover,
+.home-page .replacement-candidate img {
+    border-radius: var(--radius-standard);
+}
+
+.home-page .focus-album {
+    margin-bottom: var(--space-5);
+}
+
+.home-page .focus-album-hero {
+    grid-template-columns: minmax(160px, 210px) minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-3);
+}
+
+.home-page .focus-album-cover {
+    max-width: 210px;
+    box-shadow: 0 6px 16px rgba(43, 43, 43, .1);
+}
+
+.focus-album-heading-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.focus-album-edit,
+.focus-album-shuffle {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    place-items: center;
+    border: 1px solid var(--color-divider);
+    border-radius: 50%;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    box-shadow: 0 2px 6px rgba(43, 43, 43, .08);
+    cursor: pointer;
+    transition: background var(--transition-base), opacity var(--transition-base), transform var(--transition-base);
+}
+
+.focus-album-edit {
+    opacity: 0;
+}
+
+.focus-album:hover .focus-album-edit,
+.focus-album:focus-within .focus-album-edit,
+.focus-album-edit:focus-visible {
+    opacity: 1;
+}
+
+.focus-album-edit:hover,
+.focus-album-shuffle:hover {
+    background: var(--color-sand);
+    transform: translateY(-1px);
+}
+
+.home-page .focus-album-stats {
+    gap: var(--space-4);
+    margin: var(--space-3) 0;
+}
+
+.home-page .album-story {
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-standard);
+    box-shadow: none;
+}
+
+.home-page .player-rotation {
+    padding: var(--space-3);
+}
+
+.home-page .player-rotation-tile {
+    border-color: var(--color-divider);
+    background: color-mix(in srgb, var(--color-sand) 72%, var(--color-paper));
+}
+
+.home-page .player-rotation-action.accept {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+}
+
+.home-page .library-header {
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-divider);
+}
+
+.home-page .library-controls {
+    background: color-mix(in srgb, var(--color-sand) 58%, var(--color-paper));
+}
+
+.home-page .library-controls input,
+.home-page .library-controls select,
+.home-page .library-search kbd {
+    border-radius: var(--radius-standard);
+}
+
+.home-page .library-quick-views button[aria-pressed="true"] {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+}
+
+.home-page .album-card-tools button:hover,
+.home-page .album-listen-button:hover,
+.home-page .card-tool-button:hover {
+    box-shadow: 0 2px 6px rgba(43, 43, 43, .08);
+    transform: translateY(-1px);
+}
+
+@media (hover: none), (pointer: coarse) {
+    .focus-album-edit {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 800px) {
+    .home-page {
+        margin-top: var(--space-3);
+    }
+
+    .home-page .focus-album-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .home-page .focus-album-cover {
+        max-width: min(280px, 100%);
+    }
+}
+
+/* Shared shell additions introduced by the Homepage alignment. */
+
+.app-header .app-nav-button--attention {
+    position: relative;
+}
+
+.bindings-attention-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 7px;
+    height: 7px;
+    border: 1px solid var(--color-warm-white);
+    border-radius: 50%;
+    background: var(--color-muted-gold);
+}
+
+/* Insights is intentionally editorial, not a metrics dashboard. */
+
+.insights-page {
+    max-width: 1000px;
+}
+
+.insights-page-header {
+    max-width: 720px;
+    margin-bottom: var(--space-5);
+}
+
+.insights-page-header p {
+    margin: 0 0 var(--space-1);
+    color: var(--color-smoke);
+    font-size: .82rem;
+    font-weight: 600;
+}
+
+.insights-page-header h1 {
+    margin: 0;
+    font: 600 clamp(2.5rem, 7vw, 4.5rem)/1 var(--font-display);
+}
+
+.insights-page-header span {
+    display: block;
+    margin-top: var(--space-2);
+    color: var(--color-smoke);
+    font-size: 1.05rem;
+}
+
+.insights-page-grid {
+    display: grid;
+    gap: var(--space-5);
+}
+
+.insights-page-grid > section > h2 {
+    margin: 0 0 var(--space-2);
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.insights-page .reflection-card,
+.insights-page .insight-card,
+.insights-page .rotation-overview-card {
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-standard);
+    box-shadow: 0 3px 10px rgba(43, 43, 43, .055);
+}

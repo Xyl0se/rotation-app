@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted
+Amended by [ADR 013](./013-data-ownership-boundaries.md). The hook boundary remains
+accepted; the former browser-storage implementation is superseded.
 
 ## Decision
 
@@ -11,7 +12,7 @@ The library logic lives in its own React Hook (`useLibrary`).
 ## Rationale
 
 - HomePage stays focused on presentation.
-- Storage can later be easily replaced (e.g. IndexedDB or cloud).
+- Server communication and presentation state remain isolated from the HomePage.
 - All library operations are in one place.
 
 ## Consequence
@@ -20,4 +21,7 @@ New functions like delete, edit, or search are added to the hook.
 
 ## Implementation
 
-Implemented in Sprint 47. `src/hooks/useLibrary.ts` provides the full library state management with normalized loading, storage adapter integration, and mutation methods (`addAlbum`, `updateAlbum`, `deleteAlbum`, `archiveAlbum`, `setFocusAlbum`, etc.).
+`src/hooks/useLibrary.ts` loads the canonical Library from the API into ephemeral React
+state and exposes server-confirmed, non-optimistic mutations. It does not persist Album
+records in browser storage. Rotation and Focus operations use their dedicated
+server-owned state hooks.

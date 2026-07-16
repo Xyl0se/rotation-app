@@ -69,7 +69,7 @@ features without re-evaluating production evidence after each sprint.
 | Misnumbered “Sprint 61” Search & Discovery note | Identifier was already used by Server Persistence; scope partly duplicated delivered perspectives | Remaining scope moved to Sprint 78; number retired |
 | Sprint 68B Fuzzy Matching | Partly obsolete; conservative normalized matching already exists | Remaining review/ranking problem moved to Sprint 79 |
 | Cross-browser Library synchronization | Obsolete as a feature request; the Library is already server-authoritative | No separate sprint |
-| Listening/Rotation persistence | Still useful because canonical data remains browser-local and outside server backups | Sprint 80, after core UX work |
+| Listening/Rotation persistence | Completed: canonical data moved from browser storage into SQLite | Sprint 80 |
 | PWA/iOS/Android/offline-first | Premature without a proven device use case and server-owned domain data | Vision only; no committed sprint |
 | Asynchronous scan engine | Potentially useful only for measured slow/large NAS libraries | Conditional backlog |
 | Weekly Reflection and listening patterns | Product-aligned once durable state exists | Reflection Inbox in Sprint 83; optional Journal in Sprint 84 |

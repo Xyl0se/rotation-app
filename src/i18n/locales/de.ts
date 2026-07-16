@@ -126,6 +126,12 @@ export const de: Translation = {
         roleOverview: "Rollenübersicht",
     },
 
+    insightsPage: {
+        kicker: "Ein ruhiger Blick auf deine Sammlung",
+        title: "Insights",
+        description: "Fragen, Beobachtungen und die Rollen, die deine Alben gerade einnehmen.",
+    },
+
     insights: {
         buildingLibrary: {
             title: "Deine Sammlung entsteht gerade",
@@ -155,6 +161,11 @@ export const de: Translation = {
     },
 
     reflection: {
+        empty: {
+            label: "Reflexion",
+            title: "Gerade keine offene Frage",
+            description: "Deine Sammlung wirkt im Moment stimmig. Wenn ein Album wieder Aufmerksamkeit braucht, fragt Rotation hier nach.",
+        },
         newAfterListens: {
             title: "Vielleicht ist dieses Album nicht mehr neu",
             description:
@@ -608,11 +619,13 @@ export const de: Translation = {
         home: "Start",
         bindings: "Bindings",
         export: "Export",
+        insights: "Insights",
         settings: "Einstellungen",
         history: "Verlauf",
         offline: "Offline — warte auf Verbindung",
         apiUnavailable: "Server nicht erreichbar — lokaler Cache aktiv",
         retrying: "Wiederhole…",
+        bindingsAttention: (count: number) => `${count} ${count === 1 ? "ungebundenes Album wartet" : "ungebundene Alben warten"} auf dich`,
     },
 
     language: {

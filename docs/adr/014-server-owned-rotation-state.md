@@ -7,8 +7,7 @@
 ## Decision
 
 SQLite is the canonical owner of Listening Events, draft/active Rotation Plans,
-Rotation composition, and the Focus Album. Browser storage is only a legacy import
-source and must be cleared only after the server confirms an idempotent import.
+Rotation composition, and the Focus Album. Browser storage is not a runtime domain store.
 
 The Focus Album belongs to the active Rotation. It may be null, but if present it
 must reference an Album contained in that Rotation. Removing the focused item clears
@@ -24,11 +23,11 @@ This is a single-user self-hosted application. Mutations use complete server-con
 representations and stable IDs. There is no offline mutation queue or automatic merge.
 A stale client reloads canonical state and retries deliberately.
 
-## Legacy Import
+## Historical Legacy Import
 
-The client previews valid legacy keys, sends one idempotent import request, verifies
-the returned canonical state, and only then removes those keys. Repeated imports with
-the same event/plan IDs are harmless.
+Sprint 80 initially provided an idempotent bridge from legacy browser keys. Sprint 82E
+removed that bridge after production acceptance confirmed the migration. No legacy
+import path remains in the runtime application.
 
 ## Consequences
 
@@ -39,4 +38,4 @@ the same event/plan IDs are harmless.
   invariant. A later Settings contract may change the total maximum and eligible-role
   quotas, while existing Rotation Plans retain the composition snapshot with which
   they were created.
-- Local-storage repositories remain temporarily only for explicit migration.
+- Local-storage domain repositories and their migration bridge have been removed.

@@ -40,7 +40,7 @@ export ROTATION_WRITE_TOKEN="$(openssl rand -hex 32)"
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-See [`SELFHOST.md`](./docs/SELFHOST.md) for detailed setup instructions.
+See [`SELFHOST.md`](./docs/operations/SELFHOST.md) for detailed setup instructions.
 
 ## Development
 
@@ -65,7 +65,7 @@ npm test
 
 ## Design
 
-Rotation has a binding design system (`docs/DESIGN_SYSTEM.md`). The visual identity is warm, reduced, and editorial — like a personal music journal, not a dashboard.
+Rotation has a binding design system (`docs/design/DESIGN_SYSTEM.md`). The visual identity is warm, reduced, and editorial — like a personal music journal, not a dashboard.
 
 ## Status
 

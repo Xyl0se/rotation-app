@@ -398,9 +398,9 @@ Each workstream should be delivered in reviewable commits or pull requests. Secu
 - `README.md`
 - `docs/ARCHITECTURE.md`
 - `docs/PRODUCT.md`
-- `docs/SELFHOST.md`
+- `docs/operations/SELFHOST.md`
 - `docs/ROADMAP.md`
-- `docs/VERSIONING.md`
+- `docs/operations/VERSIONING.md`
 - `docs/CHANGELOG.md`
 - relevant ADRs and completed-sprint correction notes
 

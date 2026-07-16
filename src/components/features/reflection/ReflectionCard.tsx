@@ -2,11 +2,15 @@ import type {
     ReflectionPrompt,
 } from "../../../domain/reflection/evaluateReflection"
 
-import {
-    getReflectionMessage,
-} from "../../../domain/reflection/reflectionMessages"
-
 import Button from "../../ui/Button"
+import { useI18n } from "../../../i18n/useI18n"
+
+const reflectionTranslationKeys = {
+    "new-after-listens": "newAfterListens",
+    "growing-for-a-while": "growingForAWhile",
+    "comfort-not-recent": "comfortNotRecent",
+    "archive-return-candidate": "archiveReturnCandidate",
+} as const
 
 type ReflectionCardProps = {
 
@@ -23,6 +27,7 @@ function ReflectionCard({
     onReflect,
 
 }: ReflectionCardProps) {
+    const { t } = useI18n()
 
     if (!prompt) {
 
@@ -32,21 +37,19 @@ function ReflectionCard({
 
                 <p className="reflection-label">
 
-                    Reflexion
+                    {t.reflection.empty.label}
 
                 </p>
 
                 <h2>
 
-                    Gerade keine offene Frage
+                    {t.reflection.empty.title}
 
                 </h2>
 
                 <p>
 
-                    Deine Sammlung wirkt im Moment stimmig.
-                    Wenn ein Album wieder Aufmerksamkeit braucht,
-                    fragt Rotation hier nach.
+                    {t.reflection.empty.description}
 
                 </p>
 
@@ -56,8 +59,7 @@ function ReflectionCard({
 
     }
 
-    const message =
-        getReflectionMessage(prompt)
+    const message = t.reflection[reflectionTranslationKeys[prompt.code]]
 
     return (
 
@@ -65,7 +67,7 @@ function ReflectionCard({
 
             <p className="reflection-label">
 
-                Reflexion
+                {t.reflection.empty.label}
 
             </p>
 
@@ -89,7 +91,7 @@ function ReflectionCard({
 
             <Button onClick={onReflect}>
 
-                {message.actionLabel}
+                {message.action}
 
             </Button>
 

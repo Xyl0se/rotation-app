@@ -1,5 +1,8 @@
 # Sprint 82E — Legacy and Production-Code Inventory
 
+> Archived audit evidence. The current architecture is documented in
+> [ARCHITECTURE.md](../ARCHITECTURE.md) and the [ADR index](../adr/README.md).
+
 This inventory records the decision boundary used for cleanup. “Required migration”
 means deletion would prevent a supported installation or backup from opening.
 

@@ -71,7 +71,7 @@ durable. Record cold and warm scan/preview observations during release acceptanc
 
 ## NAS acceptance observations
 
-Record these in `archive/SPRINT-82-RELEASE-ACCEPTANCE.md`:
+Record these in `docs/archive/acceptance-tests/SPRINT-82-RELEASE-ACCEPTANCE.md`:
 
 | Path | Budget | Cold | Warm | Result |
 |---|---:|---:|---:|---|

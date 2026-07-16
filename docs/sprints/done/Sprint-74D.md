@@ -12,7 +12,7 @@ Users can restore from backup and understand the backup behavior.
 
 ## Tasks
 
-- [ ] Update `docs/SELFHOST.md`:
+- [ ] Update `docs/operations/SELFHOST.md`:
   - Automatic backups section: daily at 3 AM, 7 files kept
   - Backup location: `/rotation-data/backups/rotation-YYYYMMDD-HHMMSS.db`
   - Restore procedure: stop container → copy backup → start container

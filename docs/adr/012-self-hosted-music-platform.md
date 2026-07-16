@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted — weitgehend implementiert (Sprints 58–70). Stabilisierungsphase aktiv.
+Accepted and implemented. Data ownership was amended by
+[ADR 013](./013-data-ownership-boundaries.md) and
+[ADR 014](./014-server-owned-rotation-state.md).
 
 ---
 
@@ -22,8 +24,8 @@ Die Anwendung bleibt bewusst kein Musikplayer. Sie beschreibt weiterhin die Bezi
 
 | Schicht | Zuständigkeit |
 |---------|---------------|
-| Browser | Domain-Logik, UI-Zustand, persönliche Daten |
-| Server | Dateisystem-Zugriff, SQLite-Persistenz, Export-Engine |
+| Browser | Darstellung, ephemerer UI-Zustand, gerätelokale Einstellungen |
+| Server | Domain-Persistenz, Dateisystem-Zugriff, Rotation und Export-Engine |
 
 **Begründung:**
 - Der Browser kann nicht sicher auf das NAS-Dateisystem zugreifen
@@ -214,14 +216,14 @@ musicGuard.resolve("../../../etc/passwd")
 
 ## Abhängigkeiten
 
-- ADR 003 (Local First) — wird modifiziert: Server-Persistenz ergänzt Browser-Persistenz
+- ADR 003 (Local First) — durch ADR 013/014 ersetzt
 - ADR 005 (Curated Rotation) — unverändert, wird durch Export-Engine materialisiert
-- ADR 010 (Defensive Persistence) — erweitert um PathGuard und Export-Locking
+- ADR 010 (Defensive Persistence) — Browser-Persistenzteil ersetzt; PathGuard und Export-Locking bleiben Serverbelange
 
 ---
 
 ## Links
 
-- `docs/SELFHOST.md` — Betriebsanleitung
+- `docs/operations/SELFHOST.md` — Betriebsanleitung
 - `docs/ROADMAP.md` — Sprint-Planung (Sprint 58–70)
 - `docker-compose.prod.yml` — Production Deployment

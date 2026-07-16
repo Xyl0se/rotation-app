@@ -89,7 +89,7 @@ Implement a robust, cron-driven backup system for the SQLite database that runs 
 - `server/src/application/config.ts` — modified (3 new env vars)
 - `docker-compose.yml` — modified (backup env + restart)
 - `docker-compose.prod.yml` — modified (backup env + restart)
-- `docs/SELFHOST.md` — modified (backup docs)
+- `docs/operations/SELFHOST.md` — modified (backup docs)
 - `docs/sprints/Sprint-74A.md` through `Sprint-74E.md` — new
 
 ---

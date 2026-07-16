@@ -45,4 +45,21 @@ Patch examples:
 3. Run `npm run validate` and both Compose configuration checks.
 4. Create versioning commit.
 5. Set Git tag with the target version. The image workflows publish the tested commit as SHA, version, and (on `main`) `latest` tags. Production Compose uses the immutable version tag, never `latest`.
-6. The next sprint starts again under `Unreleased`.
+6. Wait for **both** `Docker Publish API` and `Docker Publish Web` for the release tag
+   to complete successfully. A pushed Git tag or a green GitHub Release workflow does
+   not prove that the container manifests already exist.
+7. Before authorizing Portainer deployment, verify both registry manifests directly:
+
+   ```bash
+   docker manifest inspect ghcr.io/xyl0se/rotation-app-api:vX.Y.Z >/dev/null
+   docker manifest inspect ghcr.io/xyl0se/rotation-app-web:vX.Y.Z >/dev/null
+   ```
+
+   Do not tell an operator to use **Pull and redeploy** until both commands succeed.
+   `manifest unknown` means the referenced image tag is not yet available; wait for or
+   diagnose image publication instead of repeatedly redeploying the stack.
+8. Redeploy matching API/Web version tags and run the post-release health smoke test.
+9. The next sprint starts again under `Unreleased`.
+
+This ordering prevents the release race in which Compose already references a new
+immutable tag while GHCR is still building or publishing that tag.

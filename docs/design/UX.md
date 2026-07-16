@@ -56,25 +56,24 @@ Das Fokusalbum wird oberhalb der Bibliothek hervorgehoben. Der Nutzer kann auch 
 
 Das Fokusalbum ist nicht die Rotation. Es ist nur ein einzelnes Album, das gerade Aufmerksamkeit bekommt.
 
-Unterhalb des Fokusalbums zeigt die Album Timeline die bisher dokumentierte Geschichte dieses Albums. Sie beginnt mit Rollenwechseln und dem letzten Hoermoment.
+Die Album Timeline ist vom Fokusalbum aus als aufklappbare Historie erreichbar. Ein
+direkter Bearbeiten-Zugang öffnet den bestehenden Albumdialog.
 
 Die Timeline soll nicht wie eine Statistik wirken. Sie ist eine ruhige Chronik.
 
-## Dashboard
+## Startseite
 
-Das Dashboard steht unterhalb des Fokusalbums.
+Die Startseite konzentriert sich auf drei Ebenen:
 
-Es buendelt:
+- Fokusalbum
+- Player-Rotation
+- Bibliothek
 
-- die naechste moegliche Frage
-- Insights zur Sammlung
-- Balance der Rollen
-
-Das Dashboard soll keine Kontrollzentrale sein. Es ist eine ruhige Flaeche fuer Aufmerksamkeit.
+Reflexion, Insights und Rollenübersicht unterbrechen diesen Hauptfluss nicht.
 
 ## Player-Rotation
 
-Die Player-Rotation steht unterhalb des Dashboards und oberhalb der Bibliothek.
+Die Player-Rotation steht unterhalb des Fokusalbums und oberhalb der Bibliothek.
 
 Sie zeigt die konkrete Auswahl, die mit auf den MP3-Player koennte:
 
@@ -85,11 +84,12 @@ Sie zeigt die konkrete Auswahl, die mit auf den MP3-Player koennte:
 
 Die Tiles sind kleiner als Bibliothekscards. Sie dienen dem schnellen Scannen, nicht der Pflege der Sammlung.
 
-Sprint 44 erlaubt noch kein manuelles Ersetzen einzelner Alben. Das folgt im Rotation Review.
+Ein Vorschlag kann geprüft, verändert und anschließend bewusst übernommen werden.
 
 ## Reflection
 
-Die Reflection Card bleibt sichtbar. Wenn kein Album Anlass fuer eine erneute Frage gibt, zeigt sie einen ruhigen Status.
+Reflection lebt auf der eigenen Insights-Seite. Wenn kein Album Anlass fuer eine
+erneute Frage gibt, zeigt sie dort einen ruhigen Status.
 
 Wenn ein Impuls vorhanden ist, fragt sie konkret nach einem Album.
 
@@ -104,7 +104,8 @@ Der Nutzer kann den Coach erneut starten. Bei archivierten Alben startet ein Wie
 
 ## Insights
 
-Insights sind Teil des Dashboards.
+Insights, Reflection und die neutrale Rollenübersicht teilen sich eine eigene
+Insights-Seite.
 
 Sie sollen nicht wie Analytics wirken. Rotation formuliert kurze Beobachtungen darueber, welche Hoerphase die Sammlung gerade andeutet.
 

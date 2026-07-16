@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted
+Accepted; generation details amended by
+[ADR 015](./015-rotation-generation-policy.md).
 
 ## Context
 
@@ -23,13 +24,13 @@ A Focus Album is a single highlighted album in the UI. It replaces the old singl
 Listening sessions are album events. They are not bound to whether an album is part of a rotation or the current Focus Album.
 
 The current default is a maximum of 25 Albums: 10 Newly Discovered, 5 Comfort Food,
-5 Classic, and 5 Still Growing. Role quotas are hard maxima; Admired and Archive are
-not Rotation roles.
+5 Classic, and 5 Still Growing. These quotas are preferred first-pass proportions;
+eligible roles may fill remaining slots. Admired and Archive are not Rotation roles.
+The detailed generation policy is defined by [ADR 015](./015-rotation-generation-policy.md).
 
 ## Consequences
 
 - UI texts speak of Focus Album when a single album is highlighted.
-- `isCurrent` remains for now as a legacy field and is treated semantically as a focus marker.
-- A future `RotationPlan` model describes the actual player rotation.
-- The Rotation Generator builds later on roles, listening history, and target size.
-- Persistence migrations are only implemented when the new rotation model is stable.
+- `RotationPlan` is the server-owned model for draft, active, and archived rotations.
+- Focus Album and Listening Events are also canonical server state.
+- Composition settings may change future plans without rewriting historical plans.

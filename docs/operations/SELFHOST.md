@@ -3,7 +3,7 @@
 > Rotation runs as a multi-service Docker stack on your NAS or home server.
 > The stack consists of a React frontend and a Node.js API.
 > Syncthing (not part of this stack) syncs the export folder to your MP3 player.
-> The Album Library and bindings live in SQLite; server cover files live in the data directory. Listening History, RotationPlan, and Focus Album remain browser-local until their dedicated server migration.
+> The Album Library, bindings, Listening History, Rotation Plans, and Focus Album live in SQLite; server cover files live in the data directory.
 > The original music library is **never modified** — it is mounted read-only.
 
 ---
@@ -225,9 +225,10 @@ docker compose -f docker-compose.prod.yml up -d
 
 ### Via Portainer (Recommended)
 
-1. Open Portainer → **Stacks** → `rotation`
-2. Click **Pull and redeploy**
-3. Portainer pulls the latest images and restarts the stack
+1. Confirm that both versioned GHCR manifests exist (see the release gate below).
+2. Open Portainer → **Stacks** → `rotation`.
+3. Click **Pull and redeploy**.
+4. Portainer pulls the Compose-pinned images and restarts the stack.
 
 Or, if automatic updates are enabled, the stack redeploys automatically when `docker-compose.prod.yml` changes on `main`.
 
@@ -241,8 +242,24 @@ docker compose -f docker-compose.prod.yml up -d
 
 Database migrations run automatically on startup. Always back up the database before major version updates.
 
+### Mandatory image-publication gate
+
+Never redeploy a newly tagged version merely because its Git tag exists or GitHub's
+Release workflow is green. The API and Web image workflows run independently and may
+still be publishing while Compose already references the new tag. Verify both images:
+
+```bash
+docker manifest inspect ghcr.io/xyl0se/rotation-app-api:vX.Y.Z >/dev/null
+docker manifest inspect ghcr.io/xyl0se/rotation-app-web:vX.Y.Z >/dev/null
+```
+
+Only proceed to **Pull and redeploy** after both commands succeed. If Portainer reports
+`manifest unknown`, at least one referenced tag is unavailable: stop, inspect the two
+Docker Publish workflows, and repeat the manifest checks. Repeated redeploy attempts do
+not repair a missing registry manifest.
+
 For `v0.29.0`, the deployment evidence and desktop/390 px visual gate are archived in
-[`SPRINT-82-RELEASE-ACCEPTANCE.md`](./archive/SPRINT-82-RELEASE-ACCEPTANCE.md). The documented
+[`SPRINT-82-RELEASE-ACCEPTANCE.md`](../archive/acceptance-tests/SPRINT-82-RELEASE-ACCEPTANCE.md). The documented
 rollback restores both the previous database backup and matching API/Web SHA tags;
 never start an older image against a database already migrated to schema 11.
 
@@ -291,7 +308,9 @@ curl http://localhost:3000/api/backups/status
 
 ### Full data backup
 
-A full server backup covers SQLite, server covers, exports, and operational files. It does not currently include browser-local Listening History, RotationPlan, or Focus Album; use the in-app browser backup for those values until their server migration is implemented.
+A full server backup covers SQLite—including Library, Listening History, Rotation Plans,
+Focus Album, and bindings—plus server covers, exports, and operational files. Device-local
+preferences such as language and dismissed prompts are intentionally not part of it.
 
 ```bash
 # Stop Rotation first to ensure consistency

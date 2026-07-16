@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted (superseded by Sprint 58 — see `ARCHITECTURE.md`)
+Superseded by [ADR 013](./013-data-ownership-boundaries.md) and
+[ADR 014](./014-server-owned-rotation-state.md). Retained as historical context.
 
 ## Decision
 
@@ -23,4 +24,6 @@ Later migrations to IndexedDB, export/import, or cloud sync must respect the loc
 
 > **Update Sprint 58:** The deployment foundation uses Docker with Caddy as a static web server. The app remains local-first in the browser — there is still no server-side backend or database.
 
-> **Correction Sprint 76.1:** This historical statement was superseded by the SQLite/API architecture. ADR 013 now defines server-authoritative, browser-cache, temporarily browser-owned, and device-local data explicitly.
+> **Correction:** This historical decision was replaced by the SQLite/API architecture.
+> ADR 013 defines the ownership classes; ADR 014 establishes server ownership for
+> Listening History, Rotation Plans, and Focus Album.

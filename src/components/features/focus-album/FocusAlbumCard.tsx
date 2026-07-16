@@ -57,6 +57,8 @@ type FocusAlbumCardProps = {
 
     onSuggestAnother: () => void
 
+    onEdit: () => void
+
 }
 
 function formatLastListened(date: string | null, t: ReturnType<typeof useI18n>["t"]) {
@@ -121,6 +123,7 @@ function FocusAlbumCard({
 
     onLogListen,
     onSuggestAnother,
+    onEdit,
 
 }: FocusAlbumCardProps) {
 
@@ -134,14 +137,24 @@ function FocusAlbumCard({
 
             <div className="focus-album-heading">
                 <p className="focus-album-label">{t.focusAlbum.label}</p>
-                <button
-                    className="focus-album-shuffle"
-                    onClick={onSuggestAnother}
-                    aria-label={t.home.suggestFocusAlbum}
-                    title={t.home.suggestFocusAlbum}
-                >
-                    🎲
-                </button>
+                <div className="focus-album-heading-actions">
+                    <button
+                        className="focus-album-edit"
+                        onClick={onEdit}
+                        aria-label={`${t.albumCard.edit}: ${album.title}`}
+                        title={t.albumCard.edit}
+                    >
+                        ✎
+                    </button>
+                    <button
+                        className="focus-album-shuffle"
+                        onClick={onSuggestAnother}
+                        aria-label={t.home.suggestFocusAlbum}
+                        title={t.home.suggestFocusAlbum}
+                    >
+                        🎲
+                    </button>
+                </div>
             </div>
 
             <div className="focus-album-hero">

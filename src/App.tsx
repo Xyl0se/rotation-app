@@ -6,8 +6,10 @@ import BindingsPage from "./pages/BindingsPage"
 import ExportPage from "./pages/ExportPage"
 import SettingsPage from "./pages/SettingsPage"
 import RotationHistoryPage from "./pages/RotationHistoryPage"
+import InsightsPage from "./pages/InsightsPage"
 import AppHeader, { type AppPage } from "./components/features/AppHeader"
 import ToastContainer from "./components/ui/Toast"
+import { useBindings } from "./hooks/useBindings"
 
 const ONBOARDING_KEY = "rotation-onboarding-complete"
 
@@ -17,6 +19,7 @@ function App() {
     })
     const [page, setPage] = useState<AppPage>("home")
     const [highlightAlbumId, setHighlightAlbumId] = useState<string | null>(null)
+    const { orphans, refresh: refreshBindings } = useBindings()
 
     function handleNavigateToLibrary(albumId: string) {
         setPage("home")
@@ -38,11 +41,11 @@ function App() {
 
     return (
         <>
-            <AppHeader page={page} onNavigate={setPage} />
+            <AppHeader page={page} onNavigate={setPage} orphanCount={orphans.length} />
             {page === "home" && <HomePage onNavigateToBindings={() => setPage("bindings")} highlightAlbumId={highlightAlbumId} />}
             {page === "bindings" && (
                 <main className="bindings-workspace">
-                    <BindingsPage onNavigateToLibrary={handleNavigateToLibrary} />
+                    <BindingsPage onNavigateToLibrary={handleNavigateToLibrary} onBindingsChanged={refreshBindings} />
                 </main>
             )}
             {page === "export" && (
@@ -52,6 +55,7 @@ function App() {
             )}
             {page === "settings" && <SettingsPage />}
             {page === "history" && <RotationHistoryPage />}
+            {page === "insights" && <InsightsPage />}
             <ToastContainer />
         </>
     )
