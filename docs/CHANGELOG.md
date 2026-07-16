@@ -10,6 +10,7 @@
   - Hardened remote cover resolution through validated server-side caching, bounded retries, and manual re-resolution.
   - Removed the completed one-time browser Rotation/Listening import bridge while retaining supported historical migrations and Album portability.
   - Reconciled root/API versions and production API/Web image tags at `v0.29.0-rc.1`, added curated GitHub Release automation, immutable production Compose tags, release notes, and a NAS acceptance/rollback runbook.
+  - Corrected the immutable GHCR references to retain the leading `v` emitted from the Git release tag, preventing Portainer `manifest unknown` failures.
 
 ## v0.26.1-dev
 

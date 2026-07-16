@@ -25,8 +25,8 @@ the existing single-user NAS deployment and is not yet the final stable release.
 
 ## Images
 
-- `ghcr.io/xyl0se/rotation-app-api:0.29.0-rc.1`
-- `ghcr.io/xyl0se/rotation-app-web:0.29.0-rc.1`
+- `ghcr.io/xyl0se/rotation-app-api:v0.29.0-rc.1`
+- `ghcr.io/xyl0se/rotation-app-web:v0.29.0-rc.1`
 
 Both images must use this exact matching tag. SHA tags remain available for diagnosis
 and exact rollback.
