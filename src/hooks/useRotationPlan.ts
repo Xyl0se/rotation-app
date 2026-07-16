@@ -13,6 +13,7 @@ export function useRotationPlan(
 ) {
     const [rotationPlan, setRotationPlan] = useState<RotationPlan | null>(null)
     const [focusAlbumId, setFocusAlbumIdState] = useState<string | null>(null)
+    const [previousActiveAlbumIds, setPreviousActiveAlbumIds] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState(isConnected)
     const [error, setError] = useState<string | null>(null)
 
@@ -24,6 +25,7 @@ export function useRotationPlan(
             const current = state.draft ?? state.active
             setRotationPlan(current)
             setFocusAlbumIdState(state.active?.focusAlbumId ?? null)
+            setPreviousActiveAlbumIds(state.active?.albumIds ?? [])
             setError(null)
             return true
         } catch (cause) {
@@ -42,7 +44,10 @@ export function useRotationPlan(
         try {
             const confirmed = await saveRotationPlan(plan, plan.status === "active" ? nextFocusAlbumId : null)
             setRotationPlan(confirmed)
-            if (confirmed.status === "active") setFocusAlbumIdState(confirmed.focusAlbumId)
+            if (confirmed.status === "active") {
+                setFocusAlbumIdState(confirmed.focusAlbumId)
+                setPreviousActiveAlbumIds(confirmed.albumIds)
+            }
             setError(null)
             return true
         } catch (cause) {
@@ -54,12 +59,15 @@ export function useRotationPlan(
     const generatePlan = useCallback(async () => {
         try {
             const settings = await fetchRotationSettings()
-            return persist(generateRotationPlan(albums, settings))
+            return persist(generateRotationPlan(albums, {
+                ...settings,
+                previousAlbumIds: previousActiveAlbumIds,
+            }))
         } catch (cause) {
             setError(cause instanceof Error ? cause.message : "Rotation settings request failed")
             return false
         }
-    }, [albums, persist])
+    }, [albums, persist, previousActiveAlbumIds])
 
     const removeFromPlan = useCallback(async (albumId: string) => {
         if (!rotationPlan) return false

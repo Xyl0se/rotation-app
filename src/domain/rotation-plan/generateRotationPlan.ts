@@ -25,6 +25,10 @@ export interface GenerateRotationPlanOptions {
 
     createdAt?: string
 
+    previousAlbumIds?: string[]
+
+    random?: () => number
+
 }
 
 const ROTATION_ROLES = new Set<RoleId>(["new", "growing", "comfort-food", "classic"])
@@ -41,33 +45,24 @@ function getLastListenedTime(album: Album): number {
 
 }
 
-function sortCandidates(albums: Album[]): Album[] {
-
-    return [...albums].sort((a, b) => {
-
-        const listenDifference =
-            a.listenCount - b.listenCount
-
-        if (listenDifference !== 0) {
-
-            return listenDifference
-
-        }
-
-        const listenedDifference =
-            getLastListenedTime(a) -
-            getLastListenedTime(b)
-
-        if (listenedDifference !== 0) {
-
-            return listenedDifference
-
-        }
-
-        return a.title.localeCompare(b.title)
-
-    })
-
+function weightedShuffle(
+    albums: Album[],
+    previousAlbumIds: Set<string>,
+    random: () => number,
+): Album[] {
+    const now = Date.now()
+    return albums.map(album => {
+        const daysSinceListen = album.lastListened
+            ? Math.max(0, (now - getLastListenedTime(album)) / 86_400_000)
+            : 365
+        const listeningWeight = 1 / (1 + Math.max(0, album.listenCount) * .2)
+        const recencyWeight = 1 + Math.min(daysSinceListen, 365) / 365
+        const continuityWeight = previousAlbumIds.has(album.id) ? .2 : 1
+        const weight = Math.max(.01, listeningWeight * recencyWeight * continuityWeight)
+        // Efraimidis–Spirakis weighted sampling without replacement.
+        const key = Math.pow(Math.max(random(), Number.EPSILON), 1 / weight)
+        return { album, key }
+    }).sort((a, b) => b.key - a.key).map(entry => entry.album)
 }
 
 export function generateRotationPlan(
@@ -89,6 +84,9 @@ export function generateRotationPlan(
             album.category !== undefined && ROTATION_ROLES.has(album.category)
         )
 
+    const previousAlbumIds = new Set(options.previousAlbumIds ?? [])
+    const random = options.random ?? Math.random
+
     const selected = new Set<string>()
 
     const items: RotationPlanItem[] = []
@@ -105,11 +103,13 @@ export function generateRotationPlan(
         }
 
         const candidates =
-            sortCandidates(
+            weightedShuffle(
                 eligibleAlbums.filter(album =>
                     album.category === quota.role &&
                     !selected.has(album.id)
                 ),
+                previousAlbumIds,
+                random,
             )
 
         for (
@@ -129,6 +129,23 @@ export function generateRotationPlan(
 
         }
 
+    }
+
+    const remainingSlots = Math.max(targetSize - items.length, 0)
+    if (remainingSlots > 0) {
+        const fillCandidates = weightedShuffle(
+            eligibleAlbums.filter(album => !selected.has(album.id)),
+            previousAlbumIds,
+            random,
+        )
+        for (const album of fillCandidates.slice(0, remainingSlots)) {
+            selected.add(album.id)
+            items.push({
+                albumId: album.id,
+                role: album.category as RoleId,
+                reason: "fill",
+            })
+        }
     }
 
     return {

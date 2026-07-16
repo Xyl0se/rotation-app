@@ -10,7 +10,7 @@ describe("generateRotationPlan", () => {
             makeAlbum({ id: "a2", category: "comfort-food", listenCount: 1 }),
             makeAlbum({ id: "a3", category: "classic", listenCount: 2 }),
         ]
-        const plan = generateRotationPlan(albums)
+        const plan = generateRotationPlan(albums, { random: () => .5 })
         expect(plan.status).toBe("draft")
         expect(plan.targetSize).toBe(defaultRotationTargetSize)
         expect(plan.items).toHaveLength(3)
@@ -70,9 +70,68 @@ describe("generateRotationPlan", () => {
             makeAlbum({ id: "a2", category: "new", listenCount: 1 }),
             makeAlbum({ id: "a3", category: "new", listenCount: 0 }),
         ]
-        const plan = generateRotationPlan(albums)
+        const plan = generateRotationPlan(albums, { random: () => .5 })
         const firstItem = plan.items[0]
         expect(firstItem.albumId).toBe("a3")
+    })
+
+    it("fills quota gaps from other eligible roles up to the target size", () => {
+        const albums = [
+            ...Array.from({ length: 2 }, (_, index) => makeAlbum({ id: `new-${index}`, category: "new" })),
+            ...Array.from({ length: 8 }, (_, index) => makeAlbum({ id: `classic-${index}`, category: "classic" })),
+        ]
+        const plan = generateRotationPlan(albums, {
+            targetSize: 10,
+            roleQuotas: [
+                { role: "new", targetCount: 5 },
+                { role: "comfort-food", targetCount: 2 },
+                { role: "classic", targetCount: 2 },
+                { role: "growing", targetCount: 1 },
+            ],
+            random: () => .5,
+        })
+
+        expect(plan.items).toHaveLength(10)
+        expect(plan.items.filter(item => item.reason === "fill")).toHaveLength(6)
+        expect(plan.items.every(item => item.role === "new" || item.role === "classic")).toBe(true)
+    })
+
+    it("deprioritizes the previous Rotation when equivalent alternatives exist", () => {
+        const albums = Array.from({ length: 4 }, (_, index) => makeAlbum({
+            id: `album-${index}`,
+            category: "new",
+            listenCount: 0,
+            lastListened: null,
+        }))
+        const plan = generateRotationPlan(albums, {
+            targetSize: 2,
+            roleQuotas: [{ role: "new", targetCount: 2 }],
+            previousAlbumIds: ["album-0", "album-1"],
+            random: () => .5,
+        })
+
+        expect(plan.albumIds.sort()).toEqual(["album-2", "album-3"])
+    })
+
+    it("can produce different selections from the same eligible pool", () => {
+        const albums = Array.from({ length: 6 }, (_, index) => makeAlbum({
+            id: `album-${index}`,
+            category: "new",
+        }))
+        const valuesA = [.95, .85, .75, .25, .15, .05]
+        const valuesB = [...valuesA].reverse()
+        const first = generateRotationPlan(albums, {
+            targetSize: 3,
+            roleQuotas: [{ role: "new", targetCount: 3 }],
+            random: () => valuesA.shift() ?? .5,
+        })
+        const second = generateRotationPlan(albums, {
+            targetSize: 3,
+            roleQuotas: [{ role: "new", targetCount: 3 }],
+            random: () => valuesB.shift() ?? .5,
+        })
+
+        expect(first.albumIds).not.toEqual(second.albumIds)
     })
 
     it("uses custom options when provided", () => {

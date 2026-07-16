@@ -156,6 +156,15 @@ the earlier one. Only one Rotation is active, but any number may be archived.
   the same resilient `AlbumCover` behavior; remove direct external `<img>` paths.
 - [x] Cover provider failures must not block Album capture or role assignment.
 
+## Release-candidate corrections
+
+- [x] Generate each new Rotation through weighted random sampling instead of a stable
+  listen-count/title sort. Prefer less-heard and long-unheard Albums without making the
+  result deterministic, and reduce immediate repetition from the active Rotation.
+- [x] Treat role quotas as the preferred first-pass composition. If a role cannot fill
+  its quota, fill remaining capacity from other eligible roles up to the configured
+  target; never include Admired, Archive, or roleless Albums.
+
 ## Definition of Done
 
 - [x] Accepting a draft archives the previous active Rotation and leaves exactly one
