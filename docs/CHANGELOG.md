@@ -2,6 +2,11 @@
 
 ## v0.26.1-dev
 
+- **Album Coach decision-tree correction**
+  - Reworked mature-album classification so Classic, Comfort Food, and Admiration represent long-term influence, familiar automatic return, and explicit musical esteem instead of hidden fallback priorities.
+  - Added an explicit differentiator when Classic and Comfort Food overlap, made Classic reachable for currently resting albums, and removed ineffective early/archive questions.
+  - Moved every Album Coach question and description to the DE/EN translation catalog and added German UI path coverage.
+
 - **Sprint 76.3 — Trusted Proxy Write Boundary**
   - Removed browser write-token storage, token headers, and token UI. Caddy now overwrites and injects the internal deployment secret for same-origin `/api` requests.
   - Added Origin/Fetch Metadata protection for mutations while retaining constant-time protection for direct API access.

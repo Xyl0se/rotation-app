@@ -4,7 +4,7 @@ import CoachIntro from "./CoachIntro"
 import CoachQuestion from "./CoachQuestion"
 import CoachResult from "./CoachResult"
 
-import { coachQuestions } from "../../../domain/album/coachQuestions"
+import { coachQuestionIds } from "../../../domain/album/coachQuestions"
 
 import {
     evaluateCoach,
@@ -108,7 +108,7 @@ function AlbumCoach({
 
             albumTitle={albumTitle}
 
-            question={coachQuestions[evaluation.nextQuestion]}
+            questionId={coachQuestionIds[evaluation.nextQuestion]}
 
             onAnswer={handleAnswer}
 

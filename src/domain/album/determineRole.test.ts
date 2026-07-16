@@ -1,251 +1,30 @@
 import { describe, expect, it } from "vitest"
-
 import { determineRole } from "./determineRole"
 
 describe("determineRole", () => {
-
-    describe("Path: new", () => {
-
-        it("returned new when heardThreeTimes is false", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: false,
-
-            })
-
-            expect(result).toBe("new")
-
-        })
-
+    it.each([
+        [{ heardThreeTimes: false }, "new"],
+        [{ heardThreeTimes: true, stillReturningConsciously: false, shapedTasteLongterm: true }, "classic"],
+        [{ heardThreeTimes: true, stillReturningConsciously: false, shapedTasteLongterm: false, musicallyValued: true }, "admire"],
+        [{ heardThreeTimes: true, stillReturningConsciously: false, shapedTasteLongterm: false, musicallyValued: false }, "archive"],
+        [{ heardThreeTimes: true, stillReturningConsciously: true, shapedTasteLongterm: true, comfortAlbum: false }, "classic"],
+        [{ heardThreeTimes: true, stillReturningConsciously: true, shapedTasteLongterm: false, comfortAlbum: true }, "comfort-food"],
+        [{ heardThreeTimes: true, stillReturningConsciously: true, shapedTasteLongterm: false, comfortAlbum: false, surprisedOnLastListen: true }, "growing"],
+        [{ heardThreeTimes: true, stillReturningConsciously: true, shapedTasteLongterm: false, comfortAlbum: false, surprisedOnLastListen: false, musicallyValued: true }, "admire"],
+        [{ heardThreeTimes: true, stillReturningConsciously: true, shapedTasteLongterm: false, comfortAlbum: false, surprisedOnLastListen: false, musicallyValued: false }, "archive"],
+    ] as const)("maps a complete answer path to %s", (answers, expected) => {
+        expect(determineRole(answers)).toBe(expected)
     })
 
-    describe("Path: archive (wouldMissAlbum false)", () => {
-
-        it("returned archive when wouldMissAlbum is false", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: true,
-
-                wouldMissAlbum: false,
-
-            })
-
-            expect(result).toBe("archive")
-
-        })
-
+    it("uses an explicit differentiator when classic and comfort overlap", () => {
+        const overlap = {
+            heardThreeTimes: true,
+            stillReturningConsciously: true,
+            shapedTasteLongterm: true,
+            comfortAlbum: true,
+        }
+        expect(determineRole({ ...overlap, comfortDefinesRelationshipToday: true })).toBe("comfort-food")
+        expect(determineRole({ ...overlap, comfortDefinesRelationshipToday: false })).toBe("classic")
+        expect(() => determineRole(overlap)).toThrow("Incomplete answers")
     })
-
-    describe("Active branch: stillReturningConsciously === true", () => {
-
-        it("returns classic when shapedTasteLongterm is true (priority)", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: true,
-
-                wouldMissAlbum: true,
-
-                stillReturningConsciously: true,
-
-                shapedTasteLongterm: true,
-
-            })
-
-            expect(result).toBe("classic")
-
-        })
-
-        it("returned classic even when comfortAlbum is also true", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: true,
-
-                wouldMissAlbum: true,
-
-                stillReturningConsciously: true,
-
-                shapedTasteLongterm: true,
-
-                comfortAlbum: true,
-
-            })
-
-            expect(result).toBe("classic")
-
-        })
-
-        it("returned classic even when surprisedOnLastListen is also true", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: true,
-
-                wouldMissAlbum: true,
-
-                stillReturningConsciously: true,
-
-                shapedTasteLongterm: true,
-
-                surprisedOnLastListen: true,
-
-            })
-
-            expect(result).toBe("classic")
-
-        })
-
-        it("returned comfort-food when shapedTasteLongterm is false and comfortAlbum is true", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: true,
-
-                wouldMissAlbum: true,
-
-                stillReturningConsciously: true,
-
-                shapedTasteLongterm: false,
-
-                comfortAlbum: true,
-
-            })
-
-            expect(result).toBe("comfort-food")
-
-        })
-
-        it("returned growing when shapedTasteLongterm false, comfortAlbum false, surprisedOnLastListen true", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: true,
-
-                wouldMissAlbum: true,
-
-                stillReturningConsciously: true,
-
-                shapedTasteLongterm: false,
-
-                comfortAlbum: false,
-
-                surprisedOnLastListen: true,
-
-            })
-
-            expect(result).toBe("growing")
-
-        })
-
-        it("returned admire when active but neither shaped, comfortable, nor surprising", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: true,
-
-                wouldMissAlbum: true,
-
-                stillReturningConsciously: true,
-
-                shapedTasteLongterm: false,
-
-                comfortAlbum: false,
-
-                surprisedOnLastListen: false,
-
-            })
-
-            expect(result).toBe("admire")
-
-        })
-
-    })
-
-    describe("Resting branch: stillReturningConsciously === false", () => {
-
-        it("returned admire when musicallyValued is true", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: true,
-
-                wouldMissAlbum: true,
-
-                stillReturningConsciously: false,
-
-                musicallyValued: true,
-
-            })
-
-            expect(result).toBe("admire")
-
-        })
-
-        it("returned archive when musicallyValued false and memoryOfEarlierPhase true", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: true,
-
-                wouldMissAlbum: true,
-
-                stillReturningConsciously: false,
-
-                musicallyValued: false,
-
-                memoryOfEarlierPhase: true,
-
-            })
-
-            expect(result).toBe("archive")
-
-        })
-
-        it("returned archive when resting, not valued, and not a memory (fallback)", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: true,
-
-                wouldMissAlbum: true,
-
-                stillReturningConsciously: false,
-
-                musicallyValued: false,
-
-                memoryOfEarlierPhase: false,
-
-            })
-
-            expect(result).toBe("archive")
-
-        })
-
-    })
-
-    describe("Overlaps and edge cases", () => {
-
-        it("classic + no general recommendation still stays classic", () => {
-
-            const result = determineRole({
-
-                heardThreeTimes: true,
-
-                wouldMissAlbum: true,
-
-                stillReturningConsciously: true,
-
-                shapedTasteLongterm: true,
-
-            })
-
-            expect(result).toBe("classic")
-
-        })
-
-    })
-
 })

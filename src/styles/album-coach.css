@@ -1,0 +1,213 @@
+/* ==========================================
+   Album Coach — reflective blue room
+   ========================================== */
+
+.dialog:has(> .album-coach) {
+    position: relative;
+    width: min(760px, calc(100vw - 32px));
+    max-width: 760px;
+    min-height: min(580px, calc(100vh - 48px));
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(190, 214, 238, .24);
+    background:
+        radial-gradient(circle at 14% 12%, rgba(118, 169, 219, .28), transparent 34%),
+        radial-gradient(circle at 86% 84%, rgba(52, 93, 148, .26), transparent 38%),
+        linear-gradient(145deg, #10243d 0%, #183653 48%, #0d2138 100%);
+    box-shadow:
+        0 34px 90px rgba(7, 24, 43, .38),
+        inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+.dialog:has(> .album-coach)::before,
+.dialog:has(> .album-coach)::after {
+    position: absolute;
+    content: "";
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(2px);
+}
+
+.dialog:has(> .album-coach)::before {
+    top: -120px;
+    right: -70px;
+    width: 320px;
+    height: 320px;
+    border: 1px solid rgba(196, 221, 245, .11);
+    box-shadow:
+        0 0 0 48px rgba(196, 221, 245, .025),
+        0 0 0 96px rgba(196, 221, 245, .018);
+}
+
+.dialog:has(> .album-coach)::after {
+    bottom: 46px;
+    left: 8%;
+    width: 7px;
+    height: 7px;
+    background: rgba(222, 237, 250, .72);
+    box-shadow:
+        84px -410px 0 rgba(222, 237, 250, .30),
+        270px -350px 0 rgba(222, 237, 250, .42),
+        510px -95px 0 rgba(222, 237, 250, .22),
+        610px -385px 0 rgba(222, 237, 250, .32);
+}
+
+.album-coach {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: min(580px, calc(100vh - 48px));
+    padding: clamp(48px, 8vw, 88px) clamp(32px, 8vw, 82px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #f7fbff;
+}
+
+.album-coach h1,
+.album-coach h2,
+.album-coach p {
+    max-width: 620px;
+}
+
+.dialog .album-coach h1,
+.dialog .album-coach h2 {
+    margin: 0;
+    color: #f8fbff;
+    text-wrap: balance;
+}
+
+.dialog .album-coach h1 {
+    margin-top: var(--space-1);
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 7vw, 4.6rem);
+    font-weight: 500;
+    line-height: .98;
+    letter-spacing: -.025em;
+}
+
+.dialog .album-coach h2 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.35rem);
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+.dialog .album-coach p {
+    margin: var(--space-2) 0 0;
+    color: #dceaf7;
+    font-size: clamp(1rem, 2vw, 1.1rem);
+    line-height: 1.8;
+}
+
+.dialog .album-coach .coach-album-title {
+    margin: 0 0 var(--space-3);
+    color: #a9cce9;
+    font-size: .78rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+.coach-intro > p:last-of-type {
+    margin-top: var(--space-4);
+    color: #f1f7fc;
+    font-weight: 500;
+}
+
+.album-coach > button,
+.coach-actions button {
+    min-width: 150px;
+    min-height: 54px;
+    border: 1px solid rgba(205, 226, 245, .42);
+    border-radius: var(--radius-pill);
+    background: rgba(235, 246, 255, .12);
+    color: #f8fbff;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: .98rem;
+    font-weight: 650;
+    letter-spacing: .01em;
+    backdrop-filter: blur(10px);
+    transition:
+        background var(--transition-base),
+        border-color var(--transition-base),
+        box-shadow var(--transition-base),
+        transform var(--transition-base);
+}
+
+.album-coach > button {
+    margin-top: var(--space-4);
+    padding: 15px 34px;
+    background: #dbeeff;
+    color: #15324f;
+    box-shadow: 0 12px 34px rgba(2, 17, 33, .24);
+}
+
+.coach-actions {
+    display: flex;
+    width: 100%;
+    max-width: 430px;
+    margin-top: clamp(40px, 7vw, 64px);
+    gap: clamp(18px, 4vw, 32px);
+    justify-content: center;
+}
+
+.coach-actions button {
+    flex: 1 1 0;
+    padding: 15px 30px;
+}
+
+.album-coach > button:hover,
+.coach-actions button:hover {
+    border-color: rgba(225, 240, 253, .8);
+    background: rgba(235, 246, 255, .22);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px rgba(2, 17, 33, .24);
+}
+
+.album-coach > button:hover {
+    background: #f1f8ff;
+}
+
+.album-coach button:focus-visible {
+    outline: 3px solid #9ed3ff;
+    outline-offset: 4px;
+}
+
+.dialog:has(> .album-coach) > .dialog-actions {
+    position: relative;
+    z-index: 2;
+    margin: -76px clamp(24px, 5vw, 48px) 24px;
+}
+
+@media (max-width: 640px) {
+    .dialog:has(> .album-coach) {
+        width: calc(100vw - 20px);
+        min-height: calc(100vh - 20px);
+        max-height: calc(100vh - 20px);
+    }
+
+    .album-coach {
+        min-height: calc(100vh - 20px);
+        padding: 48px 24px 96px;
+    }
+
+    .coach-actions {
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .coach-actions button {
+        width: 100%;
+        flex-basis: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .album-coach button {
+        transition: none;
+    }
+}

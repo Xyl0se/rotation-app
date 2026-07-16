@@ -194,13 +194,10 @@ export const de: Translation = {
                 description:
                     "Erst nach mehreren Durchgängen entsteht meist ein belastbarer Eindruck.",
             },
-            wouldMissAlbum: {
-                title: "Würdest du dieses Album vermissen, wenn es morgen nicht mehr verfügbar wäre?",
-                description: "",
-            },
             stillReturningConsciously: {
                 title: "Kehrst du heute noch bewusst zu diesem Album zurück?",
-                description: "",
+                description:
+                    "Damit unterscheiden wir eine aktive von einer momentan ruhenden Beziehung.",
             },
             shapedTasteLongterm: {
                 title:
@@ -208,13 +205,19 @@ export const de: Translation = {
                 description:
                     "Persönliche Klassiker bleiben auch dann bestehen, wenn sie gerade weniger häufig gespielt werden.",
             },
-            reachesAutomatically: {
+            comfortAlbum: {
                 title:
                     "Greifst du manchmal ganz automatisch zu diesem Album, ohne lange über deine Musikauswahl nachzudenken?",
                 description:
                     "Comfort-Food-Alben fühlen sich vertraut an und begleiten dich zuverlässig.",
             },
-            surprisedLastListen: {
+            comfortDefinesRelationshipToday: {
+                title:
+                    "Beschreibt die vertraute, mühelose Rückkehr deine heutige Beziehung stärker als seine langfristige Prägung?",
+                description:
+                    "Ja führt zu Comfort Food; Nein gewichtet die biografische Prägung als Classic stärker.",
+            },
+            surprisedOnLastListen: {
                 title:
                     "Hat dich das Album beim letzten bewussten Hören überrascht oder herausgefordert?",
                 description:
@@ -224,10 +227,6 @@ export const de: Translation = {
                 title: "Schätzt du es musikalisch weiterhin sehr?",
                 description:
                     "Hohe musikalische Wertschätzung reicht für Bewunderung, auch ohne aktive Rückkehr.",
-            },
-            memoryOfEarlierPhase: {
-                title: "Ist es vor allem Erinnerung an eine frühere Phase?",
-                description: "",
             },
         },
         result: {

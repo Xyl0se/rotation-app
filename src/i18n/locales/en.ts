@@ -193,13 +193,10 @@ export const en = {
                 description:
                     "Only after several listens does a reliable impression usually form.",
             },
-            wouldMissAlbum: {
-                title: "Would you miss this album if it were no longer available tomorrow?",
-                description: "",
-            },
             stillReturningConsciously: {
                 title: "Do you still consciously return to this album today?",
-                description: "",
+                description:
+                    "This distinguishes an active relationship from one that is currently resting.",
             },
             shapedTasteLongterm: {
                 title:
@@ -207,13 +204,19 @@ export const en = {
                 description:
                     "Personal classics persist even when played less frequently.",
             },
-            reachesAutomatically: {
+            comfortAlbum: {
                 title:
                     "Do you sometimes reach for this album completely automatically, without thinking much about your music choice?",
                 description:
                     "Comfort-food albums feel familiar and accompany you reliably.",
             },
-            surprisedLastListen: {
+            comfortDefinesRelationshipToday: {
+                title:
+                    "Does familiar, effortless return describe your relationship today more strongly than its long-term influence?",
+                description:
+                    "Yes points to Comfort Food; No gives the biographical influence more weight as a Classic.",
+            },
+            surprisedOnLastListen: {
                 title:
                     "Did the album surprise or challenge you during the last conscious listen?",
                 description:
@@ -223,10 +226,6 @@ export const en = {
                 title: "Do you still value it musically very much?",
                 description:
                     "High musical appreciation is enough for admiration, even without active return.",
-            },
-            memoryOfEarlierPhase: {
-                title: "Is it mainly a memory of an earlier phase?",
-                description: "",
             },
         },
         result: {

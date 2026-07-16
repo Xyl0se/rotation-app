@@ -33,7 +33,7 @@ function CoachResult({
 
     return (
 
-        <section className="coach-result">
+        <section className="album-coach coach-result">
 
             <p className="coach-album-title">
 

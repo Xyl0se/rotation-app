@@ -19,7 +19,7 @@ function CoachIntro({
 
     return (
 
-        <section className="coach-intro">
+        <section className="album-coach coach-intro">
 
             <h2>
 
