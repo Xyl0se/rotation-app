@@ -1,8 +1,8 @@
 # Sprint 82 — Rotation Lifecycle & Release Readiness
 
-**Status:** In progress — Workstreams 82A–82C, 82E and 82G completed; NAS gates pending
+**Status:** Completed — stable `v0.29.0` accepted 2026-07-16
 
-**Target version:** `v0.29.0-rc.1`; stable `v0.29.0` follows only after NAS acceptance
+**Released version:** `v0.29.0`
 
 **Type:** Product lifecycle, safety, and release engineering
 
@@ -63,7 +63,7 @@ the earlier one. Only one Rotation is active, but any number may be archived.
 - [x] Display what will be restored before confirming Undo and record the compensating
   action in the audit trail.
 
-## Workstream 82D — Release & Operational Readiness — 🟡 implementation complete, NAS gate pending
+## Workstream 82D — Release & Operational Readiness — ✅ abgeschlossen
 
 - [x] Reconcile the version in root/API packages, UI, Docker metadata, documentation, and
   Changelog; choose the first-release number explicitly and document the rationale.
@@ -76,8 +76,8 @@ the earlier one. Only one Rotation is active, but any number may be archived.
   history loading, handover conflict, and unavailable API.
 - [x] Document deployment, post-release smoke test, previous-image rollback, database
   restore boundary, and release acceptance evidence.
-- [ ] Complete visual acceptance of Sprint 81 on desktop and a narrow browser viewport
-  using `docs/SPRINT-82-RELEASE-ACCEPTANCE.md` after the images are published.
+- [x] Complete visual acceptance of Sprint 81 on desktop and a narrow browser viewport
+  using `docs/archive/SPRINT-82-RELEASE-ACCEPTANCE.md` after the images are published.
 
 ## Workstream 82E — Legacy Cleanup & Production-Code Hygiene — ✅ abgeschlossen
 
@@ -104,7 +104,7 @@ the earlier one. Only one Rotation is active, but any number may be archived.
 - [x] Keep cleanup commits behavior-preserving and covered by characterization tests;
   avoid combining speculative architectural rewrites with deletion.
 
-## Workstream 82F — Measured Performance & Test Gate — 🟡 implementation complete, NAS observations pending
+## Workstream 82F — Measured Performance & Test Gate — ✅ abgeschlossen
 
 - [x] Establish reproducible baselines before optimizing: initial Home/API load, Library
   filtering and pagination, Rotation generation, history pagination, scan, export
@@ -130,7 +130,7 @@ the earlier one. Only one Rotation is active, but any number may be archived.
   history, and safe/unsafe Undo states in DE and EN.
 - [x] Verify the lifecycle with a representative Library and at least 50 historical
   Rotations without loading all history into the initial Home response.
-- [ ] Run one production NAS acceptance from draft through acceptance, export, next
+- [x] Run one production NAS acceptance from draft through acceptance, export, next
   Rotation, history inspection, backup/restore, and rollback documentation.
 
 ## Workstream 82G — Reliable Cover Resolution — ✅ abgeschlossen
@@ -184,10 +184,8 @@ the earlier one. Only one Rotation is active, but any number may be archived.
 - [x] Valid covers are cached server-side, bounded fallbacks are attempted, temporary
   errors remain retryable, every Album surface uses consistent fallback behavior, and
   manual re-resolution is tested in DE and EN.
-- [ ] Migration, backup/restore, rollback, route, UI, and NAS release gates pass. Automated
-  migration, backup/restore, route, UI, and build gates pass; production NAS evidence is pending.
-- [ ] Sprint 81 visual acceptance is recorded and Sprint 81 is archived. The desktop and
-  390 px checklist is prepared for the published candidate.
+- [x] Migration, backup/restore, rollback, route, UI, and NAS release gates pass.
+- [x] Sprint 81 visual acceptance is recorded and Sprint 81 is archived.
 
 ## Non-Goals
 
@@ -228,9 +226,9 @@ the earlier one. Only one Rotation is active, but any number may be archived.
   asks for confirmation, waits for the server, and records a compensating event.
 - Root and API packages, README, Changelog, Versioning, Roadmap, production Compose,
   curated release notes, and GitHub tag-release automation now agree on
-  `v0.29.0-rc.1`. The supported schema-7 upgrade through migrations 8–11 and complete
+  `v0.29.0`. The supported schema-7 upgrade through migrations 8–11 and complete
   lifecycle backup/restore are automated; the production NAS/visual checklist and
-  explicit database/image rollback boundary live in `SPRINT-82-RELEASE-ACCEPTANCE.md`.
+  explicit database/image rollback boundary live in `docs/archive/SPRINT-82-RELEASE-ACCEPTANCE.md`.
 - New Album capture now asks the API to try up to three ordered matching MusicBrainz
   Releases and their Release Group, download the first valid image from an explicit
   provider allowlist, validate type/size/signature, and retry temporary failures.
@@ -244,4 +242,5 @@ the earlier one. Only one Rotation is active, but any number may be archived.
   Album portability import remain intact.
 - Album editing now offers manual cover re-resolution without replacing a working
   cover until a valid server download succeeds.
-- Production NAS performance/release acceptance and the Sprint 81 visual gate remain open.
+- Production NAS release acceptance and the Sprint 81 visual gate passed. Manual timing
+  capture was accepted as unavailable; automated performance regression budgets passed.

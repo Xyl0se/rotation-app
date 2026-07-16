@@ -6,10 +6,10 @@ Early tags remain as historical markers. Versions are not retroactively added.
 
 ## Current Anchor
 
-`v0.29.0-rc.1` is the first deliberately versioned release candidate. It advances
-the minor version after Sprint 80/81 established the `v0.28.x-dev` line and Sprint 82
-added a durable Rotation lifecycle. The `rc.1` suffix is retained until the production
-NAS gate—including narrow-viewport visual acceptance—has been recorded.
+`v0.29.0` is the first deliberately accepted stable release. It advances the minor
+version after Sprint 80/81 established the `v0.28.x-dev` line and Sprint 82 added a
+durable Rotation lifecycle. Production NAS lifecycle, backup/restore, desktop,
+narrow-viewport, and localization acceptance were recorded on 2026-07-16.
 
 Includes:
 

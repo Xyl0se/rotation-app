@@ -27,4 +27,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
-        run: gh release create "$RELEASE_TAG" --verify-tag --prerelease --title "Rotation $RELEASE_TAG" --notes-file "docs/RELEASE_NOTES-$RELEASE_TAG.md"
+        run: |
+          release_args=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then release_args+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" --verify-tag "${release_args[@]}" --title "Rotation $RELEASE_TAG" --notes-file "docs/RELEASE_NOTES-$RELEASE_TAG.md"

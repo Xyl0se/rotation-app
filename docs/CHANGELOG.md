@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.29.0-rc.1
+## v0.29.0
 
 - **Sprint 82 — Rotation lifecycle and release candidate**
   - Added immutable archived Rotation history, Album identity snapshots, linked successful exports, pagination, and safe reuse of historical compositions as new drafts.
@@ -13,8 +13,9 @@
   - Fixed acceptance of a server-reloaded draft Rotation by normalizing nullable SQLite lifecycle timestamps and sending an explicit canonical plan payload instead of replaying nullable response-only fields.
   - Made the production Compose image tag configurable and defaulted the active RC acceptance stack to matching `latest` builds, preventing Portainer from silently redeploying immutable pre-fix images; stable releases remain explicitly pinned.
   - Replaced deterministic Rotation selection with weighted random sampling, reduced immediate repetition from the active Rotation, and filled unmet role quotas from other eligible roles up to the configured target size.
+  - Passed the production NAS lifecycle, backup/restore, desktop, narrow-viewport, and DE/EN acceptance gates. Stable acceptance explicitly waives manual timing capture because the tester could not record reproducible values; automated performance budgets remain green.
   - Removed the completed one-time browser Rotation/Listening import bridge while retaining supported historical migrations and Album portability.
-  - Reconciled root/API versions and production API/Web image tags at `v0.29.0-rc.1`, added curated GitHub Release automation, immutable production Compose tags, release notes, and a NAS acceptance/rollback runbook.
+  - Reconciled root/API versions and production API/Web image tags at `v0.29.0`, added curated GitHub Release automation, immutable production Compose tags, release notes, and a NAS acceptance/rollback runbook.
   - Corrected the immutable GHCR references to retain the leading `v` emitted from the Git release tag, preventing Portainer `manifest unknown` failures.
   - Removed the obsolete browser JSON backup/migration/storage-adapter stack and its dead UI/CSS/translations, while retaining SQLite migrations, server backups, the Album portability endpoint, and current browser preferences. Added an explicit legacy inventory and a no-production-seed regression test.
 

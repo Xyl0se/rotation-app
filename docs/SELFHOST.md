@@ -241,16 +241,13 @@ docker compose -f docker-compose.prod.yml up -d
 
 Database migrations run automatically on startup. Always back up the database before major version updates.
 
-For `v0.29.0-rc.1`, record deployment evidence and the desktop/390 px visual gate in
-[`SPRINT-82-RELEASE-ACCEPTANCE.md`](./SPRINT-82-RELEASE-ACCEPTANCE.md). The documented
+For `v0.29.0`, the deployment evidence and desktop/390 px visual gate are archived in
+[`SPRINT-82-RELEASE-ACCEPTANCE.md`](./archive/SPRINT-82-RELEASE-ACCEPTANCE.md). The documented
 rollback restores both the previous database backup and matching API/Web SHA tags;
 never start an older image against a database already migrated to schema 11.
 
-During release-candidate acceptance, `docker-compose.prod.yml` defaults to the matching
-API/Web `latest` images produced from `main`. Set `ROTATION_IMAGE_TAG` to one identical
-SHA tag for both services when an exact candidate must be frozen. Stable releases must
-set the immutable release tag explicitly; redeploying the old `v0.29.0-rc.1` tag cannot
-pick up later fixes from `main`.
+Production Compose pins matching API/Web `v0.29.0` images. Use matching SHA tags only
+for diagnosis or exact rollback; never mix API and Web versions.
 
 ---
 

@@ -1,7 +1,7 @@
-# Rotation v0.29.0-rc.1
+# Rotation v0.29.0
 
-This is Rotation's first deliberately versioned release candidate. It is intended for
-the existing single-user NAS deployment and is not yet the final stable release.
+This is Rotation's first deliberately accepted stable release for the existing
+single-user NAS deployment.
 
 ## Highlights
 
@@ -25,13 +25,13 @@ the existing single-user NAS deployment and is not yet the final stable release.
 
 ## Images
 
-- `ghcr.io/xyl0se/rotation-app-api:v0.29.0-rc.1`
-- `ghcr.io/xyl0se/rotation-app-web:v0.29.0-rc.1`
+- `ghcr.io/xyl0se/rotation-app-api:v0.29.0`
+- `ghcr.io/xyl0se/rotation-app-web:v0.29.0`
 
 Both images must use this exact matching tag. SHA tags remain available for diagnosis
 and exact rollback.
 
-## Remaining release gate
+## Acceptance
 
-The candidate becomes eligible for a stable `v0.29.0` only after the documented NAS
-smoke test and Sprint 81 desktop/narrow-viewport visual acceptance are recorded.
+Production NAS lifecycle, export, restart, backup/restore, desktop, narrow-viewport,
+and DE/EN acceptance passed on 2026-07-16.

@@ -4,7 +4,7 @@
 >
 > Rotation accompanies the relationship between person and album.
 
-Version: v0.29.0-rc.1 — Sprint 82 release candidate
+Version: v0.29.0 — first stable release
 
 ---
 
@@ -49,12 +49,12 @@ Not optimization.
 
 | Order | Sprint | Outcome | Target | Decision |
 |------:|--------|---------|--------|----------|
-| Gate | Sprint 81 visual acceptance | Verify shell and Settings after deployment | v0.29.0-rc.1 | NAS acceptance pending |
+| Done | [Sprint 81](./sprints/done/Sprint-81.md) | Product shell, Settings, and interaction polish | v0.28.1-dev | Done ✅ |
 | Done | [Sprint 77](./sprints/done/Sprint-77.md) | Production acceptance and release closure | v0.26.2 | Done ✅ |
 | Done | [Sprint 78](./sprints/done/Sprint-78.md) | Library findability | v0.27.0-dev | Done ✅ |
 | Done | [Sprint 79](./sprints/done/Sprint-79.md) | Safe ranked binding candidates | v0.27.1-dev | Done ✅ |
 | Done | [Sprint 80](./sprints/done/Sprint-80.md) | Server-owned listening and rotation data | v0.28.0-dev | Done ✅ |
-| 1 | [Sprint 82](./sprints/Sprint-82.md) | Rotation lifecycle, cleanup, measured performance, and release readiness | v0.29.0-rc.1 | In progress |
+| Done | [Sprint 82](./sprints/done/Sprint-82.md) | Rotation lifecycle, cleanup, measured performance, and release readiness | v0.29.0 | Done ✅ |
 | 2 | [Sprint 83](./sprints/Sprint-83.md) | Server-owned Reflection Inbox | Next minor | Approved after Sprint 82 |
 | 3 | [Sprint 84](./sprints/Sprint-84.md) | Optional Listening Journal | Subsequent minor | Approved after Sprint 83 |
 

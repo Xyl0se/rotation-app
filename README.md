@@ -69,6 +69,6 @@ Rotation has a binding design system (`docs/DESIGN_SYSTEM.md`). The visual ident
 
 ## Status
 
-Current version: `v0.29.0-rc.1`
+Current version: `v0.29.0`
 
 Rotation is in active development. The domain is stable, the infrastructure is being hardened for production use on home servers. The roadmap is in `docs/ROADMAP.md`.

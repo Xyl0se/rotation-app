@@ -1,6 +1,6 @@
 # Sprint 81 — Product Shell & Interaction Polish
 
-**Status:** Implemented — production visual acceptance pending
+**Status:** Completed — production visual acceptance passed 2026-07-16
 
 **Target version:** `v0.28.1-dev`
 
