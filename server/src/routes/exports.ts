@@ -15,9 +15,9 @@ export function createExportsRouter(exportService: ExportService): Router {
     router.post("/preview", (req: Request, res: Response) => {
         const body = parseRequest(ExportAlbumIdsSchema, req.body, res)
         if (!body) return
-        const { albumIds } = body
+        const { albumIds, rotationPlanId } = body
         try {
-            const result = exportService.createPreview(albumIds)
+            const result = exportService.createPreview(albumIds, rotationPlanId)
             res.json(result)
         } catch (err) {
             res.status(500).json({
@@ -45,9 +45,9 @@ export function createExportsRouter(exportService: ExportService): Router {
     router.post("/stage", (req: Request, res: Response) => {
         const body = parseRequest(StageExportSchema, req.body, res)
         if (!body) return
-        const { exportId, albumIds } = body
+        const { exportId, albumIds, rotationPlanId } = body
         try {
-            exportService.runStage(exportId, albumIds)
+            exportService.runStage(exportId, albumIds, rotationPlanId)
             res.status(202).json({ exportId, status: "staging" })
         } catch (err) {
             res.status(500).json({

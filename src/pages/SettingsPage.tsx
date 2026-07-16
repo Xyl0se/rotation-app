@@ -4,6 +4,7 @@ import { LanguageSwitcher } from "../components/features/LanguageSwitcher"
 import { useI18n } from "../i18n/useI18n"
 import { fetchRotationSettings, saveRotationSettings, type RotationSettings } from "../services/api/rotationStateService"
 import type { RoleId } from "../domain/roles"
+import { fetchAuditEvents, undoLastAuditEvent, type AuditEvent } from "../services/api/auditService"
 
 const roles: RoleId[] = ["new", "comfort-food", "classic", "growing"]
 
@@ -12,12 +13,13 @@ export default function SettingsPage() {
     const [settings, setSettings] = useState<RotationSettings | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
+    const [auditEvents,setAuditEvents]=useState<AuditEvent[]>([])
 
     const load = useCallback(async () => {
         try { setSettings(await fetchRotationSettings()); setError(null) }
         catch (cause) { setError(cause instanceof Error ? cause.message : t.settings.loadError) }
     }, [t.settings.loadError])
-    useEffect(() => { queueMicrotask(() => void load()) }, [load])
+    useEffect(() => { queueMicrotask(() => { void load(); void fetchAuditEvents().then(result=>setAuditEvents(result.events)).catch(()=>undefined) }) }, [load])
 
     const quotaSum = useMemo(() => settings?.roleQuotas.reduce((sum, quota) => sum + quota.targetCount, 0) ?? 0, [settings])
     function setQuota(role: RoleId, targetCount: number) {
@@ -51,6 +53,9 @@ export default function SettingsPage() {
                     <Button onClick={() => void save()} disabled={saving}>{saving ? t.settings.saving : t.settings.save}</Button>
                 </>}
                 {error && <p className="settings-error" role="alert">{error}</p>}
+            </div>
+            <div className="settings-module"><h2>{t.settings.undoTitle}</h2><p>{t.settings.undoDescription}</p>
+                <Button variant="secondary" disabled={!auditEvents.some(event=>!event.undoneAt)} onClick={async()=>{try{await undoLastAuditEvent(); const result=await fetchAuditEvents();setAuditEvents(result.events);setError(null)}catch(cause){setError(cause instanceof Error?cause.message:t.settings.undoError)}}}>{t.settings.undo}</Button>
             </div>
         </section>
     </main>

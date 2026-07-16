@@ -51,12 +51,12 @@ export interface ApplyResult {
     archivePath: string | null
 }
 
-export async function createExportPreview(albumIds: string[]): Promise<ExportPreviewResult> {
-    return post<ExportPreviewResult>("/exports/preview", { albumIds })
+export async function createExportPreview(albumIds: string[], rotationPlanId: string): Promise<ExportPreviewResult> {
+    return post<ExportPreviewResult>("/exports/preview", { albumIds, rotationPlanId })
 }
 
-export async function stageExport(exportId: string, albumIds: string[]): Promise<{ exportId: string; status: string }> {
-    return post<{ exportId: string; status: string }>("/exports/stage", { exportId, albumIds })
+export async function stageExport(exportId: string, albumIds: string[], rotationPlanId: string): Promise<{ exportId: string; status: string }> {
+    return post<{ exportId: string; status: string }>("/exports/stage", { exportId, albumIds, rotationPlanId })
 }
 
 export async function getExportStatus(exportId: string): Promise<StagingProgress> {

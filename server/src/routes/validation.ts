@@ -108,13 +108,13 @@ const AlbumIdsSchema = z.array(UUIDSchema).max(1_000).superRefine((ids, context)
         context.addIssue({ code: z.ZodIssueCode.custom, message: "albumIds must be unique" })
     }
 })
-export const ExportAlbumIdsSchema = z.object({ albumIds: AlbumIdsSchema })
-export const StageExportSchema = z.object({ exportId: UUIDSchema, albumIds: AlbumIdsSchema })
+export const ExportAlbumIdsSchema = z.object({ albumIds: AlbumIdsSchema, rotationPlanId: UUIDSchema })
+export const StageExportSchema = z.object({ exportId: UUIDSchema, albumIds: AlbumIdsSchema, rotationPlanId: UUIDSchema })
 export const ApplyExportSchema = z.object({ exportId: UUIDSchema })
 export const CoverAlbumIdSchema = z.object({ albumId: UUIDSchema })
 
 const RotationRoleSchema = z.enum(["new", "growing", "comfort-food", "classic"])
-const RotationItemSchema = z.object({ albumId: UUIDSchema, role: RotationRoleSchema, reason: z.enum(["quota", "fill"]) })
+const RotationItemSchema = z.object({ albumId: UUIDSchema, role: RotationRoleSchema, reason: z.enum(["quota", "fill"]), albumTitleSnapshot: z.string().optional(), albumArtistSnapshot: z.string().optional() })
 const RotationQuotaSchema = z.object({ role: RotationRoleSchema, targetCount: z.number().int().nonnegative() })
 export const RotationSettingsSchema = z.object({
     targetSize: z.number().int().positive().max(100),
@@ -131,8 +131,9 @@ export const RotationPlanSchema = z.object({
     albumIds: z.array(UUIDSchema).max(1_000),
     roleQuotas: z.array(RotationQuotaSchema).max(20),
     createdAt: IsoDateSchema,
-    status: z.enum(["draft", "active"]),
+    status: z.enum(["draft", "active", "archived"]),
     acceptedAt: IsoDateSchema.optional(),
+    archivedAt: IsoDateSchema.optional(),
     focusAlbumId: UUIDSchema.nullable().default(null),
 }).superRefine((plan, context) => {
     const itemIds = plan.items.map(item => item.albumId)
@@ -145,11 +146,6 @@ export const RotationPlanSchema = z.object({
 })
 export const FocusAlbumSchema = z.object({ albumId: UUIDSchema.nullable() })
 export const ListenEventSchema = z.object({ id: UUIDSchema, albumId: UUIDSchema, listenedAt: IsoDateSchema })
-export const RotationLegacyImportSchema = z.object({
-    draft: RotationPlanSchema.nullable().optional(),
-    active: RotationPlanSchema.nullable().optional(),
-    listenEvents: z.array(ListenEventSchema).max(100_000).default([]),
-})
 
 export function parseRequest<T>(
     schema: z.ZodType<T>,

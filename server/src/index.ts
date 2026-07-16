@@ -22,6 +22,8 @@ import { createBackupStatusRepository } from "./infrastructure/persistence/sqlit
 import { createBackupScheduler } from "./application/backupScheduler.js"
 import { createBackupsRouter } from "./routes/backups.js"
 import { createRotationStateRepository } from "./infrastructure/persistence/sqlite/rotationStateRepository.js"
+import { createAuditRepository } from "./infrastructure/persistence/sqlite/auditRepository.js"
+import { createAuditRouter } from "./routes/audit.js"
 import { createRotationStateRouter } from "./routes/rotationState.js"
 
 import { createHealthRouter } from "./routes/health.js"
@@ -61,6 +63,7 @@ const exportRepo = createExportOperationRepository(db)
 const scanRunRepo = createScanRunRepository(db)
 const bindingCandidateRepo = createBindingCandidateRepository(db)
 const rotationStateRepo = createRotationStateRepository(db)
+const auditRepo = createAuditRepository(db, albumRepo)
 const coverService = createCoverService(config.ROTATION_DATA_DIR)
 
 const musicGuard = createPathGuard(config.ROTATION_MUSIC_PATH)
@@ -70,7 +73,7 @@ const syncthingGuard = createPathGuard(config.ROTATION_SYNCTHING_ROOT)
 const scanner = createDirectoryScanner(musicGuard)
 const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo, bindingCandidateRepo)
 const lockRepo = createExportLockRepository(db)
-const exportService = createExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard, albumRepo)
+const exportService = createExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard, albumRepo, rotationStateRepo)
 const bindingCaptureService = createBindingCaptureService(db, albumRepo, bindingRepo)
 
 // Run crash recovery on startup
@@ -127,7 +130,8 @@ app.use("/scan", requireSameOriginForMutations, createScanRouter(scanService, sc
 app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo, musicGuard, workspaceGuard, syncthingGuard))
 
 app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, bindingCaptureService, bindingCandidateRepo))
-app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo))
+app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo, auditRepo))
+app.use("/audit", requireWriteTokenForMutations, createAuditRouter(auditRepo))
 app.use("/rotation-state", requireWriteTokenForMutations, createRotationStateRouter(rotationStateRepo))
 app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))

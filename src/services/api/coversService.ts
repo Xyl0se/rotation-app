@@ -24,3 +24,7 @@ export async function uploadCover(albumId: string, arrayBuffer: ArrayBuffer, con
 export async function deleteCover(albumId: string): Promise<void> {
     return del(`/covers/${encodeURIComponent(albumId)}`)
 }
+
+export async function resolveServerCover(albumId: string, sourceUrl: string): Promise<void> {
+    return postRaw(`/covers/${encodeURIComponent(albumId)}/resolve`, new TextEncoder().encode(sourceUrl).buffer, "text/plain")
+}

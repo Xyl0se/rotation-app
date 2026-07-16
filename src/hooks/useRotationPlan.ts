@@ -12,6 +12,7 @@ export function useRotationPlan(
     isConnected: boolean,
 ) {
     const [rotationPlan, setRotationPlan] = useState<RotationPlan | null>(null)
+    const [activeRotation, setActiveRotation] = useState<RotationPlan | null>(null)
     const [focusAlbumId, setFocusAlbumIdState] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(isConnected)
     const [error, setError] = useState<string | null>(null)
@@ -23,6 +24,7 @@ export function useRotationPlan(
             const state = await fetchRotationState()
             const current = state.draft ?? state.active
             setRotationPlan(current)
+            setActiveRotation(state.active)
             setFocusAlbumIdState(state.active?.focusAlbumId ?? null)
             setError(null)
             return true
@@ -43,6 +45,7 @@ export function useRotationPlan(
             const confirmed = await saveRotationPlan(plan, plan.status === "active" ? nextFocusAlbumId : null)
             setRotationPlan(confirmed)
             if (confirmed.status === "active") setFocusAlbumIdState(confirmed.focusAlbumId)
+            if (confirmed.status === "active") setActiveRotation(confirmed)
             setError(null)
             return true
         } catch (cause) {
@@ -152,6 +155,7 @@ export function useRotationPlan(
 
     return {
         rotationPlan,
+        activeRotation,
         generatePlan,
         removeFromPlan,
         replaceAlbum,

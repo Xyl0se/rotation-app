@@ -145,13 +145,4 @@ describe("rotation state route contract", () => {
         expect(response.status).toBe(409)
     })
 
-    it("keeps legacy import idempotent but rejects an unrelated server plan", async () => {
-        const payload = { active: { ...plan(), focusAlbumId: ALBUM_B }, draft: null, listenEvents: [] }
-        expect((await request("POST", "/rotation-state/legacy-import", payload)).status).toBe(200)
-        expect((await request("POST", "/rotation-state/legacy-import", payload)).status).toBe(200)
-
-        const unrelated = { ...plan("draft"), id: "550e8400-e29b-41d4-a716-446655440021", name: "Unrelated" }
-        expect((await request("PUT", "/rotation-state/plan", unrelated)).status).toBe(200)
-        expect((await request("POST", "/rotation-state/legacy-import", payload)).status).toBe(409)
-    })
 })

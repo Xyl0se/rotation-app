@@ -15,6 +15,7 @@ import {
     type ExportApplyResult,
 } from "../domain/export/exportEngine.js"
 import type { ExportDiff } from "../domain/export/exportDiff.js"
+import type { RotationStateRepository } from "../infrastructure/persistence/sqlite/rotationStateRepository.js"
 
 export interface StagingProgress {
     status: "staging" | "staged" | "failed"
@@ -37,9 +38,9 @@ function mapBindingsByLibraryAlbumId(
 }
 
 export interface ExportService {
-    createPreview(albumIds: string[]): ExportPreviewResult
+    createPreview(albumIds: string[], rotationPlanId: string): ExportPreviewResult
     calculateDiff(albumIds: string[]): ExportDiff
-    runStage(exportId: string, albumIds: string[]): void
+    runStage(exportId: string, albumIds: string[], rotationPlanId: string): void
     getStageStatus(exportId: string): StagingProgress | undefined
     runApply(exportId: string): ExportApplyResult & { diff: ExportDiff }
     listOperations(): ReturnType<ExportOperationRepository["findAll"]>
@@ -53,6 +54,7 @@ export function createExportService(
     musicGuard: PathGuard,
     workspaceGuard: PathGuard,
     albumRepo?: AlbumRepository,
+    rotationRepo?: RotationStateRepository,
 ): ExportService {
     const log = createLogger("export-service")
 
@@ -82,7 +84,9 @@ export function createExportService(
     }
 
     return {
-        createPreview(albumIds: string[]): ExportPreviewResult {
+        createPreview(albumIds: string[], rotationPlanId: string): ExportPreviewResult {
+            const active = rotationRepo?.findActive()
+            if (rotationRepo && (!active || active.id !== rotationPlanId || active.albumIds.join("|") !== albumIds.join("|"))) throw new Error("EXPORT_REQUIRES_ACTIVE_ROTATION")
             const exportId = randomUUID()
             const allBindings = bindingRepo.findAll()
             const bindingMap = mapBindingsByLibraryAlbumId(allBindings)
@@ -103,7 +107,9 @@ export function createExportService(
             return calculateExportDiffForPreview(albumIds, bindingMap, workspaceGuard)
         },
 
-        runStage(exportId: string, albumIds: string[]): void {
+        runStage(exportId: string, albumIds: string[], rotationPlanId: string): void {
+            const active = rotationRepo?.findActive()
+            if (rotationRepo && (!active || active.id !== rotationPlanId || active.albumIds.join("|") !== albumIds.join("|"))) throw new Error("EXPORT_REQUIRES_ACTIVE_ROTATION")
             // Acquire lock for this export
             if (!lockRepo.acquire(exportId)) {
                 const current = lockRepo.getCurrent()
@@ -135,7 +141,7 @@ export function createExportService(
             // Persist operation record
             exportRepo.save({
                 id: exportId,
-                rotation_plan_id: null,
+                rotation_plan_id: rotationPlanId,
                 created_at: new Date().toISOString(),
                 status: "created",
                 album_ids: JSON.stringify(albumIds),
@@ -160,7 +166,7 @@ export function createExportService(
                     })
                     exportRepo.save({
                         id: exportId,
-                        rotation_plan_id: null,
+                        rotation_plan_id: rotationPlanId,
                         created_at: new Date().toISOString(),
                         status: "staged",
                         album_ids: JSON.stringify(albumIds),
@@ -227,7 +233,7 @@ export function createExportService(
             const result = applyExport(exportId, workspaceGuard)
                 exportRepo.save({
                     id: exportId,
-                    rotation_plan_id: null,
+                    rotation_plan_id: exportRepo.findById(exportId)?.rotation_plan_id ?? null,
                     created_at: new Date().toISOString(),
                     status: "applied",
                     album_ids: exportRepo.findById(exportId)?.album_ids ?? "[]",

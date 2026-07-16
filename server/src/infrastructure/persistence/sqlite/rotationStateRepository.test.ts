@@ -54,24 +54,16 @@ describe("rotation state repository", () => {
         db.close()
     })
 
-    it("does not overwrite unrelated server Rotation state during legacy import", () => {
+    it("archives the previous active Rotation and leaves no stale draft", () => {
         const { db, repository } = setup()
-        repository.savePlan(plan())
-        const other = { ...plan(null), id: "55555555-5555-4555-8555-555555555555", status: "draft" as const }
-        expect(() => repository.importLegacy(other, null, [])).toThrow("SERVER_ROTATION_STATE_EXISTS")
-        expect(repository.findActive()?.id).toBe(plan().id)
-        db.close()
-    })
-
-    it("leaves no stale draft when a new Rotation is accepted", () => {
-        const { db, repository } = setup()
-        repository.savePlan({ ...plan(null), status: "draft", acceptedAt: undefined })
+        repository.savePlan(plan(null))
         const replacement = { ...plan(null), id: "66666666-6666-4666-8666-666666666666", name: "Replacement", status: "draft" as const, acceptedAt: undefined }
         repository.savePlan(replacement)
         repository.savePlan({ ...replacement, status: "active", acceptedAt: "2026-01-02T00:00:00.000Z" })
 
         expect(repository.findDraft()).toBeNull()
         expect(repository.findActive()).toMatchObject({ id: replacement.id, status: "active" })
+        expect(repository.findHistory()).toMatchObject({ total: 1, items: [{ id: plan().id, status: "archived" }] })
         db.close()
     })
 

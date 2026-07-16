@@ -9,6 +9,7 @@ export interface CoverMeta {
 }
 
 const MAX_COVER_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
+const COVER_HOSTS = new Set(["coverartarchive.org", "archive.org"])
 
 const VALID_IMAGE_TYPES = new Set([
     "image/jpeg",
@@ -149,6 +150,37 @@ export function createCoverService(dataDir: string) {
                 if (existsSync(temporaryCoverPath)) unlinkSync(temporaryCoverPath)
                 if (existsSync(temporaryMetaPath)) unlinkSync(temporaryMetaPath)
             }
+        },
+
+        async resolveRemoteCover(albumId: string, sourceUrl: string): Promise<{ status: "cached" | "not-found" | "temporarily-unavailable" | "invalid-image" }> {
+            assertValidAlbumId(albumId)
+            let parsed: URL
+            try { parsed = new URL(sourceUrl) } catch { return { status: "invalid-image" } }
+            if (parsed.protocol !== "https:" || !COVER_HOSTS.has(parsed.hostname)) return { status: "invalid-image" }
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    const response = await fetch(parsed, { redirect: "follow", signal: AbortSignal.timeout(12_000) })
+                    if (response.status === 404) return { status: "not-found" }
+                    if (response.status === 429 || response.status >= 500) {
+                        if (attempt < 2) { await new Promise(resolve => setTimeout(resolve, 150 * 2 ** attempt)); continue }
+                        return { status: "temporarily-unavailable" }
+                    }
+                    if (!response.ok) return { status: "invalid-image" }
+                    const finalUrl = response.url ? new URL(response.url) : parsed
+                    if (!COVER_HOSTS.has(finalUrl.hostname)) return { status: "invalid-image" }
+                    const contentType = (response.headers.get("content-type") ?? "").split(";")[0]!
+                    const declaredSize = Number(response.headers.get("content-length") ?? 0)
+                    if (!VALID_IMAGE_TYPES.has(contentType) || declaredSize > MAX_COVER_SIZE_BYTES) return { status: "invalid-image" }
+                    const buffer = Buffer.from(await response.arrayBuffer())
+                    if (buffer.length === 0 || buffer.length > MAX_COVER_SIZE_BYTES || !hasExpectedSignature(buffer, contentType)) return { status: "invalid-image" }
+                    this.saveCover(albumId, buffer, contentType, "url")
+                    return { status: "cached" }
+                } catch {
+                    if (attempt === 2) return { status: "temporarily-unavailable" }
+                    await new Promise(resolve => setTimeout(resolve, 150 * 2 ** attempt))
+                }
+            }
+            return { status: "temporarily-unavailable" }
         },
 
         getCoverPath(albumId: string): string | null {

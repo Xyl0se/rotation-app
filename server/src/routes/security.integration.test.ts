@@ -56,9 +56,9 @@ const mutationRoutes: RouteCase[] = [
     { name: "verify bindings", method: "POST", path: "/bindings/verify" },
     { name: "reconcile bindings", method: "POST", path: "/bindings/reconcile" },
     { name: "delete binding", method: "DELETE", path: `/bindings?albumId=${ALBUM_ID}` },
-    { name: "preview export", method: "POST", path: "/exports/preview", body: { albumIds: [] } },
-    { name: "calculate export diff", method: "POST", path: "/exports/diff", body: { albumIds: [] } },
-    { name: "stage export", method: "POST", path: "/exports/stage", body: { exportId: ALBUM_ID, albumIds: [] } },
+    { name: "preview export", method: "POST", path: "/exports/preview", body: { albumIds: [], rotationPlanId: ALBUM_ID } },
+    { name: "calculate export diff", method: "POST", path: "/exports/diff", body: { albumIds: [], rotationPlanId: ALBUM_ID } },
+    { name: "stage export", method: "POST", path: "/exports/stage", body: { exportId: ALBUM_ID, albumIds: [], rotationPlanId: ALBUM_ID } },
     { name: "apply export", method: "POST", path: "/exports/apply", body: { exportId: ALBUM_ID } },
     { name: "run backup", method: "POST", path: "/backups/run" },
     { name: "capture binding", method: "POST", path: "/bindings/capture", body: {
@@ -292,13 +292,13 @@ describe("mutating API route security", () => {
             name: "canonical export",
             method: "POST",
             path: "/exports/preview",
-            body: { albumIds: [ALBUM_ID] },
+            body: { albumIds: [ALBUM_ID], rotationPlanId: ALBUM_ID },
         }, WRITE_TOKEN)
         await request(mutationRoutes[2], WRITE_TOKEN)
 
         expect(testApp.spies.saveCover).toHaveBeenCalledWith(ALBUM_ID, expect.any(Buffer), "image/png", "upload")
         expect(testApp.spies.confirmBinding).toHaveBeenCalledWith(ALBUM_ID, "manual", expect.any(String))
-        expect(testApp.spies.createPreview).toHaveBeenCalledWith([ALBUM_ID])
+        expect(testApp.spies.createPreview).toHaveBeenCalledWith([ALBUM_ID], ALBUM_ID)
         expect(testApp.spies.deleteAlbum).toHaveBeenCalledWith(ALBUM_ID)
     })
 

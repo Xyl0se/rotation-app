@@ -8,6 +8,15 @@ const MAX_COVER_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
 export function createCoversRouter(coverService: CoverService): Router {
     const router = Router()
 
+    router.post("/:albumId/resolve", async (req: Request, res: Response) => {
+        const albumId = req.params.albumId as string
+        if (!parseRequest(CoverAlbumIdSchema, { albumId }, res)) return
+        if (!Buffer.isBuffer(req.body)) return void res.status(400).json({ error: "Expected cover source URL" })
+        const sourceUrl = req.body.toString("utf8")
+        const result = await coverService.resolveRemoteCover(albumId, sourceUrl)
+        res.status(result.status === "cached" ? 201 : 200).json(result)
+    })
+
     // GET /covers/:albumId — serve cover image
     router.get("/:albumId", (req: Request, res: Response) => {
         const albumId = req.params.albumId as string

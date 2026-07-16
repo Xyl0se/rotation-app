@@ -281,6 +281,85 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 8,
+        name: "rotation-lifecycle-history",
+        disableForeignKeys: true,
+        run(db) {
+            db.exec(`
+                DROP TRIGGER IF EXISTS remove_ineligible_album_from_rotations;
+                DROP INDEX IF EXISTS idx_one_active_rotation;
+
+                CREATE TABLE rotation_plans_v8 (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    target_size INTEGER NOT NULL CHECK(target_size > 0),
+                    role_quotas_json TEXT NOT NULL CHECK(json_valid(role_quotas_json)),
+                    status TEXT NOT NULL CHECK(status IN ('draft', 'active', 'archived')),
+                    focus_album_id TEXT REFERENCES albums(id) ON DELETE SET NULL,
+                    created_at TEXT NOT NULL,
+                    accepted_at TEXT,
+                    archived_at TEXT
+                );
+                INSERT INTO rotation_plans_v8
+                    (id,name,target_size,role_quotas_json,status,focus_album_id,created_at,accepted_at,archived_at)
+                SELECT id,name,target_size,role_quotas_json,status,focus_album_id,created_at,accepted_at,NULL
+                FROM rotation_plans;
+
+                CREATE TABLE rotation_plan_items_v8 (
+                    rotation_plan_id TEXT NOT NULL REFERENCES rotation_plans_v8(id) ON DELETE CASCADE,
+                    album_id TEXT NOT NULL,
+                    position INTEGER NOT NULL CHECK(position >= 0),
+                    role TEXT NOT NULL CHECK(role IN ('new','growing','comfort-food','classic','admire','archive')),
+                    reason TEXT NOT NULL CHECK(reason IN ('quota','fill')),
+                    album_title_snapshot TEXT NOT NULL,
+                    album_artist_snapshot TEXT NOT NULL,
+                    PRIMARY KEY (rotation_plan_id, album_id),
+                    UNIQUE (rotation_plan_id, position)
+                );
+                INSERT INTO rotation_plan_items_v8
+                    (rotation_plan_id,album_id,position,role,reason,album_title_snapshot,album_artist_snapshot)
+                SELECT i.rotation_plan_id,i.album_id,i.position,i.role,i.reason,
+                       COALESCE(a.title,'Deleted Album'),COALESCE(a.artist,'Unknown Artist')
+                FROM rotation_plan_items i LEFT JOIN albums a ON a.id=i.album_id;
+
+                DROP TABLE rotation_plan_items;
+                DROP TABLE rotation_plans;
+                ALTER TABLE rotation_plans_v8 RENAME TO rotation_plans;
+                ALTER TABLE rotation_plan_items_v8 RENAME TO rotation_plan_items;
+                CREATE UNIQUE INDEX idx_one_active_rotation ON rotation_plans(status) WHERE status='active';
+                CREATE INDEX idx_rotation_history ON rotation_plans(status, accepted_at DESC, created_at DESC);
+
+                CREATE TRIGGER remove_ineligible_album_from_rotations
+                AFTER UPDATE OF category ON albums
+                WHEN NEW.category IN ('admire', 'archive')
+                BEGIN
+                    DELETE FROM rotation_plan_items
+                    WHERE album_id=NEW.id AND rotation_plan_id IN
+                        (SELECT id FROM rotation_plans WHERE status IN ('draft','active'));
+                    UPDATE rotation_plans SET focus_album_id=NULL WHERE focus_album_id=NEW.id AND status='active';
+                END;
+            `)
+        },
+    },
+    {
+        version: 9,
+        name: "domain-audit-trail",
+        run(db) {
+            db.exec(`
+                CREATE TABLE domain_audit_events (
+                    id TEXT PRIMARY KEY,
+                    event_type TEXT NOT NULL CHECK(event_type IN ('album-role-changed')),
+                    entity_id TEXT NOT NULL,
+                    before_json TEXT NOT NULL CHECK(json_valid(before_json)),
+                    after_json TEXT NOT NULL CHECK(json_valid(after_json)),
+                    created_at TEXT NOT NULL,
+                    undone_at TEXT
+                );
+                CREATE INDEX idx_audit_latest ON domain_audit_events(undone_at, created_at DESC);
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database): void {

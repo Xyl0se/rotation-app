@@ -5,6 +5,7 @@ import WelcomePage from "./pages/WelcomePage"
 import BindingsPage from "./pages/BindingsPage"
 import ExportPage from "./pages/ExportPage"
 import SettingsPage from "./pages/SettingsPage"
+import RotationHistoryPage from "./pages/RotationHistoryPage"
 import AppHeader, { type AppPage } from "./components/features/AppHeader"
 import ToastContainer from "./components/ui/Toast"
 
@@ -56,6 +57,7 @@ function App() {
                 </main>
             )}
             {page === "settings" && <SettingsPage />}
+            {page === "history" && <RotationHistoryPage />}
             <ToastContainer />
         </>
     )

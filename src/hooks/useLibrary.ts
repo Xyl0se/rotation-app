@@ -16,6 +16,7 @@ import {
 } from "../services/api/albumsService"
 import {
     deleteCover as apiDeleteCover,
+    resolveServerCover,
     uploadCover as apiUploadCover,
 } from "../services/api/coversService"
 
@@ -93,7 +94,11 @@ export function useLibrary(_adapter: StorageAdapter, isConnected: boolean = fals
 
     const addAlbum = useCallback(async (album: Album): Promise<boolean> =>
         runMutation(
-            () => apiCreateAlbum(album),
+            async () => {
+                const confirmed = await apiCreateAlbum(album)
+                if (confirmed.coverUrl) await resolveServerCover(confirmed.id, confirmed.coverUrl).catch(() => undefined)
+                return confirmed
+            },
             confirmed => setAlbums(previous => [...previous, confirmed]),
         ), [runMutation])
 
@@ -202,6 +207,20 @@ export function useLibrary(_adapter: StorageAdapter, isConnected: boolean = fals
         }
     }, [albums, isConnected, updateAlbum])
 
+    const retryAlbumCover = useCallback(async (id: string): Promise<boolean> => {
+        const current = albums.find(album => album.id === id)
+        if (!current?.coverUrl || !isConnected) return false
+        try {
+            await resolveServerCover(id, current.coverUrl)
+            await clearCoverCache(id).catch(() => undefined)
+            setLibraryError(null)
+            return true
+        } catch (error) {
+            setLibraryError(error instanceof Error ? error.message : "Cover resolution failed")
+            return false
+        }
+    }, [albums, isConnected])
+
     return {
         albums,
         isLoading,
@@ -215,5 +234,6 @@ export function useLibrary(_adapter: StorageAdapter, isConnected: boolean = fals
         updateAlbumCoverOverride,
         setCoverUrlOverride,
         removeAlbumCoverOverride,
+        retryAlbumCover,
     }
 }

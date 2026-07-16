@@ -7,6 +7,7 @@ import StepIndicator from "../../ui/StepIndicator"
 import Button from "../../ui/Button"
 import { searchAlbum } from "../../../services/music/albumMetadata"
 import { useI18n } from "../../../i18n/useI18n"
+import AlbumCover from "../../ui/AlbumCover"
 
 type DiscoverStep = "title" | "artist" | "metadata" | "story"
 
@@ -206,11 +207,7 @@ function DiscoverAlbumDialog({
                                         <p>{t.discoverAlbum.steps.year.label}: {album.year}</p>
                                     )}
                                     {album.coverUrl && (
-                                        <img
-                                            src={album.coverUrl}
-                                            alt={t.common.coverOf(album.title)}
-                                            className="discover-cover-preview"
-                                        />
+                                        <AlbumCover albumId={album.id} coverUrl={album.coverUrl} title={album.title} alt={t.common.coverOf(album.title)} className="discover-cover-preview" />
                                     )}
                                     <Button onClick={handleNext}>
                                         {t.discoverAlbum.next}

@@ -72,7 +72,7 @@ describe("ExportService canonical Album identity", () => {
             createAlbumRepository(db),
         )
 
-        const preview = service.createPreview([LIBRARY_ALBUM_ID])
+        const preview = service.createPreview([LIBRARY_ALBUM_ID], "test-plan")
         expect(preview.canExport).toBe(true)
         expect(preview.missingBindings).toEqual([])
         expect(preview.issues).toEqual([])
@@ -85,7 +85,7 @@ describe("ExportService canonical Album identity", () => {
             }),
         ])
 
-        service.runStage(preview.exportId, [LIBRARY_ALBUM_ID])
+        service.runStage(preview.exportId, [LIBRARY_ALBUM_ID], "test-plan")
         await waitForStaging(service, preview.exportId)
         expect(service.getStageStatus(preview.exportId)?.status).toBe("staged")
 
@@ -113,8 +113,8 @@ describe("ExportService canonical Album identity", () => {
         writeFileSync(join(applied.exportPath, ".stignore"), "(?d).DS_Store")
         writeFileSync(join(applied.exportPath, "stale-unmanaged-file.txt"), "must not survive")
 
-        const repeatedPreview = service.createPreview([LIBRARY_ALBUM_ID])
-        service.runStage(repeatedPreview.exportId, [LIBRARY_ALBUM_ID])
+        const repeatedPreview = service.createPreview([LIBRARY_ALBUM_ID], "test-plan")
+        service.runStage(repeatedPreview.exportId, [LIBRARY_ALBUM_ID], "test-plan")
         await waitForStaging(service, repeatedPreview.exportId)
 
         // Syncthing still sees the complete previous rotation during staging.
@@ -165,7 +165,7 @@ describe("ExportService canonical Album identity", () => {
             createAlbumRepository(db),
         )
 
-        const preview = service.createPreview([LIBRARY_ALBUM_ID])
+        const preview = service.createPreview([LIBRARY_ALBUM_ID], "test-plan")
         expect(preview.canExport).toBe(false)
         expect(preview.missingBindings).toEqual([LIBRARY_ALBUM_ID])
         expect(preview.issues).toEqual([

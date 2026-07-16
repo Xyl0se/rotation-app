@@ -440,6 +440,7 @@ export const de: Translation = {
     },
 
     editDialog: {
+        retryCover: "Cover erneut suchen",
         startCoach: "Rolle mit Album Coach bestimmen",
         changeRole: "Rolle mit Album Coach ändern",
         title: "Album-Metadaten bearbeiten",
@@ -504,6 +505,7 @@ export const de: Translation = {
         generate: "Rotation vorschlagen",
         newSuggestion: "Neuer Vorschlag",
         accept: "Mitnehmen",
+        handover: { title: "Rotation wechseln?", summary: (entering: number, leaving: number, unchanged: number) => `${entering} kommen hinzu · ${leaving} verlassen die Rotation · ${unchanged} bleiben`, size: (size: number, target: number) => `${size} von maximal ${target} Alben`, confirm: "Bestätigen und mitnehmen" },
         remove: "Aus der Rotation entfernen",
         replace: "Ersetzen",
         replaceTitle: "Ersatzkandidaten",
@@ -637,6 +639,7 @@ export const de: Translation = {
         bindings: "Bindings",
         export: "Export",
         settings: "Einstellungen",
+        history: "Verlauf",
         offline: "Offline — warte auf Verbindung",
         apiUnavailable: "Server nicht erreichbar — lokaler Cache aktiv",
         retrying: "Wiederhole…",
@@ -660,7 +663,9 @@ export const de: Translation = {
         saving: "Wird gespeichert…",
         loadError: "Einstellungen konnten nicht geladen werden.",
         saveError: "Einstellungen konnten nicht gespeichert werden.",
+        undoTitle: "Letzte sichere Änderung", undoDescription: "Mache die letzte Rollen- oder Archiventscheidung nur rückgängig, solange keine widersprechende Änderung gefolgt ist.", undo: "Letzte Rollenänderung rückgängig", undoError: "Die Änderung kann nicht mehr sicher rückgängig gemacht werden.",
     },
+    history: { title: "Rotationsverlauf", description: "Auswahlen, die du bewusst mitgenommen hast.", empty: "Noch keine frühere Rotation.", loadError: "Der Verlauf konnte nicht geladen werden.", archivedAt: (date: string) => `Archiviert am ${new Date(date).toLocaleDateString()}`, albumCount: (count: number) => `${count} Alben`, previous: "Zurück", next: "Weiter" },
 
     exportPage: {
         title: "Auf Gerät exportieren",

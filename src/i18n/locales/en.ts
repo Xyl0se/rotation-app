@@ -439,6 +439,7 @@ export const en = {
     },
 
     editDialog: {
+        retryCover: "Find cover again",
         startCoach: "Determine role with Album Coach",
         changeRole: "Change role with Album Coach",
         title: "Edit Album Metadata",
@@ -503,6 +504,7 @@ export const en = {
         generate: "Generate Rotation",
         newSuggestion: "New Suggestion",
         accept: "Take With Me",
+        handover: { title: "Change Rotation?", summary: (entering: number, leaving: number, unchanged: number) => `${entering} entering · ${leaving} leaving · ${unchanged} unchanged`, size: (size: number, target: number) => `${size} of up to ${target} Albums`, confirm: "Confirm and take along" },
         remove: "Remove from Rotation",
         replace: "Replace",
         replaceTitle: "Replacement Candidates",
@@ -636,6 +638,7 @@ export const en = {
         bindings: "Bindings",
         export: "Export",
         settings: "Settings",
+        history: "History",
         offline: "Offline — waiting for connection",
         apiUnavailable: "Server unavailable — using local cache",
         retrying: "Retrying…",
@@ -659,7 +662,9 @@ export const en = {
         saving: "Saving…",
         loadError: "Settings could not be loaded.",
         saveError: "Settings could not be saved.",
+        undoTitle: "Last safe change", undoDescription: "Undo the latest role or Archive decision only while no conflicting change followed it.", undo: "Undo last role change", undoError: "The change can no longer be safely undone.",
     },
+    history: { title: "Rotation history", description: "Selections you deliberately took along.", empty: "No earlier Rotation yet.", loadError: "History could not be loaded.", archivedAt: (date: string) => `Archived ${new Date(date).toLocaleDateString()}`, albumCount: (count: number) => `${count} Albums`, previous: "Previous", next: "Next" },
 
     exportPage: {
         title: "Export to Device",

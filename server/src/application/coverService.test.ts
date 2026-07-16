@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { mkdtempSync, readFileSync, rmSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
@@ -17,6 +17,7 @@ function service() {
 }
 
 afterEach(() => {
+    vi.unstubAllGlobals()
     for (const directory of temporaryDirectories.splice(0)) {
         rmSync(directory, { recursive: true, force: true })
     }
@@ -83,5 +84,26 @@ describe("coverService security", () => {
 
         expect(coverService.getCoverPath(ALBUM_ID)).toBe(join(directory, "covers", `${ALBUM_ID}.jpg`))
         expect(() => readFileSync(join(directory, "covers", `${ALBUM_ID}.png`))).toThrow()
+    })
+
+    it("downloads and persists a validated Cover Art Archive image", async () => {
+        const { coverService } = service()
+        vi.stubGlobal("fetch", vi.fn(async () => new Response(PNG, {
+            status: 200,
+            headers: { "content-type": "image/png", "content-length": String(PNG.length) },
+        })))
+
+        await expect(coverService.resolveRemoteCover(ALBUM_ID, "https://coverartarchive.org/release/id/front"))
+            .resolves.toEqual({ status: "cached" })
+        expect(coverService.getCoverPath(ALBUM_ID)).toContain(`${ALBUM_ID}.png`)
+    })
+
+    it("rejects non-allowlisted cover hosts without fetching", async () => {
+        const { coverService } = service()
+        const fetchMock = vi.fn()
+        vi.stubGlobal("fetch", fetchMock)
+        await expect(coverService.resolveRemoteCover(ALBUM_ID, "https://example.com/cover.jpg"))
+            .resolves.toEqual({ status: "invalid-image" })
+        expect(fetchMock).not.toHaveBeenCalled()
     })
 })

@@ -58,7 +58,7 @@ export function useExport() {
 
         try {
             const albumIds = plan.items.map(item => item.albumId)
-            const result = await createExportPreview(albumIds)
+            const result = await createExportPreview(albumIds, plan.id)
             setState({
                 step: "preview",
                 preview: result,
@@ -149,7 +149,9 @@ export function useExport() {
             }
 
             const albumIds = previewResult.sources.map(s => s.albumId)
-            await stageExport(previewResult.exportId, albumIds).catch(() => undefined)
+            const planId = lastPlanRef.current?.id
+            if (!planId) throw new Error("No active rotation plan found")
+            await stageExport(previewResult.exportId, albumIds, planId).catch(() => undefined)
             // The server may have accepted the job even if the response was
             // interrupted by a proxy or browser timeout. Status is authoritative.
             startStatusPolling(previewResult.exportId)

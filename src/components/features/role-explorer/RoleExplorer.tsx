@@ -7,6 +7,7 @@ import { createRoleOverview } from "../../../domain/roles/roleOverview"
 import { getRoleEmptyMessage } from "../../../domain/roles/roleEmptyMessages"
 
 import { useI18n } from "../../../i18n/useI18n"
+import AlbumCover from "../../ui/AlbumCover"
 
 type RoleExplorerProps = {
     albums: Album[]
@@ -61,30 +62,7 @@ function RoleExplorer({ albums, onSelectRole }: RoleExplorerProps) {
                         ) : (
                             <div className="role-card-previews">
                                 {overview.previewAlbums.map(album => (
-                                    album.coverUrl ? (
-                                        <img
-                                            key={album.id}
-                                            src={album.coverUrl}
-                                            alt={album.title}
-                                            className="role-card-preview"
-                                            loading="lazy"
-                                        />
-                                    ) : (
-                                        <div
-                                            key={album.id}
-                                            className="role-card-preview"
-                                            style={{
-                                                background: "var(--color-sand)",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                fontSize: "14px",
-                                                color: "var(--color-smoke)",
-                                            }}
-                                        >
-                                            {album.title.charAt(0)}
-                                        </div>
-                                    )
+                                    <AlbumCover key={album.id} albumId={album.id} coverUrl={album.coverUrl} coverOverride={album.coverOverride} title={album.title} alt={album.title} className="role-card-preview" />
                                 ))}
                             </div>
                         )}

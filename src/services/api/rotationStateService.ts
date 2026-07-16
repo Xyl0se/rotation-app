@@ -12,15 +12,14 @@ export interface RotationStateResponse {
     draft: ServerRotationPlan | null
 }
 export interface RotationSettings { targetSize: number; roleQuotas: RotationRoleQuota[] }
+export interface RotationHistoryResponse { items: ServerRotationPlan[]; total: number; limit: number; offset: number }
 
-export interface LegacyRotationImport extends RotationStateResponse {
-    listenEvents: ListenEvent[]
-}
 
 export function fetchRotationState(): Promise<RotationStateResponse> {
     return get("/rotation-state")
 }
 export function fetchRotationSettings(): Promise<RotationSettings> { return get("/rotation-state/settings") }
+export function fetchRotationHistory(limit = 20, offset = 0): Promise<RotationHistoryResponse> { return get(`/rotation-state/history?limit=${limit}&offset=${offset}`) }
 export function saveRotationSettings(settings: RotationSettings): Promise<RotationSettings> { return put("/rotation-state/settings", settings) }
 
 export function saveRotationPlan(plan: RotationPlan, focusAlbumId: string | null = null): Promise<ServerRotationPlan> {
@@ -41,22 +40,4 @@ export function fetchListenEvents(): Promise<ListenEvent[]> {
 
 export function createListenEvent(event: ListenEvent): Promise<ListenEvent> {
     return post("/rotation-state/listens", event)
-}
-
-export function importLegacyRotationState(payload: {
-    draft?: RotationPlan | null
-    active?: RotationPlan | null
-    listenEvents: ListenEvent[]
-    focusAlbumId?: string | null
-}): Promise<LegacyRotationImport> {
-    return post("/rotation-state/legacy-import", {
-        draft: payload.draft ? { ...payload.draft, focusAlbumId: null } : null,
-        active: payload.active ? {
-            ...payload.active,
-            focusAlbumId: payload.focusAlbumId && payload.active.albumIds.includes(payload.focusAlbumId)
-                ? payload.focusAlbumId
-                : null,
-        } : null,
-        listenEvents: payload.listenEvents,
-    })
 }

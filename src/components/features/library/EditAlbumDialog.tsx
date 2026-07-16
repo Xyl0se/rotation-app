@@ -51,6 +51,7 @@ type EditAlbumDialogProps = {
         url: string,
     ) => Promise<boolean>
     onRemoveCoverOverride: (id: string) => Promise<boolean>
+    onRetryCover?: (id: string) => Promise<boolean>
     onStartCoach?: (albumId: string) => void
 }
 
@@ -62,6 +63,7 @@ function EditAlbumDialog({
     onUpdateCoverOverride,
     onSetCoverUrlOverride,
     onRemoveCoverOverride,
+    onRetryCover,
     onStartCoach,
 }: EditAlbumDialogProps) {
     const { t } = useI18n()
@@ -343,6 +345,13 @@ function EditAlbumDialog({
                         >
                             {t.editDialog.resetCover}
                         </Button>
+                    )}
+                    {album.coverUrl && onRetryCover && (
+                        <Button variant="secondary" onClick={async () => {
+                            setIsLoadingUrl(true); setError(null)
+                            if (!await onRetryCover(album.id)) setError(t.editDialog.errors.setCoverUrl)
+                            setIsLoadingUrl(false)
+                        }}>{t.editDialog.retryCover}</Button>
                     )}
 
                     {error && (

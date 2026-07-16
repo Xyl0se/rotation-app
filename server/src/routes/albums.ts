@@ -2,6 +2,7 @@ import { Router } from "express"
 import type { Request, Response } from "express"
 import type { AlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
 import type { Album } from "../domain/albumTypes.js"
+import type { AuditRepository } from "../infrastructure/persistence/sqlite/auditRepository.js"
 import {
     CreateAlbumSchema,
     ImportAlbumsSchema,
@@ -16,7 +17,7 @@ export interface ImportResult {
     failed: number
 }
 
-export function createAlbumsRouter(albumRepo: AlbumRepository): Router {
+export function createAlbumsRouter(albumRepo: AlbumRepository, auditRepo?: AuditRepository): Router {
     const router = Router()
 
     // GET /albums — list all albums
@@ -107,7 +108,8 @@ export function createAlbumsRouter(albumRepo: AlbumRepository): Router {
             story: body.story ?? existing.story,
         }
 
-        albumRepo.save(album)
+        if (auditRepo) auditRepo.saveAlbumWithAudit(existing, album)
+        else albumRepo.save(album)
         res.json(album)
     })
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useState } from "react"
 
 import type { RoleId } from "../domain/roles"
 import type { StorageAdapter } from "../adapters/storageAdapter"
@@ -7,7 +7,6 @@ import { useLibrary } from "../hooks/useLibrary"
 import { useRotationPlan } from "../hooks/useRotationPlan"
 import { useListenEvents } from "../hooks/useListenEvents"
 import { useBindings } from "../hooks/useBindings"
-import { createRepositories } from "../repositories/factory"
 import { useConnection } from "../contexts/connectionState"
 
 import EmptyLibrary from "../components/features/EmptyLibrary"
@@ -28,8 +27,6 @@ import BackupControls from "../components/features/backup/BackupControls"
 
 import { evaluateReflection } from "../domain/reflection/evaluateReflection"
 import { useI18n } from "../i18n/useI18n"
-import { importLegacyRotationState } from "../services/api/rotationStateService"
-import { STORAGE } from "../config/storage"
 
 interface HomePageProps {
     adapter: StorageAdapter
@@ -47,7 +44,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
     const [manualCoachAlbumId, setManualCoachAlbumId] = useState<string | null>(null)
 
     const { isOnline, apiReachable } = useConnection()
-    const repositories = useMemo(() => createRepositories(adapter), [adapter])
     const serverConnected = isOnline && apiReachable === true
 
     const {
@@ -61,10 +57,12 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         updateAlbumCoverOverride,
         setCoverUrlOverride,
         removeAlbumCoverOverride,
+        retryAlbumCover,
     } = useLibrary(adapter, serverConnected)
 
     const {
         rotationPlan,
+        activeRotation,
         generatePlan,
         removeFromPlan,
         replaceAlbum,
@@ -73,28 +71,14 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         focusAlbumId,
         setFocusAlbumId,
         suggestFocusAlbum,
-        refresh: refreshRotation,
         error: rotationError,
     } = useRotationPlan(albums, serverConnected)
 
     const {
         listenEvents,
         logListen,
-        refresh: refreshListens,
         error: listenError,
     } = useListenEvents(albums, serverConnected)
-
-    const [legacyMigrationPending, setLegacyMigrationPending] = useState(() =>
-        repositories.rotationPlan.loadDraft() !== null
-        || repositories.rotationPlan.loadActive() !== null
-        || repositories.listenEvents.load().length > 0,
-    )
-    const [legacyMigrationError, setLegacyMigrationError] = useState<string | null>(null)
-    const legacyMigrationSummary = useMemo(() => {
-        const plans = Number(repositories.rotationPlan.loadDraft() !== null)
-            + Number(repositories.rotationPlan.loadActive() !== null)
-        return t.home.legacyRotationSummary(plans, repositories.listenEvents.load().length)
-    }, [repositories, t])
 
     const { orphans, getBindingForLibraryAlbum } = useBindings()
 
@@ -112,25 +96,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
             localStorage.setItem("rotation:orphanPromptDismissed", "true")
         } catch {
             // ignore
-        }
-    }
-
-    async function handleLegacyMigration() {
-        setLegacyMigrationError(null)
-        try {
-            await importLegacyRotationState({
-                draft: repositories.rotationPlan.loadDraft(),
-                active: repositories.rotationPlan.loadActive(),
-                listenEvents: repositories.listenEvents.load(),
-                focusAlbumId: adapter.get(STORAGE.FOCUS_ALBUM),
-            })
-            repositories.rotationPlan.clear()
-            repositories.listenEvents.clear()
-            adapter.remove(STORAGE.FOCUS_ALBUM)
-            await Promise.all([refreshRotation(), refreshListens()])
-            setLegacyMigrationPending(false)
-        } catch (cause) {
-            setLegacyMigrationError(cause instanceof Error ? cause.message : "Migration failed")
         }
     }
 
@@ -197,15 +162,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                     </Button>
                 </div>
             )}
-            {legacyMigrationPending && (
-                <div className="sync-status sync-status--warning" role="status">
-                    <span>{t.home.legacyRotationFound} {legacyMigrationSummary}</span>
-                    <Button onClick={() => void handleLegacyMigration()} disabled={!serverConnected}>
-                        {t.home.importLegacyRotation}
-                    </Button>
-                    {legacyMigrationError && <span>{legacyMigrationError}</span>}
-                </div>
-            )}
             {(rotationError || listenError) && (
                 <div className="sync-status sync-status--warning" role="status">
                     {rotationError ?? listenError}
@@ -270,6 +226,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                             <PlayerRotation
                                 albums={albums}
                                 plan={rotationPlan}
+                                activePlan={activeRotation}
                                 listenEvents={listenEvents}
                                 onGenerate={generatePlan}
                                 onRemove={removeFromPlan}
@@ -307,6 +264,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                         onUpdateCoverOverride={updateAlbumCoverOverride}
                         onSetCoverUrlOverride={setCoverUrlOverride}
                         onRemoveCoverOverride={removeAlbumCoverOverride}
+                        onRetryCover={retryAlbumCover}
                         onStartCoach={(albumId) => {
                             setEditingAlbumId(null)
                             setManualCoachAlbumId(albumId)

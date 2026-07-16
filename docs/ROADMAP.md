@@ -4,7 +4,7 @@
 >
 > Rotation accompanies the relationship between person and album.
 
-Version: v0.26.1-dev — release candidate preparation
+Version: v0.26.1-dev — Sprint 81 implemented; lifecycle release preparation next
 
 ---
 
@@ -18,12 +18,9 @@ capture album → Library → music-folder binding → curated rotation
 ```
 
 The complete workflow has now been proven on the NAS, including Syncthing delivery,
-restart persistence, and backup/restore. Sprints 77 and 78 are closed. The immediate
-task is to assign the coherent release version, publish immutable API/Web image tags,
-and run a short post-release smoke test before starting another feature sprint.
-
-After that gate, product work resumes in a deliberately narrow order: find albums,
-reduce binding friction, then close the remaining browser-owned data gap.
+restart persistence, backup/restore, and server-owned Rotation state. Sprint 81 adds
+the product shell and configurable Rotation composition. The next phase closes the
+Rotation lifecycle and release gate before adding reflective workflows.
 
 ## Product Guideline
 
@@ -52,12 +49,14 @@ Not optimization.
 
 | Order | Sprint | Outcome | Target | Decision |
 |------:|--------|---------|--------|----------|
-| Now | Release preparation | Version alignment, immutable API/Web tags, post-release smoke test | Release candidate | NAS acceptance passed |
+| Now | Sprint 81 visual acceptance | Verify shell and Settings after deployment | v0.28.1-dev | Implementation complete |
 | Done | [Sprint 77](./sprints/done/Sprint-77.md) | Production acceptance and release closure | v0.26.2 | Done ✅ |
 | Done | [Sprint 78](./sprints/done/Sprint-78.md) | Library findability | v0.27.0-dev | Done ✅ |
 | Done | [Sprint 79](./sprints/done/Sprint-79.md) | Safe ranked binding candidates | v0.27.1-dev | Done ✅ |
 | Done | [Sprint 80](./sprints/done/Sprint-80.md) | Server-owned listening and rotation data | v0.28.0-dev | Done ✅ |
-| 1 | [Sprint 81](./sprints/Sprint-81.md) | Product shell, Settings, and interaction polish | v0.28.1-dev | Approved; next |
+| 1 | [Sprint 82](./sprints/Sprint-82.md) | Rotation lifecycle, cleanup, measured performance, and release readiness | Release candidate | Approved |
+| 2 | [Sprint 83](./sprints/Sprint-83.md) | Server-owned Reflection Inbox | Next minor | Approved after Sprint 82 |
+| 3 | [Sprint 84](./sprints/Sprint-84.md) | Optional Listening Journal | Subsequent minor | Approved after Sprint 83 |
 
 Sprint numbers express the present recommended order, not a promise to implement
 features without re-evaluating production evidence after each sprint.
@@ -73,7 +72,7 @@ features without re-evaluating production evidence after each sprint.
 | Listening/Rotation persistence | Still useful because canonical data remains browser-local and outside server backups | Sprint 80, after core UX work |
 | PWA/iOS/Android/offline-first | Premature without a proven device use case and server-owned domain data | Vision only; no committed sprint |
 | Asynchronous scan engine | Potentially useful only for measured slow/large NAS libraries | Conditional backlog |
-| Weekly Reflection, listening patterns, Explainability 2.0 | Product-aligned but not currently blocking the core workflow | Discovery backlog after Sprint 80 |
+| Weekly Reflection and listening patterns | Product-aligned once durable state exists | Reflection Inbox in Sprint 83; optional Journal in Sprint 84 |
 
 The misnumbered [Search & Discovery note](./sprints/Sprint-61.md) and historical
 [Sprint 68B](./sprints/done/Sprint-68B.md) remains as a superseded pointer so older
@@ -90,8 +89,6 @@ These items should receive a sprint only when their trigger is observed:
   a mobile wrapper alone is not a product goal.
 - **Offline mutation:** Triggered by a real offline use case and only with explicit
   conflict semantics. It is not implied by server persistence.
-- **Listening patterns and weekly reflection:** Triggered by enough durable listening
-  history to evaluate whether the observations remain useful and non-judgmental.
 - **Explainability 2.0:** Triggered by user confusion that current rotation reasons and
   review UI do not resolve.
 

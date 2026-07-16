@@ -20,11 +20,16 @@ export interface RotationPlanItem {
 
     reason: RotationPlanReason
 
+    albumTitleSnapshot?: string
+
+    albumArtistSnapshot?: string
+
 }
 
 export type RotationPlanStatus =
     | "draft"
     | "active"
+    | "archived"
 
 export interface RotationPlan {
 
@@ -45,6 +50,7 @@ export interface RotationPlan {
     status: RotationPlanStatus
 
     acceptedAt?: string
+    archivedAt?: string
 
 }
 

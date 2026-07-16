@@ -1,7 +1,7 @@
 import { randomInt } from "node:crypto"
 import { Router } from "express"
 import type { RotationStateRepository } from "../infrastructure/persistence/sqlite/rotationStateRepository.js"
-import { FocusAlbumSchema, ListenEventSchema, RotationLegacyImportSchema, RotationPlanSchema, RotationSettingsSchema, parseRequest } from "./validation.js"
+import { FocusAlbumSchema, ListenEventSchema, RotationPlanSchema, RotationSettingsSchema, parseRequest } from "./validation.js"
 import type { RotationPlan } from "../domain/rotationTypes.js"
 
 function canonicalPlan(plan: Omit<RotationPlan, "focusAlbumId"> & { focusAlbumId?: string | null }): RotationPlan {
@@ -11,6 +11,11 @@ function canonicalPlan(plan: Omit<RotationPlan, "focusAlbumId"> & { focusAlbumId
 export function createRotationStateRouter(repository: RotationStateRepository): Router {
     const router = Router()
     router.get("/", (_req, res) => res.json({ active: repository.findActive(), draft: repository.findDraft() }))
+    router.get("/history", (req, res) => {
+        const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100)
+        const offset = Math.max(Number(req.query.offset) || 0, 0)
+        res.json({ ...repository.findHistory(limit, offset), limit, offset })
+    })
     router.get("/settings", (_req, res) => res.json(repository.findSettings()))
     router.put("/settings", (req, res) => {
         const settings = parseRequest(RotationSettingsSchema, req.body, res)
@@ -39,18 +44,6 @@ export function createRotationStateRouter(repository: RotationStateRepository): 
         if (!event) return
         try { repository.saveListenEvent(event); res.status(201).json(event) }
         catch { res.status(409).json({ error: "ALBUM_NOT_FOUND" }) }
-    })
-    router.post("/legacy-import", (req, res) => {
-        const body = parseRequest(RotationLegacyImportSchema, req.body, res)
-        if (!body) return
-        try {
-            repository.importLegacy(
-                body.draft ? canonicalPlan(body.draft) : null,
-                body.active ? canonicalPlan(body.active) : null,
-                body.listenEvents ?? [],
-            )
-            res.json({ active: repository.findActive(), draft: repository.findDraft(), listenEvents: repository.findListenEvents() })
-        } catch (error) { res.status(409).json({ error: error instanceof Error ? error.message : "IMPORT_CONFLICT" }) }
     })
     return router
 }
