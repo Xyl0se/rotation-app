@@ -137,7 +137,9 @@ function recordToAlbum(record: AlbumRecord): Album {
         year: record.year ?? "",
         coverUrl: record.cover_url ?? undefined,
         coverOverride: parseCoverOverride(record.cover_override),
-        category: record.category as Album["category"],
+        category: record.category === null
+            ? undefined
+            : record.category as Album["category"],
         roleHistory: parseRoleHistory(record.role_history),
         listenCount: record.listen_count,
         lastListened: record.last_listened,

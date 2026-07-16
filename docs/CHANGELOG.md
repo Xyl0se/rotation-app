@@ -2,10 +2,15 @@
 
 ## v0.26.1-dev
 
+- **Pre-acceptance intake and Bindings polish**
+  - Redesigned the shared Discover/Binding-Capture dialog as a responsive skeuomorphic catalog intake station, with fully localized metadata states and an optional Album Story step for acquisition reason, life phase, and memory note.
+  - Redesigned Bindings as a darker warehouse/boilerroom workspace with higher-contrast state badges, clearer hierarchy, generous row/action padding, and responsive button grids.
+
 - **Sprint 78 — Library Findability**
   - Added normalized title, artist, and Album Story search with a `/` keyboard shortcut.
   - Added composable role, missing-role, archive, inclusive year-range, and never-listened filters across All, Roles, and every Library Perspective.
   - Added transparent “Never listened” and “Recently archived” quick views, result counts, reset actions, accessible empty states, responsive DE/EN controls, and a 10,000-album performance fixture.
+  - Fixed the “No role assigned” filter for SQLite/API albums whose missing role was represented as `null`; the repository now normalizes missing roles to an omitted property and the filter remains tolerant of older responses.
 
 - **Export repeat-rotation hardening**
   - Verified that an existing `current-rotation` remains fully available during staging and that re-exporting unchanged albums produces one final folder per album.

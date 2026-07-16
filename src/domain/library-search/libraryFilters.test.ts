@@ -31,9 +31,10 @@ describe("filterLibraryAlbums", () => {
 
     it("isolates albums without a role", () => {
         const roleless = album()
-        expect(filterLibraryAlbums([roleless, album({ category: "new" })], {
+        const apiRoleless = { ...album(), category: null } as unknown as Album
+        expect(filterLibraryAlbums([roleless, apiRoleless, album({ category: "new" })], {
             ...emptyLibraryFilters, role: "none",
-        })).toEqual([roleless])
+        })).toEqual([roleless, apiRoleless])
     })
 
     it("counts listening events even before mirrored album fields update", () => {

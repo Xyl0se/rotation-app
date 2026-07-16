@@ -59,6 +59,22 @@ capture album → identify Library album → scan music folder → confirm bindi
 - Publish both API and Web images from a green commit.
 - Redeploy the immutable release tag and perform a short post-release smoke test.
 
+## Workstream 77E — Album Intake Station Polish
+
+- Give the shared Discover/Binding-Capture dialog a visually distinct catalog-intake
+  identity inspired by record-store drawers and physical album cards.
+- Keep text and form controls highly legible, responsive, and keyboard accessible.
+- Add an optional Album Story step for acquisition reason, life phase, and memory note.
+- Persist the Story through both normal Library creation and atomic Binding Capture.
+
+## Workstream 77F — Bindings Warehouse Polish
+
+- Present Bindings as a distinct technical warehouse/boilerroom without reducing
+  readability or making operational states decorative.
+- Increase row and action spacing so buttons never touch list boundaries.
+- Preserve clear state, orphan, missing-folder, scan, verify, and reconcile feedback.
+- Provide a usable stacked action layout on narrow screens.
+
 ## Non-Goals
 
 - Library search or new filters

@@ -523,6 +523,9 @@ export const de: Translation = {
     },
 
     discoverAlbum: {
+        eyebrow: "Neuzugang · Erfassung",
+        title: "Albumkarte anlegen",
+        subtitle: "Ordne den Fund ein, ergänze den Datensatz und halte fest, wie er in dein Leben kam.",
         steps: {
             title: {
                 label: "Wie heißt das Album?",
@@ -558,6 +561,15 @@ export const de: Translation = {
                 skip: "Überspringen",
                 moreInfo: "Suche nach mehr Informationen zu deinem Album.",
                 searchButton: "Album suchen",
+            },
+            story: {
+                title: "Die persönliche Spur",
+                description: "Diese Angaben sind optional und können später jederzeit bearbeitet werden.",
+                acquiredBecause: "Warum kam dieses Album zu dir?",
+                lifePhase: "Zu welcher Lebensphase gehört es?",
+                memoryNote: "Notiz für später",
+                memoryPlaceholder: "Ein Ort, ein Mensch, ein Moment oder einfach das Gefühl beim ersten Hören …",
+                optional: "Keine Angabe",
             },
         },
         back: "Zurück",

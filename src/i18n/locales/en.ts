@@ -522,6 +522,9 @@ export const en = {
     },
 
     discoverAlbum: {
+        eyebrow: "New arrival · Intake",
+        title: "Create album record",
+        subtitle: "Identify the find, complete its record, and preserve how it entered your life.",
         steps: {
             title: {
                 label: "What is the album called?",
@@ -557,6 +560,15 @@ export const en = {
                 skip: "Skip",
                 moreInfo: "Search for more information about your album.",
                 searchButton: "Search Album",
+            },
+            story: {
+                title: "The personal trace",
+                description: "These details are optional and can be edited at any time.",
+                acquiredBecause: "Why did this album come to you?",
+                lifePhase: "Which phase of life belongs to it?",
+                memoryNote: "A note for later",
+                memoryPlaceholder: "A place, a person, a moment, or simply how the first listen felt …",
+                optional: "No answer",
             },
         },
         back: "Back",

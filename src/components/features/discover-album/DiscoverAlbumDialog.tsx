@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import type { Album } from "../../../types/album"
+import type { Album, AlbumAcquisitionReason, AlbumLifePhase } from "../../../types/album"
 
 import Dialog from "../../ui/Dialog"
 import StepIndicator from "../../ui/StepIndicator"
@@ -8,9 +8,17 @@ import Button from "../../ui/Button"
 import { searchAlbum } from "../../../services/music/albumMetadata"
 import { useI18n } from "../../../i18n/useI18n"
 
-type DiscoverStep = "title" | "artist" | "metadata" | "year"
+type DiscoverStep = "title" | "artist" | "metadata" | "story"
 
-const steps: DiscoverStep[] = ["title", "artist", "metadata"]
+const steps: DiscoverStep[] = ["title", "artist", "metadata", "story"]
+const acquisitionOptions: AlbumAcquisitionReason[] = [
+    "artist", "friend-recommendation", "specific-song", "concert", "review",
+    "record-store", "gift", "random-discovery", "life-phase", "other",
+]
+const lifePhaseOptions: AlbumLifePhase[] = [
+    "childhood", "school", "studies", "first-apartment", "relationship",
+    "breakup", "work", "travel", "family", "current", "other",
+]
 
 interface DiscoverAlbumDialogProps {
     open: boolean
@@ -80,9 +88,28 @@ function DiscoverAlbumDialog({
                 return album.artist.trim().length > 0
             case "metadata":
                 return true
+            case "story":
+                return true
             default:
                 return false
         }
+    }
+
+    function updateStory(
+        field: "acquiredBecause" | "lifePhase" | "memoryNote",
+        value: string,
+    ) {
+        setAlbum(previous => {
+            const now = new Date().toISOString()
+            const story = {
+                createdAt: previous.story?.createdAt ?? now,
+                updatedAt: now,
+                ...previous.story,
+                [field]: value || undefined,
+            }
+            const hasContent = story.acquiredBecause || story.lifePhase || story.memoryNote
+            return { ...previous, story: hasContent ? story : undefined }
+        })
     }
 
     async function handleFetchMetadata() {
@@ -107,6 +134,11 @@ function DiscoverAlbumDialog({
     return (
         <Dialog open={open} onClose={onClose}>
             <div className="discover-album-dialog">
+                <header className="discover-dialog-header">
+                    <span>{t.discoverAlbum.eyebrow}</span>
+                    <h2>{t.discoverAlbum.title}</h2>
+                    <p>{t.discoverAlbum.subtitle}</p>
+                </header>
                 <StepIndicator
                     current={currentStepIndex}
                     total={steps.length}
@@ -171,17 +203,17 @@ function DiscoverAlbumDialog({
                                 <div className="discover-metadata-found">
                                     <p>{t.discoverAlbum.steps.metadata.found}</p>
                                     {album.year && (
-                                        <p>Year: {album.year}</p>
+                                        <p>{t.discoverAlbum.steps.year.label}: {album.year}</p>
                                     )}
                                     {album.coverUrl && (
                                         <img
                                             src={album.coverUrl}
-                                            alt={`Cover: ${album.title}`}
+                                            alt={t.common.coverOf(album.title)}
                                             className="discover-cover-preview"
                                         />
                                     )}
                                     <Button onClick={handleNext}>
-                                        {t.discoverAlbum.finish}
+                                        {t.discoverAlbum.next}
                                     </Button>
                                 </div>
                             )}
@@ -190,10 +222,50 @@ function DiscoverAlbumDialog({
                                 <div className="discover-metadata-notfound">
                                     <p>{t.discoverAlbum.steps.metadata.notFound}</p>
                                     <Button onClick={handleNext}>
-                                        {t.discoverAlbum.finish}
+                                        {t.discoverAlbum.next}
                                     </Button>
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {currentStep === "story" && (
+                        <div className="discover-story-step">
+                            <div className="discover-story-heading">
+                                <span aria-hidden="true">⌁</span>
+                                <div>
+                                    <h3>{t.discoverAlbum.steps.story.title}</h3>
+                                    <p>{t.discoverAlbum.steps.story.description}</p>
+                                </div>
+                            </div>
+                            <div className="discover-story-grid">
+                                <label>
+                                    <span>{t.discoverAlbum.steps.story.acquiredBecause}</span>
+                                    <select value={album.story?.acquiredBecause ?? ""}
+                                        onChange={event => updateStory("acquiredBecause", event.target.value)}>
+                                        <option value="">{t.discoverAlbum.steps.story.optional}</option>
+                                        {acquisitionOptions.map(option => (
+                                            <option key={option} value={option}>{t.acquisitionReasons[option]}</option>
+                                        ))}
+                                    </select>
+                                </label>
+                                <label>
+                                    <span>{t.discoverAlbum.steps.story.lifePhase}</span>
+                                    <select value={album.story?.lifePhase ?? ""}
+                                        onChange={event => updateStory("lifePhase", event.target.value)}>
+                                        <option value="">{t.discoverAlbum.steps.story.optional}</option>
+                                        {lifePhaseOptions.map(option => (
+                                            <option key={option} value={option}>{t.lifePhases[option]}</option>
+                                        ))}
+                                    </select>
+                                </label>
+                            </div>
+                            <label className="discover-memory-field">
+                                <span>{t.discoverAlbum.steps.story.memoryNote}</span>
+                                <textarea rows={4} value={album.story?.memoryNote ?? ""}
+                                    placeholder={t.discoverAlbum.steps.story.memoryPlaceholder}
+                                    onChange={event => updateStory("memoryNote", event.target.value)} />
+                            </label>
                         </div>
                     )}
                 </div>

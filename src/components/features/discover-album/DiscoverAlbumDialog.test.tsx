@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react"
+import { act, fireEvent, render, screen } from "@testing-library/react"
 import { useState } from "react"
 import { describe, expect, it, vi } from "vitest"
 import type { Album } from "../../../types/album"
@@ -54,5 +54,47 @@ describe("DiscoverAlbumDialog capture prefill", () => {
         expect(screen.getByTestId("captured-album").textContent).toBe(
             "Detected Album|Detected Artist",
         )
+    })
+
+    it("captures optional Album Story fields before finishing", async () => {
+        const onFinish = vi.fn()
+
+        function StoryHarness() {
+            const [album, setAlbum] = useState(emptyAlbum)
+            return (
+                <I18nContext.Provider value={{ t: en, language: "en", setLanguage: () => {} }}>
+                    <DiscoverAlbumDialog open album={album} setAlbum={setAlbum}
+                        onClose={() => {}} onFinish={onFinish}
+                        prefill={{ title: "Detected Album", artist: "Detected Artist" }} />
+                </I18nContext.Provider>
+            )
+        }
+
+        render(<StoryHarness />)
+        await act(async () => {})
+        fireEvent.click(screen.getByRole("button", { name: "Skip" }))
+
+        fireEvent.change(screen.getByRole("combobox", { name: "Why did this album come to you?" }), {
+            target: { value: "record-store" },
+        })
+        fireEvent.change(screen.getByRole("combobox", { name: "Which phase of life belongs to it?" }), {
+            target: { value: "studies" },
+        })
+        fireEvent.change(screen.getByRole("textbox", { name: "A note for later" }), {
+            target: { value: "Found in a small shop." },
+        })
+        fireEvent.click(screen.getByRole("button", { name: "Finish" }))
+
+        expect(onFinish).toHaveBeenCalledWith(expect.objectContaining({
+            title: "Detected Album",
+            artist: "Detected Artist",
+            story: expect.objectContaining({
+                acquiredBecause: "record-store",
+                lifePhase: "studies",
+                memoryNote: "Found in a small shop.",
+                createdAt: expect.any(String),
+                updatedAt: expect.any(String),
+            }),
+        }))
     })
 })

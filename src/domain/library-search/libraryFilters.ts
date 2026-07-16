@@ -80,7 +80,7 @@ export function filterLibraryAlbums(
 
     return albums.filter(album => {
         if (query && !searchableAlbumText(album).includes(query)) return false
-        if (filters.role === "none" && album.category !== undefined) return false
+        if (filters.role === "none" && album.category != null) return false
         if (filters.role !== "all" && filters.role !== "none" && album.category !== filters.role) return false
         if (filters.archive === "active" && album.category === "archive") return false
         if (filters.archive === "archived" && album.category !== "archive") return false
