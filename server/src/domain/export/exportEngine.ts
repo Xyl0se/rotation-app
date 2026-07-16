@@ -1,4 +1,4 @@
-import { renameSync, existsSync, rmSync, mkdirSync, readFileSync } from "node:fs"
+import { copyFileSync, renameSync, existsSync, lstatSync, rmSync, mkdirSync, readFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import type { BindingRecord } from "../../infrastructure/persistence/sqlite/bindingRepository.js"
 import type { PathGuard } from "../../infrastructure/filesystem/pathGuard.js"
@@ -166,6 +166,27 @@ export interface ExportApplyOptions {
     currentManifestOverride?: ExportManifest | null
 }
 
+const PRESERVED_SYNCTHING_ENTRIES = [".stfolder", ".stignore"] as const
+
+function preserveSyncthingMetadata(currentDir: string, nextDir: string): void {
+    for (const entry of PRESERVED_SYNCTHING_ENTRIES) {
+        const source = join(currentDir, entry)
+        if (!existsSync(source)) continue
+
+        const stat = lstatSync(source)
+        if (stat.isSymbolicLink()) {
+            throw new Error(`Refusing to preserve symbolic Syncthing metadata: ${entry}`)
+        }
+
+        const destination = join(nextDir, entry)
+        if (stat.isDirectory()) {
+            copyDirectory(source, destination)
+        } else if (stat.isFile()) {
+            copyFileSync(source, destination)
+        }
+    }
+}
+
 /**
  * Apply an export with support for incremental diff and optional retention of removed albums.
  *
@@ -224,6 +245,12 @@ export function applyExport(
         "applied",
     )
     writeManifest(join(nextRotationDir, "manifest.json"), appliedManifest)
+
+    // Syncthing owns these marker/config entries. They are not part of the Rotation
+    // manifest, but must survive replacement of the managed album tree.
+    if (existsSync(exportTargetDir)) {
+        preserveSyncthingMetadata(exportTargetDir, nextRotationDir)
+    }
 
     // 2. Archive current export before swap
     let archivePath: string | null = null

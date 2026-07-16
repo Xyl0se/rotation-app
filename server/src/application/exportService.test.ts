@@ -98,6 +98,11 @@ describe("ExportService canonical Album identity", () => {
             }),
         ])
 
+        mkdirSync(join(applied.exportPath, ".stfolder"))
+        writeFileSync(join(applied.exportPath, ".stfolder", "marker"), "syncthing")
+        writeFileSync(join(applied.exportPath, ".stignore"), "(?d).DS_Store")
+        writeFileSync(join(applied.exportPath, "stale-unmanaged-file.txt"), "must not survive")
+
         const repeatedPreview = service.createPreview([LIBRARY_ALBUM_ID])
         service.runStage(repeatedPreview.exportId, [LIBRARY_ALBUM_ID])
         await new Promise<void>((resolve) => setImmediate(resolve))
@@ -115,6 +120,9 @@ describe("ExportService canonical Album identity", () => {
         expect(readdirSync(join(repeatedApply.exportPath, "Test Artist"))).toEqual([
             "Rotation NAS Acceptance Test",
         ])
+        expect(readFileSync(join(repeatedApply.exportPath, ".stfolder", "marker"), "utf8")).toBe("syncthing")
+        expect(readFileSync(join(repeatedApply.exportPath, ".stignore"), "utf8")).toBe("(?d).DS_Store")
+        expect(existsSync(join(repeatedApply.exportPath, "stale-unmanaged-file.txt"))).toBe(false)
 
         db.close()
     })

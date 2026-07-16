@@ -335,7 +335,10 @@ If you want to keep removed albums on the player, either:
 - Enable "Ignore deletes" on the player folder (Receive Only + Ignore deletes)
 - Use the `keepRemoved` option during export apply (not yet exposed in UI)
 
-> **Note:** Rotation manages the `current-rotation/` folder contents. Syncthing propagates those changes. Rotation does not control Syncthing.
+> **Note:** Rotation manages the album folders and `manifest.json` inside
+> `current-rotation/`. Syncthing propagates those changes. Rotation preserves the
+> Syncthing-owned `.stfolder` directory and `.stignore` file across export swaps;
+> other unmanaged files are not carried into the next export.
 
 ---
 

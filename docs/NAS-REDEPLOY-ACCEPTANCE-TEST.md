@@ -370,6 +370,8 @@ sudo find /volume1/docker/rotation/staging-exports -maxdepth 2 -print
 If Syncthing is configured:
 
 - [ ] Syncthing detects the changed `current-rotation` folder.
+- [ ] `current-rotation/.stfolder` still exists after applying a replacement export.
+- [ ] An existing `current-rotation/.stignore` still contains its previous rules.
 - [ ] The target device receives the expected album files.
 
 Observation:

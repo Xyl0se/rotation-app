@@ -11,6 +11,7 @@
   - Verified that an existing `current-rotation` remains fully available during staging and that re-exporting unchanged albums produces one final folder per album.
   - Replaced the second full staging-to-next copy with an atomic workspace rename, halving temporary export I/O while retaining archive-and-swap recovery semantics.
   - Added a structured responsive export list so artist, album, and filesystem path no longer appear as duplicated concatenated text.
+  - Preserves Syncthing-owned `.stfolder` and `.stignore` entries across atomic export swaps without retaining unrelated stale files; symbolic metadata entries are rejected.
 
 - **Album Coach decision-tree correction**
   - Reworked mature-album classification so Classic, Comfort Food, and Admiration represent long-term influence, familiar automatic return, and explicit musical esteem instead of hidden fallback priorities.
