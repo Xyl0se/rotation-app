@@ -16,6 +16,7 @@ import Library from "../components/features/library/Library"
 import DeleteAlbumDialog from "../components/features/library/DeleteAlbumDialog"
 import EditAlbumDialog from "../components/features/library/EditAlbumDialog"
 import FocusAlbumCard from "../components/features/focus-album/FocusAlbumCard"
+import EmptyFocusAlbumCard from "../components/features/focus-album/EmptyFocusAlbumCard"
 import Dashboard from "../components/features/dashboard/Dashboard"
 import PlayerRotation from "../components/features/player-rotation/PlayerRotation"
 import Button from "../components/ui/Button"
@@ -239,7 +240,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                     : (
                         <>
                             {
-                                focusAlbum && (
+                                focusAlbum ? (
                                     <FocusAlbumCard
                                         album={focusAlbum}
                                         listenEvents={listenEvents}
@@ -247,6 +248,11 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                                             void handleLogListen(focusAlbum.id)
                                         }
                                         onSuggestAnother={() => void suggestFocusAlbum()}
+                                    />
+                                ) : (
+                                    <EmptyFocusAlbumCard
+                                        hasActiveRotation={rotationPlan?.status === "active" && rotationPlan.items.length > 0}
+                                        onSuggest={() => void suggestFocusAlbum()}
                                     />
                                 )
                             }

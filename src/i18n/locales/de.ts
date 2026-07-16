@@ -84,6 +84,9 @@ export const de: Translation = {
         lastListenedLabel: "Zuletzt gehört",
         noListenSession: "Noch keine Hörsession",
         listened: "Gehört",
+        emptyTitle: "Noch kein Fokusalbum ausgewählt",
+        emptyDescription: "Lass dir ein zufälliges Album aus deiner aktiven Rotation vorschlagen.",
+        needsRotation: "Aktiviere zuerst eine Rotation, um daraus ein Fokusalbum auszuwählen.",
     },
 
     albumStory: {

@@ -83,6 +83,9 @@ export const en = {
         lastListenedLabel: "Last Listened",
         noListenSession: "No listen session yet",
         listened: "Listened",
+        emptyTitle: "No Focus Album selected yet",
+        emptyDescription: "Let Rotation choose a random album from your active Rotation.",
+        needsRotation: "Activate a Rotation first to select a Focus Album from it.",
     },
 
     albumStory: {
