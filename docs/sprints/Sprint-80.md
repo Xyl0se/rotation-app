@@ -1,6 +1,6 @@
 # Sprint 80 — Canonical Listening & Rotation Persistence
 
-**Status:** In progress — contract and server persistence foundation underway
+**Status:** Implementation complete — production NAS acceptance pending
 
 **Target version:** `v0.28.0-dev`
 
@@ -29,7 +29,7 @@ the active Rotation only.
 - [x] Add SQLite migrations and repositories for listening events, Focus Album, draft
   rotation, and active rotation.
 - [x] Define initial APIs with stable identifiers and idempotent mutation behavior.
-- Include the new data in backup/restore verification.
+- [x] Include the new data in backup/restore verification.
 - [x] Persist Rotation composition settings with the Rotation so the future Settings UI
   can adjust role quotas without introducing another browser-owned source of truth.
 
@@ -61,13 +61,20 @@ derived count and timestamp in the same transaction.
 
 ## Definition of Done
 
-- [ ] ADR, schema, repositories, and API contracts define one canonical owner.
-- [ ] Existing valid browser data can be imported once without loss or duplication.
+- [x] ADR, schema, repositories, and API contracts define one canonical owner.
+- [x] Existing valid browser data can be imported once without loss or duplication.
 - [ ] Reload and a second browser show the same confirmed listening/rotation state.
-- [ ] Album deletion and archival behavior preserve referential integrity.
-- [ ] Backup/restore covers all newly server-owned data.
-- [ ] Obsolete canonical local-storage keys are removed only after safe migration.
-- [ ] Route-level integration and UI regression tests cover failure and retry paths.
+- [x] Album deletion and archival behavior preserve referential integrity.
+- [x] Backup/restore covers all newly server-owned data.
+- [x] Obsolete canonical local-storage keys are removed only after safe migration.
+- [x] Route-level integration and UI regression tests cover failure and retry paths.
+
+Automated verification now covers authenticated mutations, validation, canonical
+reloads, Focus membership, random Focus selection, idempotent Listening Events,
+legacy-import conflicts, confirmed-state UI behavior, explicit retry, and a real
+SQLite backup/restore containing Rotation, Focus, and Listening Events. The remaining
+gate is the deployed two-browser acceptance described in
+[`SPRINT-80-NAS-ACCEPTANCE-TEST.md`](../SPRINT-80-NAS-ACCEPTANCE-TEST.md).
 
 ## Non-Goals
 

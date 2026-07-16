@@ -8,6 +8,7 @@
   - Added canonical Rotation/Listening APIs and an idempotent legacy-import contract.
   - Cut Home and Export over to confirmed server state, added a deliberate browser-data migration with preview counts, and removes legacy keys only after confirmed import.
   - Restricted Focus selection to the active Rotation and made Listening Event creation update the Album's derived listening fields transactionally.
+  - Added route-level coverage for canonical reloads, validation, Focus membership, random Focus, listening idempotency, and legacy-import conflicts; added UI failure/retry coverage and verified real SQLite backup/restore of Rotation, Focus, and Listening Events.
 
 - **Sprint 79 — Safe Binding Candidate Review**
   - Added Unicode-safe, precision-oriented candidate ranking with separate title/artist signals, volume-conflict penalties, ambiguity detection, and a bounded top-three result.

@@ -4,6 +4,9 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import Database from "better-sqlite3"
 import { createBackupService } from "./backupService.js"
+import { initDatabase } from "../infrastructure/persistence/sqlite/connection.js"
+import { createAlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
+import { createRotationStateRepository } from "../infrastructure/persistence/sqlite/rotationStateRepository.js"
 
 function createTempDir(): string {
     return mkdtempSync(join(tmpdir(), "rotation-backup-test-"))
@@ -191,6 +194,43 @@ describe("createBackupService", () => {
             const result = service.restoreBackup(corruptBackup)
             expect(result.success).toBe(false)
             expect(result.error).toContain("integrity")
+        })
+
+        it("restores Rotation, Focus, and listening history together", () => {
+            const albumId = "550e8400-e29b-41d4-a716-446655440010"
+            const planId = "550e8400-e29b-41d4-a716-446655440020"
+            const eventId = "550e8400-e29b-41d4-a716-446655440030"
+            const canonicalPath = join(tempDir, "canonical.db")
+            const canonicalDb = initDatabase(canonicalPath)
+            createAlbumRepository(canonicalDb).save({
+                id: albumId, title: "Album", artist: "Artist", year: "2026",
+                roleHistory: [], listenCount: 0, lastListened: null,
+            })
+            const repository = createRotationStateRepository(canonicalDb)
+            repository.savePlan({
+                id: planId, name: "Rotation", targetSize: 1,
+                albumIds: [albumId], items: [{ albumId, role: "new", reason: "quota" }],
+                roleQuotas: [{ role: "new", targetCount: 1 }],
+                createdAt: "2026-07-16T10:00:00.000Z", acceptedAt: "2026-07-16T10:01:00.000Z",
+                status: "active", focusAlbumId: albumId,
+            })
+            repository.saveListenEvent({ id: eventId, albumId, listenedAt: "2026-07-16T11:00:00.000Z" })
+            canonicalDb.close()
+
+            const canonicalService = createBackupService(canonicalPath, backupDir, 7)
+            const backup = canonicalService.createBackup()
+            expect(backup.success).toBe(true)
+
+            const changedDb = new Database(canonicalPath)
+            changedDb.exec("DELETE FROM rotation_plans; DELETE FROM listen_events")
+            changedDb.close()
+            expect(canonicalService.restoreBackup(backup.path).success).toBe(true)
+
+            const restored = initDatabase(canonicalPath)
+            const restoredRepository = createRotationStateRepository(restored)
+            expect(restoredRepository.findActive()).toMatchObject({ id: planId, focusAlbumId: albumId })
+            expect(restoredRepository.findListenEvents()).toEqual([{ id: eventId, albumId, listenedAt: "2026-07-16T11:00:00.000Z" }])
+            restored.close()
         })
     })
 })
