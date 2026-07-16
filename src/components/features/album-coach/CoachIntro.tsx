@@ -1,10 +1,15 @@
 import { useI18n } from "../../../i18n/useI18n"
+import type { CoverOverride } from "../../../types/album"
+import AlbumCover from "../../ui/AlbumCover"
 
 type CoachIntroProps = {
 
     albumTitle: string
 
     onStart: () => void
+    albumId: string
+    coverUrl?: string
+    coverOverride?: CoverOverride
 
 }
 
@@ -13,6 +18,9 @@ function CoachIntro({
     albumTitle,
 
     onStart,
+    albumId,
+    coverUrl,
+    coverOverride,
 
 }: CoachIntroProps) {
     const { t } = useI18n()
@@ -32,6 +40,18 @@ function CoachIntro({
                 {albumTitle}
 
             </h1>
+
+            {(coverUrl || coverOverride) && (
+                <AlbumCover
+                    albumId={albumId}
+                    title={albumTitle}
+                    alt={albumTitle}
+                    coverUrl={coverUrl}
+                    coverOverride={coverOverride}
+                    className="coach-intro-cover"
+                    lazy={false}
+                />
+            )}
 
             <p>
 

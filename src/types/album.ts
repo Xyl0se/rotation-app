@@ -79,4 +79,7 @@ export interface Album {
 
     story?: AlbumStory
 
+    /** Server creation timestamp used for stable newest-first Library ordering. */
+    createdAt?: string
+
 }

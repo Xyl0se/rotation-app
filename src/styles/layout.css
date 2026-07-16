@@ -31,6 +31,19 @@
     margin-top: var(--space-5);
 }
 
+.home-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-6);
+    padding: var(--space-4) 0 var(--space-2);
+    border-top: 1px solid var(--color-sand);
+    color: var(--color-smoke);
+}
+
+.home-footer select {
+    border-color: var(--color-sand) !important;
+}
+
 /* ---- Player Rotation Actions ---- */
 
 .player-rotation-actions {

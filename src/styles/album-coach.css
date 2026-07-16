@@ -94,6 +94,19 @@
     line-height: 1.1;
 }
 
+.dialog .coach-question h2 {
+    font-size: clamp(1.75rem, 4.2vw, 2.85rem);
+}
+
+.coach-intro-cover {
+    width: clamp(132px, 24vw, 190px);
+    aspect-ratio: 1;
+    margin-top: var(--space-3);
+    border-radius: 14px;
+    object-fit: cover;
+    box-shadow: 0 20px 46px rgba(2, 15, 29, .42);
+}
+
 .dialog .album-coach p {
     margin: var(--space-2) 0 0;
     color: #dceaf7;

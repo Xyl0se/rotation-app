@@ -77,4 +77,5 @@ export interface Album {
     listenCount: number
     lastListened: string | null
     story?: AlbumStory
+    createdAt?: string
 }

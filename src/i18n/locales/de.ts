@@ -69,8 +69,8 @@ export const de: Translation = {
     emptyLibrary: {
         title: "Noch keine Alben",
         description:
-            "Beginne deine persönliche Musiksammlung, indem du dein erstes Album hinzufügst.",
-        cta: "Neues Album entdecken",
+            "Scanne zuerst deinen Musikordner und erfasse anschließend ein gefundenes Album.",
+        cta: "Zur Bindings-Seite",
         orImport: "Oder importiere ein bestehendes Backup:",
     },
 
@@ -236,10 +236,10 @@ export const de: Translation = {
             accept: "Rolle übernehmen",
         },
         orphanPrompt: {
-            title: "Dieses Album ist noch nicht in deiner Bibliothek",
-            description: "Möchtest du es erfassen?",
+            title: "Ungebundene Alben warten auf dich",
+            description: "Im Musikordner wurden Einträge gefunden, die du auf der Bindings-Seite prüfen und erfassen kannst.",
             dismiss: "Nicht jetzt",
-            capture: "Album erfassen",
+            capture: "Bindings öffnen",
         },
     },
 
@@ -394,6 +394,12 @@ export const de: Translation = {
             recentlyArchivedRule: "Alben, deren aktuelle Rolle Archiv ist und die innerhalb der letzten 30 Tage archiviert wurden.",
             reset: "Filter zurücksetzen",
             noResults: "Keine Alben entsprechen der aktuellen Suche und den Filtern.",
+        },
+        pagination: {
+            label: "Bibliotheksseiten",
+            previous: "Zurück",
+            next: "Weiter",
+            status: (page: number, total: number) => `Seite ${page} von ${total}`,
         },
     },
 

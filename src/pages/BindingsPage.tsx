@@ -310,6 +310,7 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
                     <AlbumCoach
                         key={coachingAlbum.id}
                         albumTitle={coachingAlbum.title}
+                        album={coachingAlbum}
                         onComplete={handleCaptureCoachComplete}
                     />
                 )}

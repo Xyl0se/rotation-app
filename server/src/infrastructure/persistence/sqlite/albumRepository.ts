@@ -144,6 +144,7 @@ function recordToAlbum(record: AlbumRecord): Album {
         listenCount: record.listen_count,
         lastListened: record.last_listened,
         story: parseAlbumStory(record.story),
+        createdAt: record.created_at,
     }
 }
 
@@ -195,7 +196,7 @@ export function createAlbumRepository(db: Database.Database) {
     `)
 
     const findAllStmt = db.prepare<[]>(`
-        SELECT * FROM albums ORDER BY artist, title
+        SELECT * FROM albums ORDER BY created_at DESC, id DESC
     `)
 
     const findByIdStmt = db.prepare<[string]>(`

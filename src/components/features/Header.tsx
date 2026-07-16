@@ -1,5 +1,4 @@
 import { useI18n } from "../../i18n/useI18n"
-import { LanguageSwitcher } from "./LanguageSwitcher"
 
 function Header() {
     const { t } = useI18n()
@@ -11,8 +10,6 @@ function Header() {
             <p>
                 Personal Music Quality Management System
             </p>
-
-            <LanguageSwitcher />
         </header>
     )
 }

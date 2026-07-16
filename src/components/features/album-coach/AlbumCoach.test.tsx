@@ -9,7 +9,7 @@ describe("AlbumCoach i18n and role paths", () => {
         const onComplete = vi.fn()
         render(
             <I18nContext.Provider value={{ t: de, language: "de", setLanguage: () => {} }}>
-                <AlbumCoach albumTitle="Testalbum" onComplete={onComplete} />
+                <AlbumCoach albumTitle="Testalbum" album={{ id: "test-album" }} onComplete={onComplete} />
             </I18nContext.Provider>,
         )
 

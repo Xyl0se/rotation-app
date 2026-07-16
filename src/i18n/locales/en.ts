@@ -68,8 +68,8 @@ export const en = {
     emptyLibrary: {
         title: "No albums yet",
         description:
-            "Begin your personal music collection by adding your first album.",
-        cta: "Discover New Album",
+            "Scan your music folder first, then capture one of the albums found there.",
+        cta: "Open Bindings",
         orImport: "Or import an existing backup:",
     },
 
@@ -235,10 +235,10 @@ export const en = {
             accept: "Accept Role",
         },
         orphanPrompt: {
-            title: "This album is not in your Library yet",
-            description: "Would you like to capture it?",
+            title: "Unbound albums are waiting for you",
+            description: "Entries from your music folder are ready to be reviewed and captured on the Bindings page.",
             dismiss: "Not now",
-            capture: "Capture album",
+            capture: "Open Bindings",
         },
     },
 
@@ -393,6 +393,12 @@ export const en = {
             recentlyArchivedRule: "Albums whose current role is Archive and which were archived within the last 30 days.",
             reset: "Reset filters",
             noResults: "No albums match the current search and filters.",
+        },
+        pagination: {
+            label: "Library pages",
+            previous: "Previous",
+            next: "Next",
+            status: (page: number, total: number) => `Page ${page} of ${total}`,
         },
     },
 

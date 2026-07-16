@@ -7,12 +7,12 @@ import { useI18n } from "../../i18n/useI18n"
 
 type EmptyLibraryProps = {
     adapter: StorageAdapter
-    onDiscoverAlbum: () => void
+    onNavigateToBindings: () => void
     onBackupRestored: () => void
     disabled?: boolean
 }
 
-function EmptyLibrary({ adapter, onDiscoverAlbum, onBackupRestored, disabled = false }: EmptyLibraryProps) {
+function EmptyLibrary({ adapter, onNavigateToBindings, onBackupRestored, disabled = false }: EmptyLibraryProps) {
     const { t } = useI18n()
 
     return (
@@ -21,7 +21,7 @@ function EmptyLibrary({ adapter, onDiscoverAlbum, onBackupRestored, disabled = f
 
             <p>{t.emptyLibrary.description}</p>
 
-            <Button onClick={onDiscoverAlbum} disabled={disabled}>
+            <Button onClick={onNavigateToBindings} disabled={disabled}>
                 {t.emptyLibrary.cta}
             </Button>
 

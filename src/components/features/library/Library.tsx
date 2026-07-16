@@ -27,6 +27,8 @@ import {
     type LibraryFilters,
 } from "../../../domain/library-search/libraryFilters"
 
+const ALBUMS_PER_PAGE = 10
+
 type LibraryProps = {
     albums: Album[]
     listenEvents?: ListenEvent[]
@@ -85,10 +87,22 @@ function Library({
 
     const [selectedRole, setSelectedRole] = useState<RoleId | null>(null)
     const [filters, setFilters] = useState<LibraryFilters>(emptyLibraryFilters)
+    const [page, setPage] = useState(1)
     const searchRef = useRef<HTMLInputElement>(null)
     const filteredAlbums = useMemo(
-        () => filterLibraryAlbums(albums, filters, listenEvents),
+        () => filterLibraryAlbums(albums, filters, listenEvents).sort((a, b) => {
+            if (a.createdAt && b.createdAt) return b.createdAt.localeCompare(a.createdAt)
+            if (a.createdAt) return -1
+            if (b.createdAt) return 1
+            return albums.indexOf(a) - albums.indexOf(b)
+        }),
         [albums, filters, listenEvents],
+    )
+    const pageCount = Math.max(1, Math.ceil(filteredAlbums.length / ALBUMS_PER_PAGE))
+    const effectivePage = Math.min(page, pageCount)
+    const visibleAlbums = filteredAlbums.slice(
+        (effectivePage - 1) * ALBUMS_PER_PAGE,
+        effectivePage * ALBUMS_PER_PAGE,
     )
 
     useEffect(() => {
@@ -107,19 +121,23 @@ function Library({
 
     function handleSelectRole(roleId: RoleId) {
         setSelectedRole(roleId)
+        setPage(1)
     }
 
     function handleBack() {
         setSelectedRole(null)
+        setPage(1)
     }
 
     function handleViewChange(mode: MainViewMode) {
         setViewMode(mode)
         setSelectedRole(null)
+        setPage(1)
     }
 
     function handlePerspectiveChange(mode: PerspectiveMode) {
         setPerspectiveMode(mode)
+        setPage(1)
     }
 
     return (
@@ -141,8 +159,14 @@ function Library({
 
             <LibraryControls
                 filters={filters}
-                onChange={setFilters}
-                onReset={() => setFilters(emptyLibraryFilters)}
+                onChange={(nextFilters) => {
+                    setFilters(nextFilters)
+                    setPage(1)
+                }}
+                onReset={() => {
+                    setFilters(emptyLibraryFilters)
+                    setPage(1)
+                }}
                 resultCount={filteredAlbums.length}
                 totalCount={albums.length}
                 searchRef={searchRef}
@@ -152,7 +176,10 @@ function Library({
                 <div className="library-filter-empty" role="status">
                     <p>{t.library.controls.noResults}</p>
                     {hasActiveLibraryFilters(filters) && (
-                        <button type="button" onClick={() => setFilters(emptyLibraryFilters)}>
+                        <button type="button" onClick={() => {
+                            setFilters(emptyLibraryFilters)
+                            setPage(1)
+                        }}>
                             {t.library.controls.reset}
                         </button>
                     )}
@@ -165,7 +192,7 @@ function Library({
 
                     {
 
-                        filteredAlbums.map(album => (
+                        visibleAlbums.map(album => (
 
                             <AlbumCard
 
@@ -279,6 +306,18 @@ function Library({
                     onSetFocus={onSetFocus}
                     onStartCoach={onStartCoach}
                 />
+            )}
+
+            {viewMode === "all" && filteredAlbums.length > ALBUMS_PER_PAGE && (
+                <nav className="library-pagination" aria-label={t.library.pagination.label}>
+                    <button type="button" disabled={effectivePage === 1} onClick={() => setPage(current => current - 1)}>
+                        {t.library.pagination.previous}
+                    </button>
+                    <span>{t.library.pagination.status(effectivePage, pageCount)}</span>
+                    <button type="button" disabled={effectivePage === pageCount} onClick={() => setPage(current => current + 1)}>
+                        {t.library.pagination.next}
+                    </button>
+                </nav>
             )}
 
         </section>

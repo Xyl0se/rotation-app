@@ -21,11 +21,11 @@ const albums: Album[] = [
     },
 ]
 
-function renderLibrary() {
+function renderLibrary(libraryAlbums: Album[] = albums) {
     const noop = () => {}
     return render(
         <I18nContext.Provider value={{ t: de, language: "de", setLanguage: noop }}>
-            <Library albums={albums} focusAlbumId={null} onArchive={noop} onDelete={noop}
+            <Library albums={libraryAlbums} focusAlbumId={null} onArchive={noop} onDelete={noop}
                 onEdit={noop} onLogListen={noop} onReconsider={noop} onSetFocus={noop}
                 onStartCoach={noop} />
         </I18nContext.Provider>,
@@ -83,5 +83,27 @@ describe("Library findability", () => {
         expect(screen.getByRole("status").textContent).toContain("Keine Alben entsprechen")
         fireEvent.click(within(screen.getByRole("status")).getByRole("button", { name: "Filter zurücksetzen" }))
         expect(screen.getByText("2 von 2 Alben")).toBeTruthy()
+    })
+
+    it("shows newest albums first and paginates after ten entries", () => {
+        const manyAlbums = Array.from({ length: 12 }, (_, index): Album => ({
+            id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+            title: `Album ${index + 1}`,
+            artist: "Artist",
+            year: "2026",
+            roleHistory: [],
+            listenCount: 0,
+            lastListened: null,
+            createdAt: `2026-01-${String(index + 1).padStart(2, "0")}T12:00:00.000Z`,
+        }))
+
+        renderLibrary(manyAlbums)
+        expect(screen.getByText("Album 12")).toBeTruthy()
+        expect(screen.queryByText("Album 1")).toBeNull()
+        expect(screen.getByText("Seite 1 von 2")).toBeTruthy()
+
+        fireEvent.click(screen.getByRole("button", { name: "Weiter" }))
+        expect(screen.getByText("Album 1")).toBeTruthy()
+        expect(screen.queryByText("Album 12")).toBeNull()
     })
 })

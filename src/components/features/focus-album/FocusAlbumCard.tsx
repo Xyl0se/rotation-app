@@ -55,6 +55,8 @@ type FocusAlbumCardProps = {
 
     onLogListen: () => void
 
+    onSuggestAnother: () => void
+
 }
 
 function formatLastListened(date: string | null, t: ReturnType<typeof useI18n>["t"]) {
@@ -118,6 +120,7 @@ function FocusAlbumCard({
     listenEvents,
 
     onLogListen,
+    onSuggestAnother,
 
 }: FocusAlbumCardProps) {
 
@@ -129,11 +132,17 @@ function FocusAlbumCard({
 
         <section className="focus-album">
 
-            <p className="focus-album-label">
-
-                {t.focusAlbum.label}
-
-            </p>
+            <div className="focus-album-heading">
+                <p className="focus-album-label">{t.focusAlbum.label}</p>
+                <button
+                    className="focus-album-shuffle"
+                    onClick={onSuggestAnother}
+                    aria-label={t.home.suggestFocusAlbum}
+                    title={t.home.suggestFocusAlbum}
+                >
+                    🎲
+                </button>
+            </div>
 
             <div className="focus-album-hero">
 

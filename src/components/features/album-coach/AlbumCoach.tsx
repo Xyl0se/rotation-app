@@ -17,12 +17,15 @@ import type {
 import type {
     RoleId,
 } from "../../../domain/roles"
+import type { Album } from "../../../types/album"
 
 type AlbumCoachProps = {
 
     albumTitle: string
 
     onComplete: (role: RoleId) => void
+
+    album: Pick<Album, "id" | "coverUrl" | "coverOverride">
 
 }
 
@@ -31,6 +34,7 @@ function AlbumCoach({
     albumTitle,
 
     onComplete,
+    album,
 
 }: AlbumCoachProps) {
 
@@ -67,6 +71,9 @@ function AlbumCoach({
             <CoachIntro
 
                 albumTitle={albumTitle}
+                albumId={album.id}
+                coverUrl={album.coverUrl}
+                coverOverride={album.coverOverride}
 
                 onStart={() =>
 

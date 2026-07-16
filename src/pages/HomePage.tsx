@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react"
 
-import type { Album } from "../types/album"
 import type { RoleId } from "../domain/roles"
 import type { StorageAdapter } from "../adapters/storageAdapter"
 
@@ -13,7 +12,6 @@ import { useConnection } from "../contexts/connectionState"
 
 import Header from "../components/features/Header"
 import EmptyLibrary from "../components/features/EmptyLibrary"
-import DiscoverAlbumDialog from "../components/features/discover-album/DiscoverAlbumDialog"
 import Library from "../components/features/library/Library"
 import DeleteAlbumDialog from "../components/features/library/DeleteAlbumDialog"
 import EditAlbumDialog from "../components/features/library/EditAlbumDialog"
@@ -27,22 +25,10 @@ import CoachOrphanPrompt from "../components/features/album-coach/CoachOrphanPro
 import ArchiveProtectionCoach from "../components/features/archive/ArchiveProtectionCoach"
 import ArchiveReturnCoach from "../components/features/archive/ArchiveReturnCoach"
 import BackupControls from "../components/features/backup/BackupControls"
+import { LanguageSwitcher } from "../components/features/LanguageSwitcher"
 
 import { evaluateReflection } from "../domain/reflection/evaluateReflection"
-import { generateUUID } from "../utils/uuid"
 import { useI18n } from "../i18n/useI18n"
-
-function createEmptyAlbum(): Album {
-    return {
-        id: generateUUID(),
-        title: "",
-        artist: "",
-        year: "",
-        roleHistory: [],
-        listenCount: 0,
-        lastListened: null,
-    }
-}
 
 interface HomePageProps {
     adapter: StorageAdapter
@@ -52,14 +38,12 @@ interface HomePageProps {
 
 function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     const { t } = useI18n()
-    const [dialogOpen, setDialogOpen] = useState(false)
     const [reflectionAlbumId, setReflectionAlbumId] = useState<string | null>(null)
     const [archiveAlbumId, setArchiveAlbumId] = useState<string | null>(null)
     const [archiveReturnAlbumId, setArchiveReturnAlbumId] = useState<string | null>(null)
     const [deleteAlbumId, setDeleteAlbumId] = useState<string | null>(null)
     const [editingAlbumId, setEditingAlbumId] = useState<string | null>(null)
     const [manualCoachAlbumId, setManualCoachAlbumId] = useState<string | null>(null)
-    const [album, setAlbum] = useState(createEmptyAlbum)
 
     const { isOnline, apiReachable } = useConnection()
     const repositories = useMemo(() => createRepositories(adapter), [adapter])
@@ -72,7 +56,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         refresh: refreshLibrary,
         focusAlbumId,
         setFocusAlbumId,
-        addAlbum,
         deleteAlbum,
         updateAlbum,
         updateAlbumRole,
@@ -115,11 +98,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         }
     }
 
-    function handleNewAlbum() {
-        setAlbum(createEmptyAlbum())
-        setDialogOpen(true)
-    }
-
     function handleSuggestFocusAlbum() {
         const candidates = albums.filter(
             a => a.id !== focusAlbumId && a.category !== "archive",
@@ -131,13 +109,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
 
         const randomIndex = Math.floor(Math.random() * candidates.length)
         setFocusAlbumId(candidates[randomIndex].id)
-    }
-
-    async function handleFinish(completedAlbum: Album) {
-        if (await addAlbum(completedAlbum)) {
-            setDialogOpen(false)
-            setAlbum(createEmptyAlbum())
-        }
     }
 
     function handleLogListen(id: string) {
@@ -224,24 +195,12 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                     ? (
                         <EmptyLibrary
                             adapter={adapter}
-                            onDiscoverAlbum={handleNewAlbum}
+                            onNavigateToBindings={() => onNavigateToBindings?.()}
                             onBackupRestored={() => window.location.reload()}
-                            disabled={!serverConnected}
                         />
                     )
                     : (
                         <>
-                            <div className="toolbar">
-                                <Button
-                                    variant="secondary"
-                                    onClick={handleSuggestFocusAlbum}
-                                >
-                                    {t.home.suggestFocusAlbum}
-                                </Button>
-                                <Button onClick={handleNewAlbum} disabled={!serverConnected}>
-                                    {t.home.discoverAlbum}
-                                </Button>
-                            </div>
                             {
                                 focusAlbum && (
                                     <FocusAlbumCard
@@ -250,6 +209,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                                         onLogListen={() =>
                                             handleLogListen(focusAlbum.id)
                                         }
+                                        onSuggestAnother={handleSuggestFocusAlbum}
                                     />
                                 )
                             }
@@ -296,13 +256,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                         </>
                     )
             }
-            <DiscoverAlbumDialog
-                open={dialogOpen}
-                album={album}
-                setAlbum={setAlbum}
-                onClose={() => setDialogOpen(false)}
-                onFinish={handleFinish}
-            />
             {
                 editingAlbum && (
                     <EditAlbumDialog
@@ -331,6 +284,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                     <AlbumCoach
                         key={`manual-${manualCoachAlbum.id}`}
                         albumTitle={manualCoachAlbum.title}
+                        album={manualCoachAlbum}
                         onComplete={handleManualCoachComplete}
                     />
                 )}
@@ -342,6 +296,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                             <AlbumCoach
                                 key={`${reflectionAlbum.id}-${reflectionAlbum.roleHistory.length}`}
                                 albumTitle={reflectionAlbum.title}
+                                album={reflectionAlbum}
                                 onComplete={handleReflectionComplete}
                             />
                             <div className="dialog-actions">
@@ -398,6 +353,9 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                     )
                 }
             </Dialog>
+            <footer className="home-footer">
+                <LanguageSwitcher />
+            </footer>
         </main>
     )
 }
