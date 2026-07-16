@@ -730,6 +730,22 @@ export const de: Translation = {
         captureSuccess: "Album erfasst und verknüpft.",
         coachSuccess: "Albumrolle gespeichert.",
         viewInLibrary: "In Bibliothek anzeigen",
+        candidates: {
+            review: "Treffer prüfen",
+            select: "Auswählen",
+            reject: "Vorschläge verwerfen",
+            manual: "Anderes Album aus der Bibliothek auswählen",
+            searchPlaceholder: "Künstler oder Titel suchen",
+            none: "Keine belastbaren Treffer gefunden. Du kannst das Album stattdessen neu erfassen.",
+            confidence: { strong: "Sehr ähnliche Metadaten", possible: "Möglicher Treffer", ambiguous: "Mehrdeutiger Treffer" },
+            reasons: {
+                "title-exact": "Titel stimmt überein",
+                "title-similar": "Titel ist ähnlich",
+                "artist-exact": "Künstler stimmt überein",
+                "artist-similar": "Künstler ist ähnlich",
+                "volume-conflict": "Abweichende Volume-Nummer",
+            },
+        },
     },
 
     diagnostics: {

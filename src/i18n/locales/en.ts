@@ -729,6 +729,22 @@ export const en = {
         captureSuccess: "Album captured and linked successfully.",
         coachSuccess: "Album role saved.",
         viewInLibrary: "View in Library",
+        candidates: {
+            review: "Review matches",
+            select: "Select",
+            reject: "Reject suggestions",
+            manual: "Select another album from the Library",
+            searchPlaceholder: "Search artist or title",
+            none: "No reliable matches found. You can capture this as a new album instead.",
+            confidence: { strong: "Very similar metadata", possible: "Possible match", ambiguous: "Ambiguous match" },
+            reasons: {
+                "title-exact": "Title matches",
+                "title-similar": "Title is similar",
+                "artist-exact": "Artist matches",
+                "artist-similar": "Artist is similar",
+                "volume-conflict": "Different volume number",
+            },
+        },
     },
 
     diagnostics: {

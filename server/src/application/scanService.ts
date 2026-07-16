@@ -4,6 +4,8 @@ import type { AlbumRepository } from "../infrastructure/persistence/sqlite/album
 import type { ScanRunRepository } from "../infrastructure/persistence/sqlite/scanRunRepository.js"
 import type { ScanOptions } from "../domain/scan/albumFolder.js"
 import { suggestBindings } from "../domain/binding/albumMatcher.js"
+import { rankBindingCandidates } from "../domain/binding/albumMatcher.js"
+import type { BindingCandidateRepository } from "../infrastructure/persistence/sqlite/bindingCandidateRepository.js"
 
 export interface ScanService {
     runScan(scanId: string, options?: ScanOptions): void
@@ -14,6 +16,7 @@ export function createScanService(
     bindingRepo: BindingRepository,
     albumRepo: AlbumRepository,
     scanRunRepo: ScanRunRepository,
+    candidateRepo?: BindingCandidateRepository,
 ): ScanService {
     return {
         runScan(scanId: string, options?: ScanOptions): void {
@@ -74,6 +77,18 @@ export function createScanService(
                         // match.relativePath == binding.album_id (the path)
                         // match.libraryAlbumId == the actual library album UUID
                         bindingRepo.updateLibraryAlbumId(match.relativePath, match.libraryAlbumId)
+                    }
+
+                    if (candidateRepo) {
+                        for (const folder of result.albumFolders) {
+                            const binding = bindingRepo.findById(folder.relativePath)
+                            if (binding?.state === "confirmed") continue
+                            candidateRepo.replaceForBinding(
+                                folder.relativePath,
+                                scanId,
+                                rankBindingCandidates(folder, albums),
+                            )
+                        }
                     }
                 }
 

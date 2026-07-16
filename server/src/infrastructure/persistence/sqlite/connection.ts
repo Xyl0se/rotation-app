@@ -169,6 +169,26 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 3,
+        name: "binding-candidate-review",
+        run(db) {
+            db.exec(`
+                CREATE TABLE binding_candidates (
+                    binding_album_id TEXT NOT NULL REFERENCES bindings(album_id) ON DELETE CASCADE,
+                    library_album_id TEXT NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
+                    scan_id TEXT NOT NULL REFERENCES scan_runs(id) ON DELETE CASCADE,
+                    rank INTEGER NOT NULL CHECK(rank BETWEEN 1 AND 3),
+                    score REAL NOT NULL CHECK(score BETWEEN 0 AND 1),
+                    confidence TEXT NOT NULL CHECK(confidence IN ('strong', 'possible', 'ambiguous')),
+                    reasons_json TEXT NOT NULL CHECK(json_valid(reasons_json)),
+                    created_at TEXT NOT NULL,
+                    PRIMARY KEY (binding_album_id, library_album_id)
+                );
+                CREATE INDEX idx_binding_candidates_scan ON binding_candidates(scan_id);
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database): void {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { matchAlbumToFolder, suggestBindings } from "./albumMatcher.js"
+import { matchAlbumToFolder, rankBindingCandidates, suggestBindings } from "./albumMatcher.js"
 
 const candidates = [
     { albumId: "1", relativePath: "Pink Floyd/The Dark Side of the Moon", artistName: "Pink Floyd", albumName: "The Dark Side of the Moon" },
@@ -67,5 +67,38 @@ describe("suggestBindings", () => {
         ]
         const results = suggestBindings(library, candidates)
         expect(results).toHaveLength(1)
+    })
+})
+
+describe("rankBindingCandidates", () => {
+    it("ranks Unicode-safe title and artist matches", () => {
+        const result = rankBindingCandidates(
+            { albumName: "Ki", artistName: "喜多郎" },
+            [
+                { id: "a", title: "Ki", artist: "喜多郎" },
+                { id: "b", title: "Silk Road", artist: "喜多郎" },
+            ],
+        )
+        expect(result[0]).toMatchObject({ libraryAlbumId: "a", confidence: "strong" })
+        expect(result[0]?.reasons).toContain("artist-exact")
+    })
+
+    it("penalizes conflicting volume numbers", () => {
+        const result = rankBindingCandidates(
+            { albumName: "Cafe del Mar Volume 10", artistName: "Various Artists" },
+            [
+                { id: "eight", title: "Cafe del Mar Volume 8", artist: "Various Artists" },
+                { id: "ten", title: "Cafe del Mar Volume 10", artist: "Various Artists" },
+            ],
+        )
+        expect(result[0]?.libraryAlbumId).toBe("ten")
+        expect(result.find(candidate => candidate.libraryAlbumId === "eight")?.reasons).toContain("volume-conflict")
+    })
+
+    it("returns no candidate for unrelated metadata", () => {
+        expect(rankBindingCandidates(
+            { albumName: "Unknown", artistName: "Nobody" },
+            [{ id: "a", title: "Abbey Road", artist: "The Beatles" }],
+        )).toEqual([])
     })
 })

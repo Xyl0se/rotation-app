@@ -38,6 +38,18 @@ export interface ReconcileResult {
     promotedIds: string[]
 }
 
+export interface BindingCandidate {
+    bindingAlbumId: string
+    libraryAlbumId: string
+    scanId: string
+    rank: number
+    score: number
+    confidence: "strong" | "possible" | "ambiguous"
+    reasons: Array<"title-exact" | "title-similar" | "artist-exact" | "artist-similar" | "volume-conflict">
+    title: string
+    artist: string
+}
+
 export async function fetchBindings(state?: "proposed" | "confirmed" | "missing"): Promise<BindingsListResponse> {
     const qs = state ? `?state=${state}` : ""
     return get<BindingsListResponse>(`/bindings${qs}`)
@@ -84,4 +96,20 @@ export async function reconcileBindings(): Promise<ReconcileResult> {
 
 export async function fetchOrphans(): Promise<BindingsListResponse> {
     return get<BindingsListResponse>("/bindings/orphans")
+}
+
+export async function fetchBindingCandidates(albumId: string): Promise<{ candidates: BindingCandidate[] }> {
+    return get(`/bindings/${encodeURIComponent(albumId)}/candidates`)
+}
+
+export async function selectBindingCandidate(albumId: string, libraryAlbumId: string, scanId: string): Promise<Binding> {
+    return post(`/bindings/${encodeURIComponent(albumId)}/select-candidate`, { libraryAlbumId, scanId })
+}
+
+export async function rejectBindingCandidates(albumId: string): Promise<void> {
+    await post(`/bindings/${encodeURIComponent(albumId)}/reject-candidates`)
+}
+
+export async function selectBindingLibraryAlbum(albumId: string, libraryAlbumId: string): Promise<Binding> {
+    return post(`/bindings/${encodeURIComponent(albumId)}/select-library-album`, { libraryAlbumId })
 }

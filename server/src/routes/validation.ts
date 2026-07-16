@@ -98,6 +98,10 @@ export const CaptureBindingBodySchema = z.object({
     album: AlbumSchema,
 })
 export const DeleteBindingQuerySchema = z.object({ albumId: BindingIdSchema })
+export const SelectBindingCandidateSchema = z.object({
+    libraryAlbumId: UUIDSchema,
+    scanId: UUIDSchema,
+})
 
 const AlbumIdsSchema = z.array(UUIDSchema).max(1_000).superRefine((ids, context) => {
     if (new Set(ids).size !== ids.length) {

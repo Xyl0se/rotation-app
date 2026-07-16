@@ -1,6 +1,6 @@
 # Sprint 79 — Binding Candidate Review
 
-**Status:** Planned — validate priority from production scan results after Sprint 77
+**Status:** Implemented — production candidate-quality verification pending
 
 **Target version:** `v0.27.1-dev`
 
@@ -44,12 +44,31 @@ absence of a matcher.
 
 ## Definition of Done
 
-- [ ] Real unmatched examples have regression fixtures.
-- [ ] Candidate ranking improves those fixtures without weakening exact matches.
-- [ ] No uncertain candidate is auto-confirmed.
-- [ ] Ranking reasons are understandable in the Bindings UI.
-- [ ] Duplicate-path and stale-scan edge cases are covered.
-- [ ] The feature can be bypassed through manual binding selection.
+- [x] Representative Unicode, compilation-volume, unrelated, ambiguous, and exact-match cases have regression fixtures.
+- [x] Candidate ranking improves those fixtures without weakening exact matches.
+- [x] No uncertain candidate is auto-confirmed.
+- [x] Ranking reasons are understandable in the Bindings UI in German and English.
+- [x] Duplicate-library and stale-scan selection is rejected transactionally.
+- [x] The feature can be bypassed through manual Library search or by capturing the scanned folder as a new Album.
+
+## Implemented Architecture
+
+- Unicode-safe title and artist similarity are scored independently; conflicting
+  volume numbers receive an explicit penalty.
+- At most three precision-oriented candidates are persisted per physical Binding and
+  tied to the scan that produced them.
+- Candidate selection links and confirms in one SQLite transaction. A candidate from
+  an older scan or an Album already bound elsewhere returns `409`.
+- Bindings exposes review, selection, rejection, and Capture fallback without ever
+  modifying the source music directory.
+- Reconcile now confirms only proposals that already have an explicit Library link;
+  an arbitrary folder's existence is no longer sufficient.
+
+## Remaining Production Check
+
+Run a fresh NAS scan and review candidate quality on the real unmatched folders.
+Threshold tuning may follow from observed false positives or missed candidates, but
+does not require changing the persisted/API contract.
 
 ## Non-Goals
 

@@ -9,6 +9,7 @@ import { createAlbumRepository } from "./infrastructure/persistence/sqlite/album
 import { createExportOperationRepository } from "./infrastructure/persistence/sqlite/exportOperationRepository.js"
 import { createExportLockRepository } from "./infrastructure/persistence/sqlite/exportLockRepository.js"
 import { createScanRunRepository } from "./infrastructure/persistence/sqlite/scanRunRepository.js"
+import { createBindingCandidateRepository } from "./infrastructure/persistence/sqlite/bindingCandidateRepository.js"
 import { createPathGuard } from "./infrastructure/filesystem/pathGuard.js"
 import { createDirectoryScanner } from "./infrastructure/filesystem/directoryScanner.js"
 import { createScanService } from "./application/scanService.js"
@@ -56,6 +57,7 @@ const bindingRepo = createBindingRepository(db)
 const albumRepo = createAlbumRepository(db)
 const exportRepo = createExportOperationRepository(db)
 const scanRunRepo = createScanRunRepository(db)
+const bindingCandidateRepo = createBindingCandidateRepository(db)
 const coverService = createCoverService(config.ROTATION_DATA_DIR)
 
 const musicGuard = createPathGuard(config.ROTATION_MUSIC_PATH)
@@ -63,7 +65,7 @@ const workspaceGuard = createPathGuard(config.ROTATION_WORKSPACE_PATH)
 const syncthingGuard = createPathGuard(config.ROTATION_SYNCTHING_ROOT)
 
 const scanner = createDirectoryScanner(musicGuard)
-const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo)
+const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo, bindingCandidateRepo)
 const lockRepo = createExportLockRepository(db)
 const exportService = createExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard, albumRepo)
 const bindingCaptureService = createBindingCaptureService(db, albumRepo, bindingRepo)
@@ -121,7 +123,7 @@ app.use("/config", createConfigRouter(config))
 app.use("/scan", requireSameOriginForMutations, createScanRouter(scanService, scanRunRepo, bindingRepo))
 app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo, musicGuard, workspaceGuard, syncthingGuard))
 
-app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, bindingCaptureService))
+app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, bindingCaptureService, bindingCandidateRepo))
 app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo))
 app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))

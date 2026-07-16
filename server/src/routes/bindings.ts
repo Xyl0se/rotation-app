@@ -3,6 +3,7 @@ import type { Request, Response } from "express"
 import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
 import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
 import type { BindingCaptureService } from "../application/bindingCaptureService.js"
+import type { BindingCandidateRepository } from "../infrastructure/persistence/sqlite/bindingCandidateRepository.js"
 import { existsSync } from "node:fs"
 import {
     BindingAlbumIdBodySchema,
@@ -10,6 +11,7 @@ import {
     DeleteBindingQuerySchema,
     LinkBindingBodySchema,
     parseRequest,
+    SelectBindingCandidateSchema,
 } from "./validation.js"
 
 export interface BindingDTO {
@@ -84,8 +86,46 @@ export function createBindingsRouter(
     bindingRepo: BindingRepository,
     musicGuard: PathGuard,
     captureService?: BindingCaptureService,
+    candidateRepo?: BindingCandidateRepository,
 ): Router {
     const router = Router()
+
+    router.get("/:albumId/candidates", (req: Request, res: Response) => {
+        if (!candidateRepo) return void res.json({ candidates: [] })
+        const albumId = req.params.albumId as string
+        if (!bindingRepo.findById(albumId)) return void res.status(404).json({ error: "Binding not found" })
+        res.json({ candidates: candidateRepo.findByBinding(albumId) })
+    })
+
+    router.post("/:albumId/select-candidate", (req: Request, res: Response) => {
+        if (!candidateRepo) return void res.status(501).json({ error: "Candidate review unavailable" })
+        const albumId = req.params.albumId as string
+        const body = parseRequest(SelectBindingCandidateSchema, req.body, res)
+        if (!body) return
+        const result = candidateRepo.selectCandidate(albumId, body.libraryAlbumId, body.scanId, new Date().toISOString())
+        if (result === "NOT_FOUND") return void res.status(404).json({ error: "Candidate not found" })
+        if (result !== "SELECTED") return void res.status(409).json({ error: result })
+        res.json(toDTO(bindingRepo.findWithAlbumDataById(albumId), musicGuard))
+    })
+
+    router.post("/:albumId/reject-candidates", (req: Request, res: Response) => {
+        if (!candidateRepo) return void res.status(501).json({ error: "Candidate review unavailable" })
+        const albumId = req.params.albumId as string
+        if (!bindingRepo.findById(albumId)) return void res.status(404).json({ error: "Binding not found" })
+        candidateRepo.deleteForBinding(albumId)
+        res.json({ rejected: true })
+    })
+
+    router.post("/:albumId/select-library-album", (req: Request, res: Response) => {
+        if (!candidateRepo) return void res.status(501).json({ error: "Candidate review unavailable" })
+        const albumId = req.params.albumId as string
+        const body = parseRequest(LinkBindingBodySchema.omit({ albumId: true }), req.body, res)
+        if (!body) return
+        const result = candidateRepo.selectLibraryAlbum(albumId, body.libraryAlbumId, new Date().toISOString())
+        if (result === "NOT_FOUND") return void res.status(404).json({ error: "Binding not found" })
+        if (result !== "SELECTED") return void res.status(409).json({ error: result })
+        res.json(toDTO(bindingRepo.findWithAlbumDataById(albumId), musicGuard))
+    })
 
     // GET /bindings – list all or filter by state or get single by albumId
     router.get("/", (req: Request, res: Response) => {
@@ -248,7 +288,7 @@ export function createBindingsRouter(
         const promoted: string[] = []
 
         for (const b of proposed) {
-            if (existsSync(musicGuard(b.relative_path))) {
+            if (b.library_album_id && existsSync(musicGuard(b.relative_path))) {
                 bindingRepo.confirm(b.album_id, "scan-exact", new Date().toISOString())
                 promoted.push(b.album_id)
             }

@@ -83,6 +83,73 @@
     min-width: 0;
 }
 
+.binding-candidates {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 12px;
+    border: 1px solid #40515c;
+    border-radius: 8px;
+    background: #19242b;
+}
+
+.binding-candidate {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px;
+    border-radius: 6px;
+    background: #26343d;
+}
+
+.binding-candidate > div {
+    display: grid;
+    gap: 2px;
+}
+
+.binding-candidate span,
+.binding-candidate small {
+    color: #b8c7cf;
+}
+
+.binding-candidates-reject {
+    justify-self: start;
+    border: 0;
+    background: transparent;
+    color: #d4b58f;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.binding-manual-search {
+    margin-top: 6px;
+}
+
+.binding-manual-search input {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid #4b5c66;
+    border-radius: 6px;
+    background: #101a20;
+    color: #eef3f5;
+}
+
+.binding-manual-results {
+    display: grid;
+    gap: 4px;
+}
+
+.binding-manual-results button {
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 5px;
+    background: #30414b;
+    color: #eef3f5;
+    cursor: pointer;
+    text-align: left;
+}
+
 .binding-path {
     font-weight: 500;
     font-size: 0.95rem;

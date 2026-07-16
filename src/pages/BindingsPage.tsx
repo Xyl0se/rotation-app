@@ -6,7 +6,12 @@ import {
     verifyBindings,
     reconcileBindings,
     captureBinding,
+    fetchBindingCandidates,
+    selectBindingCandidate,
+    rejectBindingCandidates,
+    selectBindingLibraryAlbum,
     type Binding,
+    type BindingCandidate,
     type VerifyResult,
     type ReconcileResult,
 } from "../services/api/bindingsService.js"
@@ -24,6 +29,7 @@ import type { RoleId } from "../domain/roles.js"
 import { generateUUID } from "../utils/uuid.js"
 import { getScanProgress, triggerScan } from "../services/api/scanService.js"
 import { updateAlbum } from "../services/api/albumsService.js"
+import { fetchAlbums } from "../services/api/albumsService.js"
 
 function makeEmptyAlbum(): Album {
     return {
@@ -60,6 +66,10 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
         directoriesSkipped: number
     } | null>(null)
     const [coachingAlbum, setCoachingAlbum] = useState<Album | null>(null)
+    const [candidateLists, setCandidateLists] = useState<Record<string, BindingCandidate[]>>({})
+    const [candidateLoadingId, setCandidateLoadingId] = useState<string | null>(null)
+    const [libraryAlbums, setLibraryAlbums] = useState<Album[]>([])
+    const [manualSearch, setManualSearch] = useState<Record<string, string>>({})
 
     const load = useCallback(async () => {
         setLoading(true)
@@ -102,6 +112,49 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
         } finally {
             setProcessingId(null)
         }
+    }
+
+    async function handleReviewCandidates(albumId: string) {
+        setCandidateLoadingId(albumId)
+        try {
+            const result = await fetchBindingCandidates(albumId)
+            setCandidateLists(previous => ({ ...previous, [albumId]: result.candidates }))
+            if (libraryAlbums.length === 0) setLibraryAlbums(await fetchAlbums())
+        } catch (e) {
+            setError(getApiErrorMessage(e))
+        } finally {
+            setCandidateLoadingId(null)
+        }
+    }
+
+    async function handleManualSelect(albumId: string, libraryAlbumId: string) {
+        setProcessingId(albumId)
+        try {
+            await selectBindingLibraryAlbum(albumId, libraryAlbumId)
+            await load()
+        } catch (e) {
+            setError(getApiErrorMessage(e))
+        } finally {
+            setProcessingId(null)
+        }
+    }
+
+    async function handleSelectCandidate(albumId: string, candidate: BindingCandidate) {
+        setProcessingId(albumId)
+        try {
+            await selectBindingCandidate(albumId, candidate.libraryAlbumId, candidate.scanId)
+            setCandidateLists(previous => ({ ...previous, [albumId]: [] }))
+            await load()
+        } catch (e) {
+            setError(getApiErrorMessage(e))
+        } finally {
+            setProcessingId(null)
+        }
+    }
+
+    async function handleRejectCandidates(albumId: string) {
+        await rejectBindingCandidates(albumId)
+        setCandidateLists(previous => ({ ...previous, [albumId]: [] }))
     }
 
     async function handleVerify() {
@@ -337,6 +390,48 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
                                 {!b.folderExists && (
                                     <span className="binding-missing">{t.bindings.folderMissing}</span>
                                 )}
+                                {candidateLists[b.albumId] && (
+                                    <div className="binding-candidates">
+                                        {candidateLists[b.albumId].length === 0 ? (
+                                            <span>{t.bindings.candidates.none}</span>
+                                        ) : candidateLists[b.albumId].map(candidate => (
+                                            <div className="binding-candidate" key={candidate.libraryAlbumId}>
+                                                <div>
+                                                    <strong>{candidate.artist} — {candidate.title}</strong>
+                                                    <span>{t.bindings.candidates.confidence[candidate.confidence]}</span>
+                                                    <small>{candidate.reasons.map(reason => t.bindings.candidates.reasons[reason]).join(" · ")}</small>
+                                                </div>
+                                                <Button onClick={() => handleSelectCandidate(b.albumId, candidate)}>
+                                                    {t.bindings.candidates.select}
+                                                </Button>
+                                            </div>
+                                        ))}
+                                        {candidateLists[b.albumId].length > 0 && (
+                                            <button className="binding-candidates-reject" onClick={() => void handleRejectCandidates(b.albumId)}>
+                                                {t.bindings.candidates.reject}
+                                            </button>
+                                        )}
+                                        <label className="binding-manual-search">
+                                            <span>{t.bindings.candidates.manual}</span>
+                                            <input
+                                                value={manualSearch[b.albumId] ?? ""}
+                                                onChange={event => setManualSearch(previous => ({ ...previous, [b.albumId]: event.target.value }))}
+                                                placeholder={t.bindings.candidates.searchPlaceholder}
+                                            />
+                                        </label>
+                                        {(manualSearch[b.albumId]?.trim().length ?? 0) > 1 && (
+                                            <div className="binding-manual-results">
+                                                {libraryAlbums.filter(album =>
+                                                    `${album.artist} ${album.title}`.toLocaleLowerCase().includes(manualSearch[b.albumId]!.trim().toLocaleLowerCase()),
+                                                ).slice(0, 5).map(album => (
+                                                    <button key={album.id} onClick={() => void handleManualSelect(b.albumId, album.id)}>
+                                                        {album.artist} — {album.title}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                             <div className="binding-actions">
                                 {b.libraryExists && b.libraryAlbumId && onNavigateToLibrary && (
@@ -357,12 +452,21 @@ export default function BindingsPage({ onNavigateToLibrary }: BindingsPageProps)
                                     </Button>
                                 )}
                                 {!b.libraryExists && (
-                                    <Button
-                                        onClick={() => handleStartCapture(b)}
-                                        disabled={processingId === b.albumId}
-                                    >
-                                        {t.bindings.capture}
-                                    </Button>
+                                    <>
+                                        <Button
+                                            variant="secondary"
+                                            onClick={() => void handleReviewCandidates(b.albumId)}
+                                            disabled={candidateLoadingId === b.albumId}
+                                        >
+                                            {candidateLoadingId === b.albumId ? t.common.loading : t.bindings.candidates.review}
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleStartCapture(b)}
+                                            disabled={processingId === b.albumId}
+                                        >
+                                            {t.bindings.capture}
+                                        </Button>
+                                    </>
                                 )}
                                 <Button
                                     variant="secondary"

@@ -2,6 +2,12 @@
 
 ## v0.26.1-dev
 
+- **Sprint 79 — Safe Binding Candidate Review**
+  - Added Unicode-safe, precision-oriented candidate ranking with separate title/artist signals, volume-conflict penalties, ambiguity detection, and a bounded top-three result.
+  - Persisted candidate evidence per scan and added stale-scan and duplicate-Library guards around transactional candidate selection.
+  - Added localized candidate review, reasons, selection, rejection, and Capture fallback directly to the Bindings workspace.
+  - Restricted Reconcile so folder existence alone can no longer confirm an unlinked proposal.
+
 - **Long-running NAS export resilience and visual refresh**
   - Replaced blocking synchronous staging copies with asynchronous filesystem operations so API health and progress endpoints remain responsive during multi-minute NAS exports.
   - Added per-file staging progress, a 15-minute staging window, resilient non-overlapping status polling, and recovery of already-running or completed jobs after an interrupted browser/proxy response.
