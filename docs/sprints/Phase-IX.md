@@ -14,7 +14,7 @@ grows: finding an album and resolving non-obvious folder bindings.
 
 1. [Sprint 77 — Production Acceptance & Release Closure](./done/Sprint-77.md) — completed
 2. [Sprint 78 — Library Findability](./done/Sprint-78.md) — completed
-3. [Sprint 79 — Binding Candidate Review](./Sprint-79.md)
+3. [Sprint 79 — Binding Candidate Review](./done/Sprint-79.md) — completed
 
 Sprint 79 is conditional on production examples showing that normalized matching
 plus manual binding is insufficient. It may be postponed without blocking Phase X.

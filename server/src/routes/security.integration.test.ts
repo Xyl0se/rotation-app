@@ -118,6 +118,12 @@ function createTestApp() {
     const coverService = {
         getCoverPath: vi.fn(() => null),
         getContentType: vi.fn(() => null),
+        getMeta: vi.fn(() => ({
+            resolutionStatus: "temporarily-unavailable",
+            lastResolutionAt: "2026-07-16T12:00:00.000Z",
+            candidateUrls: ["redacted", "redacted"],
+        })),
+        resolveRemoteCover: vi.fn(async () => ({ status: "cached" as const })),
         saveCover: vi.fn(),
         deleteCover: vi.fn(() => true),
     } as unknown as CoverService
@@ -274,6 +280,18 @@ describe("mutating API route security", () => {
 
         expect(response.status).toBe(200)
         await expect(response.json()).resolves.toEqual([])
+    })
+
+    it("exposes safe cover diagnostics without provider URLs or response bodies", async () => {
+        const response = await fetch(`${baseUrl}/covers/${ALBUM_ID}/status`)
+
+        expect(response.status).toBe(200)
+        await expect(response.json()).resolves.toEqual({
+            status: "temporarily-unavailable",
+            lastResolutionAt: "2026-07-16T12:00:00.000Z",
+            candidateCount: 2,
+            hasCachedCover: false,
+        })
     })
 
     it("allows a music scan without a write token", async () => {

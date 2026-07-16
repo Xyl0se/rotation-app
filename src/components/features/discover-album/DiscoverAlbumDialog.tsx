@@ -8,6 +8,7 @@ import Button from "../../ui/Button"
 import { searchAlbum } from "../../../services/music/albumMetadata"
 import { useI18n } from "../../../i18n/useI18n"
 import AlbumCover from "../../ui/AlbumCover"
+import { resolveServerCover } from "../../../services/api/coversService"
 
 type DiscoverStep = "title" | "artist" | "metadata" | "story"
 
@@ -118,8 +119,12 @@ function DiscoverAlbumDialog({
         try {
             const metadata = await searchAlbum(album.title, album.artist)
             if (metadata) {
+                if (metadata.coverCandidates?.length) {
+                    await resolveServerCover(album.id, metadata.coverCandidates).catch(() => undefined)
+                }
                 setAlbum(prev => ({
                     ...prev,
+                    title: metadata.title,
                     year: metadata.year ?? prev.year,
                     coverUrl: metadata.coverUrl ?? prev.coverUrl,
                 }))

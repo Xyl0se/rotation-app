@@ -5,12 +5,6 @@
 import { get, post, put, del } from "./apiClient.js"
 import type { Album } from "../../types/album.js"
 
-export interface ImportResult {
-    imported: number
-    updated: number
-    failed: number
-}
-
 export async function fetchAlbums(): Promise<Album[]> {
     return get<Album[]>("/albums")
 }
@@ -29,8 +23,4 @@ export async function updateAlbum(album: Album): Promise<Album> {
 
 export async function deleteAlbum(id: string): Promise<void> {
     return del(`/albums/${encodeURIComponent(id)}`)
-}
-
-export async function importAlbums(albums: Album[]): Promise<ImportResult> {
-    return post<ImportResult>("/albums/import", { albums })
 }

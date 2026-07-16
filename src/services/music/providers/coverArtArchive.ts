@@ -11,3 +11,7 @@ export function getCoverUrl(
     return `https://coverartarchive.org/release/${musicBrainzId}/front`
 
 }
+
+export function getReleaseGroupCoverUrl(musicBrainzId: string): string {
+    return `https://coverartarchive.org/release-group/${musicBrainzId}/front`
+}

@@ -9,17 +9,11 @@ import RotationHistoryPage from "./pages/RotationHistoryPage"
 import AppHeader, { type AppPage } from "./components/features/AppHeader"
 import ToastContainer from "./components/ui/Toast"
 
-import { STORAGE } from "./config/storage"
-import { createLocalStorageAdapter } from "./adapters/localStorageAdapter"
-import { clearLegacyLibraryStorage, runMigrations } from "./config/migrations"
-
-const adapter = createLocalStorageAdapter()
-runMigrations(adapter)
-clearLegacyLibraryStorage(adapter)
+const ONBOARDING_KEY = "rotation-onboarding-complete"
 
 function App() {
     const [showWelcome, setShowWelcome] = useState(() => {
-        return adapter.get(STORAGE.ONBOARDING) !== "true"
+        return localStorage.getItem(ONBOARDING_KEY) !== "true"
     })
     const [page, setPage] = useState<AppPage>("home")
     const [highlightAlbumId, setHighlightAlbumId] = useState<string | null>(null)
@@ -30,7 +24,7 @@ function App() {
     }
 
     function handleContinue() {
-        adapter.set(STORAGE.ONBOARDING, "true")
+        localStorage.setItem(ONBOARDING_KEY, "true")
         setShowWelcome(false)
     }
 
@@ -45,7 +39,7 @@ function App() {
     return (
         <>
             <AppHeader page={page} onNavigate={setPage} />
-            {page === "home" && <HomePage adapter={adapter} onNavigateToBindings={() => setPage("bindings")} highlightAlbumId={highlightAlbumId} />}
+            {page === "home" && <HomePage onNavigateToBindings={() => setPage("bindings")} highlightAlbumId={highlightAlbumId} />}
             {page === "bindings" && (
                 <main className="bindings-workspace">
                     <BindingsPage onNavigateToLibrary={handleNavigateToLibrary} />

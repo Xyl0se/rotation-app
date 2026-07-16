@@ -195,8 +195,8 @@ export function createAlbumRepository(db: Database.Database) {
             updated_at = excluded.updated_at
     `)
 
-    const findAllStmt = db.prepare<[]>(`
-        SELECT * FROM albums ORDER BY created_at DESC, id DESC
+    const findAllStmt = db.prepare<[number, number]>(`
+        SELECT * FROM albums ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?
     `)
 
     const findByIdStmt = db.prepare<[string]>(`
@@ -242,8 +242,8 @@ export function createAlbumRepository(db: Database.Database) {
     })
 
     return {
-        findAll(): Album[] {
-            const records = findAllStmt.all() as AlbumRecord[]
+        findAll(limit = 10_000, offset = 0): Album[] {
+            const records = findAllStmt.all(limit, offset) as AlbumRecord[]
             return records.map(recordToAlbum)
         },
 

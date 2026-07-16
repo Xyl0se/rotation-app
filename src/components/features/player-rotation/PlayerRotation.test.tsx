@@ -78,4 +78,12 @@ describe("PlayerRotation handover", () => {
         await waitFor(() => expect(screen.getByRole("alert").textContent).toBe("Preview unavailable"))
         expect(screen.queryByRole("dialog")).toBeNull()
     })
+
+    it("renders the handover evidence in English", async () => {
+        vi.stubGlobal("localStorage", { getItem: vi.fn(() => "en"), setItem: vi.fn() })
+        render(<I18nProvider><PlayerRotation albums={[album]} plan={draft} listenEvents={[]} onGenerate={vi.fn()} onAccept={vi.fn()} /></I18nProvider>)
+        fireEvent.click(screen.getByRole("button", { name: "Take With Me" }))
+        expect(await screen.findByText("1 entering · 1 leaving · 0 unchanged")).toBeTruthy()
+        expect(screen.getByText("1 missing and 0 unconfirmed Bindings")).toBeTruthy()
+    })
 })

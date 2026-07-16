@@ -64,9 +64,6 @@ export const de: Translation = {
         syncingLibrary: "Bibliothek wird synchronisiert…",
         libraryUnavailable: "Die Server-Bibliothek ist nicht verfügbar",
         retryLibrary: "Bibliothek neu laden",
-        legacyRotationFound: "Browser-lokale Rotation oder Hörhistorie gefunden. Importiere sie einmalig auf den Server, bevor du fortfährst.",
-        importLegacyRotation: "Auf Server importieren",
-        legacyRotationSummary: (plans: number, events: number) => `${plans} Rotation(en), ${events} Hörereignis(se).`,
     },
 
     emptyLibrary: {
@@ -74,7 +71,6 @@ export const de: Translation = {
         description:
             "Scanne zuerst deinen Musikordner und erfasse anschließend ein gefundenes Album.",
         cta: "Zur Bindings-Seite",
-        orImport: "Oder importiere ein bestehendes Backup:",
     },
 
     focusAlbum: {
@@ -596,32 +592,6 @@ export const de: Translation = {
         back: "Zurück",
         next: "Weiter",
         finish: "Fertig",
-    },
-
-    backup: {
-        export: "Exportieren",
-        import: "Importieren",
-        exportSuccess: "Backup heruntergeladen.",
-        importSuccess:
-            "Backup erfolgreich wiederhergestellt. Seite wird neu geladen...",
-        importDialog: {
-            title: "Backup importieren",
-            description: (fileName: string) =>
-                `Möchtest du wirklich das Backup ${fileName} importieren?`,
-            warning:
-                "Alle bestehenden Daten werden überschrieben. Diese Aktion kann nicht rückgängig gemacht werden.",
-            import: "Importieren",
-            cancel: "Abbrechen",
-        },
-        errors: {
-            invalidFormat: "Ungültiges Backup-Format.",
-            noSchemaVersion: "Backup hat keine gültige Schema-Version.",
-            noDate: "Backup hat kein gültiges Export-Datum.",
-            noData: "Backup enthält keine gültigen Daten.",
-            invalidJson: "Ungültige JSON-Datei.",
-            readError: "Datei konnte nicht gelesen werden.",
-            generic: "Fehler beim Wiederherstellen des Backups.",
-        },
     },
 
     common: {

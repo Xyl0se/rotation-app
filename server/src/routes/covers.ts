@@ -12,9 +12,33 @@ export function createCoversRouter(coverService: CoverService): Router {
         const albumId = req.params.albumId as string
         if (!parseRequest(CoverAlbumIdSchema, { albumId }, res)) return
         if (!Buffer.isBuffer(req.body)) return void res.status(400).json({ error: "Expected cover source URL" })
-        const sourceUrl = req.body.toString("utf8")
-        const result = await coverService.resolveRemoteCover(albumId, sourceUrl)
+        const body = req.body.toString("utf8")
+        let sourceUrls: string | string[] = body
+        if ((req.headers["content-type"] ?? "").includes("application/json")) {
+            try {
+                const parsed = JSON.parse(body) as { sourceUrls?: unknown }
+                if (!Array.isArray(parsed.sourceUrls) || !parsed.sourceUrls.every(value => typeof value === "string")) {
+                    return void res.status(400).json({ error: "Expected cover source URLs" })
+                }
+                sourceUrls = parsed.sourceUrls
+            } catch {
+                return void res.status(400).json({ error: "Invalid cover resolution request" })
+            }
+        }
+        const result = await coverService.resolveRemoteCover(albumId, sourceUrls)
         res.status(result.status === "cached" ? 201 : 200).json(result)
+    })
+
+    router.get("/:albumId/status", (req: Request, res: Response) => {
+        const albumId = req.params.albumId as string
+        if (!parseRequest(CoverAlbumIdSchema, { albumId }, res)) return
+        const meta = coverService.getMeta(albumId)
+        res.json({
+            status: meta?.resolutionStatus ?? (coverService.getCoverPath(albumId) ? "cached" : "not-found"),
+            lastResolutionAt: meta?.lastResolutionAt ?? null,
+            candidateCount: meta?.candidateUrls?.length ?? 0,
+            hasCachedCover: coverService.getCoverPath(albumId) !== null,
+        })
     })
 
     // GET /covers/:albumId — serve cover image

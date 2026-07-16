@@ -54,8 +54,9 @@ Every `RotationPlan` has a status:
 
 - `draft` — The suggestion is currently being reviewed and can still be edited.
 - `active` — The user has adopted the plan. It is then fixed and read-only.
+- `archived` — A previously active plan retained as immutable history.
 
-A draft can contain individual albums that the user removes or replaces with alternatives of the same role. Only when clicking "Adopt" is the plan set to `active` and saved in `rotation-active-plan`.
+A draft can contain individual albums that the user removes or replaces with alternatives of the same role. Only when clicking "Adopt" is the plan confirmed by the server as `active`; the previous active plan becomes archived transactionally.
 
 ### Replacement Logic
 
@@ -72,7 +73,7 @@ A single album highlighted in the UI.
 
 The Focus Album replaces the old language "Currently in Rotation". It does not mean that this album *is* the rotation.
 
-Technically, the app continues to use the legacy field `isCurrent` for this.
+Technically, the Focus Album is stored on the server and must belong to the active Rotation.
 
 ### Listening Session
 
@@ -92,6 +93,5 @@ The HomePage shows its own player rotation section:
 - In draft mode per tile: Remove and Replace buttons
 - Expandable drawer with 3 cover suggestions of the same role
 
-The current player rotation is stored locally:
-- Draft under `rotation-current-plan`
-- Active under `rotation-active-plan`
+Draft, active, archived history, Focus Album, and Listening Events are stored in SQLite
+through the Rotation State API. Browser storage contains no canonical Rotation data.

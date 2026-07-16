@@ -6,11 +6,14 @@
   - Added immutable archived Rotation history, Album identity snapshots, linked successful exports, pagination, and safe reuse of historical compositions as new drafts.
   - Added a server-confirmed handover comparison with membership and role deltas, quota gaps, Binding readiness, target size, and estimated export size.
   - Added a bounded audit trail for role/Archive decisions, Binding reassignment, draft changes, and Rotation acceptance. Safe Undo now previews the exact restoration and records a compensating event.
-  - Added SQLite migrations 8–10 with automated supported-v7 upgrade and complete lifecycle backup/restore coverage.
-  - Hardened remote cover resolution through validated server-side caching, bounded retries, and manual re-resolution.
+  - Added SQLite migrations 8–11 with automated supported-v7 upgrade, complete lifecycle backup/restore coverage, and measured indexes for bounded Library, Listening, History, and export-link queries.
+  - Added representative 10,000-Album/50-Rotation performance gates, explicit browser/NAS budgets, bounded Album/Binding/Listening endpoints, query-plan assertions, and DE/EN handover plus safe/unsafe Undo regressions.
+  - Hardened remote cover resolution through validated server-side caching, bounded retries, ordered MusicBrainz Release/Release Group fallbacks, safe persisted diagnostics, manual re-resolution, and one non-hotlinked rendering path across all Album surfaces.
+  - Made Capture metadata lookup tolerate filesystem punctuation substitutions such as `_` for `:` through bounded title variants while preserving genuine underscore matches and adopting confirmed MusicBrainz titles.
   - Removed the completed one-time browser Rotation/Listening import bridge while retaining supported historical migrations and Album portability.
   - Reconciled root/API versions and production API/Web image tags at `v0.29.0-rc.1`, added curated GitHub Release automation, immutable production Compose tags, release notes, and a NAS acceptance/rollback runbook.
   - Corrected the immutable GHCR references to retain the leading `v` emitted from the Git release tag, preventing Portainer `manifest unknown` failures.
+  - Removed the obsolete browser JSON backup/migration/storage-adapter stack and its dead UI/CSS/translations, while retaining SQLite migrations, server backups, the Album portability endpoint, and current browser preferences. Added an explicit legacy inventory and a no-production-seed regression test.
 
 ## v0.26.1-dev
 

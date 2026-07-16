@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted
+Superseded by ADR 014 and server-side validation/persistence. Retained as historical
+context for the removed browser repository layer.
 
 ## Context
 

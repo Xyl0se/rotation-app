@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted
+Superseded by ADR 014 and the versioned SQLite migrations. Retained as historical
+context for the removed browser-storage architecture.
 
 ## Context
 

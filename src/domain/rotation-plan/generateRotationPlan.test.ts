@@ -99,4 +99,16 @@ describe("generateRotationPlan", () => {
             expect(plan.items.filter(item => item.role === role)).toHaveLength(5)
         }
     })
+
+    it("generates from a representative 10,000 Album Library within the browser budget", () => {
+        const roles = ["new", "comfort-food", "classic", "growing"] as const
+        const albums = Array.from({ length: 10_000 }, (_, index) => makeAlbum({
+            id: `performance-${index}`,
+            category: roles[index % roles.length],
+            listenCount: index % 50,
+        }))
+        const started = performance.now()
+        expect(generateRotationPlan(albums).items).toHaveLength(25)
+        expect(performance.now() - started).toBeLessThan(500)
+    })
 })

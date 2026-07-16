@@ -34,10 +34,18 @@ function legacyDatabase() {
 }
 
 describe("SQLite schema migrations", () => {
+    it("starts with empty production domain tables and never seeds demo data", () => {
+        const db = initDatabase(":memory:")
+        for (const table of ["albums", "bindings", "rotation_plans", "listen_events", "export_operations"]) {
+            expect(db.prepare(`SELECT COUNT(*) count FROM ${table}`).get()).toEqual({ count: 0 })
+        }
+        db.close()
+    })
+
     it("records every migration and sets the user version", () => {
         const db = initDatabase(":memory:")
 
-        expect(db.pragma("user_version", { simple: true })).toBe(10)
+        expect(db.pragma("user_version", { simple: true })).toBe(11)
         expect(db.prepare("SELECT version, name FROM schema_migrations ORDER BY version").all())
             .toEqual([
                 { version: 1, name: "initial-schema" },
@@ -50,6 +58,7 @@ describe("SQLite schema migrations", () => {
                 { version: 8, name: "rotation-lifecycle-history" },
                 { version: 9, name: "domain-audit-trail" },
                 { version: 10, name: "expanded-domain-audit-trail" },
+                { version: 11, name: "bounded-list-query-indexes" },
             ])
         db.close()
     })
@@ -98,7 +107,7 @@ describe("SQLite schema migrations", () => {
         const second = initDatabase(path)
 
         expect(second.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get())
-            .toEqual({ count: 10 })
+            .toEqual({ count: 11 })
         second.close()
     })
 
@@ -115,7 +124,7 @@ describe("SQLite schema migrations", () => {
         v7.close()
 
         const upgraded = initDatabase(path)
-        expect(upgraded.pragma("user_version", { simple: true })).toBe(10)
+        expect(upgraded.pragma("user_version", { simple: true })).toBe(11)
         expect(upgraded.prepare("SELECT title FROM albums WHERE id='album-v7'").get()).toEqual({ title: "Preserved" })
         expect(upgraded.prepare("SELECT status, archived_at FROM rotation_plans WHERE id='rotation-v7'").get()).toEqual({ status: "active", archived_at: null })
         expect(upgraded.prepare("SELECT album_title_snapshot, album_artist_snapshot FROM rotation_plan_items WHERE rotation_plan_id='rotation-v7'").get())

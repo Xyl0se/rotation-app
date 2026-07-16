@@ -139,6 +139,8 @@ export function createBindingsRouter(
     router.get("/", (req: Request, res: Response) => {
         const albumId = req.query.albumId as string | undefined
         const state = req.query.state as string | undefined
+        const limit = Math.min(Math.max(Number(req.query.limit) || 10_000, 1), 10_000)
+        const offset = Math.max(Number(req.query.offset) || 0, 0)
 
         if (albumId) {
             const record = bindingRepo.findWithAlbumDataById(albumId)
@@ -153,7 +155,7 @@ export function createBindingsRouter(
         const records = state
             ? bindingRepo.findWithAlbumDataByState(state as "unbound" | "proposed" | "confirmed" | "missing")
             : bindingRepo.findWithAlbumData()
-        const dtos = records
+        const dtos = records.slice(offset, offset + limit)
             .map((r) => toDTO(r, musicGuard))
             .filter((dto): dto is BindingDTO => dto !== null)
         res.json({ bindings: dtos, count: dtos.length })

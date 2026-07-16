@@ -25,7 +25,7 @@ place; do not mark an item green based only on local tests.
 
 - [ ] Pull both `0.29.0-rc.1` images and redeploy the stack.
 - [ ] API becomes healthy without a migration/startup error.
-- [ ] `schema_migrations` contains versions 1–10 and `PRAGMA integrity_check` is `ok`.
+- [ ] `schema_migrations` contains versions 1–11 and `PRAGMA integrity_check` is `ok`.
 - [ ] Existing Library, Bindings, Rotation, Focus, Listening Events, settings, history,
       audit records, and prior export linkage remain readable.
 
@@ -54,13 +54,26 @@ place; do not mark an item green based only on local tests.
       navigation, Rotation cards, and handover/Undo confirmations remain operable.
 - [ ] DE and EN: no untranslated operational or Insights text is visible.
 
+## Performance observations
+
+Record cold/warm values against the budgets in `PERFORMANCE-BASELINE.md`:
+
+| Path | Cold | Warm | Pass / evidence |
+|---|---:|---:|---|
+| Home usable | | | |
+| Library filter/page | | | |
+| Rotation generation | | | |
+| History page | | | |
+| Music-folder scan | | | |
+| Export preview | | | |
+
 ## Rollback boundary
 
 If deployment or migration fails:
 
 1. Stop API and Web; do not repeatedly restart a failing migration.
 2. Save the failing API log and current database as evidence.
-3. Restore the pre-deploy database backup. A database opened by schema 10 must not be
+3. Restore the pre-deploy database backup. A database opened by schema 11 must not be
    used with an older image.
 4. Set both Compose images to the recorded previous matching SHA tags.
 5. Redeploy and verify `/health`, Library, active Rotation, and export folder contents.

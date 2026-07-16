@@ -161,6 +161,15 @@ describe("rotation state route contract", () => {
         expect(database.prepare("SELECT listen_count FROM albums WHERE id = ?").get(ALBUM_A)).toEqual({ listen_count: 1 })
     })
 
+    it("bounds and paginates listening history newest first", async () => {
+        const newer = { id: "550e8400-e29b-41d4-a716-446655440032", albumId: ALBUM_B, listenedAt: "2026-07-16T12:00:00.000Z" }
+        expect((await request("POST", "/rotation-state/listens", newer)).status).toBe(201)
+        const firstPage = await (await fetch(`${baseUrl}/rotation-state/listens?limit=1`)).json()
+        const secondPage = await (await fetch(`${baseUrl}/rotation-state/listens?limit=1&offset=1`)).json()
+        expect(firstPage).toEqual([newer])
+        expect(secondPage).toEqual([expect.objectContaining({ id: EVENT_ID })])
+    })
+
     it("rejects listening events for unknown Albums", async () => {
         const response = await request("POST", "/rotation-state/listens", {
             id: "550e8400-e29b-41d4-a716-446655440031",

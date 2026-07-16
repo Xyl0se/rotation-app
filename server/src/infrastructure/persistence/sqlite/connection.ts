@@ -381,6 +381,17 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 11,
+        name: "bounded-list-query-indexes",
+        run(db) {
+            db.exec(`
+                CREATE INDEX idx_albums_created_id ON albums(created_at DESC, id DESC);
+                CREATE INDEX idx_listen_events_time ON listen_events(listened_at DESC, id DESC);
+                CREATE INDEX idx_exports_rotation_status_created ON export_operations(rotation_plan_id, status, created_at DESC);
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database, maxMigrationVersion: number): void {

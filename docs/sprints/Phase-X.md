@@ -11,7 +11,7 @@ distinguish real operational needs from speculative platform work.
 
 ## Planned Foundation
 
-- [Sprint 80 — Canonical Listening & Rotation Persistence](./Sprint-80.md)
+- [Sprint 80 — Canonical Listening & Rotation Persistence](./done/Sprint-80.md)
 
 Listening History, Focus Album, and RotationPlan currently remain canonical in
 browser storage. Moving them to server ownership closes a durability and backup gap.

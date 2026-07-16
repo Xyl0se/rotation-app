@@ -63,9 +63,6 @@ export const en = {
         syncingLibrary: "Synchronizing Library…",
         libraryUnavailable: "The server Library is unavailable",
         retryLibrary: "Reload Library",
-        legacyRotationFound: "A browser-local Rotation or listening history was found. Import it to the server once before continuing.",
-        importLegacyRotation: "Import to server",
-        legacyRotationSummary: (plans: number, events: number) => `${plans} Rotation plan(s), ${events} listening event(s).`,
     },
 
     emptyLibrary: {
@@ -73,7 +70,6 @@ export const en = {
         description:
             "Scan your music folder first, then capture one of the albums found there.",
         cta: "Open Bindings",
-        orImport: "Or import an existing backup:",
     },
 
     focusAlbum: {
@@ -595,32 +591,6 @@ export const en = {
         back: "Back",
         next: "Next",
         finish: "Finish",
-    },
-
-    backup: {
-        export: "Export",
-        import: "Import",
-        exportSuccess: "Backup downloaded.",
-        importSuccess:
-            "Backup successfully restored. Page will reload...",
-        importDialog: {
-            title: "Import Backup",
-            description: (fileName: string) =>
-                `Do you really want to import the backup ${fileName}?`,
-            warning:
-                "All existing data will be overwritten. This action cannot be undone.",
-            import: "Import",
-            cancel: "Cancel",
-        },
-        errors: {
-            invalidFormat: "Invalid backup format.",
-            noSchemaVersion: "Backup has no valid schema version.",
-            noDate: "Backup has no valid export date.",
-            noData: "Backup contains no valid data.",
-            invalidJson: "Invalid JSON file.",
-            readError: "File could not be read.",
-            generic: "Error restoring backup.",
-        },
     },
 
     common: {

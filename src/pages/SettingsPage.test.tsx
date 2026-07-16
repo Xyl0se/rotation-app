@@ -27,4 +27,12 @@ describe("SettingsPage safe undo",()=>{
         fireEvent.click(screen.getByRole("button",{name:"Wiederherstellung bestätigen"}))
         await waitFor(()=>expect(undoLastAuditEvent).toHaveBeenCalledOnce())
     })
+    it("does not offer Undo when the server reports no safe inverse",async()=>{
+        vi.mocked(fetchAuditEvents).mockResolvedValue({events:[]})
+        vi.mocked(fetchUndoPreview).mockRejectedValue(new Error("NOTHING_TO_UNDO"))
+        render(<I18nProvider><SettingsPage/></I18nProvider>)
+        const button=await screen.findByRole("button",{name:"Letzte Rollenänderung rückgängig"})
+        expect((button as HTMLButtonElement).disabled).toBe(true)
+        expect(screen.queryByRole("dialog")).toBeNull()
+    })
 })

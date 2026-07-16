@@ -1,7 +1,6 @@
 import { useState } from "react"
 
 import type { RoleId } from "../domain/roles"
-import type { StorageAdapter } from "../adapters/storageAdapter"
 
 import { useLibrary } from "../hooks/useLibrary"
 import { useRotationPlan } from "../hooks/useRotationPlan"
@@ -23,18 +22,16 @@ import AlbumCoach from "../components/features/album-coach/AlbumCoach"
 import CoachOrphanPrompt from "../components/features/album-coach/CoachOrphanPrompt"
 import ArchiveProtectionCoach from "../components/features/archive/ArchiveProtectionCoach"
 import ArchiveReturnCoach from "../components/features/archive/ArchiveReturnCoach"
-import BackupControls from "../components/features/backup/BackupControls"
 
 import { evaluateReflection } from "../domain/reflection/evaluateReflection"
 import { useI18n } from "../i18n/useI18n"
 
 interface HomePageProps {
-    adapter: StorageAdapter
     onNavigateToBindings?: () => void
     highlightAlbumId?: string | null
 }
 
-function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageProps) {
+function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     const { t } = useI18n()
     const [reflectionAlbumId, setReflectionAlbumId] = useState<string | null>(null)
     const [archiveAlbumId, setArchiveAlbumId] = useState<string | null>(null)
@@ -58,7 +55,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
         setCoverUrlOverride,
         removeAlbumCoverOverride,
         retryAlbumCover,
-    } = useLibrary(adapter, serverConnected)
+    } = useLibrary(serverConnected)
 
     const {
         rotationPlan,
@@ -184,9 +181,7 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                 albums.length === 0
                     ? (
                         <EmptyLibrary
-                            adapter={adapter}
                             onNavigateToBindings={() => onNavigateToBindings?.()}
-                            onBackupRestored={() => window.location.reload()}
                         />
                     )
                     : (
@@ -243,10 +238,6 @@ function HomePage({ adapter, onNavigateToBindings, highlightAlbumId }: HomePageP
                                 onReconsider={setArchiveReturnAlbumId}
                                 onSetFocus={setFocusAlbumId}
                                 onStartCoach={setManualCoachAlbumId}
-                            />
-                            <BackupControls
-                                adapter={adapter}
-                                onRestored={() => window.location.reload()}
                             />
                         </>
                     )

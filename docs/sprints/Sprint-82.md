@@ -1,6 +1,6 @@
 # Sprint 82 — Rotation Lifecycle & Release Readiness
 
-**Status:** In progress — Workstreams 82A–82C completed
+**Status:** In progress — Workstreams 82A–82C, 82E and 82G completed; NAS gates pending
 
 **Target version:** `v0.29.0-rc.1`; stable `v0.29.0` follows only after NAS acceptance
 
@@ -79,9 +79,9 @@ the earlier one. Only one Rotation is active, but any number may be archived.
 - [ ] Complete visual acceptance of Sprint 81 on desktop and a narrow browser viewport
   using `docs/SPRINT-82-RELEASE-ACCEPTANCE.md` after the images are published.
 
-## Workstream 82E — Legacy Cleanup & Production-Code Hygiene — 🟡 teilweise abgeschlossen
+## Workstream 82E — Legacy Cleanup & Production-Code Hygiene — ✅ abgeschlossen
 
-- Inventory every browser-era compatibility path and classify it as `required
+- [x] Inventory every browser-era compatibility path and classify it as `required
   migration`, `temporary release bridge`, or `obsolete`. Document the decision before
   deleting code.
 - [x] Remove the one-time browser Rotation/Listening import UI, API, repository methods,
@@ -93,47 +93,47 @@ the earlier one. Only one Rotation is active, but any number may be archived.
 - [x] Preserve historical SQLite migrations required to open supported databases. Cleanup
   means removing unreachable runtime compatibility code, not rewriting applied
   migration history.
-- Move fixtures, fake Albums, demo constants, and test-only helpers out of production
+- [x] Move fixtures, fake Albums, demo constants, and test-only helpers out of production
   bundles. Prove that production startup never seeds or silently substitutes sample
   data.
-- Find and remove unused exports, components, hooks, repository factories, assets,
+- [x] Find and remove unused exports, components, hooks, repository factories, assets,
   dependencies, CSS selectors, and obsolete documentation links using compiler/lint
   evidence plus repository-wide reference checks.
-- Collapse duplicate client/server domain definitions only where a shared contract
+- [x] Collapse duplicate client/server domain definitions only where a shared contract
   reduces drift without coupling browser code to server infrastructure.
-- Keep cleanup commits behavior-preserving and covered by characterization tests;
+- [x] Keep cleanup commits behavior-preserving and covered by characterization tests;
   avoid combining speculative architectural rewrites with deletion.
 
-## Workstream 82F — Measured Performance & Test Gate — 🟡 teilweise abgeschlossen
+## Workstream 82F — Measured Performance & Test Gate — 🟡 implementation complete, NAS observations pending
 
-- Establish reproducible baselines before optimizing: initial Home/API load, Library
+- [x] Establish reproducible baselines before optimizing: initial Home/API load, Library
   filtering and pagination, Rotation generation, history pagination, scan, export
   preview, and memory/bundle size on representative data.
-- Define proportionate budgets for the actual NAS and browser target instead of using
+- [x] Define proportionate budgets for the actual NAS and browser target instead of using
   generic “industry standard” numbers. Record dataset size, hardware, cold/warm state,
   and measurement method.
-- [ ] Inspect SQLite query plans and add indexes only for demonstrated hot queries. Prevent
+- [x] Inspect SQLite query plans and add indexes only for demonstrated hot queries. Prevent
   unbounded list endpoints and avoid loading Rotation history, audit history, or full
   Listening history into initial Home state. History and audit endpoints are bounded;
   query-plan evidence remains open.
-- Profile render/recalculation paths before adding memoization or virtualization.
+- [x] Profile render/recalculation paths before adding memoization or virtualization.
   Optimize only measured regressions and preserve readable domain code.
-- Audit synchronous filesystem work on request paths. Move or bound operations only
+- [x] Audit synchronous filesystem work on request paths. Move or bound operations only
   where measurements show event-loop blocking; retain the existing durable job model
   for long exports.
-- Add regression checks for selected budgets where stable automation is possible;
+- [x] Add regression checks for selected budgets where stable automation is possible;
   document NAS measurements where CI timing would be misleading.
 
-- Add route-level tests for history pagination, one-active invariant, transactional
+- [x] Add route-level tests for history pagination, one-active invariant, transactional
   handover, immutable archived records, export linkage, and conflict responses.
-- Add UI regression tests for comparison, warnings, blocked acceptance, retry,
+- [x] Add UI regression tests for comparison, warnings, blocked acceptance, retry,
   history, and safe/unsafe Undo states in DE and EN.
-- Verify the lifecycle with a representative Library and at least 50 historical
+- [x] Verify the lifecycle with a representative Library and at least 50 historical
   Rotations without loading all history into the initial Home response.
-- Run one production NAS acceptance from draft through acceptance, export, next
+- [ ] Run one production NAS acceptance from draft through acceptance, export, next
   Rotation, history inspection, backup/restore, and rollback documentation.
 
-## Workstream 82G — Reliable Cover Resolution — 🟡 teilweise abgeschlossen
+## Workstream 82G — Reliable Cover Resolution — ✅ abgeschlossen
 
 - [x] Resolve and download discovered covers through the API instead of relying on a
   browser hotlink as the durable display source.
@@ -141,15 +141,18 @@ the earlier one. Only one Rotation is active, but any number may be archived.
   image signature before storing a cover in the server cover directory.
 - [x] Retry only temporary failures (`429` and bounded `5xx`/network failures) with a
   small backoff; do not permanently negative-cache a transient provider outage.
-- If the chosen MusicBrainz Release has no usable front cover, try a bounded ordered
+- [x] If the chosen MusicBrainz Release has no usable front cover, try a bounded ordered
   set of matching Releases and the Release Group where available. Prefer no cover to
   a confidently wrong cover.
-- Persist and expose safe resolution states (`cached`, `not-found`,
+- [x] Treat filesystem punctuation substitutions as search hints: keep an exact `_`
+  match intact, then try bounded colon, dash, space, and punctuation-independent title
+  variants before declaring metadata unavailable. Adopt the confirmed MusicBrainz title.
+- [x] Persist and expose safe resolution states (`cached`, `not-found`,
   `temporarily-unavailable`, `invalid-image`) for diagnostics and manual retry without
   leaking third-party response bodies.
 - [x] Add “Find cover again” to Album editing and retain the current cover until a valid
   replacement is confirmed.
-- Route Discover preview, Library, Role Explorer, Focus, Rotation, and Coach through
+- [x] Route Discover preview, Library, Role Explorer, Focus, Rotation, and Coach through
   the same resilient `AlbumCover` behavior; remove direct external `<img>` paths.
 - [x] Cover provider failures must not block Album capture or role assignment.
 
@@ -163,13 +166,13 @@ the earlier one. Only one Rotation is active, but any number may be archived.
 - [x] Every offered Undo is server-confirmed, auditable, and demonstrably safe.
 - [x] Rotation and export history are linked by stable identifiers.
 - [x] All versions and immutable container tags agree.
-- [ ] Every legacy/import path has an explicit keep/remove decision; obsolete browser
+- [x] Every legacy/import path has an explicit keep/remove decision; obsolete browser
   bridges, dead code, production test data, unused assets, and unused dependencies are
   removed without breaking supported database upgrades or portability workflows.
-- [ ] Performance baselines and budgets are recorded, relevant endpoints are bounded,
+- [x] Performance baselines and budgets are recorded, relevant endpoints are bounded,
   and demonstrated hot paths meet the agreed NAS/browser targets without speculative
   optimization.
-- [ ] Valid covers are cached server-side, bounded fallbacks are attempted, temporary
+- [x] Valid covers are cached server-side, bounded fallbacks are attempted, temporary
   errors remain retryable, every Album surface uses consistent fallback behavior, and
   manual re-resolution is tested in DE and EN.
 - [ ] Migration, backup/restore, rollback, route, UI, and NAS release gates pass. Automated
@@ -216,17 +219,20 @@ the earlier one. Only one Rotation is active, but any number may be archived.
   asks for confirmation, waits for the server, and records a compensating event.
 - Root and API packages, README, Changelog, Versioning, Roadmap, production Compose,
   curated release notes, and GitHub tag-release automation now agree on
-  `v0.29.0-rc.1`. The supported schema-7 upgrade through migrations 8–10 and complete
+  `v0.29.0-rc.1`. The supported schema-7 upgrade through migrations 8–11 and complete
   lifecycle backup/restore are automated; the production NAS/visual checklist and
   explicit database/image rollback boundary live in `SPRINT-82-RELEASE-ACCEPTANCE.md`.
-- New Album capture now asks the API to download the discovered cover from an explicit
-  provider allowlist, validates type/size/signature, retries temporary failures, and
-  stores only confirmed images. Direct Role Explorer and Discover hotlinks now use the
-  common `AlbumCover` fallback path.
+- New Album capture now asks the API to try up to three ordered matching MusicBrainz
+  Releases and their Release Group, download the first valid image from an explicit
+  provider allowlist, validate type/size/signature, and retry temporary failures.
+  Safe resolution diagnostics and candidates are retained for manual retry while an
+  existing valid cover remains untouched. Every Album surface uses the common
+  `AlbumCover` path without assigning third-party URLs directly to image elements.
+- Capture metadata search tolerates NAS/filesystem substitutions such as `_` for `:`
+  without blindly rewriting genuine underscores; the original query always has priority.
 - The confirmed one-time browser Rotation/Listening import UI, endpoint, client API,
   and repository runtime path have been removed; historical SQLite migrations and the
   Album portability import remain intact.
 - Album editing now offers manual cover re-resolution without replacing a working
   cover until a valid server download succeeds.
-- Remaining dead-code cleanup, performance evidence, Release work, provider candidate fallback, and
-  production acceptance remain open.
+- Production NAS performance/release acceptance and the Sprint 81 visual gate remain open.

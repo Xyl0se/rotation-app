@@ -3,13 +3,20 @@ import { join, extname, relative, resolve } from "node:path"
 import { randomUUID } from "node:crypto"
 
 export interface CoverMeta {
-    contentType: string
-    uploadedAt: string
+    contentType?: string
+    uploadedAt?: string
     source?: "upload" | "url" | "alternative"
+    resolutionStatus?: CoverResolutionStatus
+    lastResolutionAt?: string
+    candidateUrls?: string[]
 }
+
+export type CoverResolutionStatus = "cached" | "not-found" | "temporarily-unavailable" | "invalid-image"
+export interface CoverResolutionResult { status: CoverResolutionStatus }
 
 const MAX_COVER_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
 const COVER_HOSTS = new Set(["coverartarchive.org", "archive.org"])
+const MAX_COVER_CANDIDATES = 4
 
 const VALID_IMAGE_TYPES = new Set([
     "image/jpeg",
@@ -92,6 +99,32 @@ export function createCoverService(dataDir: string) {
         }
     }
 
+    function readMeta(albumId: string): CoverMeta | null {
+        const metaPath = getMetaPath(albumId)
+        if (!existsSync(metaPath)) return null
+        try {
+            return JSON.parse(readFileSync(metaPath, "utf-8")) as CoverMeta
+        } catch {
+            return null
+        }
+    }
+
+    function writeMeta(albumId: string, meta: CoverMeta): void {
+        writeFileSync(getMetaPath(albumId), JSON.stringify(meta))
+    }
+
+    function sanitizeCandidates(sourceUrls: string[]): string[] {
+        const candidates: string[] = []
+        for (const sourceUrl of sourceUrls) {
+            let parsed: URL
+            try { parsed = new URL(sourceUrl) } catch { continue }
+            if (parsed.protocol !== "https:" || !COVER_HOSTS.has(parsed.hostname)) continue
+            if (!candidates.includes(parsed.toString())) candidates.push(parsed.toString())
+            if (candidates.length === MAX_COVER_CANDIDATES) break
+        }
+        return candidates
+    }
+
     return {
         coversDir,
 
@@ -131,10 +164,14 @@ export function createCoverService(dataDir: string) {
             const temporaryCoverPath = safeCoverPath(`${albumId}${ext}${temporarySuffix}`)
             const temporaryMetaPath = safeCoverPath(`${albumId}.json${temporarySuffix}`)
 
+            const previousMeta = readMeta(albumId)
             const meta: CoverMeta = {
                 contentType,
                 uploadedAt: new Date().toISOString(),
                 source,
+                resolutionStatus: "cached",
+                lastResolutionAt: source === "url" ? new Date().toISOString() : previousMeta?.lastResolutionAt,
+                candidateUrls: previousMeta?.candidateUrls,
             }
             try {
                 writeFileSync(temporaryCoverPath, buffer, { flag: "wx" })
@@ -152,35 +189,49 @@ export function createCoverService(dataDir: string) {
             }
         },
 
-        async resolveRemoteCover(albumId: string, sourceUrl: string): Promise<{ status: "cached" | "not-found" | "temporarily-unavailable" | "invalid-image" }> {
+        async resolveRemoteCover(albumId: string, sourceUrls: string | string[]): Promise<CoverResolutionResult> {
             assertValidAlbumId(albumId)
-            let parsed: URL
-            try { parsed = new URL(sourceUrl) } catch { return { status: "invalid-image" } }
-            if (parsed.protocol !== "https:" || !COVER_HOSTS.has(parsed.hostname)) return { status: "invalid-image" }
-            for (let attempt = 0; attempt < 3; attempt++) {
-                try {
-                    const response = await fetch(parsed, { redirect: "follow", signal: AbortSignal.timeout(12_000) })
-                    if (response.status === 404) return { status: "not-found" }
-                    if (response.status === 429 || response.status >= 500) {
+            const previousMeta = readMeta(albumId)
+            const requested = Array.isArray(sourceUrls) ? sourceUrls : [sourceUrls]
+            const candidates = sanitizeCandidates([...requested, ...(previousMeta?.candidateUrls ?? [])])
+            let finalStatus: CoverResolutionStatus = candidates.length > 0 ? "not-found" : "invalid-image"
+
+            for (const candidate of candidates) {
+                const parsed = new URL(candidate)
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    try {
+                        const response = await fetch(parsed, { redirect: "follow", signal: AbortSignal.timeout(12_000) })
+                        if (response.status === 404) break
+                        if (response.status === 429 || response.status >= 500) {
+                            finalStatus = "temporarily-unavailable"
+                            if (attempt < 2) { await new Promise(resolve => setTimeout(resolve, 150 * 2 ** attempt)); continue }
+                            break
+                        }
+                        if (!response.ok) { finalStatus = "invalid-image"; break }
+                        const finalUrl = response.url ? new URL(response.url) : parsed
+                        if (!COVER_HOSTS.has(finalUrl.hostname)) { finalStatus = "invalid-image"; break }
+                        const contentType = (response.headers.get("content-type") ?? "").split(";")[0]!
+                        const declaredSize = Number(response.headers.get("content-length") ?? 0)
+                        if (!VALID_IMAGE_TYPES.has(contentType) || declaredSize > MAX_COVER_SIZE_BYTES) { finalStatus = "invalid-image"; break }
+                        const buffer = Buffer.from(await response.arrayBuffer())
+                        if (buffer.length === 0 || buffer.length > MAX_COVER_SIZE_BYTES || !hasExpectedSignature(buffer, contentType)) { finalStatus = "invalid-image"; break }
+                        writeMeta(albumId, { ...previousMeta, candidateUrls: candidates })
+                        this.saveCover(albumId, buffer, contentType, "url")
+                        return { status: "cached" }
+                    } catch {
+                        finalStatus = "temporarily-unavailable"
                         if (attempt < 2) { await new Promise(resolve => setTimeout(resolve, 150 * 2 ** attempt)); continue }
-                        return { status: "temporarily-unavailable" }
+                        break
                     }
-                    if (!response.ok) return { status: "invalid-image" }
-                    const finalUrl = response.url ? new URL(response.url) : parsed
-                    if (!COVER_HOSTS.has(finalUrl.hostname)) return { status: "invalid-image" }
-                    const contentType = (response.headers.get("content-type") ?? "").split(";")[0]!
-                    const declaredSize = Number(response.headers.get("content-length") ?? 0)
-                    if (!VALID_IMAGE_TYPES.has(contentType) || declaredSize > MAX_COVER_SIZE_BYTES) return { status: "invalid-image" }
-                    const buffer = Buffer.from(await response.arrayBuffer())
-                    if (buffer.length === 0 || buffer.length > MAX_COVER_SIZE_BYTES || !hasExpectedSignature(buffer, contentType)) return { status: "invalid-image" }
-                    this.saveCover(albumId, buffer, contentType, "url")
-                    return { status: "cached" }
-                } catch {
-                    if (attempt === 2) return { status: "temporarily-unavailable" }
-                    await new Promise(resolve => setTimeout(resolve, 150 * 2 ** attempt))
                 }
             }
-            return { status: "temporarily-unavailable" }
+            writeMeta(albumId, {
+                ...previousMeta,
+                resolutionStatus: finalStatus,
+                lastResolutionAt: new Date().toISOString(),
+                candidateUrls: candidates,
+            })
+            return { status: finalStatus }
         },
 
         getCoverPath(albumId: string): string | null {
@@ -210,7 +261,7 @@ export function createCoverService(dataDir: string) {
             if (existsSync(metaPath)) {
                 try {
                     const meta = JSON.parse(readFileSync(metaPath, "utf-8")) as CoverMeta
-                    return meta.contentType
+                    return meta.contentType ?? null
                 } catch {
                     // fall through
                 }
@@ -223,15 +274,7 @@ export function createCoverService(dataDir: string) {
         },
 
         getMeta(albumId: string): CoverMeta | null {
-            const metaPath = getMetaPath(albumId)
-            if (!existsSync(metaPath)) {
-                return null
-            }
-            try {
-                return JSON.parse(readFileSync(metaPath, "utf-8")) as CoverMeta
-            } catch {
-                return null
-            }
+            return readMeta(albumId)
         },
     }
 }

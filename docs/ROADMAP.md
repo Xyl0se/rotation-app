@@ -74,7 +74,7 @@ features without re-evaluating production evidence after each sprint.
 | Asynchronous scan engine | Potentially useful only for measured slow/large NAS libraries | Conditional backlog |
 | Weekly Reflection and listening patterns | Product-aligned once durable state exists | Reflection Inbox in Sprint 83; optional Journal in Sprint 84 |
 
-The misnumbered [Search & Discovery note](./sprints/Sprint-61.md) and historical
+The misnumbered [Search & Discovery note](./sprints/done/Sprint-61.md) and historical
 [Sprint 68B](./sprints/done/Sprint-68B.md) remains as a superseded pointer so older
 references continue to resolve.
 

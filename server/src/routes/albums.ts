@@ -21,8 +21,10 @@ export function createAlbumsRouter(albumRepo: AlbumRepository, auditRepo?: Audit
     const router = Router()
 
     // GET /albums — list all albums
-    router.get("/", (_req: Request, res: Response) => {
-        const albums = albumRepo.findAll()
+    router.get("/", (req: Request, res: Response) => {
+        const limit = Math.min(Math.max(Number(req.query.limit) || 10_000, 1), 10_000)
+        const offset = Math.max(Number(req.query.offset) || 0, 0)
+        const albums = albumRepo.findAll(limit, offset)
         res.json(albums)
     })
 

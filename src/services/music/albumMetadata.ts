@@ -4,6 +4,7 @@ import {
 
 import {
     getCoverUrl,
+    getReleaseGroupCoverUrl,
 } from "./providers/coverArtArchive"
 
 export interface AlbumMetadata {
@@ -18,6 +19,27 @@ export interface AlbumMetadata {
 
     musicBrainzId?: string
 
+    coverCandidates?: string[]
+
+}
+
+function filesystemTitleVariants(title: string): string[] {
+    const variants = [
+        title,
+        title.replaceAll("_", ": "),
+        title.replaceAll("_", " – "),
+        title.replaceAll("_", " "),
+    ].map(value => value.replace(/\s+/g, " ").trim())
+    return [...new Set(variants)]
+}
+
+function wordsOnly(title: string): string {
+    return title
+        .normalize("NFKD")
+        .replace(/\p{Mark}/gu, "")
+        .replace(/[^\p{Letter}\p{Number}]+/gu, " ")
+        .trim()
+        .replace(/\s+/g, " ")
 }
 
 /**
@@ -35,14 +57,16 @@ export async function searchAlbum(
 
 ): Promise<AlbumMetadata | null> {
 
-    const result =
-        await searchMusicBrainz(
+    let result = { releases: [] } as Awaited<ReturnType<typeof searchMusicBrainz>>
+    const variants = filesystemTitleVariants(title)
+    for (const variant of variants) {
+        result = await searchMusicBrainz(variant, artist)
+        if (result.releases.length > 0) break
+    }
 
-            title,
-
-            artist,
-
-        )
+    if (result.releases.length === 0) {
+        result = await searchMusicBrainz(wordsOnly(variants.at(-1) ?? title), artist, "words")
+    }
 
     if (result.releases.length === 0) {
 
@@ -52,6 +76,12 @@ export async function searchAlbum(
 
     const release =
         result.releases[0]
+
+    const coverCandidates = result.releases
+        .slice(0, 3)
+        .map(candidate => getCoverUrl(candidate.id))
+    const releaseGroupId = release["release-group"]?.id
+    if (releaseGroupId) coverCandidates.push(getReleaseGroupCoverUrl(releaseGroupId))
 
     return {
 
@@ -63,9 +93,8 @@ export async function searchAlbum(
 
         musicBrainzId: release.id,
 
-        coverUrl: getCoverUrl(
-            release.id,
-        ),
+        coverUrl: coverCandidates[0],
+        coverCandidates: [...new Set(coverCandidates)].slice(0, 4),
 
     }
 

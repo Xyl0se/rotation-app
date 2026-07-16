@@ -1,7 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { createMemoryStorageAdapter } from "../adapters/memoryStorageAdapter"
-import { STORAGE } from "../config/storage"
 import type { Album } from "../types/album"
 import { createAlbum, fetchAlbums, updateAlbum } from "../services/api/albumsService"
 import { useLibrary } from "./useLibrary"
@@ -40,25 +38,21 @@ describe("useLibrary server ownership", () => {
     beforeEach(() => vi.clearAllMocks())
 
     it("loads only the authoritative server Library", async () => {
-        const adapter = createMemoryStorageAdapter()
-        adapter.set(STORAGE.LIBRARY, JSON.stringify([album("local", "Local")]))
         vi.mocked(fetchAlbums).mockResolvedValueOnce([album()])
 
-        const { result } = renderHook(() => useLibrary(adapter, true))
+        const { result } = renderHook(() => useLibrary(true))
 
         await waitFor(() => expect(result.current.isLoading).toBe(false))
         expect(result.current.albums).toEqual([album()])
-        expect(adapter.get(STORAGE.LIBRARY)).not.toBe(JSON.stringify(result.current.albums))
     })
 
     it("adds an Album only after the server confirms it", async () => {
-        const adapter = createMemoryStorageAdapter()
         const created = album()
         let resolveCreate!: (value: Album) => void
         vi.mocked(createAlbum).mockReturnValueOnce(new Promise(resolve => {
             resolveCreate = resolve
         }))
-        const { result } = renderHook(() => useLibrary(adapter, true))
+        const { result } = renderHook(() => useLibrary(true))
         await waitFor(() => expect(result.current.isLoading).toBe(false))
 
         let mutation!: Promise<boolean>
@@ -75,11 +69,10 @@ describe("useLibrary server ownership", () => {
     })
 
     it("keeps confirmed state unchanged when a server mutation fails", async () => {
-        const adapter = createMemoryStorageAdapter()
         const original = album()
         vi.mocked(fetchAlbums).mockResolvedValueOnce([original])
         vi.mocked(updateAlbum).mockRejectedValueOnce(new Error("Write failed"))
-        const { result } = renderHook(() => useLibrary(adapter, true))
+        const { result } = renderHook(() => useLibrary(true))
         await waitFor(() => expect(result.current.albums).toEqual([original]))
 
         await act(async () => {
@@ -88,16 +81,5 @@ describe("useLibrary server ownership", () => {
 
         expect(result.current.albums).toEqual([original])
         expect(result.current.libraryError).toBe("Write failed")
-        expect(adapter.get(STORAGE.LIBRARY_PENDING_OPERATIONS)).toBeNull()
-    })
-
-    it("does not write canonical Library or Focus state to browser storage", async () => {
-        const adapter = createMemoryStorageAdapter()
-        const { result } = renderHook(() => useLibrary(adapter, true))
-        await waitFor(() => expect(result.current.isLoading).toBe(false))
-
-        expect(adapter.get(STORAGE.FOCUS_ALBUM)).toBeNull()
-        expect(adapter.get(STORAGE.LIBRARY)).toBeNull()
-        expect(adapter.get(STORAGE.LIBRARY_PENDING_OPERATIONS)).toBeNull()
     })
 })

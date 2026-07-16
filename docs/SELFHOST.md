@@ -244,7 +244,7 @@ Database migrations run automatically on startup. Always back up the database be
 For `v0.29.0-rc.1`, record deployment evidence and the desktop/390 px visual gate in
 [`SPRINT-82-RELEASE-ACCEPTANCE.md`](./SPRINT-82-RELEASE-ACCEPTANCE.md). The documented
 rollback restores both the previous database backup and matching API/Web SHA tags;
-never start an older image against a database already migrated to schema 10.
+never start an older image against a database already migrated to schema 11.
 
 ---
 

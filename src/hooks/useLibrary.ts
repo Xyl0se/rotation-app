@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react"
 
 import type { Album } from "../types/album"
 import type { RoleId } from "../domain/roles"
-import type { StorageAdapter } from "../adapters/storageAdapter"
 import {
     clearCoverCache,
     removeCustomCover,
@@ -34,10 +33,9 @@ function normalizeAlbum(album: Album): Album {
  * Server-authoritative Library state.
  *
  * Albums only enter React state after the API has confirmed the mutation. The
- * The legacy storage adapter remains in the signature during Sprint 80 migration;
- * this hook never stores Library, Focus, or mutation-queue state in it.
+ * The server API is the sole Library authority.
  */
-export function useLibrary(_adapter: StorageAdapter, isConnected: boolean = false) {
+export function useLibrary(isConnected: boolean = false) {
     const [albums, setAlbums] = useState<Album[]>([])
     const [isLoading, setIsLoading] = useState(isConnected)
     const [libraryError, setLibraryError] = useState<string | null>(null)
@@ -211,7 +209,11 @@ export function useLibrary(_adapter: StorageAdapter, isConnected: boolean = fals
         const current = albums.find(album => album.id === id)
         if (!current?.coverUrl || !isConnected) return false
         try {
-            await resolveServerCover(id, current.coverUrl)
+            const result = await resolveServerCover(id, current.coverUrl)
+            if (result.status !== "cached") {
+                setLibraryError(`Cover resolution failed: ${result.status}`)
+                return false
+            }
             await clearCoverCache(id).catch(() => undefined)
             setLibraryError(null)
             return true

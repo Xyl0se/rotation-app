@@ -18,7 +18,7 @@ the existing single-user NAS deployment and is not yet the final stable release.
 ## Upgrade and compatibility
 
 - Supported database baseline: schema migration 7 (`v0.28.1-dev`).
-- Startup automatically migrates schema 7 through lifecycle/audit migrations 8–10.
+- Startup automatically migrates schema 7 through lifecycle/audit/performance migrations 8–11.
 - Migration and complete lifecycle backup/restore are covered by automated tests.
 - Back up `/rotation-data/data/rotation.db` before deploying this candidate.
 - Containers continue to run as the established Synology identity `1026:100`.

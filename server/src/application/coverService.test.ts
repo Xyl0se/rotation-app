@@ -105,5 +105,75 @@ describe("coverService security", () => {
         await expect(coverService.resolveRemoteCover(ALBUM_ID, "https://example.com/cover.jpg"))
             .resolves.toEqual({ status: "invalid-image" })
         expect(fetchMock).not.toHaveBeenCalled()
+        expect(coverService.getMeta(ALBUM_ID)).toMatchObject({
+            resolutionStatus: "invalid-image",
+            candidateUrls: [],
+        })
+    })
+
+    it("uses the next bounded candidate when the selected release has no cover", async () => {
+        const { coverService } = service()
+        const fetchMock = vi.fn()
+            .mockResolvedValueOnce(new Response(null, { status: 404 }))
+            .mockResolvedValueOnce(new Response(PNG, {
+                status: 200,
+                headers: { "content-type": "image/png" },
+            }))
+        vi.stubGlobal("fetch", fetchMock)
+
+        await expect(coverService.resolveRemoteCover(ALBUM_ID, [
+            "https://coverartarchive.org/release/first/front",
+            "https://coverartarchive.org/release/second/front",
+            "https://coverartarchive.org/release/third/front",
+            "https://coverartarchive.org/release-group/group/front",
+            "https://coverartarchive.org/release/ignored/front",
+        ])).resolves.toEqual({ status: "cached" })
+
+        expect(fetchMock).toHaveBeenCalledTimes(2)
+        expect(coverService.getMeta(ALBUM_ID)).toMatchObject({
+            resolutionStatus: "cached",
+            candidateUrls: [
+                "https://coverartarchive.org/release/first/front",
+                "https://coverartarchive.org/release/second/front",
+                "https://coverartarchive.org/release/third/front",
+                "https://coverartarchive.org/release-group/group/front",
+            ],
+        })
+    })
+
+    it("persists safe diagnostics and reuses candidates for manual retry", async () => {
+        const { coverService } = service()
+        vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 404 })))
+
+        await expect(coverService.resolveRemoteCover(ALBUM_ID, [
+            "https://coverartarchive.org/release/first/front",
+            "https://coverartarchive.org/release/second/front",
+        ])).resolves.toEqual({ status: "not-found" })
+        expect(coverService.getMeta(ALBUM_ID)).toMatchObject({
+            resolutionStatus: "not-found",
+            candidateUrls: expect.any(Array),
+        })
+
+        const retryFetch = vi.fn()
+            .mockResolvedValueOnce(new Response(null, { status: 404 }))
+            .mockResolvedValueOnce(new Response(PNG, { status: 200, headers: { "content-type": "image/png" } }))
+        vi.stubGlobal("fetch", retryFetch)
+        await expect(coverService.resolveRemoteCover(ALBUM_ID, "https://coverartarchive.org/release/first/front"))
+            .resolves.toEqual({ status: "cached" })
+        expect(retryFetch).toHaveBeenCalledTimes(2)
+    })
+
+    it("retains an existing image when every replacement candidate is invalid", async () => {
+        const { directory, coverService } = service()
+        coverService.saveCover(ALBUM_ID, PNG, "image/png", "upload")
+        vi.stubGlobal("fetch", vi.fn(async () => new Response("not an image", {
+            status: 200,
+            headers: { "content-type": "text/plain" },
+        })))
+
+        await expect(coverService.resolveRemoteCover(ALBUM_ID, "https://coverartarchive.org/release/id/front"))
+            .resolves.toEqual({ status: "invalid-image" })
+        expect(readFileSync(join(directory, "covers", `${ALBUM_ID}.png`))).toEqual(PNG)
+        expect(coverService.getMeta(ALBUM_ID)?.resolutionStatus).toBe("invalid-image")
     })
 })

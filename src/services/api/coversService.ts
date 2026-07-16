@@ -2,7 +2,15 @@
  * Cover API service for server-side cover storage.
  */
 
-import { postRaw, del } from "./apiClient.js"
+import { postRaw, del, get, post } from "./apiClient.js"
+
+export type CoverResolutionStatus = "cached" | "not-found" | "temporarily-unavailable" | "invalid-image"
+export interface CoverResolutionResult { status: CoverResolutionStatus }
+export interface CoverResolutionDiagnostics extends CoverResolutionResult {
+    lastResolutionAt: string | null
+    candidateCount: number
+    hasCachedCover: boolean
+}
 
 export async function fetchCoverUrl(albumId: string): Promise<string | null> {
     try {
@@ -25,6 +33,12 @@ export async function deleteCover(albumId: string): Promise<void> {
     return del(`/covers/${encodeURIComponent(albumId)}`)
 }
 
-export async function resolveServerCover(albumId: string, sourceUrl: string): Promise<void> {
-    return postRaw(`/covers/${encodeURIComponent(albumId)}/resolve`, new TextEncoder().encode(sourceUrl).buffer, "text/plain")
+export async function resolveServerCover(albumId: string, sourceUrls: string | string[]): Promise<CoverResolutionResult> {
+    return post<CoverResolutionResult>(`/covers/${encodeURIComponent(albumId)}/resolve`, {
+        sourceUrls: Array.isArray(sourceUrls) ? sourceUrls : [sourceUrls],
+    })
+}
+
+export async function fetchCoverResolutionStatus(albumId: string): Promise<CoverResolutionDiagnostics> {
+    return get<CoverResolutionDiagnostics>(`/covers/${encodeURIComponent(albumId)}/status`)
 }

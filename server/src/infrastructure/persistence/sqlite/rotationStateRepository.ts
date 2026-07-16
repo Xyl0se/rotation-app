@@ -96,8 +96,8 @@ export function createRotationStateRepository(db: Database.Database) {
         saveListenEvent(event: ListenEvent): void {
             saveListenEventTx(event)
         },
-        findListenEvents(): ListenEvent[] {
-            return (db.prepare("SELECT id,album_id,listened_at FROM listen_events ORDER BY listened_at").all() as Array<{id:string;album_id:string;listened_at:string}>)
+        findListenEvents(limit = 1_000, offset = 0): ListenEvent[] {
+            return (db.prepare("SELECT id,album_id,listened_at FROM listen_events ORDER BY listened_at DESC, id DESC LIMIT ? OFFSET ?").all(limit, offset) as Array<{id:string;album_id:string;listened_at:string}>)
                 .map(row => ({ id: row.id, albumId: row.album_id, listenedAt: row.listened_at }))
         },
         findSettings(): RotationSettings {

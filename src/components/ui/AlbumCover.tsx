@@ -4,6 +4,7 @@ import type { CoverOverride } from "../../types/album"
 
 import { stringToHue, getInitials } from "../../utils/colorUtils"
 import { getCachedCover, cacheCover, getCustomCover } from "../../repositories/coverCache"
+import { fetchCoverUrl } from "../../services/api/coversService"
 
 type AlbumCoverProps = {
     coverUrl?: string | null
@@ -36,11 +37,19 @@ export default function AlbumCover({
             setIsLoading(true)
             setHasError(false)
 
-            // 1. URL-Override: direkt verwenden
+            // 1. URL override: fetch as a Blob so no third-party URL reaches <img>.
             if (coverOverride?.type === "url") {
-                if (!cancelled) {
-                    setDisplayUrl(coverOverride.url)
-                    setIsLoading(false)
+                try {
+                    const response = await fetch(coverOverride.url)
+                    if (!response.ok) throw new Error("Cover unavailable")
+                    const blobUrl = URL.createObjectURL(await response.blob())
+                    if (!cancelled) {
+                        currentBlobUrl = blobUrl
+                        setDisplayUrl(blobUrl)
+                        setIsLoading(false)
+                    } else URL.revokeObjectURL(blobUrl)
+                } catch {
+                    if (!cancelled) { setHasError(true); setIsLoading(false) }
                 }
                 return
             }
@@ -64,25 +73,38 @@ export default function AlbumCover({
                 }
             }
 
-            // 3. Kein Cover verfügbar → Platzhalter
+            // 3. Server cache is the durable source for every persisted Album surface.
+            if (albumId) {
+                const serverUrl = await fetchCoverUrl(albumId)
+                if (serverUrl) {
+                    if (!cancelled) {
+                        currentBlobUrl = serverUrl
+                        setDisplayUrl(serverUrl)
+                        setIsLoading(false)
+                    } else URL.revokeObjectURL(serverUrl)
+                    return
+                }
+            }
+
             if (!coverUrl) {
-                if (!cancelled) {
-                    setIsLoading(false)
-                }
+                if (!cancelled) setIsLoading(false)
                 return
             }
 
-            // 4. Ohne albumId → direkte Anzeige (kein Caching)
-            if (!albumId) {
-                if (!cancelled) {
-                    setDisplayUrl(coverUrl)
-                    setIsLoading(false)
-                }
-                return
-            }
-
-            // 5. Externen Cache nutzen oder herunterladen
+            // Unsaved preview/legacy fallback. The image is fetched as a Blob; external
+            // provider URLs are never assigned directly to an <img> element.
             try {
+                if (!albumId) {
+                    const response = await fetch(coverUrl)
+                    if (!response.ok) throw new Error("Cover unavailable")
+                    const blobUrl = URL.createObjectURL(await response.blob())
+                    if (!cancelled) {
+                        currentBlobUrl = blobUrl
+                        setDisplayUrl(blobUrl)
+                        setIsLoading(false)
+                    } else URL.revokeObjectURL(blobUrl)
+                    return
+                }
                 const cached = await getCachedCover(albumId)
                 if (cached) {
                     if (!cancelled) {
@@ -105,7 +127,7 @@ export default function AlbumCover({
                 }
             } catch {
                 if (!cancelled) {
-                    setDisplayUrl(coverUrl)
+                    setHasError(true)
                     setIsLoading(false)
                 }
             }
@@ -148,7 +170,7 @@ export default function AlbumCover({
         )
     }
 
-    const src = displayUrl ?? coverUrl ?? undefined
+    const src = displayUrl ?? undefined
 
     return (
         <div className={`album-cover-wrapper ${className}`} style={{ position: "relative" }}>

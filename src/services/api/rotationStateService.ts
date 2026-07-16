@@ -37,8 +37,8 @@ export function chooseRandomServerFocus(): Promise<ServerRotationPlan> {
     return post("/rotation-state/focus/random")
 }
 
-export function fetchListenEvents(): Promise<ListenEvent[]> {
-    return get("/rotation-state/listens")
+export function fetchListenEvents(limit = 1_000): Promise<ListenEvent[]> {
+    return get(`/rotation-state/listens?limit=${limit}`)
 }
 
 export function createListenEvent(event: ListenEvent): Promise<ListenEvent> {

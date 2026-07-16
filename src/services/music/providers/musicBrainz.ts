@@ -6,6 +6,8 @@ export interface MusicBrainzRelease {
 
     date?: string
 
+    "release-group"?: { id: string }
+
 }
 
 interface MusicBrainzApiResponse {
@@ -26,17 +28,23 @@ export async function searchMusicBrainz(
 
     artist: string,
 
+    mode: "exact" | "words" = "exact",
+
 ): Promise<MusicBrainzApiResponse> {
 
+    const escapeQueryValue = (value: string) => value.replace(/([\\"])/g, "\\$1")
+    const releaseQuery = mode === "exact"
+        ? `release:"${escapeQueryValue(title)}"`
+        : `release:${escapeQueryValue(title)}`
     const query = encodeURIComponent(
 
-        `release:"${title}" AND artist:"${artist}"`
+        `${releaseQuery} AND artist:"${escapeQueryValue(artist)}"`
 
     )
 
     const response = await fetch(
 
-        `https://musicbrainz.org/ws/2/release?fmt=json&query=${query}`,
+        `https://musicbrainz.org/ws/2/release?fmt=json&limit=5&query=${query}`,
 
         {
 

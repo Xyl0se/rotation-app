@@ -1,18 +1,13 @@
-import type { StorageAdapter } from "../../adapters/storageAdapter"
-
 import Button from "../ui/Button"
 import Card from "../ui/Card"
-import BackupControls from "./backup/BackupControls"
 import { useI18n } from "../../i18n/useI18n"
 
 type EmptyLibraryProps = {
-    adapter: StorageAdapter
     onNavigateToBindings: () => void
-    onBackupRestored: () => void
     disabled?: boolean
 }
 
-function EmptyLibrary({ adapter, onNavigateToBindings, onBackupRestored, disabled = false }: EmptyLibraryProps) {
+function EmptyLibrary({ onNavigateToBindings, disabled = false }: EmptyLibraryProps) {
     const { t } = useI18n()
 
     return (
@@ -25,13 +20,6 @@ function EmptyLibrary({ adapter, onNavigateToBindings, onBackupRestored, disable
                 {t.emptyLibrary.cta}
             </Button>
 
-            <hr style={{ margin: "1.5rem 0", border: "none", borderTop: "1px solid var(--color-border)" }} />
-
-            <p style={{ marginBottom: "0.75rem" }}>
-                {t.emptyLibrary.orImport}
-            </p>
-
-            <BackupControls adapter={adapter} onRestored={onBackupRestored} />
         </Card>
     )
 }
