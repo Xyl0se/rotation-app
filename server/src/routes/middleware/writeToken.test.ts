@@ -91,6 +91,20 @@ describe("write-token middleware", () => {
         expect(res.status).not.toHaveBeenCalled()
     })
 
+    it("accepts browser-confirmed same-origin mutations when a NAS proxy rewrites the host", () => {
+        const res = response()
+        const next = vi.fn() as NextFunction
+
+        createRequireWriteToken("server-secret")(request("POST", "server-secret", {
+            origin: "https://rotation.example",
+            "x-forwarded-host": "rotation-web",
+            "sec-fetch-site": "same-origin",
+        }), res.value, next)
+
+        expect(next).toHaveBeenCalledOnce()
+        expect(res.status).not.toHaveBeenCalled()
+    })
+
     it("rejects a cross-site mutation even with the internal token", () => {
         const res = response()
         const next = vi.fn() as NextFunction
@@ -105,6 +119,12 @@ describe("write-token middleware", () => {
         expect(res.json).toHaveBeenCalledWith({
             code: "CROSS_SITE_MUTATION",
             error: "Forbidden: cross-site mutation",
+            diagnostic: {
+                reason: "fetch-metadata-cross-site",
+                fetchSite: "cross-site",
+                originHost: null,
+                expectedHost: null,
+            },
         })
         expect(next).not.toHaveBeenCalled()
     })
@@ -119,6 +139,16 @@ describe("write-token middleware", () => {
         }), res.value, next)
 
         expect(res.status).toHaveBeenCalledWith(403)
+        expect(res.json).toHaveBeenCalledWith({
+            code: "CROSS_SITE_MUTATION",
+            error: "Forbidden: request Origin does not match proxy host; check NAS reverse-proxy Host forwarding",
+            diagnostic: {
+                reason: "origin-host-mismatch",
+                fetchSite: null,
+                originHost: "evil.example",
+                expectedHost: "rotation.local:3000",
+            },
+        })
         expect(next).not.toHaveBeenCalled()
     })
 

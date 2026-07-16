@@ -117,11 +117,18 @@ export async function del(path: string): Promise<void> {
 
 export function getApiErrorMessage(error: unknown): string {
     if (error instanceof ApiError) {
+        const body = error.body as { code?: string; error?: string; diagnostic?: { reason?: string } } | null
+        if (body?.code === "CROSS_SITE_MUTATION") {
+            return body.error ?? `Schreibzugriff durch Sicherheitsprüfung abgelehnt (${body.diagnostic?.reason ?? "unknown"}).`
+        }
+        if (body?.code === "INVALID_WRITE_TOKEN") {
+            return "Interne Proxy-Authentifizierung fehlgeschlagen. ROTATION_WRITE_TOKEN in Web- und API-Container vergleichen."
+        }
         switch (error.status) {
             case 404:
                 return "Backend-Route nicht gefunden. Caddy-Konfiguration prüfen."
             case 403:
-                return "Schreibzugriff verweigert. Write-Token prüfen."
+                return body?.error ?? "Schreibzugriff wurde vom Server verweigert."
             case 500:
                 return "Server-Fehler. Container-Logs prüfen."
             case 0:

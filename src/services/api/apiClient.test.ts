@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { post } from "./apiClient"
+import { ApiError, getApiErrorMessage, post } from "./apiClient"
 
 describe("apiClient trusted proxy authentication", () => {
     afterEach(() => vi.unstubAllGlobals())
@@ -26,5 +26,17 @@ describe("apiClient trusted proxy authentication", () => {
         const headers = options.headers as Record<string, string>
         expect(headers["x-rotation-write-token"]).toBeUndefined()
         expect(headers["X-Rotation-Write-Token"]).toBeUndefined()
+    })
+
+    it("distinguishes proxy authentication from same-origin rejection", () => {
+        expect(getApiErrorMessage(new ApiError(403, {
+            code: "INVALID_WRITE_TOKEN",
+        }, "Forbidden"))).toContain("ROTATION_WRITE_TOKEN")
+
+        expect(getApiErrorMessage(new ApiError(403, {
+            code: "CROSS_SITE_MUTATION",
+            error: "Forbidden: request Origin does not match proxy host; check NAS reverse-proxy Host forwarding",
+            diagnostic: { reason: "origin-host-mismatch" },
+        }, "Forbidden"))).toContain("NAS reverse-proxy Host forwarding")
     })
 })

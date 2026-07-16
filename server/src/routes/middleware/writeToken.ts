@@ -16,22 +16,59 @@ function firstHeaderValue(value: string | string[] | undefined): string | undefi
     return raw?.split(",")[0]?.trim()
 }
 
-function isTrustedBrowserRequest(req: Request): boolean {
+interface BrowserTrustResult {
+    trusted: boolean
+    reason?: "fetch-metadata-cross-site" | "invalid-origin" | "origin-host-mismatch"
+    fetchSite?: string
+    originHost?: string
+    expectedHost?: string
+}
+
+function evaluateBrowserTrust(req: Request): BrowserTrustResult {
     const fetchSite = firstHeaderValue(req.headers["sec-fetch-site"])
-    if (fetchSite === "cross-site") return false
+    if (fetchSite === "cross-site") {
+        return { trusted: false, reason: "fetch-metadata-cross-site", fetchSite }
+    }
+
+    // Sec-Fetch-Site is a forbidden request header controlled by the browser. It is
+    // the most reliable signal when an upstream NAS proxy rewrites Host headers.
+    if (fetchSite === "same-origin") return { trusted: true, fetchSite }
 
     const origin = firstHeaderValue(req.headers.origin)
-    if (!origin) return true // trusted CLI/internal caller still needs the secret
+    if (!origin) return { trusted: true, fetchSite } // CLI/internal caller still needs the secret
 
     try {
         const parsedOrigin = new URL(origin)
         const forwardedHost = firstHeaderValue(req.headers["x-forwarded-host"])
         const expectedHost = forwardedHost ?? firstHeaderValue(req.headers.host)
-        if (!expectedHost || parsedOrigin.host !== expectedHost) return false
-        return true
+        if (!expectedHost || parsedOrigin.host !== expectedHost) {
+            return {
+                trusted: false,
+                reason: "origin-host-mismatch",
+                fetchSite,
+                originHost: parsedOrigin.host,
+                expectedHost,
+            }
+        }
+        return { trusted: true, fetchSite }
     } catch {
-        return false
+        return { trusted: false, reason: "invalid-origin", fetchSite }
     }
+}
+
+function rejectUntrustedBrowserRequest(res: Response, result: BrowserTrustResult): void {
+    res.status(403).json({
+        code: "CROSS_SITE_MUTATION",
+        error: result.reason === "origin-host-mismatch"
+            ? "Forbidden: request Origin does not match proxy host; check NAS reverse-proxy Host forwarding"
+            : "Forbidden: cross-site mutation",
+        diagnostic: {
+            reason: result.reason,
+            fetchSite: result.fetchSite ?? null,
+            originHost: result.originHost ?? null,
+            expectedHost: result.expectedHost ?? null,
+        },
+    })
 }
 
 export function createRequireWriteToken(writeToken: string) {
@@ -44,11 +81,9 @@ export function createRequireWriteToken(writeToken: string) {
             })
             return
         }
-        if (!isTrustedBrowserRequest(req)) {
-            res.status(403).json({
-                code: "CROSS_SITE_MUTATION",
-                error: "Forbidden: cross-site mutation",
-            })
+        const trust = evaluateBrowserTrust(req)
+        if (!trust.trusted) {
+            rejectUntrustedBrowserRequest(res, trust)
             return
         }
         next()
@@ -60,14 +95,16 @@ export function requireSameOriginForMutations(
     res: Response,
     next: NextFunction,
 ): void {
-    if (SAFE_METHODS.has(req.method.toUpperCase()) || isTrustedBrowserRequest(req)) {
+    if (SAFE_METHODS.has(req.method.toUpperCase())) {
         next()
         return
     }
-    res.status(403).json({
-        code: "CROSS_SITE_MUTATION",
-        error: "Forbidden: cross-site mutation",
-    })
+    const trust = evaluateBrowserTrust(req)
+    if (trust.trusted) {
+        next()
+        return
+    }
+    rejectUntrustedBrowserRequest(res, trust)
 }
 
 export function createRequireWriteTokenForMutations(writeToken: string) {
