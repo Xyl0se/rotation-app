@@ -36,15 +36,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
+      - name: Prepare image tags
         id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix=,format=short
-            type=ref,event=tag
+        shell: bash
+        run: |
+          image="${REGISTRY}/${IMAGE_NAME}"
+          tags=("${image}:${GITHUB_SHA::7}")
+
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            tags+=("${image}:latest")
+          fi
+
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            tags+=("${image}:${GITHUB_REF_NAME}")
+          fi
+
+          {
+            echo "tags<<EOF"
+            printf '%s\n' "${tags[@]}"
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -52,6 +63,5 @@ jobs:
           context: ./server
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
