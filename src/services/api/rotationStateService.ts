@@ -26,7 +26,20 @@ export function fetchRotationHandover(): Promise<RotationHandoverPreview> { retu
 export function saveRotationSettings(settings: RotationSettings): Promise<RotationSettings> { return put("/rotation-state/settings", settings) }
 
 export function saveRotationPlan(plan: RotationPlan, focusAlbumId: string | null = null): Promise<ServerRotationPlan> {
-    return put("/rotation-state/plan", { ...plan, focusAlbumId })
+    const payload = {
+        id: plan.id,
+        name: plan.name,
+        targetSize: plan.targetSize,
+        albumIds: plan.albumIds,
+        items: plan.items,
+        roleQuotas: plan.roleQuotas,
+        createdAt: plan.createdAt,
+        status: plan.status,
+        ...(typeof plan.acceptedAt === "string" ? { acceptedAt: plan.acceptedAt } : {}),
+        ...(typeof plan.archivedAt === "string" ? { archivedAt: plan.archivedAt } : {}),
+        focusAlbumId,
+    }
+    return put("/rotation-state/plan", payload)
 }
 
 export function setServerFocus(albumId: string | null): Promise<ServerRotationPlan> {

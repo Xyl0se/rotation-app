@@ -31,7 +31,9 @@ place; do not mark an item green based only on local tests.
 
 ## Lifecycle smoke test
 
-- [ ] Create a draft and verify the handover comparison.
+- [ ] Create a draft and verify the handover comparison. Initial NAS smoke reached the
+  comparison successfully; acceptance exposed a nullable lifecycle-payload regression,
+  now covered by a load-draft-and-accept route test and awaiting redeploy verification.
 - [ ] Accept it; the earlier active Rotation appears read-only in History.
 - [ ] Preview, stage, and apply an export; its Rotation link appears in History.
 - [ ] Reload the browser and restart both containers; active/draft state remains correct.

@@ -56,13 +56,17 @@ describe("useRotationPlan server ownership", () => {
     })
 
     it("keeps the server-confirmed active status after acceptance and reload", async () => {
-        const draft = { ...active, status: "draft" as const, acceptedAt: undefined, focusAlbumId: null }
+        const draft = { ...active, status: "draft" as const, acceptedAt: null as unknown as undefined, archivedAt: null as unknown as undefined, focusAlbumId: null }
         vi.mocked(fetchRotationState).mockResolvedValueOnce({ active: null, draft })
         vi.mocked(saveRotationPlan).mockResolvedValueOnce(active)
         const { result } = renderHook(() => useRotationPlan([], true))
         await waitFor(() => expect(result.current.rotationPlan?.status).toBe("draft"))
         await act(async () => expect(await result.current.acceptPlan()).toBe(true))
         expect(result.current.rotationPlan?.status).toBe("active")
+        expect(saveRotationPlan).toHaveBeenCalledWith(expect.objectContaining({
+            status: "active",
+            acceptedAt: expect.any(String),
+        }), null)
 
         vi.mocked(fetchRotationState).mockResolvedValueOnce({ active, draft: null })
         await act(async () => expect(await result.current.refresh()).toBe(true))

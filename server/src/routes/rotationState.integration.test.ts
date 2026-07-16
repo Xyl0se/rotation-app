@@ -138,6 +138,34 @@ describe("rotation state route contract", () => {
         expect(state.draft).toBeNull()
     })
 
+    it("accepts a draft again after loading its canonical server representation", async () => {
+        const draftId = "550e8400-e29b-41d4-a716-446655440021"
+        const savedDraft = await request("PUT", "/rotation-state/plan", {
+            ...plan("draft"),
+            id: draftId,
+            acceptedAt: undefined,
+        })
+        expect(savedDraft.status).toBe(200)
+
+        const loaded = await fetch(`${baseUrl}/rotation-state`).then(response => response.json())
+        expect(loaded.draft).toMatchObject({ id: draftId, status: "draft" })
+        expect(loaded.draft.acceptedAt).toBeUndefined()
+        expect(loaded.draft.archivedAt).toBeUndefined()
+
+        const acceptedAt = "2026-07-16T13:00:00.000Z"
+        const accepted = await request("PUT", "/rotation-state/plan", {
+            ...loaded.draft,
+            status: "active",
+            acceptedAt,
+        })
+        expect(accepted.status).toBe(200)
+        await expect(accepted.json()).resolves.toMatchObject({
+            id: draftId,
+            status: "active",
+            acceptedAt,
+        })
+    })
+
     it("rejects focus outside the active Rotation and accepts a member", async () => {
         expect((await request("PUT", "/rotation-state/focus", { albumId: OUTSIDER })).status).toBe(409)
         const accepted = await request("PUT", "/rotation-state/focus", { albumId: ALBUM_A })
