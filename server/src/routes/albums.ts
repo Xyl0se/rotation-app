@@ -17,7 +17,7 @@ export interface ImportResult {
     failed: number
 }
 
-export function createAlbumsRouter(albumRepo: AlbumRepository, auditRepo?: AuditRepository): Router {
+export function createAlbumsRouter(albumRepo: AlbumRepository, auditRepo?: AuditRepository, onRelevantEvent?:()=>void): Router {
     const router = Router()
 
     // GET /albums — list all albums
@@ -69,6 +69,7 @@ export function createAlbumsRouter(albumRepo: AlbumRepository, auditRepo?: Audit
         }
 
         albumRepo.save(album)
+        onRelevantEvent?.()
         res.status(201).json(album)
     })
 
@@ -112,6 +113,7 @@ export function createAlbumsRouter(albumRepo: AlbumRepository, auditRepo?: Audit
 
         if (auditRepo) auditRepo.saveAlbumWithAudit(existing, album)
         else albumRepo.save(album)
+        onRelevantEvent?.()
         res.json(album)
     })
 
@@ -125,6 +127,7 @@ export function createAlbumsRouter(albumRepo: AlbumRepository, auditRepo?: Audit
             return
         }
         albumRepo.delete(id)
+        onRelevantEvent?.()
         res.status(204).send()
     })
 
@@ -162,6 +165,7 @@ export function createAlbumsRouter(albumRepo: AlbumRepository, auditRepo?: Audit
 
         try {
             albumRepo.saveMany(parsedAlbums)
+            onRelevantEvent?.()
             res.json({ imported, updated, failed: 0 } satisfies ImportResult)
         } catch {
             res.status(500).json({

@@ -1,8 +1,8 @@
 # Sprint 83 — Reflection Inbox
 
-**Status:** Planned — approved; begins after the v0.29.x design pass
+**Status:** Implementation complete — NAS acceptance pending
 
-**Target version:** Next minor development version after the Sprint-82 release
+**Target version:** v0.30.0
 
 **Type:** Attention workflow and reflective decision support
 
@@ -21,6 +21,9 @@ of documented rules, can be postponed or dismissed, and never mutate an Album un
 the user completes an explicit reflective workflow.
 
 ## Workstream 83A — Reflection Candidate Model
+
+**Implementation status:** Complete in code; migration, idempotency, stale evidence,
+recurrence quieting, and archive projection are covered by repository tests.
 
 - Define stable candidate codes and evidence for the existing reflection rules:
   Newly Discovered after sufficient listens, long-unheard Growing Albums, Comfort Food
@@ -41,6 +44,9 @@ the user completes an explicit reflective workflow.
 
 ## Workstream 83B — Inbox Experience
 
+**Implementation status:** Complete in code on the Insights page; component states and
+DE/EN actions are covered automatically, visual NAS acceptance pending.
+
 - Add a dedicated Reflection area reachable from the global navigation or Home
   attention surface without turning it into a warning badge.
 - Present why each Album appears, the relevant dates/counts, and what decisions are
@@ -51,6 +57,8 @@ the user completes an explicit reflective workflow.
 - Provide empty, loading, unavailable, retry, and stale-candidate states.
 
 ## Workstream 83C — Workflow Integration
+
+**Implementation status:** Complete in code for Coach/Archive handoff, confirmed resolution, stale-item cleanup, and audit recording.
 
 - Launch the appropriate Coach, Archive Return, or reassessment flow directly from an
   Inbox item.
@@ -64,6 +72,10 @@ the user completes an explicit reflective workflow.
 
 ## Workstream 83D — Scheduling Without Noise
 
+**Implementation status:** Complete in code. Startup plus confirmed Album, listening,
+and Rotation events trigger bounded evaluation; recurrence becomes quieter after
+repeated dismissal and evidence age determines ordering.
+
 - Evaluate candidates on relevant confirmed events and at startup through an
   idempotent bounded job; do not require WebSockets or a separate worker.
 - Define explicit snooze presets and maximum one open item per Album by default.
@@ -74,17 +86,20 @@ the user completes an explicit reflective workflow.
 
 ## Definition of Done
 
-- [ ] Every Inbox item has a stable rule code, understandable evidence, and explicit
+- [x] Every Inbox item has a stable rule code, understandable evidence, and explicit
   state stored on the server.
-- [ ] Repeated evaluation does not duplicate items.
-- [ ] Reflect, snooze, dismiss, resolve, and stale-state behavior are deterministic.
-- [ ] Album changes occur only through an explicit confirmed workflow.
-- [ ] Home no longer presents duplicate versions of Inbox prompts.
+- [x] Repeated evaluation does not duplicate items.
+- [x] Reflect, snooze, dismiss, resolve, and stale-state behavior are deterministic.
+- [x] Album changes occur only through an explicit confirmed workflow.
+- [x] Home no longer presents duplicate versions of Inbox prompts.
 - [ ] DE/EN, keyboard, touch, loading, retry, and empty states are tested.
 - [ ] Backup/restore and second-browser verification cover Inbox state.
 - [ ] Production use confirms the Inbox feels optional and non-judgmental.
-- [ ] Warm/cold archive state is explainable, internal-only, recomputable, and covered
+- [x] Warm/cold archive state is explainable, internal-only, recomputable, and covered
   by recurrence tests.
+
+Production verification follows
+[the Sprint-83 NAS acceptance test](../acceptance/SPRINT-83-NAS-ACCEPTANCE.md).
 
 ## Non-Goals
 

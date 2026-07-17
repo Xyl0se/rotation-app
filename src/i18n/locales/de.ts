@@ -161,6 +161,7 @@ export const de: Translation = {
     },
 
     reflection: {
+        inbox: { label:"Reflexions-Inbox",loading:"Rotation sucht nach bedeutsamen Momenten…",unavailable:"Die Reflexions-Inbox ist gerade nicht erreichbar.",retry:"Erneut versuchen",evidence:"{listens} Hörsessions · {days} Tage in dieser Rolle",later30:"Später · 30 Tage",later90:"90 Tage ruhen lassen",dismiss:"Für diesen Anlass nicht mehr fragen" },
         empty: {
             label: "Reflexion",
             title: "Gerade keine offene Frage",
@@ -190,6 +191,8 @@ export const de: Translation = {
                 "Dieses Album ruht schon länger im Archiv. Vielleicht lohnt sich ein vorsichtiger Blick darauf, ob es heute wieder in deine Rotation passt.",
             action: "Wiederentdeckung prüfen",
         },
+        neverHeardDormant: { title:"Möchtest du diesem Album eine erste Chance geben?",description:"Es ist schon länger in deiner Sammlung, ohne dass eine Hörsession vermerkt wurde.",action:"Jetzt reflektieren" },
+        rotationAbsentDormant: { title:"Könnte dieses Album in deine Rotation zurückkehren?",description:"Es war in den letzten Rotationen nicht vertreten und könnte einen bewussten Blick verdienen.",action:"Jetzt reflektieren" },
         later: "Später",
     },
 

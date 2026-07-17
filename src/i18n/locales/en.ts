@@ -160,6 +160,7 @@ export const en = {
     },
 
     reflection: {
+        inbox: { label:"Reflection inbox",loading:"Looking for meaningful moments…",unavailable:"The reflection inbox is unavailable right now.",retry:"Try again",evidence:"{listens} listens · {days} days in this role",later30:"Later · 30 days",later90:"Quiet for 90 days",dismiss:"Do not ask again for this evidence" },
         empty: {
             label: "Reflection",
             title: "No open question right now",
@@ -189,6 +190,8 @@ export const en = {
                 "This album has been resting in the archive for a while. Perhaps it's worth cautiously checking whether it fits back into your rotation today.",
             action: "Check Rediscovery",
         },
+        neverHeardDormant: { title:"Does this album deserve a first chance?",description:"It has been in your collection for a while without a listening session.",action:"Reflect now" },
+        rotationAbsentDormant: { title:"Could this album return to your Rotation?",description:"It has not appeared in recent Rotations and may be worth a deliberate look.",action:"Reflect now" },
         later: "Later",
     },
 

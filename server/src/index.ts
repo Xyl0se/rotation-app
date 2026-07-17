@@ -42,6 +42,9 @@ import {
 import { createApiErrorHandler } from "./routes/middleware/apiError.js"
 import { createLogger } from "./infrastructure/logger/logger.js"
 import { prepareRuntimeDirectories } from "./application/runtimeDirectories.js"
+import { createReflectionInboxRepository } from "./infrastructure/persistence/sqlite/reflectionInboxRepository.js"
+import { createReflectionInboxService } from "./application/reflectionInboxService.js"
+import { createReflectionsRouter } from "./routes/reflections.js"
 
 const config = loadConfig()
 
@@ -64,6 +67,8 @@ const scanRunRepo = createScanRunRepository(db)
 const bindingCandidateRepo = createBindingCandidateRepository(db)
 const rotationStateRepo = createRotationStateRepository(db)
 const auditRepo = createAuditRepository(db, albumRepo)
+const reflectionInboxRepo = createReflectionInboxRepository(db)
+const reflectionInboxService = createReflectionInboxService(albumRepo, reflectionInboxRepo, rotationStateRepo)
 const coverService = createCoverService(config.ROTATION_DATA_DIR)
 
 const musicGuard = createPathGuard(config.ROTATION_MUSIC_PATH)
@@ -84,6 +89,7 @@ if (recovery.recovered > 0 || recovery.cleanedStagingDirs.length > 0 || recovery
 
 const requireWriteToken = createRequireWriteToken(config.ROTATION_WRITE_TOKEN)
 const requireWriteTokenForMutations = createRequireWriteTokenForMutations(config.ROTATION_WRITE_TOKEN)
+reflectionInboxService.evaluate()
 
 // --- Backup system ---
 const backupEnabled = config.ROTATION_BACKUP_ENABLED === "true"
@@ -130,9 +136,10 @@ app.use("/scan", requireSameOriginForMutations, createScanRouter(scanService, sc
 app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo, musicGuard, workspaceGuard, syncthingGuard))
 
 app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, bindingCaptureService, bindingCandidateRepo, auditRepo))
-app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo, auditRepo))
+app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo, auditRepo, ()=>reflectionInboxService.evaluate()))
 app.use("/audit", requireWriteTokenForMutations, createAuditRouter(auditRepo))
-app.use("/rotation-state", requireWriteTokenForMutations, createRotationStateRouter(rotationStateRepo, bindingRepo, musicGuard, auditRepo))
+app.use("/reflections", requireWriteTokenForMutations, createReflectionsRouter(reflectionInboxService, auditRepo))
+app.use("/rotation-state", requireWriteTokenForMutations, createRotationStateRouter(rotationStateRepo, bindingRepo, musicGuard, auditRepo, ()=>reflectionInboxService.evaluate()))
 app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))
 app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))

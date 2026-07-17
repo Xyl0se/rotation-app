@@ -392,6 +392,47 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 12,
+        name: "reflection-inbox",
+        run(db) {
+            db.exec(`
+                CREATE TABLE reflection_inbox_items (
+                    id TEXT PRIMARY KEY,
+                    album_id TEXT NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
+                    rule_code TEXT NOT NULL,
+                    evidence_key TEXT NOT NULL,
+                    state TEXT NOT NULL CHECK(state IN ('open','snoozed','resolved','dismissed')),
+                    evidence_json TEXT NOT NULL CHECK(json_valid(evidence_json)),
+                    created_at TEXT NOT NULL,
+                    due_at TEXT NOT NULL,
+                    snoozed_until TEXT,
+                    resolved_at TEXT,
+                    resolution TEXT,
+                    updated_at TEXT NOT NULL,
+                    UNIQUE(album_id, rule_code, evidence_key)
+                );
+                CREATE INDEX idx_reflection_inbox_state_due
+                    ON reflection_inbox_items(state, due_at, snoozed_until);
+                CREATE INDEX idx_reflection_inbox_album
+                    ON reflection_inbox_items(album_id, updated_at DESC);
+
+                CREATE TABLE domain_audit_events_v12 (
+                    id TEXT PRIMARY KEY,
+                    event_type TEXT NOT NULL CHECK(event_type IN ('album-role-changed','binding-reassigned','draft-item-removed','draft-item-replaced','rotation-accepted','album-role-change-undone','reflection-resolved')),
+                    entity_id TEXT NOT NULL,
+                    before_json TEXT NOT NULL CHECK(json_valid(before_json)),
+                    after_json TEXT NOT NULL CHECK(json_valid(after_json)),
+                    created_at TEXT NOT NULL,
+                    undone_at TEXT
+                );
+                INSERT INTO domain_audit_events_v12 SELECT * FROM domain_audit_events;
+                DROP TABLE domain_audit_events;
+                ALTER TABLE domain_audit_events_v12 RENAME TO domain_audit_events;
+                CREATE INDEX idx_audit_latest ON domain_audit_events(undone_at, created_at DESC);
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database, maxMigrationVersion: number): void {

@@ -12,7 +12,7 @@ function canonicalPlan(plan: Omit<RotationPlan, "focusAlbumId"> & { focusAlbumId
     return { ...plan, focusAlbumId: plan.focusAlbumId ?? null }
 }
 
-export function createRotationStateRouter(repository: RotationStateRepository, bindings?: BindingRepository, musicGuard?: PathGuard, audit?: AuditRepository): Router {
+export function createRotationStateRouter(repository: RotationStateRepository, bindings?: BindingRepository, musicGuard?: PathGuard, audit?: AuditRepository, onRelevantEvent?:()=>void): Router {
     const router = Router()
     router.get("/", (_req, res) => res.json({ active: repository.findActive(), draft: repository.findDraft() }))
     router.get("/history", (req, res) => {
@@ -80,6 +80,7 @@ export function createRotationStateRouter(repository: RotationStateRepository, b
         try {
             const previousDraft = repository.findDraft()
             repository.savePlan(canonicalPlan(plan))
+            onRelevantEvent?.()
             if (audit && previousDraft && plan.status === "draft") {
                 const removed = previousDraft.albumIds.filter(id => !plan.albumIds.includes(id))
                 const added = plan.albumIds.filter(id => !previousDraft.albumIds.includes(id))
@@ -115,7 +116,7 @@ export function createRotationStateRouter(repository: RotationStateRepository, b
     router.post("/listens", (req, res) => {
         const event = parseRequest(ListenEventSchema, req.body, res)
         if (!event) return
-        try { repository.saveListenEvent(event); res.status(201).json(event) }
+        try { repository.saveListenEvent(event); onRelevantEvent?.(); res.status(201).json(event) }
         catch { res.status(409).json({ error: "ALBUM_NOT_FOUND" }) }
     })
     return router

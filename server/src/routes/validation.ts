@@ -146,6 +146,11 @@ export const RotationPlanSchema = z.object({
 })
 export const FocusAlbumSchema = z.object({ albumId: UUIDSchema.nullable() })
 export const ListenEventSchema = z.object({ id: UUIDSchema, albumId: UUIDSchema, listenedAt: IsoDateSchema })
+export const ReflectionSnoozeSchema = z.object({ until: IsoDateSchema }).refine(
+    ({ until }) => Date.parse(until) > Date.now(),
+    { path: ["until"], message: "Snooze date must be in the future" },
+)
+export const ReflectionResolutionSchema = z.object({ resolution: z.string().trim().min(1).max(200) })
 
 export function parseRequest<T>(
     schema: z.ZodType<T>,

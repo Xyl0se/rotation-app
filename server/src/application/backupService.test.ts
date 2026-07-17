@@ -7,6 +7,8 @@ import { createBackupService } from "./backupService.js"
 import { initDatabase } from "../infrastructure/persistence/sqlite/connection.js"
 import { createAlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
 import { createRotationStateRepository } from "../infrastructure/persistence/sqlite/rotationStateRepository.js"
+import { createReflectionInboxRepository } from "../infrastructure/persistence/sqlite/reflectionInboxRepository.js"
+import { createReflectionInboxService } from "./reflectionInboxService.js"
 
 function createTempDir(): string {
     return mkdtempSync(join(tmpdir(), "rotation-backup-test-"))
@@ -204,7 +206,7 @@ describe("createBackupService", () => {
             const canonicalDb = initDatabase(canonicalPath)
             createAlbumRepository(canonicalDb).save({
                 id: albumId, title: "Album", artist: "Artist", year: "2026",
-                roleHistory: [], listenCount: 0, lastListened: null,
+                category: "new", roleHistory: [{ role:"new",recordedAt:"2025-01-01T00:00:00.000Z",source:"coach" }], listenCount: 3, lastListened: "2026-01-01T00:00:00.000Z",
             })
             const repository = createRotationStateRepository(canonicalDb)
             repository.savePlan({
@@ -221,6 +223,9 @@ describe("createBackupService", () => {
                 .run("audit-1", "rotation-accepted", planId, '{"status":"draft"}', '{"status":"active"}', "2026-07-16T10:01:00.000Z")
             canonicalDb.prepare("INSERT INTO export_operations (id,rotation_plan_id,created_at,status,album_ids,total_size_bytes,file_count) VALUES (?,?,?,?,?,?,?)")
                 .run("export-1", planId, "2026-07-16T12:00:00.000Z", "applied", JSON.stringify([albumId]), 1024, 1)
+            const reflectionRepository=createReflectionInboxRepository(canonicalDb)
+            const [reflection]=createReflectionInboxService(createAlbumRepository(canonicalDb),reflectionRepository).evaluate(new Date("2026-07-16T13:00:00.000Z"))
+            reflectionRepository.transition(reflection.id,"snoozed","2026-07-16T13:01:00.000Z",{snoozedUntil:"2026-08-16T13:00:00.000Z"})
             canonicalDb.close()
 
             const canonicalService = createBackupService(canonicalPath, backupDir, 7)
@@ -228,7 +233,7 @@ describe("createBackupService", () => {
             expect(backup.success).toBe(true)
 
             const changedDb = new Database(canonicalPath)
-            changedDb.exec("DELETE FROM export_operations; DELETE FROM domain_audit_events; DELETE FROM rotation_plans; DELETE FROM listen_events; UPDATE rotation_settings SET target_size=25")
+            changedDb.exec("DELETE FROM reflection_inbox_items; DELETE FROM export_operations; DELETE FROM domain_audit_events; DELETE FROM rotation_plans; DELETE FROM listen_events; UPDATE rotation_settings SET target_size=25")
             changedDb.close()
             expect(canonicalService.restoreBackup(backup.path).success).toBe(true)
 
@@ -239,6 +244,7 @@ describe("createBackupService", () => {
             expect(restored.prepare("SELECT target_size FROM rotation_settings WHERE singleton=1").get()).toEqual({ target_size: 1 })
             expect(restored.prepare("SELECT event_type FROM domain_audit_events WHERE id='audit-1'").get()).toEqual({ event_type: "rotation-accepted" })
             expect(restored.prepare("SELECT rotation_plan_id, status FROM export_operations WHERE id='export-1'").get()).toEqual({ rotation_plan_id: planId, status: "applied" })
+            expect(restored.prepare("SELECT state,snoozed_until FROM reflection_inbox_items WHERE id=?").get(reflection.id)).toEqual({state:"snoozed",snoozed_until:"2026-08-16T13:00:00.000Z"})
             restored.close()
         })
     })
