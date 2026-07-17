@@ -327,12 +327,13 @@ Typical spacing
 
 Rotation uses purpose-based radii rather than arbitrary per-component values.
 
-- Standard controls, Album Cards, ordinary panels, Rotation tiles, and covers: `8px`
+- Standard controls, Album Cards, ordinary panels, Rotation tiles, covers, and compact
+  role/status tags: `8px`
 - Dialog shells and deliberately elevated journeys: `12px`
-- Semantic role/status/composition chips only: `999px`
 - Genuinely circular icon controls only: `50%`
 
-Clickable elements are not pills by default. New one-off radius values require an
+Pill radii are not part of the ordinary product vocabulary. Labels communicate state
+through copy, semantic color, and placement. New one-off radius values require an
 explicit Design System amendment.
 
 ---

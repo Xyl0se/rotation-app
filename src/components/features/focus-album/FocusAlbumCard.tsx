@@ -203,6 +203,17 @@ function FocusAlbumCard({
 
                     }
 
+                </div>
+
+                <aside className="focus-album-listening" aria-label={t.focusAlbum.listenCountLabel}>
+                    <button
+                        className="listen-button"
+                        onClick={onLogListen}
+                        aria-label={`${t.focusAlbum.listened}: ${album.title}`}
+                    >
+                        {t.focusAlbum.listened}
+                    </button>
+
                     <div className="focus-album-stats">
 
                         <div>
@@ -243,21 +254,7 @@ function FocusAlbumCard({
 
                     </div>
 
-                    <button
-
-                        className="listen-button"
-
-                        onClick={onLogListen}
-
-                        aria-label={`${t.focusAlbum.listened}: ${album.title}`}
-
-                    >
-
-                        {t.focusAlbum.listened}
-
-                    </button>
-
-                </div>
+                </aside>
 
             </div>
 

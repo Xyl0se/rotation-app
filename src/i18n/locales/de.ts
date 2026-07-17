@@ -699,6 +699,8 @@ export const de: Translation = {
 
     bindings: {
         title: "Album Bindings",
+        sourceFolder: "Quellordner",
+        resolution: "Zuordnung zur Bibliothek",
         filters: {
             all: "Alle",
             proposed: "Vorgeschlagen",

@@ -5,7 +5,13 @@ export type AppPage = "home" | "bindings" | "export" | "insights" | "history" | 
 
 export default function AppHeader({ page, onNavigate, orphanCount = 0 }: { page: AppPage; onNavigate: (page: AppPage) => void; orphanCount?: number }) {
     const { t } = useI18n()
-    const entries: Array<[AppPage, string]> = [["home", t.nav.home], ["bindings", t.nav.bindings], ["export", t.nav.export], ["insights", t.nav.insights], ["history", t.nav.history], ["settings", t.nav.settings]]
+    const entries: Array<[AppPage, string]> = [
+        ["home", t.nav.home],
+        ["insights", t.nav.insights],
+        ["export", t.nav.export],
+        ["bindings", t.nav.bindings],
+        ["settings", t.nav.settings],
+    ]
     return <header className="app-header">
         <button className="product-mark" onClick={() => onNavigate("home")} aria-label={t.header.title}>
             <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="5"/><path d="M36 10a19 19 0 0 1 5 11"/></svg>

@@ -89,7 +89,7 @@
     margin-top: 10px;
     padding: 12px;
     border: 1px solid #40515c;
-    border-radius: 8px;
+    border-radius: var(--radius-standard);
     background: #19242b;
 }
 
@@ -99,7 +99,7 @@
     justify-content: space-between;
     gap: 16px;
     padding: 10px;
-    border-radius: 6px;
+    border-radius: var(--radius-standard);
     background: #26343d;
 }
 
@@ -117,7 +117,7 @@
     justify-self: start;
     border: 0;
     background: transparent;
-    color: #d4b58f;
+    color: #a9c0cb;
     cursor: pointer;
     text-decoration: underline;
 }
@@ -130,7 +130,7 @@
     width: 100%;
     padding: 9px 11px;
     border: 1px solid #4b5c66;
-    border-radius: 6px;
+    border-radius: var(--radius-standard);
     background: #101a20;
     color: #eef3f5;
 }
@@ -143,7 +143,7 @@
 .binding-manual-results button {
     padding: 8px 10px;
     border: 0;
-    border-radius: 5px;
+    border-radius: var(--radius-standard);
     background: #30414b;
     color: #eef3f5;
     cursor: pointer;
@@ -305,23 +305,32 @@
    ========================================== */
 
 .bindings-workspace {
+    --bindings-ink: #0f171c;
+    --bindings-panel: #18232a;
+    --bindings-panel-raised: #202d35;
+    --bindings-rail: #344650;
+    --bindings-steel: #91a5b0;
+    --bindings-paper: #eef3f5;
+    --bindings-accent: var(--color-dust-blue);
+    --bindings-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
     min-height: calc(100vh - 61px);
     padding: clamp(16px, 3vw, 36px);
     background:
-        radial-gradient(circle at 15% 10%, rgba(86, 111, 124, .16), transparent 32rem),
-        linear-gradient(135deg, #111a20 0%, #172229 52%, #10181d 100%);
+        linear-gradient(90deg, rgba(126, 161, 179, .06) 1px, transparent 1px) 0 0 / 80px 100%,
+        radial-gradient(circle at 15% 10%, rgba(86, 111, 124, .2), transparent 32rem),
+        linear-gradient(135deg, #0d151a 0%, #152128 52%, #0c1418 100%);
 }
 
 .bindings-page {
     position: relative;
-    max-width: 1080px;
+    max-width: 1180px;
     padding: clamp(24px, 5vw, 56px);
-    border: 1px solid #29343d;
-    border-radius: 18px;
+    border: 1px solid var(--bindings-rail);
+    border-radius: var(--radius-standard);
     background:
-        linear-gradient(rgba(16, 24, 30, .96), rgba(23, 31, 37, .98)),
-        repeating-linear-gradient(90deg, transparent 0 78px, rgba(255, 255, 255, .025) 78px 80px);
-    color: #e8edf0;
+        linear-gradient(rgba(15, 23, 28, .96), rgba(20, 30, 36, .98)),
+        repeating-linear-gradient(90deg, transparent 0 158px, rgba(145, 165, 176, .035) 158px 160px);
+    color: var(--bindings-paper);
     box-shadow: 0 24px 70px rgba(8, 14, 18, .24);
 }
 
@@ -329,8 +338,8 @@
     display: block;
     content: "INVENTORY LINKAGE / RESTRICTED WORK AREA";
     margin-bottom: 8px;
-    color: #e6a85c;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--bindings-steel);
+    font-family: var(--bindings-mono);
     font-size: .68rem;
     font-weight: 750;
     letter-spacing: .16em;
@@ -355,8 +364,8 @@
     align-items: center;
     padding: 18px;
     border-color: #3d4b54;
-    border-radius: 10px;
-    background: #202c34;
+    border-radius: var(--radius-standard);
+    background: var(--bindings-panel);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .045);
 }
 
@@ -365,19 +374,27 @@
 }
 
 .bindings-page .button.secondary {
-    border-color: #4c5b65;
-    background: #2b3841;
-    color: #eef2f4;
+    border-color: #536670;
+    border-radius: var(--radius-standard);
+    background: #26343c;
+    color: var(--bindings-paper);
 }
 
 .bindings-page .button.secondary:hover {
-    background: #374751;
+    border-color: var(--bindings-accent);
+    background: #30414a;
 }
 
 .bindings-page .button.primary {
-    background: #b86f38;
-    color: #fffaf3;
-    box-shadow: 0 6px 16px rgba(184, 111, 56, .2);
+    border-color: var(--bindings-accent);
+    border-radius: var(--radius-standard);
+    background: #688b9d;
+    color: #081217;
+    box-shadow: 0 4px 12px rgba(8, 18, 23, .24);
+}
+
+.bindings-page .button.primary:hover {
+    background: #83a7b9;
 }
 
 .bindings-filters {
@@ -391,7 +408,7 @@
     min-height: 38px;
     padding: 8px 15px;
     border-color: #44535d;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-standard);
     background: transparent;
     color: #b9c5cc;
 }
@@ -402,9 +419,9 @@
 }
 
 .bindings-filter.active {
-    border-color: #d19152;
-    background: #d19152;
-    color: #172128;
+    border-color: var(--bindings-accent);
+    background: #789aaa;
+    color: #0b151a;
     font-weight: 700;
 }
 
@@ -412,29 +429,58 @@
     gap: 12px;
 }
 
-.bindings-list > .card {
+.bindings-list > .binding-card {
     overflow: visible;
     border: 1px solid #384750;
-    border-left: 5px solid #667a86;
-    border-radius: 9px;
-    background: #222e36;
+    border-left: 4px solid #607582;
+    border-radius: var(--radius-standard);
+    background:
+        linear-gradient(90deg, rgba(126, 161, 179, .035), transparent 32%),
+        var(--bindings-panel);
     box-shadow: 0 8px 20px rgba(5, 10, 13, .18);
 }
 
-.bindings-list > .card:hover {
+.bindings-list > .binding-card:hover {
     transform: none;
-    border-left-color: #d19152;
+    border-left-color: var(--bindings-accent);
     box-shadow: 0 12px 28px rgba(5, 10, 13, .25);
 }
 
 .binding-row {
-    min-height: 96px;
-    padding: 18px 20px;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 1fr);
+    min-height: 112px;
+    padding: 20px 24px;
+    gap: clamp(24px, 4vw, 48px);
+    align-items: start;
 }
 
-.binding-info {
-    gap: 7px;
+.binding-source,
+.binding-resolution {
+    display: grid;
+    min-width: 0;
+    gap: 10px;
+}
+
+.binding-resolution {
+    padding-left: clamp(16px, 3vw, 32px);
+    border-left: 1px solid var(--bindings-rail);
+}
+
+.binding-column-label {
+    color: var(--bindings-steel);
+    font-family: var(--bindings-mono);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.binding-statuses {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
 }
 
 .binding-preview,
@@ -445,10 +491,26 @@
 }
 
 .binding-path {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    display: block;
+    padding: 10px 12px;
+    border: 1px solid #31424c;
+    border-radius: var(--radius-standard);
+    background: #0e181e;
+    font-family: var(--bindings-mono);
     font-size: .88rem;
     font-weight: 500;
     color: #cfdae0;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.binding-state,
+.binding-orphan {
+    border-radius: var(--radius-standard);
+    padding: 4px 8px;
+    font-family: var(--bindings-mono);
+    font-size: .72rem;
+    font-weight: 700;
 }
 
 .binding-state,
@@ -481,13 +543,17 @@
     gap: 10px;
     align-items: center;
     flex-wrap: wrap;
-    justify-content: flex-end;
-    padding-block: 4px;
+    justify-content: flex-start;
+    padding-top: 8px;
 }
 
 .binding-actions .button {
     min-height: 42px;
     padding: 10px 18px;
+}
+
+.binding-actions .button:last-child {
+    margin-left: auto;
 }
 
 .bindings-empty,
@@ -498,6 +564,7 @@
 .bindings-error {
     padding: 12px 14px;
     border: 1px solid #7a3b42;
+    border-radius: var(--radius-standard);
     background: #3f252a;
     color: #ffd2d5;
 }
@@ -521,10 +588,21 @@
         padding: 24px 16px;
     }
 
-    .bindings-actions,
-    .binding-row {
+    .bindings-actions {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .binding-row {
+        grid-template-columns: 1fr;
+        padding: 18px 16px;
+    }
+
+    .binding-resolution {
+        padding-top: 18px;
+        padding-left: 0;
+        border-top: 1px solid var(--bindings-rail);
+        border-left: 0;
     }
 
     .bindings-actions .button,
@@ -535,6 +613,10 @@
     .binding-actions {
         display: grid;
         grid-template-columns: 1fr 1fr;
+    }
+
+    .binding-actions .button:last-child {
+        margin-left: 0;
     }
 }
 

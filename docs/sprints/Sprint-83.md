@@ -1,6 +1,6 @@
 # Sprint 83 — Reflection Inbox
 
-**Status:** Planned — approved; begins after Sprint 82 release gate
+**Status:** Planned — approved; begins after the v0.29.x design pass
 
 **Target version:** Next minor development version after the Sprint-82 release
 
@@ -32,6 +32,12 @@ the user completes an explicit reflective workflow.
   documented recurrence condition.
 - Keep listening/role history canonical; Inbox records reference it rather than
   duplicating or rewriting it.
+- Treat long-dormant Albums explicitly: never heard, absent from recent Rotations,
+  long-unheard, and archived Albums receive different transparent evidence rather
+  than one generic inactivity rule.
+- Model an internal archive-temperature projection (`warm`/`cold`) from documented
+  recency and repeated user decisions. It is not a visible role, never changes the
+  Album automatically, and must be recomputable from canonical evidence.
 
 ## Workstream 83B — Inbox Experience
 
@@ -63,6 +69,8 @@ the user completes an explicit reflective workflow.
 - Define explicit snooze presets and maximum one open item per Album by default.
 - Sort by meaningful evidence age/urgency, not by an opaque recommendation score.
 - Avoid email, push notifications, streaks, red counters, or “inbox zero” language.
+- Bound recurrence so a repeatedly declined dormant Album becomes quieter instead of
+  increasingly urgent; materially new listening or an explicit return can warm it.
 
 ## Definition of Done
 
@@ -75,13 +83,15 @@ the user completes an explicit reflective workflow.
 - [ ] DE/EN, keyboard, touch, loading, retry, and empty states are tested.
 - [ ] Backup/restore and second-browser verification cover Inbox state.
 - [ ] Production use confirms the Inbox feels optional and non-judgmental.
+- [ ] Warm/cold archive state is explainable, internal-only, recomputable, and covered
+  by recurrence tests.
 
 ## Non-Goals
 
 - Notifications outside the browser
 - Gamification, streaks, scores, or mandatory Inbox zero
 - Machine-learned recommendations
+- User-visible warm/cold archive roles or automatic archive promotion
 - Automated role assignment
 - Free-form listening notes (Sprint 84)
 - General task management
-

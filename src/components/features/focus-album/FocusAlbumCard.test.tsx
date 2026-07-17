@@ -20,6 +20,24 @@ const album: Album = {
 }
 
 describe("FocusAlbumCard actions", () => {
+    it("separates Album identity from listening status and keeps the listened action accessible", () => {
+        const { container } = render(
+            <I18nContext.Provider value={{ t: de, language: "de", setLanguage: vi.fn() }}>
+                <FocusAlbumCard
+                    album={album}
+                    listenEvents={[]}
+                    onLogListen={vi.fn()}
+                    onSuggestAnother={vi.fn()}
+                    onEdit={vi.fn()}
+                />
+            </I18nContext.Provider>,
+        )
+
+        expect(container.querySelector(".focus-album-info")).toBeTruthy()
+        expect(container.querySelector(".focus-album-listening")).toBeTruthy()
+        expect(screen.getByRole("button", { name: "Gehört: Kind of Blue" })).toBeTruthy()
+    })
+
     it("opens Album editing through an accessible action", () => {
         const onEdit = vi.fn()
         render(

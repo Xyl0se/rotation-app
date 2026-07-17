@@ -14,6 +14,14 @@ function renderHeader(orphanCount = 0, onNavigate = vi.fn()) {
 }
 
 describe("AppHeader navigation", () => {
+    it("uses the approved primary navigation order", () => {
+        renderHeader()
+        expect(screen.getByRole("navigation").querySelectorAll("button")).toHaveLength(5)
+        expect(
+            Array.from(screen.getByRole("navigation").querySelectorAll("button"), button => button.textContent),
+        ).toEqual(["Start", "Insights", "Export", "Bindings", "Einstellungen"])
+    })
+
     it("offers the dedicated Insights page", () => {
         const onNavigate = renderHeader()
         fireEvent.click(screen.getByRole("button", { name: "Insights" }))

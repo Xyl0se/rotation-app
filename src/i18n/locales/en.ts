@@ -698,6 +698,8 @@ export const en = {
 
     bindings: {
         title: "Album Bindings",
+        sourceFolder: "Source folder",
+        resolution: "Library resolution",
         filters: {
             all: "All",
             proposed: "Proposed",

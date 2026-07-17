@@ -373,25 +373,31 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
 
             <div className="bindings-list">
                 {bindings.map((b) => (
-                    <Card key={b.albumId}>
+                    <Card key={b.albumId} className="binding-card">
                         <div className="binding-row">
-                            <div className="binding-info">
+                            <section className="binding-source">
+                                <span className="binding-column-label">{t.bindings.sourceFolder}</span>
                                 {b.albumTitle && b.albumArtist ? (
                                     <span className="binding-preview">
                                         {t.bindings.albumPreview(b.albumTitle, b.albumArtist)}
                                     </span>
-                                ) : (
-                                    <span className="binding-path">{b.relativePath}</span>
-                                )}
-                                <span className={`binding-state binding-state--${b.state}`}>
-                                    {t.bindings.state[b.state]}
-                                </span>
-                                {!b.libraryExists && (
-                                    <span className="binding-orphan">{t.bindings.orphanBadge}</span>
-                                )}
-                                {!b.folderExists && (
-                                    <span className="binding-missing">{t.bindings.folderMissing}</span>
-                                )}
+                                ) : null}
+                                <code className="binding-path">{b.relativePath}</code>
+                            </section>
+
+                            <section className="binding-resolution">
+                                <span className="binding-column-label">{t.bindings.resolution}</span>
+                                <div className="binding-statuses">
+                                    <span className={`binding-state binding-state--${b.state}`}>
+                                        {t.bindings.state[b.state]}
+                                    </span>
+                                    {!b.libraryExists && (
+                                        <span className="binding-orphan">{t.bindings.orphanBadge}</span>
+                                    )}
+                                    {!b.folderExists && (
+                                        <span className="binding-missing">{t.bindings.folderMissing}</span>
+                                    )}
+                                </div>
                                 {candidateLists[b.albumId] && (
                                     <div className="binding-candidates">
                                         {candidateLists[b.albumId].length === 0 ? (
@@ -434,50 +440,50 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
                                         )}
                                     </div>
                                 )}
-                            </div>
-                            <div className="binding-actions">
-                                {b.libraryExists && b.libraryAlbumId && onNavigateToLibrary && (
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => onNavigateToLibrary(b.libraryAlbumId!)}
-                                        disabled={processingId === b.albumId}
-                                    >
-                                        {t.bindings.viewInLibrary}
-                                    </Button>
-                                )}
-                                {b.state === "proposed" && (
-                                    <Button
-                                        onClick={() => handleConfirm(b.albumId)}
-                                        disabled={processingId === b.albumId}
-                                    >
-                                        {t.bindings.confirm}
-                                    </Button>
-                                )}
-                                {!b.libraryExists && (
-                                    <>
+                                <div className="binding-actions">
+                                    {b.libraryExists && b.libraryAlbumId && onNavigateToLibrary && (
                                         <Button
                                             variant="secondary"
-                                            onClick={() => void handleReviewCandidates(b.albumId)}
-                                            disabled={candidateLoadingId === b.albumId}
-                                        >
-                                            {candidateLoadingId === b.albumId ? t.common.loading : t.bindings.candidates.review}
-                                        </Button>
-                                        <Button
-                                            onClick={() => handleStartCapture(b)}
+                                            onClick={() => onNavigateToLibrary(b.libraryAlbumId!)}
                                             disabled={processingId === b.albumId}
                                         >
-                                            {t.bindings.capture}
+                                            {t.bindings.viewInLibrary}
                                         </Button>
-                                    </>
-                                )}
-                                <Button
-                                    variant="secondary"
-                                    onClick={() => handleDelete(b.albumId)}
-                                    disabled={processingId === b.albumId}
-                                >
-                                    {t.bindings.delete}
-                                </Button>
-                            </div>
+                                    )}
+                                    {b.state === "proposed" && (
+                                        <Button
+                                            onClick={() => handleConfirm(b.albumId)}
+                                            disabled={processingId === b.albumId}
+                                        >
+                                            {t.bindings.confirm}
+                                        </Button>
+                                    )}
+                                    {!b.libraryExists && (
+                                        <>
+                                            <Button
+                                                variant="secondary"
+                                                onClick={() => void handleReviewCandidates(b.albumId)}
+                                                disabled={candidateLoadingId === b.albumId}
+                                            >
+                                                {candidateLoadingId === b.albumId ? t.common.loading : t.bindings.candidates.review}
+                                            </Button>
+                                            <Button
+                                                onClick={() => handleStartCapture(b)}
+                                                disabled={processingId === b.albumId}
+                                            >
+                                                {t.bindings.capture}
+                                            </Button>
+                                        </>
+                                    )}
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => handleDelete(b.albumId)}
+                                        disabled={processingId === b.albumId}
+                                    >
+                                        {t.bindings.delete}
+                                    </Button>
+                                </div>
+                            </section>
                         </div>
                     </Card>
                 ))}

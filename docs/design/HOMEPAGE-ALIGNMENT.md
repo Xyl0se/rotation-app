@@ -1,6 +1,6 @@
 # Homepage Design Alignment
 
-Status: Implemented on 2026-07-17; pending visual acceptance.
+Status: Implemented and visually accepted on 2026-07-17 in `v0.29.1`.
 
 ## Purpose
 
@@ -46,7 +46,9 @@ Rules:
 - An element must not use a pill radius merely because it is clickable.
 - Primary and secondary text buttons use `8px`.
 - Homepage containers and Album Cards use `8px`.
-- Role/status chips may remain pills because their shape communicates a tag.
+- Role/status chips remained pills in the first pass. The approved `v0.29.2` follow-up
+  replaces Homepage pills with the standard 8px radius; meaning remains in copy,
+  color, and placement.
 - Album covers use `8px`, matching their Card rather than introducing another radius.
 - New one-off radius values are not allowed without updating the Design System.
 

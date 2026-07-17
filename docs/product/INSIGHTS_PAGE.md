@@ -16,9 +16,9 @@ describe relationships; they are not collection health metrics.
 
 ## Navigation
 
-Insights is a first-class application page alongside Home, Bindings, Export, History,
-and Settings. Home contains Focus Album, Player Rotation, and Library instead of a
-Dashboard composition.
+Insights is the second first-class application page. The primary order is Home,
+Insights, Export, Bindings, and Settings. Home contains Focus Album, Player Rotation,
+and Library instead of a Dashboard composition.
 
 ## Data Flow
 
@@ -28,6 +28,8 @@ rediscovery continues to use the Archive Return Coach.
 
 ## Product Limit
 
-Insights must remain editorial rather than analytical. It may explain patterns and
-invite a decision, but must not introduce scores, warnings about role sizes, or a
-concept of an optimal collection.
+Insights must remain editorial rather than judgmental. It may use deeper deterministic
+analysis, explain patterns, compare bounded periods, and invite a decision, but must
+not introduce scores, warnings about role sizes, or a concept of an optimal collection.
+The role overview remains a permanent neutral foundation. Sprint 86 defines richer
+evidence-backed narratives and the boundary for any optional future AI wording layer.

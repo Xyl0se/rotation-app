@@ -94,6 +94,8 @@ describe("BindingsPage manual music scan", () => {
         await waitFor(() => expect(mocks.getScanProgress).toHaveBeenCalledWith("scan-1"))
         await waitFor(() => expect(mocks.fetchBindings).toHaveBeenCalledTimes(2))
         expect(await screen.findByText("Artist/New Album")).toBeTruthy()
+        expect(screen.getByText("Source folder")).toBeTruthy()
+        expect(screen.getByText("Library resolution")).toBeTruthy()
         expect(mocks.toastSuccess).toHaveBeenCalledWith(
             "Music scan completed. Bindings have been refreshed.",
         )
