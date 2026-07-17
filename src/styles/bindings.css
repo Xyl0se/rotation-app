@@ -426,7 +426,7 @@
 }
 
 .bindings-list {
-    gap: 12px;
+    gap: 8px;
 }
 
 .bindings-list > .binding-card {
@@ -449,9 +449,9 @@
 .binding-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(340px, 1fr);
-    min-height: 112px;
-    padding: 20px 24px;
-    gap: clamp(24px, 4vw, 48px);
+    min-height: 84px;
+    padding: 14px 16px;
+    gap: clamp(18px, 3vw, 32px);
     align-items: start;
 }
 
@@ -459,18 +459,18 @@
 .binding-resolution {
     display: grid;
     min-width: 0;
-    gap: 10px;
+    gap: 7px;
 }
 
 .binding-resolution {
-    padding-left: clamp(16px, 3vw, 32px);
+    padding-left: clamp(12px, 2vw, 20px);
     border-left: 1px solid var(--bindings-rail);
 }
 
 .binding-column-label {
     color: var(--bindings-steel);
     font-family: var(--bindings-mono);
-    font-size: .68rem;
+    font-size: .62rem;
     font-weight: 700;
     letter-spacing: .12em;
     text-transform: uppercase;
@@ -486,18 +486,18 @@
 .binding-preview,
 .binding-path {
     color: #f0f3f5;
-    font-size: 1rem;
-    line-height: 1.45;
+    font-size: .88rem;
+    line-height: 1.35;
 }
 
 .binding-path {
     display: block;
-    padding: 10px 12px;
+    padding: 7px 9px;
     border: 1px solid #31424c;
     border-radius: var(--radius-standard);
     background: #0e181e;
     font-family: var(--bindings-mono);
-    font-size: .88rem;
+    font-size: .78rem;
     font-weight: 500;
     color: #cfdae0;
     overflow-wrap: anywhere;
@@ -507,9 +507,9 @@
 .binding-state,
 .binding-orphan {
     border-radius: var(--radius-standard);
-    padding: 4px 8px;
+    padding: 3px 7px;
     font-family: var(--bindings-mono);
-    font-size: .72rem;
+    font-size: .66rem;
     font-weight: 700;
 }
 
@@ -540,16 +540,29 @@
 }
 
 .binding-actions {
-    gap: 10px;
+    gap: 7px;
     align-items: center;
     flex-wrap: wrap;
     justify-content: flex-start;
-    padding-top: 8px;
+    padding-top: 5px;
 }
 
 .binding-actions .button {
-    min-height: 42px;
-    padding: 10px 18px;
+    min-height: 34px;
+    padding: 7px 11px;
+    font-size: .78rem;
+}
+
+.bindings-page .binding-candidates {
+    gap: 6px;
+    margin-top: 6px;
+    padding: 8px;
+    font-size: .78rem;
+}
+
+.bindings-page .binding-candidate {
+    gap: 10px;
+    padding: 7px 8px;
 }
 
 .binding-actions .button:last-child {
@@ -595,11 +608,11 @@
 
     .binding-row {
         grid-template-columns: 1fr;
-        padding: 18px 16px;
+        padding: 14px 12px;
     }
 
     .binding-resolution {
-        padding-top: 18px;
+        padding-top: 12px;
         padding-left: 0;
         border-top: 1px solid var(--bindings-rail);
         border-left: 0;

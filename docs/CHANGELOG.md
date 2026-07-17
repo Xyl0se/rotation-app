@@ -17,6 +17,8 @@
   - Replaced remaining Homepage pill tags with compact 8px labels.
   - Split the Focus Album Card into artwork, Album identity, and listening/action
     columns, keeping “Gehört” visible at the upper-right on wide layouts.
+  - Relaxed the listening column and separated adjacent Focus metadata tags; compacted
+    Binding rows, controls, evidence, and typography after visual density review.
 
 ## v0.29.1 — 2026-07-17
 
