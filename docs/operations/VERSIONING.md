@@ -49,22 +49,24 @@ Patch examples:
 2. Cut `docs/CHANGELOG.md` from `Unreleased` to the target version.
 3. Run `npm run validate` and both Compose configuration checks.
 4. Create versioning commit.
-5. Set Git tag with the target version. The image workflows publish the tested commit as SHA, version, and (on `main`) `latest` tags. Production Compose uses the immutable version tag, never `latest`.
-6. Wait for **both** `Docker Publish API` and `Docker Publish Web` for the release tag
-   to complete successfully. A pushed Git tag or a green GitHub Release workflow does
-   not prove that the container manifests already exist.
-7. Before authorizing Portainer deployment, verify both registry manifests directly:
+5. Push the version commit to `main`. The image workflows replace only the API and Web
+   `latest` tags after the shared validation gate succeeds.
+6. Wait for **both** `Docker Publish API` and `Docker Publish Web` for that `main`
+   commit to complete successfully. A green GitHub Release workflow does not prove
+   that the moving container tags already contain the new commit.
+7. Before authorizing Portainer deployment, verify both deployment manifests directly:
 
    ```bash
-   docker manifest inspect ghcr.io/xyl0se/rotation-app-api:vX.Y.Z >/dev/null
-   docker manifest inspect ghcr.io/xyl0se/rotation-app-web:vX.Y.Z >/dev/null
+   docker manifest inspect ghcr.io/xyl0se/rotation-app-api:latest >/dev/null
+   docker manifest inspect ghcr.io/xyl0se/rotation-app-web:latest >/dev/null
    ```
 
-   Do not tell an operator to use **Pull and redeploy** until both commands succeed.
-   `manifest unknown` means the referenced image tag is not yet available; wait for or
-   diagnose image publication instead of repeatedly redeploying the stack.
-8. Redeploy matching API/Web version tags and run the post-release health smoke test.
-9. The next sprint starts again under `Unreleased`.
+   Confirm in Actions that both successful runs belong to the intended commit. A
+   manifest check alone proves availability, not which commit `latest` represents.
+8. Redeploy matching API/Web `latest` images and run the post-release health smoke test.
+9. Set the Git version tag for source history and GitHub Release notes after acceptance.
+10. The next sprint starts again under `Unreleased`.
 
-This ordering prevents the release race in which Compose already references a new
-immutable tag while GHCR is still building or publishing that tag.
+Production intentionally follows the moving `latest` channel. Before redeploying,
+record the currently running image digests and keep the database backup. Rollback uses
+those recorded digests locally; a version Git tag is not a container rollback tag.

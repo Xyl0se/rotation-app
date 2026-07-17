@@ -1,6 +1,7 @@
 services:
   rotation-api:
-    image: ghcr.io/xyl0se/rotation-app-api:v0.29.1
+    image: ghcr.io/xyl0se/rotation-app-api:latest
+    pull_policy: always
     container_name: rotation-api
     user: "1026:100"
     restart: unless-stopped
@@ -31,7 +32,8 @@ services:
         max-file: "10"
 
   rotation-web:
-    image: ghcr.io/xyl0se/rotation-app-web:v0.29.1
+    image: ghcr.io/xyl0se/rotation-app-web:latest
+    pull_policy: always
     container_name: rotation-web
     ports:
       - "3000:80"

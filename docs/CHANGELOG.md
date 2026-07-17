@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Single moving deployment channel**
+  - Production Compose now always pulls matching API and Web `latest` images.
+  - Main-branch publish workflows overwrite only `latest`; version and SHA container
+    tags are no longer produced. Git version tags remain source/release-note markers.
+  - Updated Portainer guidance to require two green publish jobs for the same commit,
+    forced image re-pull/recreation, and pre-deploy digest recording for rollback.
+
 - **Interface alignment pass (`v0.29.2` candidate)**
   - Reordered primary navigation to Home, Insights, Export, Bindings, and Settings.
   - Reworked Bindings as a technical record-shop stockroom with monospace filesystem

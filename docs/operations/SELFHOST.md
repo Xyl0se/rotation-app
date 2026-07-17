@@ -82,7 +82,7 @@ Save the token as Portainer stack configuration. Users do not need to know it.
    | Name | `rotation` |
    | Repository URL | `https://github.com/Xyl0se/rotation-app` |
    | Repository reference | `refs/heads/main` |
-   | Compose path | `docker-compose.prod.yml` (pins the matching immutable release-candidate tag for API and Web) |
+   | Compose path | `docker-compose.prod.yml` (follows matching API/Web `latest` images) |
    | Automatic updates | ✅ Enable |
    | Mechanism | Webhook (recommended) or Polling |
    | Fetch interval | `5m` (if using Polling) |
@@ -244,27 +244,24 @@ Database migrations run automatically on startup. Always back up the database be
 
 ### Mandatory image-publication gate
 
-Never redeploy a newly tagged version merely because its Git tag exists or GitHub's
-Release workflow is green. The API and Web image workflows run independently and may
-still be publishing while Compose already references the new tag. Verify both images:
+Never redeploy merely because a commit or Git tag exists. The API and Web image
+workflows run independently and may still be publishing their moving `latest` tags.
+Verify both images exist:
 
 ```bash
-docker manifest inspect ghcr.io/xyl0se/rotation-app-api:vX.Y.Z >/dev/null
-docker manifest inspect ghcr.io/xyl0se/rotation-app-web:vX.Y.Z >/dev/null
+docker manifest inspect ghcr.io/xyl0se/rotation-app-api:latest >/dev/null
+docker manifest inspect ghcr.io/xyl0se/rotation-app-web:latest >/dev/null
 ```
 
-Only proceed to **Pull and redeploy** after both commands succeed. If Portainer reports
-`manifest unknown`, at least one referenced tag is unavailable: stop, inspect the two
-Docker Publish workflows, and repeat the manifest checks. Repeated redeploy attempts do
-not repair a missing registry manifest.
+Only proceed to **Pull and redeploy** after both publish workflows are green for the
+same intended `main` commit and both commands succeed. In Portainer, enable forced
+re-pull/recreate so an existing local `latest` image is not reused.
 
 For `v0.29.0`, the deployment evidence and desktop/390 px visual gate are archived in
 [`SPRINT-82-RELEASE-ACCEPTANCE.md`](../archive/acceptance-tests/SPRINT-82-RELEASE-ACCEPTANCE.md). The documented
-rollback restores both the previous database backup and matching API/Web SHA tags;
-never start an older image against a database already migrated to schema 11.
-
-Production Compose pins matching API/Web `v0.29.0` images. Use matching SHA tags only
-for diagnosis or exact rollback; never mix API and Web versions.
+rollback restores the previous database backup and the API/Web image digests recorded
+before deployment; never start an older image against a database already migrated to
+schema 11 and never mix API and Web revisions.
 
 ---
 
