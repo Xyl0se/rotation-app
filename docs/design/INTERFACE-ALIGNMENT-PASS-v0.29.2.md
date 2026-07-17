@@ -57,17 +57,15 @@ dashboard.
 
 ### Binding Card layout
 
-Desktop Cards use two information columns:
+Desktop uses a two-column Card grid, analogous to the Library: two complete Binding
+Cards sit next to each other. Each individual Card remains a compact single-column
+record with source information first and resolution/actions below it.
 
-| Inventory record | Resolution and actions |
-|---|---|
-| source folder, detected artist/title, scan evidence | linked Library Album, Binding state, candidate/review actions |
-
-- Keep the source path visually traceable across both columns.
+- Keep the source path visually traceable within each Card.
 - Group buttons with at least 8px internal gaps and 16px edge clearance.
 - Put destructive actions last and visually separate them from the primary resolution.
-- Collapse to one logical column on narrow screens without reordering status after
-  destructive actions.
+- Collapse the Card grid to one Card per row on narrow screens without reordering
+  status after destructive actions.
 
 ## Workstream C — Homepage Tag Geometry
 
@@ -100,7 +98,8 @@ On wide layouts, compose the Focus Card as:
 
 - [x] Navigation order is Home, Insights, Export, Bindings, Settings everywhere.
 - [x] Bindings uses the technical stockroom identity without orange decorative actions.
-- [x] Binding Cards are two-column on desktop and readable in one column on mobile.
+- [x] The Binding list shows two complete Cards per row on desktop and one per row on
+  narrower screens; each Card remains internally single-column.
 - [x] Ordinary Bindings elements and Homepage tags use the shared 8px radius.
 - [x] Focus is three-column on wide screens with “Gehört” at top right.
 - [x] No domain behavior or persistence contract changes.

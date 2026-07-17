@@ -13,7 +13,7 @@
   - Reordered primary navigation to Home, Insights, Export, Bindings, and Settings.
   - Reworked Bindings as a technical record-shop stockroom with monospace filesystem
     evidence, restrained steel/blue controls, consistent 8px geometry, and responsive
-    source-versus-resolution columns.
+    a responsive two-Card desktop grid analogous to the Library.
   - Replaced remaining Homepage pill tags with compact 8px labels.
   - Split the Focus Album Card into artwork, Album identity, and listening/action
     columns, keeping “Gehört” visible at the upper-right on wide layouts.

@@ -426,10 +426,14 @@
 }
 
 .bindings-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
 }
 
 .bindings-list > .binding-card {
+    min-width: 0;
+    height: 100%;
     overflow: visible;
     border: 1px solid #384750;
     border-left: 4px solid #607582;
@@ -448,10 +452,10 @@
 
 .binding-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(340px, 1fr);
+    grid-template-columns: 1fr;
     min-height: 84px;
     padding: 14px 16px;
-    gap: clamp(18px, 3vw, 32px);
+    gap: 12px;
     align-items: start;
 }
 
@@ -463,8 +467,8 @@
 }
 
 .binding-resolution {
-    padding-left: clamp(12px, 2vw, 20px);
-    border-left: 1px solid var(--bindings-rail);
+    padding-top: 12px;
+    border-top: 1px solid var(--bindings-rail);
 }
 
 .binding-column-label {
@@ -569,6 +573,12 @@
     margin-left: auto;
 }
 
+@media (max-width: 980px) {
+    .bindings-list {
+        grid-template-columns: 1fr;
+    }
+}
+
 .bindings-empty,
 .bindings-loading {
     color: #aebbc2;
@@ -607,15 +617,7 @@
     }
 
     .binding-row {
-        grid-template-columns: 1fr;
         padding: 14px 12px;
-    }
-
-    .binding-resolution {
-        padding-top: 12px;
-        padding-left: 0;
-        border-top: 1px solid var(--bindings-rail);
-        border-left: 0;
     }
 
     .bindings-actions .button,
