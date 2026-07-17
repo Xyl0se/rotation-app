@@ -6,10 +6,15 @@ Early tags remain as historical markers. Versions are not retroactively added.
 
 ## Current Anchor
 
-`v0.29.0` is the first deliberately accepted stable release. It advances the minor
+`v0.29.1` is the current stable patch release. `v0.29.0` was the first deliberately
+accepted stable release and advanced the minor
 version after Sprint 80/81 established the `v0.28.x-dev` line and Sprint 82 added a
 durable Rotation lifecycle. Production NAS lifecycle, backup/restore, desktop,
 narrow-viewport, and localization acceptance were recorded on 2026-07-16.
+
+The `v0.29.1` patch aligns the Homepage with the accepted design language and
+hardens container publication by generating deterministic lowercase GHCR tags
+without an external metadata step.
 
 Includes:
 

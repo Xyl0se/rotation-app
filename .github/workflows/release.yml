@@ -30,4 +30,4 @@ jobs:
         run: |
           release_args=()
           if [[ "$RELEASE_TAG" == *-* ]]; then release_args+=(--prerelease); fi
-          gh release create "$RELEASE_TAG" --verify-tag "${release_args[@]}" --title "Rotation $RELEASE_TAG" --notes-file "docs/RELEASE_NOTES-$RELEASE_TAG.md"
+          gh release create "$RELEASE_TAG" --verify-tag "${release_args[@]}" --title "Rotation $RELEASE_TAG" --notes-file "docs/releases/RELEASE_NOTES-$RELEASE_TAG.md"

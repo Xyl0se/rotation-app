@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.29.1 — 2026-07-17
+
 - **Homepage design alignment**
   - Restored the original warm editorial palette on Home, standardized ordinary
     Homepage controls, Cards, covers, and containers on an 8px radius, and reduced
@@ -14,6 +16,11 @@
   - Added an accessible Focus Album edit action that opens the existing Album editor.
   - Replaced the dismissible unbound-Album Homepage banner with an accessible,
     centrally refreshed attention dot on Bindings navigation.
+- **Container publication hardening**
+  - Normalized API and Web image names to explicit lowercase GHCR paths.
+  - Replaced the failing external metadata step with deterministic `latest`, commit
+    SHA, and release-tag generation inside the workflow.
+  - Updated production Compose to matching immutable `v0.29.1` API and Web images.
 
 ## v0.29.0
 

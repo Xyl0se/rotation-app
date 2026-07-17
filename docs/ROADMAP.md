@@ -4,7 +4,7 @@
 >
 > Rotation accompanies the relationship between person and album.
 
-Version: v0.29.0 — first stable release
+Version: v0.29.1 — stable homepage alignment patch
 
 ---
 
