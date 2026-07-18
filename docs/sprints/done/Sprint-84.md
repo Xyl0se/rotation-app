@@ -1,6 +1,6 @@
 # Sprint 84 — Listening Journal
 
-**Status:** Implementation complete — NAS acceptance pending
+**Status:** Done ✅ — NAS acceptance passed on 2026-07-18
 
 **Target version:** Subsequent minor development version
 
@@ -86,10 +86,10 @@ Listening Event references; recent notes are displayed read-only and never class
 - [x] Journal text never appears in structured operational logs or diagnostics.
 - [x] DE/EN, Unicode, length, accessibility, retry, and second-browser cases are tested.
 - [x] Migration and backup/restore preserve Listening Events and notes exactly.
-- [ ] Production acceptance confirms the journal remains optional and lightweight.
+- [x] Production acceptance confirms the journal remains optional and lightweight.
 
-Production verification follows
-[the Sprint-84 NAS acceptance test](../acceptance/SPRINT-84-NAS-ACCEPTANCE.md).
+Production verification passed on 2026-07-18; see
+[the Sprint-84 NAS acceptance test](../../acceptance/SPRINT-84-NAS-ACCEPTANCE.md).
 
 ## Non-Goals
 

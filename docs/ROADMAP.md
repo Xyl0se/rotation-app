@@ -58,8 +58,8 @@ Not optimization.
 | Done | [Interface Alignment Pass](./design/INTERFACE-ALIGNMENT-PASS-v0.29.2.md) | Navigation, technical Bindings, Focus layout, and shape consistency | v0.29.2 | Done ✅ |
 | Done | [Sprint 83](./sprints/done/Sprint-83.md) | Server-owned Reflection Inbox and dormant-Archive nudges | v0.30.0 | Done ✅; 30-day observation follows |
 | Done | [Sprint 83.1](./sprints/done/Sprint-83.1.md) | Compressed Album Coach and Binding intake | v0.30.1 | Done ✅ |
-| Next | [Sprint 84](./sprints/Sprint-84.md) | Optional Listening Journal | Subsequent minor | Implemented; NAS acceptance pending |
-| 4 | [Sprint 85](./sprints/Sprint-85.md) | Dependabot and dependency stewardship | Maintenance patch | Maintainer walkthrough |
+| Done | [Sprint 84](./sprints/done/Sprint-84.md) | Optional Listening Journal | Subsequent minor | Done ✅; NAS acceptance passed |
+| Done | [Sprint 85](./sprints/done/Sprint-85.md) | Dependabot and dependency stewardship | Maintenance patch | Implemented ✅; recurring PR triage follows runbook |
 | 5 | [Sprint 86](./sprints/Sprint-86.md) | Deeper deterministic Insights | Future minor | Product direction approved |
 | 6 | [Sprint 87](./sprints/Sprint-87.md) | Local-first artwork with remote fallback | Future release | Feasibility spike first |
 

@@ -1,28 +1,75 @@
 version: 2
+
+# Routine version updates are intentionally quiet. Security updates remain controlled
+# by GitHub's Dependabot security settings and are not delayed by this monthly cadence.
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+      time: "06:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 5
+    labels: [dependencies]
     groups:
-      frontend-dependencies:
-        patterns: ["*"]
+      frontend-runtime-patch-minor:
+        dependency-type: production
+        update-types: [patch, minor]
+      frontend-tooling-patch-minor:
+        dependency-type: development
+        update-types: [patch, minor]
+
   - package-ecosystem: npm
     directory: /server
     schedule:
-      interval: weekly
+      interval: monthly
+      time: "06:15"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 5
+    labels: [dependencies]
     groups:
-      server-dependencies:
-        patterns: ["*"]
+      server-runtime-patch-minor:
+        dependency-type: production
+        update-types: [patch, minor]
+      server-tooling-patch-minor:
+        dependency-type: development
+        update-types: [patch, minor]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+      time: "06:30"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 3
+    labels: [dependencies]
+    groups:
+      actions-patch-minor:
+        patterns: ["*"]
+        update-types: [patch, minor]
+
   - package-ecosystem: docker
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+      time: "06:45"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 2
+    labels: [dependencies, docker]
+    groups:
+      web-base-patch-minor:
+        patterns: ["*"]
+        update-types: [patch, minor]
+
   - package-ecosystem: docker
     directory: /server
     schedule:
-      interval: weekly
+      interval: monthly
+      time: "07:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 2
+    labels: [dependencies, docker]
+    groups:
+      api-base-patch-minor:
+        patterns: ["*"]
+        update-types: [patch, minor]

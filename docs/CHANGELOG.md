@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Sprint 85 — dependency stewardship**
+  - Added a practical Dependabot runbook covering terminology, risk classification,
+    evidence gates, stale-branch recovery, rollback, and monthly maintenance.
+  - Triaged all eight open Dependabot PRs without merging mixed-risk groups or
+    incidental major updates.
+  - Changed routine update checks from weekly to monthly, separated npm runtime and
+    development groups, grouped only patch/minor updates, and bounded open PR noise.
+
 - **Bindings maintenance correction**
   - Restored an explicit Delete action for unresolved Binding records whose music
     folders were reported missing, without opening the Album resolution dialog.
@@ -14,6 +22,8 @@
     overlay at the current viewport instead of placing an affordance at the top of Home.
   - Styled the journal as a restrained pastel thought cloud and fixed selected mood and
     context controls becoming invisible because of an undefined color token.
+  - Passed the complete production NAS acceptance on 2026-07-18, including optional
+    capture, persistence, failure recovery, privacy, and backup/restore checks.
 
 - **Single moving deployment channel**
   - Production Compose now always pulls matching API and Web `latest` images.
