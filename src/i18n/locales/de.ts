@@ -205,6 +205,21 @@ export const de: Translation = {
                 `Finde gemeinsam heraus, welche Rolle ${albumTitle} heute für dich spielt.`,
             start: "Los geht's",
         },
+        snapshot: {
+            step: "Schritt 2 von 3 · Momentaufnahme",
+            title: "Wie ist deine Beziehung zu diesem Album heute?",
+            description: "Ein paar kompakte Signale reichen. Es gibt keine richtigen Antworten und noch wird nichts gespeichert.",
+            exposure: { label:"Wie oft hast du es bewusst gehört?",options:{ none:"Noch gar nicht","up-to-three":"Bis zu dreimal","more-than-three":"Mehr als dreimal" } },
+            explore: { label:"Möchtest du diesem Album eine echte Chance geben?" },
+            yesNo: { yes:"Ja",no:"Nein" },
+            connection: "Wie stark ist deine persönliche Verbindung?",
+            connectionOptions: { "1":"1 · Gering","2":"2","3":"3","4":"4","5":"5 · Sehr stark" },
+            returnBehavior: { label:"Wie oft kehrst du bewusst zurück?",options:{ regularly:"Regelmäßig",occasionally:"Gelegentlich",rarely:"Selten",never:"Nie" } },
+            ownership: { label:"Wie lange gehört es zu deiner Sammlung?",options:{ "under-six-months":"Unter 6 Monaten","six-months-to-two-years":"6 Monate–2 Jahre","two-to-ten-years":"2–10 Jahre","over-ten-years":"Über 10 Jahre" } },
+            binary: { formative:"Hat es deinen Geschmack oder deine musikalische Biografie geprägt?",comfort:"Ist die Rückkehr vor allem vertraut und wohltuend?",continuingDiscovery:"Offenbart, überrascht oder fordert es dich noch?" },
+            conclusion: { label:"Falls keine aktive Rolle klar ist: Was passt am ehesten?",options:{ "keep-exploring":"Ich möchte es noch besser kennenlernen","personally-valued":"Ich schätze es, obwohl ich es selten höre","relationship-complete":"Es hatte seine Zeit; die Beziehung ist abgeschlossen","canonical-but-not-personal":"Ich verstehe seine Bedeutung, aber es ist nicht meines","no-connection":"Es hat mich trotz mehrerer Versuche nie erreicht" } },
+            validation: "Bitte beantworte die für deinen Weg relevanten Punkte.",continue:"Empfehlung anzeigen",
+        },
         questions: {
             heardThreeTimes: {
                 title: "Hast du dieses Album mindestens dreimal bewusst gehört?",
@@ -252,11 +267,14 @@ export const de: Translation = {
             },
         },
         result: {
+            step: "Schritt 3 von 3 · Empfehlung",
             ourRecommendation: "Unsere Empfehlung",
             roleAssigned: (roleTitle: string) =>
                 `Die Rolle "${roleTitle}" passt gut zu diesem Album.`,
-            accept: "Rolle übernehmen",
+            chooseRole:"Endgültige Rolle wählen",archiveReason:"Was beschreibt die Archiventscheidung am besten?",back:"Zurück zur Momentaufnahme",accept:"Rolle bestätigen",
         },
+        reasons: { "new-exploration":"Du kennst es noch nicht vollständig und möchtest ihm weiteren Raum geben.","formative-classic":"Deine starke persönliche Verbindung und prägende Geschichte sprechen für einen persönlichen Klassiker.","familiar-return":"Die vertraute, verlässliche Rückkehr bestimmt eure heutige Beziehung.","continuing-discovery":"Das Album gibt dir weiterhin etwas zu entdecken.","personal-admiration":"Du schätzt es persönlich, auch ohne häufige Rückkehr.","declined-discovery":"Du möchtest diesem noch unvertrauten Album gerade keinen weiteren Raum geben.","completed-relationship":"Das Album hatte seine Zeit, aber diese Beziehung wirkt heute abgeschlossen.","canonical-distance":"Du erkennst seine Bedeutung an, ohne eine persönliche aktive Beziehung dazu zu haben.","no-connection":"Du hast ihm genug Raum gegeben, aber daraus entstand keine bleibende Verbindung." },
+        archiveReasons: { "not-interested-in-discovery":{title:"Keine weitere Entdeckung",description:"Ich möchte diesem noch unvertrauten Album gerade keinen weiteren Raum geben."},"relationship-complete":{title:"Beziehung abgeschlossen",description:"Es hatte seinen Platz in meinem Leben, aber diese Phase ist vorbei."},"canonical-but-not-personal":{title:"Bedeutend, aber nicht meines",description:"Ich erkenne seine Bedeutung ohne persönliche Bindung an."},"no-connection":{title:"Keine Verbindung",description:"Es hat mich trotz ausreichender Aufmerksamkeit nie erreicht."} },
         orphanPrompt: {
             title: "Ungebundene Alben warten auf dich",
             description: "Im Musikordner wurden Einträge gefunden, die du auf der Bindings-Seite prüfen und erfassen kannst.",
@@ -705,11 +723,13 @@ export const de: Translation = {
         sourceFolder: "Quellordner",
         resolution: "Zuordnung zur Bibliothek",
         filters: {
+            unresolved:"Nicht zugeordnet",
             all: "Alle",
             proposed: "Vorgeschlagen",
             confirmed: "Bestätigt",
             missing: "Fehlend",
         },
+        resolver:{title:"Albumordner zuordnen",kicker:"Nicht zugeordneter Ordner",description:"Wähle ein bestehendes Album aus der Bibliothek oder erfasse einen neuen Eintrag. Eine erfolgreiche Auswahl bestätigt das Binding sofort.",open:"Zuordnen",create:"Neues Bibliotheksalbum erfassen",cancel:"Abbrechen"},
         state: {
             proposed: "Vorgeschlagen",
             confirmed: "Bestätigt",

@@ -23,14 +23,23 @@ export interface AlbumMetadata {
 
 }
 
-function filesystemTitleVariants(title: string): string[] {
-    const variants = [
+export function metadataTitleVariants(title: string): string[] {
+    const punctuationVariants=(value:string)=>[
+        value,
+        value.replace(/\s*\+\s*/g," & "),
+        value.replace(/\s*\+\s*/g," and "),
+        value.replace(/\s*[+&]\s*/g," "),
+        value.replace(/[‐‑‒–—]/g,"-"),
+        value.replace(/[’‘`]/g,"'"),
+    ]
+    const filesystemVariants = [
         title,
         title.replaceAll("_", ": "),
         title.replaceAll("_", " – "),
         title.replaceAll("_", " "),
-    ].map(value => value.replace(/\s+/g, " ").trim())
-    return [...new Set(variants)]
+    ]
+    const variants=filesystemVariants.flatMap(punctuationVariants).map(value => value.normalize("NFC").replace(/\s+/g, " ").trim())
+    return [...new Set(variants)].slice(0,8)
 }
 
 function wordsOnly(title: string): string {
@@ -58,7 +67,7 @@ export async function searchAlbum(
 ): Promise<AlbumMetadata | null> {
 
     let result = { releases: [] } as Awaited<ReturnType<typeof searchMusicBrainz>>
-    const variants = filesystemTitleVariants(title)
+    const variants = metadataTitleVariants(title)
     for (const variant of variants) {
         result = await searchMusicBrainz(variant, artist)
         if (result.releases.length > 0) break

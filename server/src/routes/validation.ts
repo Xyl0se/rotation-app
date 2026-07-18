@@ -10,10 +10,14 @@ export const BindingIdSchema = z.string().trim().min(1).max(1024).refine(
 const RoleSchema = z.enum(["new", "growing", "comfort-food", "classic", "admire", "archive"])
 const IsoDateSchema = z.string().datetime({ offset: true })
 
+const ArchiveReasonSchema = z.enum(["not-interested-in-discovery", "relationship-complete", "canonical-but-not-personal", "no-connection"])
 const RoleHistoryEntrySchema = z.object({
     role: RoleSchema,
     recordedAt: IsoDateSchema,
     source: z.enum(["coach", "reflection", "archive"]),
+    archiveReason: ArchiveReasonSchema.optional(),
+}).superRefine((entry,context)=>{
+    if(entry.role!=="archive" && entry.archiveReason!==undefined)context.addIssue({code:z.ZodIssueCode.custom,path:["archiveReason"],message:"Archive reason is only valid for the Archive role"})
 })
 
 const CoverOverrideSchema = z.discriminatedUnion("type", [

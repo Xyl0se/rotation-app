@@ -34,7 +34,11 @@ function isValidRoleHistoryEntry(entry: unknown): entry is RoleHistoryEntry {
         isString(e.role) &&
         isString(e.recordedAt) &&
         isString(e.source) &&
-        ["coach", "reflection", "archive"].includes(e.source)
+        ["coach", "reflection", "archive"].includes(e.source) &&
+        (e.archiveReason === undefined || (
+            e.role === "archive" &&
+            ["not-interested-in-discovery", "relationship-complete", "canonical-but-not-personal", "no-connection"].includes(String(e.archiveReason))
+        ))
     )
 }
 

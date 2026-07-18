@@ -9,6 +9,7 @@ import Button from "../components/ui/Button"
 import Dialog from "../components/ui/Dialog"
 import { useConnection } from "../contexts/connectionState"
 import type { RoleId } from "../domain/roles"
+import type { ArchiveReason } from "../domain/album/roleHistory"
 import { useLibrary } from "../hooks/useLibrary"
 import { useI18n } from "../i18n/useI18n"
 import { useReflectionInbox } from "../hooks/useReflectionInbox"
@@ -27,9 +28,9 @@ export default function InsightsPage() {
     const reflectionAlbum = albums.find(album => album.id === reflectionAlbumId)
     const archiveReturnAlbum = albums.find(album => album.id === archiveReturnAlbumId)
 
-    async function handleReflectionComplete(role: RoleId) {
+    async function handleReflectionComplete(role: RoleId,archiveReason?:ArchiveReason) {
         if (!reflectionAlbumId) return
-        if (await updateAlbumRole(reflectionAlbumId, role, "reflection")) {
+        if (await updateAlbumRole(reflectionAlbumId, role, "reflection",archiveReason)) {
             if(activeReflection)await inbox.resolve(activeReflection.id,role)
             setReflectionAlbumId(null)
             setActiveReflection(null)

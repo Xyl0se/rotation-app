@@ -26,6 +26,7 @@ import AlbumCoach from "../components/features/album-coach/AlbumCoach.js"
 import Dialog from "../components/ui/Dialog.js"
 import type { Album } from "../types/album.js"
 import type { RoleId } from "../domain/roles.js"
+import type { ArchiveReason } from "../domain/album/roleHistory.js"
 import { generateUUID } from "../utils/uuid.js"
 import { getScanProgress, triggerScan } from "../services/api/scanService.js"
 import { updateAlbum } from "../services/api/albumsService.js"
@@ -52,7 +53,7 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
     const { t } = useI18n()
     const toast = useToast()
     const [bindings, setBindings] = useState<Binding[]>([])
-    const [filter, setFilter] = useState<"all" | "proposed" | "confirmed" | "missing">("all")
+    const [filter, setFilter] = useState<"unresolved"|"all" | "proposed" | "confirmed" | "missing">("unresolved")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [processingId, setProcessingId] = useState<string | null>(null)
@@ -71,14 +72,19 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
     const [candidateLoadingId, setCandidateLoadingId] = useState<string | null>(null)
     const [libraryAlbums, setLibraryAlbums] = useState<Album[]>([])
     const [manualSearch, setManualSearch] = useState<Record<string, string>>({})
+    const [resolutionBindingId,setResolutionBindingId]=useState<string|null>(null)
 
     const load = useCallback(async () => {
         setLoading(true)
         setError(null)
         try {
-            const state = filter === "all" ? undefined : filter
+            const state = filter === "all"||filter === "unresolved" ? undefined : filter
             const response = await fetchBindings(state)
-            setBindings(response.bindings)
+            if(filter==="unresolved"){
+                const unresolved=response.bindings.filter(binding=>!binding.libraryExists)
+                setBindings(unresolved.length?unresolved:response.bindings)
+                if(unresolved.length===0)setFilter("all")
+            }else setBindings(response.bindings)
             onBindingsChanged?.()
         } catch (e) {
             setError(getApiErrorMessage(e))
@@ -133,6 +139,7 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
         setProcessingId(albumId)
         try {
             await selectBindingLibraryAlbum(albumId, libraryAlbumId)
+            setResolutionBindingId(null)
             await load()
         } catch (e) {
             setError(getApiErrorMessage(e))
@@ -145,6 +152,7 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
         setProcessingId(albumId)
         try {
             await selectBindingCandidate(albumId, candidate.libraryAlbumId, candidate.scanId)
+            setResolutionBindingId(null)
             setCandidateLists(previous => ({ ...previous, [albumId]: [] }))
             await load()
         } catch (e) {
@@ -227,9 +235,15 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
     }
 
     function handleStartCapture(binding: Binding) {
+        setResolutionBindingId(null)
         setCaptureBindingId(binding.albumId)
         setCaptureAlbum(makeEmptyAlbum())
         setShowCaptureDialog(true)
+    }
+
+    async function handleOpenResolution(binding:Binding){
+        setResolutionBindingId(binding.albumId)
+        await handleReviewCandidates(binding.albumId)
     }
 
     async function handleCaptureFinish(album: Album) {
@@ -247,7 +261,7 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
         }
     }
 
-    async function handleCaptureCoachComplete(role: RoleId) {
+    async function handleCaptureCoachComplete(role: RoleId, archiveReason?:ArchiveReason) {
         if (!coachingAlbum) return
         try {
             await updateAlbum({
@@ -257,6 +271,7 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
                     role,
                     recordedAt: new Date().toISOString(),
                     source: "coach",
+                    ...(role === "archive" && archiveReason ? { archiveReason } : {}),
                 }],
             })
             toast.success(t.bindings.coachSuccess)
@@ -274,6 +289,7 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
             artist: binding.suggestedArtist,
         }
     })()
+    const resolutionBinding=bindings.find(binding=>binding.albumId===resolutionBindingId)
 
     return (
         <div className="bindings-page">
@@ -328,7 +344,7 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
             )}
 
             <div className="bindings-filters">
-                {(["all", "proposed", "confirmed", "missing"] as const).map((f) => (
+                {(["unresolved","all", "proposed", "confirmed", "missing"] as const).map((f) => (
                     <button
                         key={f}
                         className={`bindings-filter ${filter === f ? "active" : ""}`}
@@ -360,6 +376,15 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
                 />
             )}
 
+            <Dialog open={resolutionBinding!==undefined} ariaLabel={t.bindings.resolver.title}>
+                {resolutionBinding&&<section className="binding-resolver"><p className="binding-column-label">{t.bindings.resolver.kicker}</p><h2>{resolutionBinding.suggestedArtist} — {resolutionBinding.suggestedTitle}</h2><code>{resolutionBinding.relativePath}</code><p>{t.bindings.resolver.description}</p>
+                    {candidateLoadingId===resolutionBinding.albumId?<p>{t.common.loading}</p>:<div className="binding-resolver-candidates">{(candidateLists[resolutionBinding.albumId]??[]).map(candidate=><button key={candidate.libraryAlbumId} onClick={()=>void handleSelectCandidate(resolutionBinding.albumId,candidate)}><strong>{candidate.artist} — {candidate.title}</strong><span>{t.bindings.candidates.confidence[candidate.confidence]}</span></button>)}</div>}
+                    <label className="binding-manual-search"><span>{t.bindings.candidates.manual}</span><input value={manualSearch[resolutionBinding.albumId]??""} onChange={event=>setManualSearch(previous=>({...previous,[resolutionBinding.albumId]:event.target.value}))} placeholder={t.bindings.candidates.searchPlaceholder}/></label>
+                    {(manualSearch[resolutionBinding.albumId]?.trim().length??0)>1&&<div className="binding-manual-results">{libraryAlbums.filter(album=>`${album.artist} ${album.title}`.toLocaleLowerCase().includes(manualSearch[resolutionBinding.albumId]!.trim().toLocaleLowerCase())).slice(0,5).map(album=><button key={album.id} onClick={()=>void handleManualSelect(resolutionBinding.albumId,album.id)}>{album.artist} — {album.title}</button>)}</div>}
+                    <div className="dialog-actions"><Button variant="secondary" onClick={()=>setResolutionBindingId(null)}>{t.bindings.resolver.cancel}</Button><Button onClick={()=>handleStartCapture(resolutionBinding)}>{t.bindings.resolver.create}</Button></div>
+                </section>}
+            </Dialog>
+
             <Dialog open={coachingAlbum !== null}>
                 {coachingAlbum && (
                     <AlbumCoach
@@ -374,6 +399,11 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
             <div className="bindings-list">
                 {bindings.map((b) => (
                     <Card key={b.albumId} className="binding-card">
+                        {!b.libraryExists?(
+                            <button className="binding-card-trigger" onClick={()=>void handleOpenResolution(b)} disabled={processingId===b.albumId}>
+                                <span><span className="binding-column-label">{t.bindings.sourceFolder}</span><strong>{b.suggestedArtist} — {b.suggestedTitle}</strong><code className="binding-path">{b.relativePath}</code></span><span className="binding-card-trigger-action">{t.bindings.resolver.open} →</span>
+                            </button>
+                        ):(
                         <div className="binding-row">
                             <section className="binding-source">
                                 <span className="binding-column-label">{t.bindings.sourceFolder}</span>
@@ -485,6 +515,7 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
                                 </div>
                             </section>
                         </div>
+                        )}
                     </Card>
                 ))}
             </div>

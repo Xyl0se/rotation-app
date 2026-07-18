@@ -208,6 +208,8 @@ describe("createBackupService", () => {
                 id: albumId, title: "Album", artist: "Artist", year: "2026",
                 category: "new", roleHistory: [{ role:"new",recordedAt:"2025-01-01T00:00:00.000Z",source:"coach" }], listenCount: 3, lastListened: "2026-01-01T00:00:00.000Z",
             })
+            const archivedAlbumId="550e8400-e29b-41d4-a716-446655440011"
+            createAlbumRepository(canonicalDb).save({id:archivedAlbumId,title:"Important Elsewhere",artist:"Artist",year:"2020",category:"archive",roleHistory:[{role:"archive",recordedAt:"2026-07-18T08:00:00.000Z",source:"coach",archiveReason:"canonical-but-not-personal"}],listenCount:4,lastListened:"2026-07-01T08:00:00.000Z"})
             const repository = createRotationStateRepository(canonicalDb)
             repository.savePlan({
                 id: planId, name: "Rotation", targetSize: 1,
@@ -244,6 +246,7 @@ describe("createBackupService", () => {
             expect(restored.prepare("SELECT target_size FROM rotation_settings WHERE singleton=1").get()).toEqual({ target_size: 1 })
             expect(restored.prepare("SELECT event_type FROM domain_audit_events WHERE id='audit-1'").get()).toEqual({ event_type: "rotation-accepted" })
             expect(restored.prepare("SELECT rotation_plan_id, status FROM export_operations WHERE id='export-1'").get()).toEqual({ rotation_plan_id: planId, status: "applied" })
+            expect(createAlbumRepository(restored).findById(archivedAlbumId)?.roleHistory[0]?.archiveReason).toBe("canonical-but-not-personal")
             expect(restored.prepare("SELECT state,snoozed_until FROM reflection_inbox_items WHERE id=?").get(reflection.id)).toEqual({state:"snoozed",snoozed_until:"2026-08-16T13:00:00.000Z"})
             restored.close()
         })

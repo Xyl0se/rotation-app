@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import type { Album } from "../types/album"
 import type { RoleId } from "../domain/roles"
+import type { ArchiveReason } from "../domain/album/roleHistory"
 import {
     clearCoverCache,
     removeCustomCover,
@@ -130,6 +131,7 @@ export function useLibrary(isConnected: boolean = false) {
         id: string,
         role: RoleId,
         source: "coach" | "reflection" | "archive",
+        archiveReason?: ArchiveReason,
     ): Promise<boolean> => {
         const current = albums.find(album => album.id === id)
         if (!current) return false
@@ -140,6 +142,7 @@ export function useLibrary(isConnected: boolean = false) {
                 role,
                 source,
                 recordedAt: new Date().toISOString(),
+                ...(role === "archive" && archiveReason ? { archiveReason } : {}),
             }],
         })
     }, [albums, updateAlbum])

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor,within } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { I18nContext } from "../i18n/I18nContext"
 import { en } from "../i18n/locales/en"
@@ -12,6 +12,9 @@ const mocks = vi.hoisted(() => ({
     toastError: vi.fn(),
     captureBinding: vi.fn(),
     updateAlbum: vi.fn(),
+    fetchBindingCandidates:vi.fn(),
+    fetchAlbums:vi.fn(),
+    selectBindingCandidate:vi.fn(),
 }))
 
 vi.mock("../components/features/diagnostics/DiagnosticsPanel.js", () => ({
@@ -32,6 +35,7 @@ vi.mock("../components/features/album-coach/AlbumCoach.js", () => ({
 
 vi.mock("../services/api/albumsService.js", () => ({
     updateAlbum: mocks.updateAlbum,
+    fetchAlbums:mocks.fetchAlbums,
 }))
 
 vi.mock("../services/api/bindingsService.js", () => ({
@@ -41,6 +45,8 @@ vi.mock("../services/api/bindingsService.js", () => ({
     verifyBindings: vi.fn(),
     reconcileBindings: vi.fn(),
     captureBinding: mocks.captureBinding,
+    fetchBindingCandidates:mocks.fetchBindingCandidates,
+    selectBindingCandidate:mocks.selectBindingCandidate,rejectBindingCandidates:vi.fn(),selectBindingLibraryAlbum:vi.fn(),
 }))
 
 vi.mock("../services/api/scanService.js", () => ({
@@ -55,9 +61,10 @@ vi.mock("../hooks/useToast.js", () => ({
 describe("BindingsPage manual music scan", () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        mocks.fetchBindings.mockReset()
         mocks.fetchBindings
             .mockResolvedValueOnce({ bindings: [], count: 0 })
-            .mockResolvedValueOnce({
+            .mockResolvedValue({
                 bindings: [{
                     albumId: "Artist/New Album",
                     relativePath: "Artist/New Album",
@@ -78,6 +85,8 @@ describe("BindingsPage manual music scan", () => {
             directoriesSkipped: 0,
             status: "completed",
         })
+        mocks.fetchBindingCandidates.mockResolvedValue({candidates:[]})
+        mocks.fetchAlbums.mockResolvedValue([])
     })
 
     it("triggers a scan and refreshes bindings when it completes", async () => {
@@ -92,10 +101,10 @@ describe("BindingsPage manual music scan", () => {
 
         await waitFor(() => expect(mocks.triggerScan).toHaveBeenCalledOnce())
         await waitFor(() => expect(mocks.getScanProgress).toHaveBeenCalledWith("scan-1"))
-        await waitFor(() => expect(mocks.fetchBindings).toHaveBeenCalledTimes(2))
+        await waitFor(() => expect(mocks.fetchBindings.mock.calls.length).toBeGreaterThanOrEqual(2))
         expect(await screen.findByText("Artist/New Album")).toBeTruthy()
         expect(screen.getByText("Source folder")).toBeTruthy()
-        expect(screen.getByText("Library resolution")).toBeTruthy()
+        expect(screen.getByText("Resolve →")).toBeTruthy()
         expect(mocks.toastSuccess).toHaveBeenCalledWith(
             "Music scan completed. Bindings have been refreshed.",
         )
@@ -130,7 +139,8 @@ describe("BindingsPage manual music scan", () => {
             </I18nContext.Provider>,
         )
 
-        fireEvent.click(await screen.findByRole("button", { name: "Capture" }))
+        fireEvent.click(await screen.findByRole("button", { name: /Artist — New Album/ }))
+        fireEvent.click(await screen.findByRole("button", { name: "Create new Library Album" }))
         fireEvent.click(await screen.findByRole("button", { name: "Finish capture" }))
 
         await waitFor(() => expect(mocks.captureBinding).toHaveBeenCalledOnce())
@@ -142,5 +152,16 @@ describe("BindingsPage manual music scan", () => {
         await waitFor(() => expect(mocks.updateAlbum).toHaveBeenCalledWith(
             expect.objectContaining({ category: "new" }),
         ))
+    })
+
+    it("shows unresolved cards by default and resolves an existing Library candidate from the card",async()=>{
+        mocks.fetchBindings.mockReset();mocks.fetchBindings.mockResolvedValue({bindings:[
+            {albumId:"Artist/Loose",relativePath:"Artist/Loose",state:"proposed",matchSource:null,proposedAt:null,confirmedAt:null,libraryAlbumId:null,folderExists:true,libraryExists:false,suggestedArtist:"Artist",suggestedTitle:"Loose"},
+            {albumId:"Artist/Done",relativePath:"Artist/Done",state:"confirmed",matchSource:"manual",proposedAt:null,confirmedAt:"2026-01-01",libraryAlbumId:"library-done",folderExists:true,libraryExists:true,albumArtist:"Artist",albumTitle:"Done"},
+        ],count:2});mocks.fetchBindingCandidates.mockResolvedValue({candidates:[{bindingAlbumId:"Artist/Loose",libraryAlbumId:"library-loose",scanId:"scan",rank:1,score:1,confidence:"strong",reasons:["title-exact"],title:"Loose",artist:"Artist"}]});mocks.selectBindingCandidate.mockResolvedValue({})
+        render(<I18nContext.Provider value={{t:en,language:"en",setLanguage:()=>{}}}><BindingsPage/></I18nContext.Provider>)
+        expect(await screen.findByText("Artist/Loose")).toBeTruthy();expect(screen.queryByText("Artist/Done")).toBeNull()
+        fireEvent.click(screen.getByRole("button",{name:/Artist — Loose/}));const dialog=await screen.findByRole("dialog",{name:"Resolve album folder"});fireEvent.click(within(dialog).getByRole("button",{name:/Artist — Loose/}))
+        await waitFor(()=>expect(mocks.selectBindingCandidate).toHaveBeenCalledWith("Artist/Loose","library-loose","scan"))
     })
 })

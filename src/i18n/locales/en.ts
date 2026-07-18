@@ -204,6 +204,21 @@ export const en = {
                 `Let's figure out which role ${albumTitle} plays for you today.`,
             start: "Let's go",
         },
+        snapshot: {
+            step: "Step 2 of 3 · Relationship snapshot",
+            title: "What is your relationship with this album today?",
+            description: "A few compact signals are enough. There are no right answers, and nothing is saved yet.",
+            exposure: { label:"How often have you listened consciously?",options:{ none:"Not yet","up-to-three":"Up to three times","more-than-three":"More than three times" } },
+            explore: { label:"Do you want to give this album a real chance?" },
+            yesNo: { yes:"Yes",no:"No" },
+            connection: "How strong is your personal connection?",
+            connectionOptions: { "1":"1 · Little","2":"2","3":"3","4":"4","5":"5 · Very strong" },
+            returnBehavior: { label:"How often do you consciously return?",options:{ regularly:"Regularly",occasionally:"Occasionally",rarely:"Rarely",never:"Never" } },
+            ownership: { label:"How long has it been part of your collection?",options:{ "under-six-months":"Under 6 months","six-months-to-two-years":"6 months–2 years","two-to-ten-years":"2–10 years","over-ten-years":"Over 10 years" } },
+            binary: { formative:"Did it shape your taste or musical biography?",comfort:"Is returning primarily comforting and familiar?",continuingDiscovery:"Does it still reveal, surprise, or challenge?" },
+            conclusion: { label:"If no active role is obvious: which statement is closest?",options:{ "keep-exploring":"I still want to know it better","personally-valued":"I value it, though I rarely listen","relationship-complete":"It had its time; the relationship is complete","canonical-but-not-personal":"I understand its significance, but it is not mine","no-connection":"It never reached me despite several attempts" } },
+            validation: "Please complete the relevant choices before continuing.",continue:"Show recommendation",
+        },
         questions: {
             heardThreeTimes: {
                 title: "Have you listened to this album at least three times consciously?",
@@ -251,11 +266,14 @@ export const en = {
             },
         },
         result: {
+            step: "Step 3 of 3 · Recommendation",
             ourRecommendation: "Our Recommendation",
             roleAssigned: (roleTitle: string) =>
                 `The role "${roleTitle}" fits this album well.`,
-            accept: "Accept Role",
+            chooseRole:"Choose final role",archiveReason:"What best explains the Archive decision?",back:"Back to snapshot",accept: "Confirm Role",
         },
+        reasons: { "new-exploration":"You have not explored it fully yet and want to give it more room.","formative-classic":"Your strong personal connection and formative history point to a personal Classic.","familiar-return":"Familiar, reliable return defines the relationship today.","continuing-discovery":"The album still gives you something to discover.","personal-admiration":"You value it personally even without frequent return.","declined-discovery":"You do not want to give this still-unfamiliar album more room right now.","completed-relationship":"The album had its time, but the relationship now feels complete.","canonical-distance":"You recognize its significance without a personal active relationship.","no-connection":"You gave it enough room, but no lasting connection emerged." },
+        archiveReasons: { "not-interested-in-discovery":{title:"Not pursuing discovery",description:"I do not want to give this unfamiliar album more room now."},"relationship-complete":{title:"Relationship complete",description:"It had its place in my life, but that phase is over."},"canonical-but-not-personal":{title:"Important, but not mine",description:"I recognize its significance without a personal bond."},"no-connection":{title:"No connection",description:"It never reached me despite enough attention."} },
         orphanPrompt: {
             title: "Unbound albums are waiting for you",
             description: "Entries from your music folder are ready to be reviewed and captured on the Bindings page.",
@@ -704,11 +722,13 @@ export const en = {
         sourceFolder: "Source folder",
         resolution: "Library resolution",
         filters: {
+            unresolved:"Unresolved",
             all: "All",
             proposed: "Proposed",
             confirmed: "Confirmed",
             missing: "Missing",
         },
+        resolver:{title:"Resolve album folder",kicker:"Unresolved folder",description:"Choose an existing Library Album or create a new entry. A successful choice confirms the Binding immediately.",open:"Resolve",create:"Create new Library Album",cancel:"Cancel"},
         state: {
             proposed: "Proposed",
             confirmed: "Confirmed",

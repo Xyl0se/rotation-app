@@ -26,6 +26,9 @@ export function createBindingCaptureService(
         if (!bindingRepo.updateLibraryAlbumId(bindingId, album.id)) {
             throw new Error("BINDING_LINK_FAILED")
         }
+        if (!bindingRepo.confirm(bindingId,"manual",new Date().toISOString())) {
+            throw new Error("BINDING_CONFIRM_FAILED")
+        }
         return {
             album: albumRepo.findById(album.id)!,
             binding: bindingRepo.findWithAlbumDataById(bindingId)!,

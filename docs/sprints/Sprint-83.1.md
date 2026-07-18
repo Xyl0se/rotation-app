@@ -1,6 +1,6 @@
 # Sprint 83.1 — Album Intake Compression
 
-**Status:** Planned — concept approved, implementation pending
+**Status:** Implementation complete — production acceptance pending
 
 **Target version:** v0.30.1
 
@@ -33,6 +33,8 @@ explicit evidence that no active positive role fits; uncertainty alone is not en
 
 ## Workstream 83.1A — Three-Stage Album Coach
 
+**Implementation status:** Complete in code.
+
 Replace the current one-question-per-screen flow with exactly three visible stages:
 
 1. **Intro**
@@ -56,6 +58,8 @@ The Coach must remain usable from Capture, Library editing, Reflection Inbox, an
 Archive Return workflows.
 
 ## Workstream 83.1B — Compact Relationship Model
+
+**Implementation status:** Complete in code.
 
 Collect a small set of understandable signals:
 
@@ -92,6 +96,8 @@ or objective quality score.
 
 ## Workstream 83.1C — Deterministic Recommendation Policy
 
+**Implementation status:** Complete in code and covered by decision-policy tests.
+
 Keep role determination deterministic and cover the complete answer space with a
 documented decision table.
 
@@ -120,6 +126,8 @@ The result explanation should be concrete, for example:
 > strongly shaped your taste, and still matters to you today.
 
 ## Workstream 83.1D — Granular Archive Reasons
+
+**Implementation status:** Complete in code for all four approved reasons.
 
 Keep `archive` as the only visible role while recording one optional internal reason:
 
@@ -187,6 +195,9 @@ to give the Album a real chance. Only an explicit “No” recommends Archive wi
 
 ## Workstream 83.1E — Archive Reason Contract and Compatibility
 
+**Implementation status:** Complete in client/server contracts, validation, persistence,
+and backup coverage.
+
 Define a stable optional domain type:
 
 ```ts
@@ -216,6 +227,8 @@ Suggested future reflection behavior:
 
 ## Workstream 83.1F — User Override and Role History
 
+**Implementation status:** Complete in code.
+
 - Show all six roles as compact, clearly labelled alternatives on the result screen.
 - Highlight the recommendation without making alternatives look like errors.
 - If Archive is manually selected, request an Archive reason before confirmation.
@@ -227,6 +240,8 @@ Suggested future reflection behavior:
 - Do not overwrite Album Story fields or listening history.
 
 ## Workstream 83.1G — Binding Page Task Focus
+
+**Implementation status:** Complete in code with an unresolved-first accessible card flow.
 
 Make unresolved folders the primary content of the Bindings page.
 
@@ -247,6 +262,9 @@ An unresolved Binding card becomes one accessible interactive surface:
 
 ## Workstream 83.1H — Unified Binding Resolution
 
+**Implementation status:** Complete in code for existing-Library selection and atomic
+create/link/confirm Capture.
+
 The Album Discovery workflow covers both possible outcomes:
 
 1. Link the folder to an existing Library Album.
@@ -263,6 +281,8 @@ operation.
 - Never make destructive actions an accidental consequence of card activation.
 
 ## Workstream 83.1I — Filesystem-Safe Metadata Search
+
+**Implementation status:** Complete in code with bounded punctuation/Unicode variants.
 
 Introduce one shared metadata-search normalization pipeline for Album and artist
 names. Generate bounded variants for punctuation commonly changed by filesystems or
@@ -293,6 +313,8 @@ Requirements:
 
 ## Workstream 83.1J — Migration and Cross-Workflow Safety
 
+**Implementation status:** Complete in code; production/NAS verification pending.
+
 - Existing Albums, roles, Bindings, and role histories remain valid.
 - Existing role-determination tests become the baseline for the new decision table.
 - Reflection Inbox and Archive Return continue opening the correct Coach variant.
@@ -303,27 +325,30 @@ Requirements:
 
 ## Definition of Done
 
-- [ ] Album classification has exactly three visible stages: Intro, Snapshot, Result.
-- [ ] The Snapshot normally requires one page and no repeated modal transitions.
-- [ ] Every valid answer combination produces a deterministic, tested recommendation.
-- [ ] Archive is recommended only from an explicit conclusion, not ambiguity alone.
-- [ ] All four Archive reasons are distinguishable, explainable, and tested.
-- [ ] Existing Archive history without a reason remains valid.
-- [ ] The result explains its recommendation and permits every role as an override.
-- [ ] Manual Archive selection requires a reason before confirmation.
-- [ ] Only the explicitly confirmed role and optional Archive reason enter Role History.
-- [ ] Capture, Library, Reflection, and Archive entry points continue to work.
-- [ ] Unresolved Bindings are the default view while any exist.
-- [ ] One card activation opens the complete resolution workflow.
-- [ ] Successful Capture creates or selects, links, and confirms atomically without a
+- [x] Album classification has exactly three visible stages: Intro, Snapshot, Result.
+- [x] The Snapshot normally requires one page and no repeated modal transitions.
+- [x] Every valid answer combination produces a deterministic, tested recommendation.
+- [x] Archive is recommended only from an explicit conclusion, not ambiguity alone.
+- [x] All four Archive reasons are distinguishable, explainable, and tested.
+- [x] Existing Archive history without a reason remains valid.
+- [x] The result explains its recommendation and permits every role as an override.
+- [x] Manual Archive selection requires a reason before confirmation.
+- [x] Only the explicitly confirmed role and optional Archive reason enter Role History.
+- [x] Capture, Library, Reflection, and Archive entry points continue to work.
+- [x] Unresolved Bindings are the default view while any exist.
+- [x] One card activation opens the complete resolution workflow.
+- [x] Successful Capture creates or selects, links, and confirms atomically without a
   second approval.
-- [ ] Failed Capture leaves no partial Album or half-confirmed Binding.
-- [ ] Existing-Album matching remains available after visible card actions are reduced.
-- [ ] Metadata search resolves `Smoke + Mirrors` and all documented punctuation cases.
-- [ ] DE/EN, keyboard, touch, responsive layout, cancellation, retry, persistence,
+- [x] Failed Capture leaves no partial Album or half-confirmed Binding.
+- [x] Existing-Album matching remains available after visible card actions are reduced.
+- [x] Metadata search resolves `Smoke + Mirrors` and all documented punctuation cases.
+- [x] DE/EN, keyboard, touch, responsive layout, cancellation, retry, persistence,
   migration, and backup/restore behavior are tested.
 - [ ] NAS acceptance confirms that processing a larger unresolved batch feels
   materially faster than before.
+
+Production verification follows
+[the Sprint-83.1 NAS acceptance test](../acceptance/SPRINT-83.1-NAS-ACCEPTANCE.md).
 
 ## Non-Goals
 

@@ -63,6 +63,7 @@ export interface RoleHistoryEntry {
     role: RoleId
     recordedAt: string
     source: "coach" | "reflection" | "archive"
+    archiveReason?: "not-interested-in-discovery" | "relationship-complete" | "canonical-but-not-personal" | "no-connection"
 }
 
 export interface Album {

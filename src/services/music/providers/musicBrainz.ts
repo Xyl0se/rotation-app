@@ -32,7 +32,7 @@ export async function searchMusicBrainz(
 
 ): Promise<MusicBrainzApiResponse> {
 
-    const escapeQueryValue = (value: string) => value.replace(/([\\"])/g, "\\$1")
+    const escapeQueryValue = (value: string) => value.replace(/([+\-!(){}[\]^"~*?:\\/]|&&|\|\|)/g, "\\$1")
     const releaseQuery = mode === "exact"
         ? `release:"${escapeQueryValue(title)}"`
         : `release:${escapeQueryValue(title)}`

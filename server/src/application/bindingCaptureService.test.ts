@@ -31,6 +31,8 @@ describe("BindingCaptureService", () => {
 
         expect(albums.findAll()).toHaveLength(1)
         expect(bindings.findById("Artist/Captured")?.library_album_id).toBe(ALBUM_ID)
+        expect(bindings.findById("Artist/Captured")?.state).toBe("confirmed")
+        expect(bindings.findById("Artist/Captured")?.confirmed_at).not.toBeNull()
         db.close()
     })
 

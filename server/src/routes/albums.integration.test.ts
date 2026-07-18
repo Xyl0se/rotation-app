@@ -107,6 +107,13 @@ describe("album identity contract", () => {
         database.exec("DROP TRIGGER fail_second_album")
     })
 
+    it("persists Archive reasons while rejecting them on non-Archive roles",async()=>{
+        const archived=await write("PUT",`/albums/${ALBUM_ID}`,{category:"archive",roleHistory:[{role:"archive",recordedAt:"2026-07-18T08:00:00.000Z",source:"coach",archiveReason:"canonical-but-not-personal"}]})
+        expect(archived.status).toBe(200);expect((await archived.json()).roleHistory[0].archiveReason).toBe("canonical-but-not-personal")
+        const invalid=await write("PUT",`/albums/${ALBUM_ID}`,{category:"classic",roleHistory:[{role:"classic",recordedAt:"2026-07-18T08:00:00.000Z",source:"coach",archiveReason:"no-connection"}]})
+        expect(invalid.status).toBe(400)
+    })
+
     it("updates and deletes the same canonical ID", async () => {
         const createdAt = (database.prepare("SELECT created_at FROM albums WHERE id = ?").get(ALBUM_ID) as { created_at: string }).created_at
         const update = await write("PUT", `/albums/${ALBUM_ID}`, { ...album, title: "Updated" })

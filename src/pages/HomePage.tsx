@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import type { RoleId } from "../domain/roles"
+import type { ArchiveReason } from "../domain/album/roleHistory"
 
 import { useLibrary } from "../hooks/useLibrary"
 import { useRotationPlan } from "../hooks/useRotationPlan"
@@ -105,9 +106,9 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     const editingAlbum = albums.find(album => album.id === editingAlbumId)
     const manualCoachAlbum = albums.find(album => album.id === manualCoachAlbumId)
 
-    async function handleManualCoachComplete(role: RoleId) {
+    async function handleManualCoachComplete(role: RoleId, archiveReason?:ArchiveReason) {
         if (!manualCoachAlbumId) return
-        if (await updateAlbumRole(manualCoachAlbumId, role, "coach")) {
+        if (await updateAlbumRole(manualCoachAlbumId, role, "coach",archiveReason)) {
             setManualCoachAlbumId(null)
         }
     }
