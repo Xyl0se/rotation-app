@@ -7,8 +7,12 @@
     width: min(760px, calc(100vw - 32px));
     max-width: 760px;
     min-height: min(580px, calc(100vh - 48px));
+    max-height: calc(100vh - 48px);
     padding: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
     border: 1px solid rgba(190, 214, 238, .24);
     background:
         radial-gradient(circle at 14% 12%, rgba(118, 169, 219, .28), transparent 34%),
