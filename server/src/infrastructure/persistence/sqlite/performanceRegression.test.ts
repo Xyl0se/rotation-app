@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest"
 import { initDatabase } from "./connection.js"
 import { createAlbumRepository } from "./albumRepository.js"
 import { createRotationStateRepository } from "./rotationStateRepository.js"
+import { createInsightEvidenceRepository } from "./insightEvidenceRepository.js"
+import { createInsightsService } from "../../../application/insightsService.js"
 
 describe("representative SQLite performance gates", () => {
     it("uses bounded indexed hot paths with 10,000 Albums and 50 historical Rotations", () => {
@@ -46,6 +48,10 @@ describe("representative SQLite performance gates", () => {
         expect(history).toMatchObject({ total: 50 })
         expect(history.items).toHaveLength(10)
         expect(performance.now() - historyStarted).toBeLessThan(250)
+        const insightsStarted=performance.now()
+        const insights=createInsightsService(createInsightEvidenceRepository(db)).evaluate(new Date("2026-07-18T12:00:00.000Z"))
+        expect(insights.roleOverview.new).toBe(2_500)
+        expect(performance.now()-insightsStarted).toBeLessThan(250)
 
         const explain = (sql: string) => (db.prepare(`EXPLAIN QUERY PLAN ${sql}`).all() as Array<{ detail: string }>).map(row => row.detail).join(" ")
         expect(explain("SELECT * FROM albums ORDER BY created_at DESC, id DESC LIMIT 10000 OFFSET 0")).toContain("idx_albums_created_id")

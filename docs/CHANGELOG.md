@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Sprint 86.1 — deterministic deeper Insights**
+  - Added a read-only server-side evidence projection with stable narrative codes,
+    historical listening Roles, bounded periods, suppression rules, and a neutral Role overview.
+  - Added explainable DE/EN narratives for listening balance, dormancy, rediscovery,
+    Role movement, and Rotation change, with honest sparse-data states.
+  - Excluded free Journal and Album Story prose, formalized the optional AI boundary,
+    and added a sub-250 ms 10,000-Album performance gate.
+
 - **Sprint 85 — dependency stewardship**
   - Added a practical Dependabot runbook covering terminology, risk classification,
     evidence gates, stale-branch recovery, rollback, and monthly maintenance.

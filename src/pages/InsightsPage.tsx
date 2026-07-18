@@ -15,6 +15,7 @@ import { useI18n } from "../i18n/useI18n"
 import { useReflectionInbox } from "../hooks/useReflectionInbox"
 import type { ReflectionInboxItem } from "../services/api/reflectionService"
 import { useListenEvents } from "../hooks/useListenEvents"
+import { useInsights } from "../hooks/useInsights"
 
 export default function InsightsPage() {
     const { t } = useI18n()
@@ -26,6 +27,7 @@ export default function InsightsPage() {
     const [activeReflection,setActiveReflection]=useState<ReflectionInboxItem|null>(null)
     const inbox=useReflectionInbox(serverConnected)
     const {listenEvents}=useListenEvents(albums,serverConnected)
+    const insightEvidence=useInsights(serverConnected)
 
     const reflectionAlbum = albums.find(album => album.id === reflectionAlbumId)
     const archiveReturnAlbum = albums.find(album => album.id === archiveReturnAlbumId)
@@ -79,10 +81,10 @@ export default function InsightsPage() {
                         <h2 id="reflection-heading">{t.dashboard.nextQuestion}</h2>
                         <ReflectionInbox items={inbox.items} listenEvents={listenEvents} isLoading={inbox.isLoading} error={inbox.error} onRetry={()=>void inbox.refresh()} onReflect={handleReflect} onSnooze={(id,days)=>void inbox.snooze(id,days)} onDismiss={id=>void inbox.dismiss(id)} />
                     </section>
-                    <InsightsPanel albums={albums} />
+                    <InsightsPanel data={insightEvidence.data} isLoading={insightEvidence.isLoading} error={insightEvidence.error} onRetry={()=>void insightEvidence.refresh()} />
                     <section aria-labelledby="roles-heading">
                         <h2 id="roles-heading">{t.dashboard.roleOverview}</h2>
-                        <RoleOverviewPanel albums={albums} />
+                        {insightEvidence.data&&<RoleOverviewPanel counts={insightEvidence.data.roleOverview} />}
                     </section>
                 </div>
             )}

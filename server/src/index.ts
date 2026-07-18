@@ -45,6 +45,9 @@ import { prepareRuntimeDirectories } from "./application/runtimeDirectories.js"
 import { createReflectionInboxRepository } from "./infrastructure/persistence/sqlite/reflectionInboxRepository.js"
 import { createReflectionInboxService } from "./application/reflectionInboxService.js"
 import { createReflectionsRouter } from "./routes/reflections.js"
+import { createInsightEvidenceRepository } from "./infrastructure/persistence/sqlite/insightEvidenceRepository.js"
+import { createInsightsService } from "./application/insightsService.js"
+import { createInsightsRouter } from "./routes/insights.js"
 
 const config = loadConfig()
 
@@ -70,6 +73,7 @@ const auditRepo = createAuditRepository(db, albumRepo)
 const reflectionInboxRepo = createReflectionInboxRepository(db)
 const reflectionInboxService = createReflectionInboxService(albumRepo, reflectionInboxRepo, rotationStateRepo)
 const coverService = createCoverService(config.ROTATION_DATA_DIR)
+const insightsService = createInsightsService(createInsightEvidenceRepository(db))
 
 const musicGuard = createPathGuard(config.ROTATION_MUSIC_PATH)
 const workspaceGuard = createPathGuard(config.ROTATION_WORKSPACE_PATH)
@@ -139,6 +143,7 @@ app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(binding
 app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo, auditRepo, ()=>reflectionInboxService.evaluate()))
 app.use("/audit", requireWriteTokenForMutations, createAuditRouter(auditRepo))
 app.use("/reflections", requireWriteTokenForMutations, createReflectionsRouter(reflectionInboxService, auditRepo))
+app.use("/insights", createInsightsRouter(insightsService))
 app.use("/rotation-state", requireWriteTokenForMutations, createRotationStateRouter(rotationStateRepo, bindingRepo, musicGuard, auditRepo, ()=>reflectionInboxService.evaluate()))
 app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))

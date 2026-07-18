@@ -1,39 +1,32 @@
 # Insights
 
-Insights are not analytics.
+Insights are not analytics scores. They are short, traceable observations about how
+the user's relationship with music changes over time.
 
-They are short observations about what the current collection tells about listening.
+## Current deterministic families
 
-## Goal
+- discovery versus familiarity across two bounded 90-day windows;
+- Albums that are both long quiet and outside the active Rotation;
+- listening returns after at least 180 days;
+- established Role movement over 180 days;
+- membership change between the active and previous accepted Rotation.
 
-Rotation should not only count, but formulate small insights.
+Every displayed observation has a stable rule code, a minimum sample, a bounded
+period where relevant, an evidence level, and factual supporting counts. The page
+shows no more than four at once and keeps the neutral Role overview permanently.
 
-An insight therefore sounds like:
+## Suppression
 
-> You are currently in a discovery phase.
+When evidence is sparse or a comparison period is missing, Rotation does not infer a
+story. It may show one calm building state explaining which history is still forming.
+Evidence levels describe support for a statement, never collection quality.
 
-Not like:
+## Privacy and authority
 
-> 42 percent of your albums are new or growing.
+The read-only server projection is authoritative. Historical Listening Events use the
+Role valid at listening time. Free Journal notes and Album Story memory prose are not
+read by the Insight engine. Insights cannot mutate Albums, Roles, Rotations,
+Reflections, Bindings, or Archive state.
 
-## Current Insights
-
-- `building-library`: The collection is still too small for reliable patterns.
-- `discovery-phase`: Many albums are new or still growing.
-- `archive-heavy`: A noticeable part of the collection is resting.
-- `comfort-heavy`: Comfort-food albums take up a lot of space.
-- `classic-core`: The collection has a clear classic core.
-
-## Rules
-
-- Under 3 albums Rotation only shows a building state.
-- `new + growing` from 40 percent: discovery phase.
-- `archive` from 30 percent: archive focus.
-- `comfort-food` from 30 percent: familiarity phase.
-- `classic` from 5 albums or 20 percent: classic core.
-
-## Product Limit
-
-Sprint 41 brings no charts, year decades, or artist evaluations.
-
-These topics belong in later insights or dashboard sprints.
+See [Insights Page](./INSIGHTS_PAGE.md), [Sprint 86](../sprints/Sprint-86.md), and
+[ADR 016](../adr/016-deterministic-insight-evidence.md).

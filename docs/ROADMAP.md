@@ -60,7 +60,7 @@ Not optimization.
 | Done | [Sprint 83.1](./sprints/done/Sprint-83.1.md) | Compressed Album Coach and Binding intake | v0.30.1 | Done ✅ |
 | Done | [Sprint 84](./sprints/done/Sprint-84.md) | Optional Listening Journal | Subsequent minor | Done ✅; NAS acceptance passed |
 | Done | [Sprint 85](./sprints/done/Sprint-85.md) | Dependabot and dependency stewardship | Maintenance patch | Implemented ✅; recurring PR triage follows runbook |
-| 5 | [Sprint 86](./sprints/Sprint-86.md) | Deeper deterministic Insights | Future minor | Product direction approved |
+| Current | [Sprint 86](./sprints/Sprint-86.md) | Deeper deterministic Insights | Future minor | 86.1 implemented; NAS acceptance pending, 86.2 planned |
 | 6 | [Sprint 87](./sprints/Sprint-87.md) | Local-first artwork with remote fallback | Future release | Feasibility spike first |
 
 Sprint numbers express the present recommended order, not a promise to implement

@@ -30,6 +30,7 @@ ADRs preserve durable decisions. They are not current feature manuals; use the
 | [013](./013-data-ownership-boundaries.md) | Data ownership boundaries | Amended by 014 |
 | [014](./014-server-owned-rotation-state.md) | Server-owned Rotation state | Accepted |
 | [015](./015-rotation-generation-policy.md) | Rotation generation policy | Accepted |
+| [016](./016-deterministic-insight-evidence.md) | Deterministic Insight evidence and AI boundary | Accepted |
 
 ADR 011 was never assigned. The gap is retained deliberately so historical numbering
 is never reused or made ambiguous.

@@ -158,6 +158,30 @@ export const de: Translation = {
             description:
                 "Ein Teil deiner Sammlung wirkt inzwischen dauerhaft prägend.",
         },
+        editorialIntro: "Einige belegbare Beobachtungen – niemals eine Bewertung.",
+        loading: "Rotation blickt behutsam durch deine Hörgeschichte…",
+        unavailable: "Die tieferen Insights sind gerade nicht erreichbar.",
+        retry: "Erneut versuchen",
+        why: "Warum sehe ich das?",
+        supportedEvidence: "Ein erkennbares Muster",
+        strongEvidence: "Ein gut belegtes Muster",
+        narratives: {
+            discoveryRising:{title:"Entdeckung ist nach vorn gerückt",description:"Zuletzt entfiel mehr Hörzeit auf neue oder noch wachsende Alben als im Zeitraum davor."},
+            familiarityRising:{title:"Vertraute Alben sind näher gerückt",description:"Zuletzt bist du häufiger zu Comfort Food und Klassikern zurückgekehrt als im Zeitraum davor."},
+            listeningBalanced:{title:"Entdeckung und Vertrautheit teilen sich den Raum",description:"Zuletzt war ähnlich viel Platz für wachsende Beziehungen und vertraute Alben."},
+            dormantLibrary:{title:"Ein stiller Teil der Library ruht",description:"Eine bedeutsame Gruppe von Alben wurde länger nicht gehört und ist auch nicht Teil der aktuellen Rotation."},
+            rediscoveryMoments:{title:"Etwas lange Ruhendes ist zurückgekehrt",description:"Mehrere aktuelle Hörsessions folgten auf eine Pause von mindestens sechs Monaten."},
+            rolesInMotion:{title:"Albumbeziehungen waren in Bewegung",description:"Mehrere bereits eingeordnete Alben haben in den letzten Monaten eine neue Rolle erhalten."},
+            rotationEvolving:{title:"Die Rotation hat ihre Gesellschaft verändert",description:"Gegenüber dem vorherigen Zyklus sind spürbar Alben hinzugekommen und zurückgetreten."},
+        },
+        evidence: {
+            recentListens:"{count} Hörsessions im aktuellen 90-Tage-Fenster",previousListens:"{count} Hörsessions im vorherigen 90-Tage-Fenster",recentDiscoveryListens:"{count} aktuelle Sessions galten Entdeckung oder Wachstum",previousDiscoveryListens:"{count} frühere Sessions galten Entdeckung oder Wachstum",recentFamiliarListens:"{count} aktuelle Sessions galten Comfort Food oder Klassikern",previousFamiliarListens:"{count} frühere Sessions galten Comfort Food oder Klassikern",dormantAlbums:"{count} Alben ruhten außerhalb der aktiven Rotation",libraryAlbums:"{count} Alben bilden die aktuelle Library",rediscoveredListens:"{count} Sessions kehrten nach mindestens 180 Tagen zurück",recentRoleTransitions:"{count} bestehende Albumrollen änderten sich in 180 Tagen",rotationEntering:"{count} Alben kamen in die aktuelle Rotation",rotationLeaving:"{count} Alben verließen die vorherige Rotation",rotationUnchanged:"{count} Alben blieben über beide Rotationen erhalten",
+        },
+        building: {
+            library:{title:"Die Library nimmt noch Gestalt an",description:"Einige weitere Alben sind nötig, bevor Rotation ein belastbares Muster beschreiben kann."},
+            listeningComparison:{title:"Ein Hörvergleich wächst heran",description:"Sobald beide 90-Tage-Fenster mindestens fünf Sessions enthalten, kann Rotation Veränderungen im Hörschwerpunkt beschreiben."},
+            rotationComparison:{title:"Eine zweite Rotation schafft Perspektive",description:"Sobald eine vorherige angenommene Rotation existiert, kann Rotation beschreiben, was kam, blieb oder ging."},
+        },
     },
 
     reflection: {

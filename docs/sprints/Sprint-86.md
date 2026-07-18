@@ -1,57 +1,111 @@
 # Sprint 86 — Deeper Insights
 
-**Status:** Planned — product direction approved; follows Reflection/Journal evidence
+**Status:** 86.1 implemented — local validation complete; NAS acceptance pending
 
 **Target version:** Future minor version
 
-**Type:** Semi-deterministic longitudinal interpretation
+**Type:** Deterministic longitudinal interpretation
 
 ## Goal
 
 Turn Insights into a richer, calm interpretation of the user's relationship with
 music while keeping every statement traceable to server-owned facts and avoiding
-scores, judgment, or opaque recommendations.
+scores, judgment, opaque recommendations, or automatic mutations.
 
-## Workstream 86A — Insight Evidence Model
+## Delivery strategy
 
-- Derive bounded evidence from roles, listening recency/frequency, Rotation presence,
-  Focus history, archive movement, release years, acquisition/life-phase metadata,
-  completed Reflections, and optional Journal entries.
-- Define stable insight codes, minimum sample sizes, confidence bands, and suppression
-  rules for sparse or contradictory evidence.
-- Keep the neutral role overview as a permanent first-class section.
+Sprint 86 has two deliberately separate deliveries. **86.1** establishes the
+canonical server-side evidence system and the least interpretatively sensitive core
+narratives. **86.2** may add recurring artists, release eras, structured personal
+history, and a refined weekly narrative rotation only after 86.1 has passed NAS review.
 
-## Workstream 86B — Narrative Families
+## Workstream 86.1 — Evidence Engine and Core Narratives
 
-- Add localized observations for discovery versus familiarity, dormant versus active
-  Library areas, Rotation variety, rediscovery, long-term role movement, listening
-  eras, recurring artists, and personal-history themes where evidence exists.
-- Show the supporting facts behind each narrative on demand.
-- Prefer a small rotating set of meaningful observations over a dense dashboard.
+**Implementation status:** Complete in code ✅
 
-## Workstream 86C — Longitudinal Comparison
+### Evidence contract
 
-- Compare bounded periods such as current versus previous Rotation cycles or recent
-  versus earlier listening windows.
-- Explain change in plain language without prescribing an optimal role distribution.
-- Handle empty, young, imported, and partially documented Libraries honestly.
+- A read-only `GET /insights` endpoint returns `generatedAt`, a neutral Role overview,
+  at most four narratives, explicit evidence metrics, bounded periods, evidence level,
+  and honest building areas.
+- Every narrative has a stable code and family. Evidence levels describe data support,
+  never the health or quality of the Library.
+- Listening roles are derived from Role History at the time of each Listening Event;
+  today's role is not projected backwards.
+- Free Journal notes and Album memory text are not read or interpreted.
 
-## Workstream 86D — Optional AI Boundary
+### Core families
 
-- Keep evidence selection and eligibility deterministic.
-- Treat any later AI integration only as an optional wording/synthesis layer over a
-  sanitized evidence packet, never as the source of facts or automatic mutations.
-- Require explicit configuration, local-first disclosure, timeouts, cost/privacy
-  documentation, deterministic fallback copy, and no album history in prompts unless
-  the user knowingly enables it.
-- Do not implement an AI provider in the first delivery of this sprint.
+- discovery versus familiarity across the recent and preceding 90-day windows;
+- dormant Albums outside the active Rotation;
+- listens returning after at least 180 quiet days;
+- established Role movement during 180 days;
+- membership change between active and previous accepted Rotations.
+
+Each rule has a minimum sample size and suppression behavior. Sparse Libraries show a
+single calm building state instead of invented copy.
+
+### Interface
+
+- Insights retains Reflection first and the permanent neutral Role overview.
+- Narrative cards use complete deterministic DE/EN copy, show their period, and expose
+  supporting counts plus stable rule code under “Why am I seeing this?”.
+- At most four observations are shown, ordered by meaningful change rather than by a
+  collection score.
+
+### Verification
+
+- Unit coverage fixes time and exercises eligibility, suppression, priority, and
+  evidence packets.
+- Route coverage proves the endpoint is public/read-only and excludes personal text.
+- The representative 10,000-Album gate requires evaluation below 250 ms.
+- Production verification follows
+  [the Sprint-86.1 NAS acceptance](../acceptance/SPRINT-86.1-NAS-ACCEPTANCE.md).
+
+## Workstream 86.2 — Extended Narrative Families
+
+**Implementation status:** Planned after 86.1 acceptance
+
+- Add recurring-artist observations with meaningful minimums.
+- Compare represented and recently heard release decades without treating breadth as
+  a virtue.
+- Use only structured acquisition reason and life-phase fields for personal-history
+  themes; never interpret `memoryNote` or Journal prose.
+- Refine narrative selection so equally eligible observations can rotate stably by
+  calendar week without changing on reload.
+- Reassess information density and tone from production evidence before implementation.
+
+## Optional AI boundary
+
+No AI provider is part of Sprint 86. Facts, eligibility, suppression, and fallback
+wording remain deterministic. Any future AI may only rephrase a sanitized evidence
+packet after explicit opt-in and can never read private prose by default or mutate
+Albums, Roles, Rotations, Reflections, or Archive state. See
+[ADR 016](../adr/016-deterministic-insight-evidence.md).
 
 ## Definition of Done
 
-- [ ] Every insight exposes its evidence and stable rule family.
-- [ ] Role overview remains neutral and always available.
-- [ ] Sparse data produces honest empty/building states, not invented narratives.
-- [ ] DE/EN output is complete and deterministic fallback is always available.
-- [ ] Performance remains bounded for a 10,000-Album Library.
-- [ ] No insight changes an Album, role, Rotation, or archive state automatically.
+### 86.1
 
+- [x] Every core insight exposes evidence and a stable rule family.
+- [x] Role overview remains neutral and available from the same canonical response.
+- [x] Sparse data produces honest building states, not invented narratives.
+- [x] DE/EN output is complete and deterministic fallback is always available.
+- [x] Performance remains bounded for a 10,000-Album Library.
+- [x] No insight changes an Album, Role, Rotation, Reflection, or Archive state.
+- [ ] Production NAS acceptance confirms tone, evidence, persistence independence, and performance.
+
+### 86.2
+
+- [ ] Extended artist, era, and structured personal-history families are implemented.
+- [ ] Stable weekly selection is evaluated against real production density.
+- [ ] Final Sprint 86 NAS acceptance passes.
+
+## Non-goals
+
+- Collection-health scores or target Role distributions
+- Charts for their own sake
+- Analysis of free Journal/Album Story prose
+- Recommendations presented as facts
+- AI provider integration
+- Any automatic domain mutation
