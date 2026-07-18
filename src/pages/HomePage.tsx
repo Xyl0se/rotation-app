@@ -21,6 +21,7 @@ import Dialog from "../components/ui/Dialog"
 import AlbumCoach from "../components/features/album-coach/AlbumCoach"
 import ArchiveProtectionCoach from "../components/features/archive/ArchiveProtectionCoach"
 import ArchiveReturnCoach from "../components/features/archive/ArchiveReturnCoach"
+import ListeningJournalEditor from "../components/features/listening/ListeningJournalEditor"
 
 import { useI18n } from "../i18n/useI18n"
 
@@ -36,6 +37,8 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     const [deleteAlbumId, setDeleteAlbumId] = useState<string | null>(null)
     const [editingAlbumId, setEditingAlbumId] = useState<string | null>(null)
     const [manualCoachAlbumId, setManualCoachAlbumId] = useState<string | null>(null)
+    const [journalPromptEventId,setJournalPromptEventId]=useState<string|null>(null)
+    const [journalEditorEventId,setJournalEditorEventId]=useState<string|null>(null)
 
     const { isOnline, apiReachable } = useConnection()
     const serverConnected = isOnline && apiReachable === true
@@ -70,13 +73,16 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     const {
         listenEvents,
         logListen,
+        saveJournal,
+        deleteJournal,
         error: listenError,
     } = useListenEvents(albums, serverConnected)
 
     const { getBindingForLibraryAlbum } = useBindings()
 
     async function handleLogListen(id: string) {
-        if (await logListen(id)) await refreshLibrary()
+        const event=await logListen(id)
+        if(event){setJournalPromptEventId(event.id);await refreshLibrary()}
     }
 
     async function handleDeleteAlbum(id: string) {
@@ -105,6 +111,8 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     const deleteAlbumData = albums.find(album => album.id === deleteAlbumId)
     const editingAlbum = albums.find(album => album.id === editingAlbumId)
     const manualCoachAlbum = albums.find(album => album.id === manualCoachAlbumId)
+    const journalEditorEvent=listenEvents.find(event=>event.id===journalEditorEventId)??null
+    const journalEditorAlbum=albums.find(album=>album.id===journalEditorEvent?.albumId)
 
     async function handleManualCoachComplete(role: RoleId, archiveReason?:ArchiveReason) {
         if (!manualCoachAlbumId) return
@@ -133,6 +141,9 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                     {rotationError ?? listenError}
                 </div>
             )}
+            {journalPromptEventId&&(
+                <div className="journal-prompt" role="status"><span>{t.journal.kicker}</span><div><Button onClick={()=>{setJournalEditorEventId(journalPromptEventId);setJournalPromptEventId(null)}}>{t.journal.addThought}</Button><Button variant="secondary" onClick={()=>setJournalPromptEventId(null)}>{t.journal.dismiss}</Button></div></div>
+            )}
             {
                 albums.length === 0
                     ? (
@@ -152,6 +163,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                                         }
                                         onSuggestAnother={() => void suggestFocusAlbum()}
                                         onEdit={() => setEditingAlbumId(focusAlbum.id)}
+                                        onEditJournal={setJournalEditorEventId}
                                     />
                                 ) : (
                                     <EmptyFocusAlbumCard
@@ -201,6 +213,8 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                             setEditingAlbumId(null)
                             setManualCoachAlbumId(albumId)
                         }}
+                        listenEvents={listenEvents}
+                        onEditJournal={(eventId)=>{setEditingAlbumId(null);setJournalEditorEventId(eventId)}}
                     />
                 )
             }
@@ -209,6 +223,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                 onCancel={() => setDeleteAlbumId(null)}
                 onConfirm={handleDeleteAlbum}
             />
+            <ListeningJournalEditor key={journalEditorEvent?.id??"closed-journal"} event={journalEditorEvent} album={journalEditorAlbum} onClose={()=>setJournalEditorEventId(null)} onSave={saveJournal} onDelete={deleteJournal}/>
             <Dialog open={manualCoachAlbum !== undefined}>
                 {manualCoachAlbum && (
                     <AlbumCoach

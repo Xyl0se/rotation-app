@@ -6,6 +6,10 @@ Verify that the Reflection Inbox remains calm, deterministic, server-owned, and
 persistent in the production NAS deployment. This test does not require clearing the
 Library, browser storage, or the production database.
 
+**Acceptance status:** Product acceptance granted on 2026-07-18. Checks that require
+real elapsed time remain intentionally open as a non-blocking 30-day observation;
+they do not block Sprint 84.
+
 ## Preconditions
 
 - GitHub API and Web image builds are green.
@@ -16,10 +20,10 @@ Library, browser storage, or the production database.
 
 ## A. Migration and basic availability
 
-- [ ] Open **Insights** and locate the Reflection Inbox.
-- [ ] Confirm that the page has no red counter, urgency language, or inbox-zero prompt.
-- [ ] Confirm that existing Library, Rotation, Export, and Bindings data are unchanged.
-- [ ] Check the API log: no error mentions migration 12 or `reflection_inbox_items`.
+- [x] Open **Insights** and locate the Reflection Inbox.
+- [x] Confirm that the page has no red counter, urgency language, or inbox-zero prompt.
+- [x] Confirm that existing Library, Rotation, Export, and Bindings data are unchanged.
+- [x] Check the API log: no error mentions migration 12 or `reflection_inbox_items`.
 
 ## B. Candidate creation and idempotency
 

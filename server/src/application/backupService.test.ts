@@ -219,6 +219,7 @@ describe("createBackupService", () => {
                 status: "active", focusAlbumId: albumId,
             })
             repository.saveListenEvent({ id: eventId, albumId, listenedAt: "2026-07-16T11:00:00.000Z" })
+            repository.saveJournal(eventId,{note:"Exakte Erinnerung 🎧",moodTags:["nostalgic"],contextTags:["focused"]})
             canonicalDb.prepare("UPDATE rotation_settings SET target_size=1, role_quotas_json=? WHERE singleton=1")
                 .run('[{"role":"new","targetCount":1}]')
             canonicalDb.prepare("INSERT INTO domain_audit_events VALUES (?,?,?,?,?,?,NULL)")
@@ -242,7 +243,7 @@ describe("createBackupService", () => {
             const restored = initDatabase(canonicalPath)
             const restoredRepository = createRotationStateRepository(restored)
             expect(restoredRepository.findActive()).toMatchObject({ id: planId, focusAlbumId: albumId })
-            expect(restoredRepository.findListenEvents()).toEqual([{ id: eventId, albumId, listenedAt: "2026-07-16T11:00:00.000Z" }])
+            expect(restoredRepository.findListenEvents()).toEqual([expect.objectContaining({ id: eventId, albumId, listenedAt: "2026-07-16T11:00:00.000Z",journal:expect.objectContaining({note:"Exakte Erinnerung 🎧",moodTags:["nostalgic"],contextTags:["focused"]}) })])
             expect(restored.prepare("SELECT target_size FROM rotation_settings WHERE singleton=1").get()).toEqual({ target_size: 1 })
             expect(restored.prepare("SELECT event_type FROM domain_audit_events WHERE id='audit-1'").get()).toEqual({ event_type: "rotation-accepted" })
             expect(restored.prepare("SELECT rotation_plan_id, status FROM export_operations WHERE id='export-1'").get()).toEqual({ rotation_plan_id: planId, status: "applied" })

@@ -150,6 +150,16 @@ export const RotationPlanSchema = z.object({
 })
 export const FocusAlbumSchema = z.object({ albumId: UUIDSchema.nullable() })
 export const ListenEventSchema = z.object({ id: UUIDSchema, albumId: UUIDSchema, listenedAt: IsoDateSchema })
+const JournalMoodSchema = z.enum(["calm", "energized", "melancholic", "curious", "nostalgic"])
+const JournalContextSchema = z.enum(["focused", "background", "on-the-go", "evening", "shared"])
+export const ListeningJournalSchema = z.object({
+    note: z.string().max(2_000),
+    moodTags: z.array(JournalMoodSchema).max(5).default([]),
+    contextTags: z.array(JournalContextSchema).max(5).default([]),
+}).superRefine((journal,context)=>{
+    if(new Set(journal.moodTags).size!==journal.moodTags.length)context.addIssue({code:z.ZodIssueCode.custom,path:["moodTags"],message:"Mood tags must be unique"})
+    if(new Set(journal.contextTags).size!==journal.contextTags.length)context.addIssue({code:z.ZodIssueCode.custom,path:["contextTags"],message:"Context tags must be unique"})
+})
 export const ReflectionSnoozeSchema = z.object({ until: IsoDateSchema }).refine(
     ({ until }) => Date.parse(until) > Date.now(),
     { path: ["until"], message: "Snooze date must be in the future" },

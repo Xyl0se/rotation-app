@@ -389,6 +389,26 @@ export const de: Translation = {
         sourceDefault: "Rotation",
     },
 
+    journal: {
+        title: "Hörjournal",
+        kicker: "Ein Gedanke zu dieser Hörsession",
+        addThought: "Gedanken hinzufügen",
+        dismiss: "Nicht jetzt",
+        note: "Was ist bei dir geblieben?",
+        placeholder: "Ein Klang, ein Gefühl, ein Moment …",
+        mood: "Stimmung",
+        context: "Kontext",
+        moods: { calm:"Ruhig", energized:"Energiegeladen", melancholic:"Melancholisch", curious:"Neugierig", nostalgic:"Nostalgisch" },
+        contexts: { focused:"Bewusst gehört", background:"Nebenbei", "on-the-go":"Unterwegs", evening:"Abends", shared:"Gemeinsam gehört" },
+        save: "Gedanken speichern",
+        cancel: "Abbrechen",
+        delete: "Notiz entfernen",
+        edit: "Gedanken bearbeiten",
+        previous: "Frühere Hörnotizen",
+        saveError: "Dein Text ist noch da. Speichern fehlgeschlagen – bitte erneut versuchen.",
+        inferredRole: (role:string) => `Rolle zu diesem Zeitpunkt (abgeleitet): ${role}`,
+    },
+
     library: {
         title: "Bibliothek",
         views: {

@@ -1,6 +1,6 @@
 import type { Album } from "../../../types/album"
 
-import type { ListenEvent } from "../../../domain/listening/listenEvents"
+import type { JournalContext,JournalMood,ListenEvent } from "../../../domain/listening/listenEvents"
 
 import {
     createAlbumTimeline,
@@ -13,6 +13,8 @@ type AlbumTimelineProps = {
     album: Album
 
     listenEvents: ListenEvent[]
+
+    onEditJournal?: (eventId:string)=>void
 
 }
 
@@ -42,8 +44,11 @@ function AlbumTimeline({
 
     listenEvents,
 
+    onEditJournal,
+
 }: AlbumTimelineProps) {
     const { t } = useI18n()
+    const journalTagLabel=(tag:JournalMood|JournalContext)=>tag in t.journal.moods?t.journal.moods[tag as JournalMood]:t.journal.contexts[tag as JournalContext]
 
     const events =
         createAlbumTimeline(album, listenEvents)
@@ -112,6 +117,9 @@ function AlbumTimeline({
                                             {event.description}
 
                                         </p>
+
+                                        {event.roleAtTime&&<small>{t.journal.inferredRole(t.roles[event.roleAtTime].title)}</small>}
+                                        {event.journal&&<div className="timeline-journal"><blockquote>{event.journal.note}</blockquote><div>{[...event.journal.moodTags,...event.journal.contextTags].map(tag=><span key={tag}>{journalTagLabel(tag)}</span>)}</div>{onEditJournal&&<button type="button" onClick={()=>onEditJournal(event.id)}>{t.journal.edit}</button>}</div>}
 
                                     </div>
 

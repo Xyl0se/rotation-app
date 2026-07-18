@@ -55,9 +55,10 @@ Not optimization.
 | Done | [Sprint 79](./sprints/done/Sprint-79.md) | Safe ranked binding candidates | v0.27.1-dev | Done ✅ |
 | Done | [Sprint 80](./sprints/done/Sprint-80.md) | Server-owned listening and rotation data | v0.28.0-dev | Done ✅ |
 | Done | [Sprint 82](./sprints/done/Sprint-82.md) | Rotation lifecycle, cleanup, measured performance, and release readiness | v0.29.0 | Done ✅ |
-| Next | [Interface Alignment Pass](./design/INTERFACE-ALIGNMENT-PASS-v0.29.2.md) | Navigation, technical Bindings, Focus layout, and shape consistency | v0.29.2 | Implemented; visual acceptance pending |
-| 2 | [Sprint 83](./sprints/Sprint-83.md) | Server-owned Reflection Inbox and dormant-Archive nudges | Next minor | Approved after design pass |
-| 3 | [Sprint 84](./sprints/Sprint-84.md) | Optional Listening Journal | Subsequent minor | Approved after Sprint 83 |
+| Done | [Interface Alignment Pass](./design/INTERFACE-ALIGNMENT-PASS-v0.29.2.md) | Navigation, technical Bindings, Focus layout, and shape consistency | v0.29.2 | Done ✅ |
+| Done | [Sprint 83](./sprints/done/Sprint-83.md) | Server-owned Reflection Inbox and dormant-Archive nudges | v0.30.0 | Done ✅; 30-day observation follows |
+| Done | [Sprint 83.1](./sprints/done/Sprint-83.1.md) | Compressed Album Coach and Binding intake | v0.30.1 | Done ✅ |
+| Next | [Sprint 84](./sprints/Sprint-84.md) | Optional Listening Journal | Subsequent minor | Implemented; NAS acceptance pending |
 | 4 | [Sprint 85](./sprints/Sprint-85.md) | Dependabot and dependency stewardship | Maintenance patch | Maintainer walkthrough |
 | 5 | [Sprint 86](./sprints/Sprint-86.md) | Deeper deterministic Insights | Future minor | Product direction approved |
 | 6 | [Sprint 87](./sprints/Sprint-87.md) | Local-first artwork with remote fallback | Future release | Feasibility spike first |

@@ -18,6 +18,8 @@ export interface AlbumTimelineEvent {
     title: string
     description: string
     role?: RoleId
+    roleAtTime?: RoleId
+    journal?: ListenEvent["journal"]
 }
 
 function getRoleTitle(role: RoleId): string {
@@ -91,6 +93,8 @@ function createListenEvents(
             index === 0
                 ? `Most recent documented session (${total} in total).`
                 : `Session ${total - index} of ${total}.`,
+        roleAtTime:[...album.roleHistory].filter(entry=>new Date(entry.recordedAt).getTime()<=new Date(event.listenedAt).getTime()).sort((a,b)=>new Date(b.recordedAt).getTime()-new Date(a.recordedAt).getTime())[0]?.role,
+        journal:event.journal,
     }))
 }
 

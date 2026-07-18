@@ -1,7 +1,7 @@
 import { randomInt, randomUUID } from "node:crypto"
 import { Router } from "express"
 import type { RotationStateRepository } from "../infrastructure/persistence/sqlite/rotationStateRepository.js"
-import { FocusAlbumSchema, ListenEventSchema, RotationPlanSchema, RotationSettingsSchema, parseRequest } from "./validation.js"
+import { FocusAlbumSchema, ListenEventSchema, ListeningJournalSchema, RotationPlanSchema, RotationSettingsSchema, UUIDSchema, parseRequest } from "./validation.js"
 import type { RotationPlan } from "../domain/rotationTypes.js"
 import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
 import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
@@ -118,6 +118,26 @@ export function createRotationStateRouter(repository: RotationStateRepository, b
         if (!event) return
         try { repository.saveListenEvent(event); onRelevantEvent?.(); res.status(201).json(event) }
         catch { res.status(409).json({ error: "ALBUM_NOT_FOUND" }) }
+    })
+    router.put("/listens/:id/journal",(req,res)=>{
+        const id=parseRequest(UUIDSchema,req.params.id,res),journal=parseRequest(ListeningJournalSchema,req.body,res)
+        if(!id||!journal)return
+        try {
+            const before=repository.findListenEvent(id),event=repository.saveJournal(id,{note:journal.note,moodTags:journal.moodTags??[],contextTags:journal.contextTags??[]})
+            const summary=(value:typeof event.journal)=>({hasNote:Boolean(value?.note),noteLength:value?.note.length??0,moodTagCount:value?.moodTags.length??0,contextTagCount:value?.contextTags.length??0})
+            audit?.record(before?.journal?"journal-updated":"journal-created",id,summary(before?.journal),summary(event.journal))
+            onRelevantEvent?.()
+            res.json(event)
+        } catch {res.status(404).json({error:"LISTEN_EVENT_NOT_FOUND"})}
+    })
+    router.delete("/listens/:id/journal",(req,res)=>{
+        const id=parseRequest(UUIDSchema,req.params.id,res);if(!id)return
+        try {
+            const before=repository.findListenEvent(id);repository.deleteJournal(id)
+            if(before?.journal)audit?.record("journal-deleted",id,{hasNote:Boolean(before.journal.note),noteLength:before.journal.note.length,moodTagCount:before.journal.moodTags.length,contextTagCount:before.journal.contextTags.length},{hasNote:false,noteLength:0,moodTagCount:0,contextTagCount:0})
+            onRelevantEvent?.()
+            res.status(204).end()
+        } catch {res.status(404).json({error:"LISTEN_EVENT_NOT_FOUND"})}
     })
     return router
 }

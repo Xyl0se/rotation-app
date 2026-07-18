@@ -433,6 +433,36 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 13,
+        name: "listening-journal",
+        run(db) {
+            db.exec(`
+                CREATE TABLE listening_journal_entries (
+                    listen_event_id TEXT PRIMARY KEY REFERENCES listen_events(id) ON DELETE CASCADE,
+                    note TEXT NOT NULL CHECK(length(note) <= 2000),
+                    mood_tags_json TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(mood_tags_json)),
+                    context_tags_json TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(context_tags_json)),
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE TABLE domain_audit_events_v13 (
+                    id TEXT PRIMARY KEY,
+                    event_type TEXT NOT NULL CHECK(event_type IN ('album-role-changed','binding-reassigned','draft-item-removed','draft-item-replaced','rotation-accepted','album-role-change-undone','reflection-resolved','journal-created','journal-updated','journal-deleted')),
+                    entity_id TEXT NOT NULL,
+                    before_json TEXT NOT NULL CHECK(json_valid(before_json)),
+                    after_json TEXT NOT NULL CHECK(json_valid(after_json)),
+                    created_at TEXT NOT NULL,
+                    undone_at TEXT
+                );
+                INSERT INTO domain_audit_events_v13 SELECT * FROM domain_audit_events;
+                DROP TABLE domain_audit_events;
+                ALTER TABLE domain_audit_events_v13 RENAME TO domain_audit_events;
+                CREATE INDEX idx_audit_latest ON domain_audit_events(undone_at, created_at DESC);
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database, maxMigrationVersion: number): void {

@@ -17,6 +17,7 @@ export interface ReflectionEvidence {
     daysInRole: number | null
     daysSinceListen: number | null
     recentRotationCount: number
+    recentJournalEventIds?: string[]
     archiveTemperature?: ArchiveTemperature
 }
 

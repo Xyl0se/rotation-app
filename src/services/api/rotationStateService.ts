@@ -1,6 +1,6 @@
 import type { RotationPlan } from "../../domain/rotation-plan/rotationPlan"
 import type { ListenEvent } from "../../domain/listening/listenEvents"
-import { get, post, put } from "./apiClient"
+import { del, get, post, put } from "./apiClient"
 import type { RotationRoleQuota } from "../../domain/rotation-plan/rotationPlan"
 
 export interface ServerRotationPlan extends RotationPlan {
@@ -57,3 +57,5 @@ export function fetchListenEvents(limit = 1_000): Promise<ListenEvent[]> {
 export function createListenEvent(event: ListenEvent): Promise<ListenEvent> {
     return post("/rotation-state/listens", event)
 }
+export function saveListeningJournal(id:string,journal:Pick<NonNullable<ListenEvent["journal"]>,"note"|"moodTags"|"contextTags">):Promise<ListenEvent>{return put(`/rotation-state/listens/${encodeURIComponent(id)}/journal`,journal)}
+export function deleteListeningJournal(id:string):Promise<void>{return del(`/rotation-state/listens/${encodeURIComponent(id)}/journal`)}

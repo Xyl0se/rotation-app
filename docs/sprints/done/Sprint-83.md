@@ -1,6 +1,6 @@
 # Sprint 83 — Reflection Inbox
 
-**Status:** Implementation complete — NAS acceptance pending
+**Status:** Completed — product acceptance granted 2026-07-18
 
 **Target version:** v0.30.0
 
@@ -92,14 +92,17 @@ repeated dismissal and evidence age determines ordering.
 - [x] Reflect, snooze, dismiss, resolve, and stale-state behavior are deterministic.
 - [x] Album changes occur only through an explicit confirmed workflow.
 - [x] Home no longer presents duplicate versions of Inbox prompts.
-- [ ] DE/EN, keyboard, touch, loading, retry, and empty states are tested.
-- [ ] Backup/restore and second-browser verification cover Inbox state.
-- [ ] Production use confirms the Inbox feels optional and non-judgmental.
+- [x] DE/EN, keyboard, touch, loading, retry, and empty states are tested.
+- [x] Backup/restore and second-browser verification cover Inbox state.
+- [x] Production use confirms the Inbox feels optional and non-judgmental.
 - [x] Warm/cold archive state is explainable, internal-only, recomputable, and covered
   by recurrence tests.
 
 Production verification follows
-[the Sprint-83 NAS acceptance test](../acceptance/SPRINT-83-NAS-ACCEPTANCE.md).
+[the Sprint-83 NAS acceptance test](../../acceptance/SPRINT-83-NAS-ACCEPTANCE.md).
+
+Product acceptance was granted on 2026-07-18. Calendar-dependent recurrence checks
+remain recorded as a non-blocking 30-day follow-up in the acceptance document.
 
 ## Non-Goals
 

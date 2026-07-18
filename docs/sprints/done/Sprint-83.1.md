@@ -1,6 +1,6 @@
 # Sprint 83.1 — Album Intake Compression
 
-**Status:** Implementation complete — production acceptance pending
+**Status:** Completed — NAS acceptance passed 2026-07-18
 
 **Target version:** v0.30.1
 
@@ -313,7 +313,7 @@ Requirements:
 
 ## Workstream 83.1J — Migration and Cross-Workflow Safety
 
-**Implementation status:** Complete in code; production/NAS verification pending.
+**Implementation status:** Complete in code and verified in production on the NAS.
 
 - Existing Albums, roles, Bindings, and role histories remain valid.
 - Existing role-determination tests become the baseline for the new decision table.
@@ -344,11 +344,11 @@ Requirements:
 - [x] Metadata search resolves `Smoke + Mirrors` and all documented punctuation cases.
 - [x] DE/EN, keyboard, touch, responsive layout, cancellation, retry, persistence,
   migration, and backup/restore behavior are tested.
-- [ ] NAS acceptance confirms that processing a larger unresolved batch feels
+- [x] NAS acceptance confirms that processing a larger unresolved batch feels
   materially faster than before.
 
 Production verification follows
-[the Sprint-83.1 NAS acceptance test](../acceptance/SPRINT-83.1-NAS-ACCEPTANCE.md).
+[the Sprint-83.1 NAS acceptance test](../../acceptance/SPRINT-83.1-NAS-ACCEPTANCE.md).
 
 ## Non-Goals
 

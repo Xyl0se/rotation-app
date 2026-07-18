@@ -1,6 +1,6 @@
 # Sprint 84 — Listening Journal
 
-**Status:** Planned — approved; begins after Reflection Inbox validation
+**Status:** Implementation complete — NAS acceptance pending
 
 **Target version:** Subsequent minor development version
 
@@ -22,6 +22,9 @@ writing in order to count a Listening Event.
 
 ## Workstream 84A — Journal Data Contract
 
+**Implementation status:** Complete in code with migration 13, a one-to-one journal
+record, bounded semantic tags, idempotent updates, and backup coverage.
+
 - Extend Listening Events with optional journal fields using a versioned migration:
   short note, optional mood/context tags from a small transparent vocabulary, and
   created/updated timestamps.
@@ -34,6 +37,9 @@ writing in order to count a Listening Event.
 
 ## Workstream 84B — Capture Flow
 
+**Implementation status:** Complete in code. Listening remains immediate; the journal
+is offered only after server confirmation and retains typed text after a failed save.
+
 - Keep the existing “Listened” action immediate and confirmed.
 - After success, offer a dismissible “Add a thought” affordance rather than opening a
   mandatory modal.
@@ -44,6 +50,9 @@ writing in order to count a Listening Event.
   do not introduce a general offline mutation queue.
 
 ## Workstream 84C — Album Timeline & Longitudinal View
+
+**Implementation status:** Complete in code for Timeline integration, Album editing,
+collapsed note excerpts, and transparently derived historical role context.
 
 - Integrate journal entries into the Album timeline in chronological order alongside
   role transitions and Album Story.
@@ -56,6 +65,9 @@ writing in order to count a Listening Event.
 
 ## Workstream 84D — Reflection Integration
 
+**Implementation status:** Complete in code. Inbox evidence stores only canonical
+Listening Event references; recent notes are displayed read-only and never classified.
+
 - Let relevant Reflection Inbox items reference recent journal entries as user-written
   evidence, never as automated sentiment classification.
 - During reassessment, show previous notes read-only and allow the user to decide
@@ -66,15 +78,18 @@ writing in order to count a Listening Event.
 
 ## Definition of Done
 
-- [ ] A listen remains recordable with one confirmed action and no required note.
-- [ ] Notes can be added, edited, and removed without deleting or duplicating the
+- [x] A listen remains recordable with one confirmed action and no required note.
+- [x] Notes can be added, edited, and removed without deleting or duplicating the
   Listening Event.
-- [ ] Timeline and journal views show correct chronological and role context.
-- [ ] Typed text survives a recoverable failed save within the current UI session.
-- [ ] Journal text never appears in structured operational logs or diagnostics.
-- [ ] DE/EN, Unicode, length, accessibility, retry, and second-browser cases are tested.
-- [ ] Migration and backup/restore preserve Listening Events and notes exactly.
+- [x] Timeline and journal views show correct chronological and role context.
+- [x] Typed text survives a recoverable failed save within the current UI session.
+- [x] Journal text never appears in structured operational logs or diagnostics.
+- [x] DE/EN, Unicode, length, accessibility, retry, and second-browser cases are tested.
+- [x] Migration and backup/restore preserve Listening Events and notes exactly.
 - [ ] Production acceptance confirms the journal remains optional and lightweight.
+
+Production verification follows
+[the Sprint-84 NAS acceptance test](../acceptance/SPRINT-84-NAS-ACCEPTANCE.md).
 
 ## Non-Goals
 
@@ -84,4 +99,3 @@ writing in order to count a Listening Event.
 - Track-level diary entries
 - Rich-text editing or file attachments
 - Mobile/native capture
-

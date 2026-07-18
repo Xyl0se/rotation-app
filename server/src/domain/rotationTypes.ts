@@ -17,7 +17,16 @@ export interface RotationPlan {
     exports?: RotationExportSummary[]
 }
 export interface RotationExportSummary { id: string; appliedAt: string; totalSizeBytes: number | null; fileCount: number | null }
-export interface ListenEvent { id: string; albumId: string; listenedAt: string }
+export type JournalMood = "calm" | "energized" | "melancholic" | "curious" | "nostalgic"
+export type JournalContext = "focused" | "background" | "on-the-go" | "evening" | "shared"
+export interface ListeningJournalEntry {
+    note: string
+    moodTags: JournalMood[]
+    contextTags: JournalContext[]
+    createdAt: string
+    updatedAt: string
+}
+export interface ListenEvent { id: string; albumId: string; listenedAt: string; journal?: ListeningJournalEntry }
 export interface RotationSettings {
     targetSize: number
     roleQuotas: RotationRoleQuota[]

@@ -13,6 +13,7 @@ The timeline generates events from:
 - `roleHistory`
 - `listenEvents`
 - `story` (Sprint 55)
+- optional Listening Journal entries (Sprint 84)
 
 ## Events
 
@@ -22,6 +23,11 @@ Current event types:
 - `listened`: The album was listened to.
 - `story-created`: The album story was first documented (Sprint 55).
 - `story-updated`: The album story was edited.
+- `listened` events may include an optional note plus bounded mood/context tags.
+
+The role shown for a Listening Event is derived from the most recent role-history
+entry at or before `listenedAt`. It is labelled as derived and omitted when no reliable
+historical role exists. Later roles are never projected backwards.
 
 The timeline is sorted newest first.
 

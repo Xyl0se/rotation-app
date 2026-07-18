@@ -10,13 +10,15 @@ export function createReflectionInboxService(albums:AlbumRepository,inbox:Reflec
     function evaluate(now=new Date()) {
         const candidates=[] as Array<{albumId:string;ruleCode:ReflectionRuleCode;evidenceKey:string;evidence:ReflectionEvidence;dueAt:string}>
         const recentPlans=[rotations?.findActive(),...(rotations?.findHistory(5).items ?? [])].filter((plan):plan is NonNullable<typeof plan>=>plan!=null)
+        const journalEvents=rotations?.findListenEvents(5_000)??[]
         for (const album of albums.findAll()) {
             if (!album.category) continue
             const roleSince=album.roleHistory.at(-1)?.recordedAt ?? album.createdAt ?? null
             const lastListened=album.lastListened ?? null
             const recentRotationCount=recentPlans.filter(plan=>plan.albumIds.includes(album.id)).length
             const evidence:ReflectionEvidence={role:album.category,listenCount:album.listenCount,lastListened,
-                roleSince,daysInRole:days(roleSince,now),daysSinceListen:days(lastListened,now),recentRotationCount}
+                roleSince,daysInRole:days(roleSince,now),daysSinceListen:days(lastListened,now),recentRotationCount,
+                recentJournalEventIds:journalEvents.filter(event=>event.albumId===album.id&&event.journal).slice(0,3).map(event=>event.id)}
             let ruleCode:ReflectionRuleCode|undefined
             if (album.category === "new" && album.listenCount >= 3) ruleCode="new-after-listens"
             else if (album.category === "growing" && (evidence.daysInRole ?? 0) >= 90) ruleCode="growing-for-a-while"

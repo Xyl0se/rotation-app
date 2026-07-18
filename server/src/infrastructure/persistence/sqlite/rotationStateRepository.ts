@@ -1,5 +1,5 @@
 import Database from "better-sqlite3"
-import type { ListenEvent, RotationPlan, RotationSettings } from "../../../domain/rotationTypes.js"
+import type { ListenEvent, ListeningJournalEntry, JournalContext, JournalMood, RotationPlan, RotationSettings } from "../../../domain/rotationTypes.js"
 
 export function createRotationStateRepository(db: Database.Database) {
     const saveListen = db.prepare("INSERT INTO listen_events VALUES (?,?,?) ON CONFLICT(id) DO NOTHING")
@@ -59,6 +59,14 @@ export function createRotationStateRepository(db: Database.Database) {
         }
     }
 
+    function hydrateListen(row:{id:string;album_id:string;listened_at:string;note:string|null;mood_tags_json:string|null;context_tags_json:string|null;journal_created_at:string|null;journal_updated_at:string|null}):ListenEvent {
+        const event:ListenEvent={id:row.id,albumId:row.album_id,listenedAt:row.listened_at}
+        if(row.journal_created_at&&row.journal_updated_at)event.journal={note:row.note??"",moodTags:JSON.parse(row.mood_tags_json??"[]") as JournalMood[],contextTags:JSON.parse(row.context_tags_json??"[]") as JournalContext[],createdAt:row.journal_created_at,updatedAt:row.journal_updated_at}
+        return event
+    }
+    const listenSelect=`SELECT l.id,l.album_id,l.listened_at,j.note,j.mood_tags_json,j.context_tags_json,j.created_at journal_created_at,j.updated_at journal_updated_at
+        FROM listen_events l LEFT JOIN listening_journal_entries j ON j.listen_event_id=l.id`
+
     return {
         savePlan(plan: RotationPlan): void { savePlanTx(plan) },
         findActive(): RotationPlan | null { return hydrate(db.prepare("SELECT * FROM rotation_plans WHERE status='active'").get() as Record<string, unknown> | undefined) },
@@ -98,8 +106,25 @@ export function createRotationStateRepository(db: Database.Database) {
             saveListenEventTx(event)
         },
         findListenEvents(limit = 1_000, offset = 0): ListenEvent[] {
-            return (db.prepare("SELECT id,album_id,listened_at FROM listen_events ORDER BY listened_at DESC, id DESC LIMIT ? OFFSET ?").all(limit, offset) as Array<{id:string;album_id:string;listened_at:string}>)
-                .map(row => ({ id: row.id, albumId: row.album_id, listenedAt: row.listened_at }))
+            return (db.prepare(`${listenSelect} ORDER BY l.listened_at DESC, l.id DESC LIMIT ? OFFSET ?`).all(limit, offset) as Parameters<typeof hydrateListen>[0][]).map(hydrateListen)
+        },
+        findListenEvent(id:string):ListenEvent|null {
+            const row=db.prepare(`${listenSelect} WHERE l.id=?`).get(id) as Parameters<typeof hydrateListen>[0]|undefined
+            return row?hydrateListen(row):null
+        },
+        saveJournal(id:string,input:Pick<ListeningJournalEntry,"note"|"moodTags"|"contextTags">):ListenEvent {
+            const event=this.findListenEvent(id)
+            if(!event)throw new Error("LISTEN_EVENT_NOT_FOUND")
+            const now=new Date().toISOString(),createdAt=event.journal?.createdAt??now
+            db.prepare(`INSERT INTO listening_journal_entries (listen_event_id,note,mood_tags_json,context_tags_json,created_at,updated_at)
+                VALUES (?,?,?,?,?,?) ON CONFLICT(listen_event_id) DO UPDATE SET note=excluded.note,mood_tags_json=excluded.mood_tags_json,
+                context_tags_json=excluded.context_tags_json,updated_at=excluded.updated_at`).run(id,input.note,JSON.stringify(input.moodTags),JSON.stringify(input.contextTags),createdAt,now)
+            return this.findListenEvent(id)!
+        },
+        deleteJournal(id:string):ListenEvent {
+            if(!this.findListenEvent(id))throw new Error("LISTEN_EVENT_NOT_FOUND")
+            db.prepare("DELETE FROM listening_journal_entries WHERE listen_event_id=?").run(id)
+            return this.findListenEvent(id)!
         },
         findSettings(): RotationSettings {
             const row = db.prepare("SELECT target_size, role_quotas_json FROM rotation_settings WHERE singleton = 1").get() as { target_size: number; role_quotas_json: string }

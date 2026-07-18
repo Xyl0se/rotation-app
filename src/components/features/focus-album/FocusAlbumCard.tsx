@@ -59,6 +59,8 @@ type FocusAlbumCardProps = {
 
     onEdit: () => void
 
+    onEditJournal?: (eventId:string)=>void
+
 }
 
 function formatLastListened(date: string | null, t: ReturnType<typeof useI18n>["t"]) {
@@ -124,6 +126,7 @@ function FocusAlbumCard({
     onLogListen,
     onSuggestAnother,
     onEdit,
+    onEditJournal,
 
 }: FocusAlbumCardProps) {
 
@@ -265,7 +268,7 @@ function FocusAlbumCard({
             <details className="focus-timeline-popover">
                 <summary>{t.focusAlbum.timeline}</summary>
                 <div className="focus-timeline-panel">
-                    <AlbumTimeline album={album} listenEvents={listenEvents} />
+                    <AlbumTimeline album={album} listenEvents={listenEvents} onEditJournal={onEditJournal} />
                 </div>
             </details>
 

@@ -388,6 +388,26 @@ export const en = {
         sourceDefault: "Rotation",
     },
 
+    journal: {
+        title: "Listening Journal",
+        kicker: "A thought from this listen",
+        addThought: "Add a thought",
+        dismiss: "Not now",
+        note: "What stayed with you?",
+        placeholder: "A sound, a feeling, a moment…",
+        mood: "Mood",
+        context: "Context",
+        moods: { calm:"Calm", energized:"Energized", melancholic:"Melancholic", curious:"Curious", nostalgic:"Nostalgic" },
+        contexts: { focused:"Focused listening", background:"In the background", "on-the-go":"On the go", evening:"In the evening", shared:"Listened together" },
+        save: "Save thought",
+        cancel: "Cancel",
+        delete: "Remove note",
+        edit: "Edit thought",
+        previous: "Previous listening notes",
+        saveError: "Your text is still here. Saving failed; please try again.",
+        inferredRole: (role:string) => `Role at that time (derived): ${role}`,
+    },
+
     library: {
         title: "Library",
         views: {

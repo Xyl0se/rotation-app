@@ -8,6 +8,7 @@ import Dialog from "../../ui/Dialog"
 import TextField from "../../ui/TextField"
 import AlbumCover from "../../ui/AlbumCover"
 import { useI18n } from "../../../i18n/useI18n"
+import type { ListenEvent } from "../../../domain/listening/listenEvents"
 
 const ACQUISITION_OPTIONS: AlbumAcquisitionReason[] = [
     "artist",
@@ -53,6 +54,8 @@ type EditAlbumDialogProps = {
     onRemoveCoverOverride: (id: string) => Promise<boolean>
     onRetryCover?: (id: string) => Promise<boolean>
     onStartCoach?: (albumId: string) => void
+    listenEvents?: ListenEvent[]
+    onEditJournal?: (eventId:string)=>void
 }
 
 function EditAlbumDialog({
@@ -65,6 +68,8 @@ function EditAlbumDialog({
     onRemoveCoverOverride,
     onRetryCover,
     onStartCoach,
+    listenEvents=[],
+    onEditJournal,
 }: EditAlbumDialogProps) {
     const { t } = useI18n()
 
@@ -431,6 +436,8 @@ function EditAlbumDialog({
                         </Button>
                     )}
                 </div>
+
+                {listenEvents.some(event=>event.albumId===album.id&&event.journal)&&<section className="album-journal-list"><h3>{t.journal.previous}</h3>{listenEvents.filter(event=>event.albumId===album.id&&event.journal).map(event=><article key={event.id}><time>{new Date(event.listenedAt).toLocaleDateString()}</time><p>{event.journal?.note}</p>{onEditJournal&&<Button variant="secondary" onClick={()=>onEditJournal(event.id)}>{t.journal.edit}</Button>}</article>)}</section>}
 
                 <div className="dialog-actions">
                     {onStartCoach && (

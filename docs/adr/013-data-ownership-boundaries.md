@@ -23,6 +23,7 @@ Rotation classifies every persisted value as one of four ownership types:
 | Library view state | React memory | Ephemeral projection of the API response | Rebuilt from SQLite/API after reload |
 | Downloaded cover cache | IndexedDB | Reconstructable cache | May be deleted without losing canonical cover ownership |
 | Listening History | SQLite/API | Canonical server data | Included in SQLite backups |
+| Listening Journal | SQLite/API | Optional 1:1 extension of a Listening Event | Included in SQLite backups; note bodies excluded from operational logs and audit metadata |
 | RotationPlan and Focus Album | SQLite/API | Canonical server data | Included in SQLite backups |
 | Language, onboarding, dismissed prompts | `localStorage` | Device-local preference | Intentionally not synchronized |
 | Internal write token | API and Caddy environment | Deployment secret for trusted proxy authentication | Must not reach browser storage, product exports, or logs |

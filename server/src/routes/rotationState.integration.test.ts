@@ -13,6 +13,7 @@ import { createRequireWriteTokenForMutations } from "./middleware/writeToken.js"
 import { createRotationStateRouter } from "./rotationState.js"
 import { createPathGuard } from "../infrastructure/filesystem/pathGuard.js"
 import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
+import { createAuditRepository } from "../infrastructure/persistence/sqlite/auditRepository.js"
 
 const TOKEN = "rotation-state-integration-token"
 const ALBUM_A = "550e8400-e29b-41d4-a716-446655440010"
@@ -74,6 +75,7 @@ describe("rotation state route contract", () => {
             createRotationStateRepository(database),
             bindings,
             createPathGuard(musicRoot),
+            createAuditRepository(database,albums),
         ))
         await new Promise<void>((resolve, reject) => {
             server = app.listen(0, "127.0.0.1")
@@ -187,6 +189,18 @@ describe("rotation state route contract", () => {
         const events = await (await fetch(`${baseUrl}/rotation-state/listens`)).json()
         expect(events).toEqual([event])
         expect(database.prepare("SELECT listen_count FROM albums WHERE id = ?").get(ALBUM_A)).toEqual({ listen_count: 1 })
+    })
+
+    it("validates and persists journal mutations without putting note text in audit",async()=>{
+        const note="Privater Gedanke 🎧"
+        const saved=await request("PUT",`/rotation-state/listens/${EVENT_ID}/journal`,{note,moodTags:["curious"],contextTags:["focused"]})
+        expect(saved.status).toBe(200);await expect(saved.json()).resolves.toMatchObject({id:EVENT_ID,journal:{note,moodTags:["curious"]}})
+        const audit=database.prepare("SELECT before_json,after_json FROM domain_audit_events WHERE event_type='journal-created'").get() as {before_json:string;after_json:string}
+        expect(JSON.stringify(audit)).not.toContain(note);expect(audit.after_json).toContain('"noteLength":')
+        expect((await request("PUT",`/rotation-state/listens/${EVENT_ID}/journal`,{note:"x",moodTags:["invalid"],contextTags:[]})).status).toBe(400)
+        expect((await request("DELETE",`/rotation-state/listens/${EVENT_ID}/journal`)).status).toBe(204)
+        const events=await (await fetch(`${baseUrl}/rotation-state/listens`)).json() as Array<{id:string;journal?:unknown}>
+        expect(events.find(event=>event.id===EVENT_ID)?.journal).toBeUndefined()
     })
 
     it("bounds and paginates listening history newest first", async () => {

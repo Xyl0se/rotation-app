@@ -3,7 +3,7 @@ import type Database from "better-sqlite3"
 import type { Album } from "../../../domain/albumTypes.js"
 import type { AlbumRepository } from "./albumRepository.js"
 
-export type AuditEventType = "album-role-changed" | "binding-reassigned" | "draft-item-removed" | "draft-item-replaced" | "rotation-accepted" | "album-role-change-undone" | "reflection-resolved"
+export type AuditEventType = "album-role-changed" | "binding-reassigned" | "draft-item-removed" | "draft-item-replaced" | "rotation-accepted" | "album-role-change-undone" | "reflection-resolved" | "journal-created" | "journal-updated" | "journal-deleted"
 export interface AuditEvent { id:string;eventType:AuditEventType;entityId:string;before:unknown;after:unknown;createdAt:string;undoneAt:string|null }
 
 export function createAuditRepository(db: Database.Database, albums: AlbumRepository) {

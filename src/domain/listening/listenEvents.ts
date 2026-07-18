@@ -10,6 +10,17 @@
  * continue to function.
  */
 
+export type JournalMood = "calm" | "energized" | "melancholic" | "curious" | "nostalgic"
+export type JournalContext = "focused" | "background" | "on-the-go" | "evening" | "shared"
+
+export interface ListeningJournalEntry {
+    note: string
+    moodTags: JournalMood[]
+    contextTags: JournalContext[]
+    createdAt: string
+    updatedAt: string
+}
+
 export interface ListenEvent {
 
     id: string
@@ -17,5 +28,7 @@ export interface ListenEvent {
     albumId: string
 
     listenedAt: string
+
+    journal?: ListeningJournalEntry
 
 }

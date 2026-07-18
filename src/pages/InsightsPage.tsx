@@ -14,6 +14,7 @@ import { useLibrary } from "../hooks/useLibrary"
 import { useI18n } from "../i18n/useI18n"
 import { useReflectionInbox } from "../hooks/useReflectionInbox"
 import type { ReflectionInboxItem } from "../services/api/reflectionService"
+import { useListenEvents } from "../hooks/useListenEvents"
 
 export default function InsightsPage() {
     const { t } = useI18n()
@@ -24,6 +25,7 @@ export default function InsightsPage() {
     const [archiveReturnAlbumId, setArchiveReturnAlbumId] = useState<string | null>(null)
     const [activeReflection,setActiveReflection]=useState<ReflectionInboxItem|null>(null)
     const inbox=useReflectionInbox(serverConnected)
+    const {listenEvents}=useListenEvents(albums,serverConnected)
 
     const reflectionAlbum = albums.find(album => album.id === reflectionAlbumId)
     const archiveReturnAlbum = albums.find(album => album.id === archiveReturnAlbumId)
@@ -75,7 +77,7 @@ export default function InsightsPage() {
                 <div className="insights-page-grid">
                     <section aria-labelledby="reflection-heading">
                         <h2 id="reflection-heading">{t.dashboard.nextQuestion}</h2>
-                        <ReflectionInbox items={inbox.items} isLoading={inbox.isLoading} error={inbox.error} onRetry={()=>void inbox.refresh()} onReflect={handleReflect} onSnooze={(id,days)=>void inbox.snooze(id,days)} onDismiss={id=>void inbox.dismiss(id)} />
+                        <ReflectionInbox items={inbox.items} listenEvents={listenEvents} isLoading={inbox.isLoading} error={inbox.error} onRetry={()=>void inbox.refresh()} onReflect={handleReflect} onSnooze={(id,days)=>void inbox.snooze(id,days)} onDismiss={id=>void inbox.dismiss(id)} />
                     </section>
                     <InsightsPanel albums={albums} />
                     <section aria-labelledby="roles-heading">
@@ -94,6 +96,7 @@ export default function InsightsPage() {
                             album={reflectionAlbum}
                             onComplete={handleReflectionComplete}
                         />
+                        {activeReflection&&listenEvents.some(event=>activeReflection.evidence.recentJournalEventIds?.includes(event.id)&&event.journal)&&<details className="coach-journal-context"><summary>{t.journal.previous}</summary>{listenEvents.filter(event=>activeReflection.evidence.recentJournalEventIds?.includes(event.id)&&event.journal).map(event=><blockquote key={event.id}>{event.journal?.note}</blockquote>)}</details>}
                         <div className="dialog-actions">
                             <Button variant="secondary" onClick={() => setReflectionAlbumId(null)}>{t.reflection.later}</Button>
                         </div>

@@ -54,6 +54,17 @@ describe("rotation state repository", () => {
         db.close()
     })
 
+    it("adds, updates, and removes a journal without mutating the listen event",()=>{
+        const {db,repository}=setup();const event={id:"44444444-4444-4444-8444-444444444444",albumId:A,listenedAt:"2026-01-01T00:00:00.000Z"};repository.saveListenEvent(event)
+        const created=repository.saveJournal(event.id,{note:"Eine Erinnerung 🎧",moodTags:["nostalgic"],contextTags:["focused"]})
+        expect(created).toMatchObject({...event,journal:{note:"Eine Erinnerung 🎧",moodTags:["nostalgic"],contextTags:["focused"]}})
+        const createdAt=created.journal?.createdAt
+        const updated=repository.saveJournal(event.id,{note:"Korrigiert",moodTags:[],contextTags:["evening"]})
+        expect(updated.journal).toMatchObject({note:"Korrigiert",createdAt})
+        expect(repository.deleteJournal(event.id)).toEqual(event)
+        expect(db.prepare("SELECT COUNT(*) count FROM listen_events").get()).toEqual({count:1});db.close()
+    })
+
     it("archives the previous active Rotation and leaves no stale draft", () => {
         const { db, repository } = setup()
         repository.savePlan(plan(null))

@@ -19,7 +19,8 @@ export function createReflectionInboxRepository(db: Database.Database) {
             db.transaction(() => {
                 const insert = db.prepare(`INSERT INTO reflection_inbox_items
                     (id,album_id,rule_code,evidence_key,state,evidence_json,created_at,due_at,updated_at)
-                    VALUES (?,?,?,?, 'open',?,?,?,?) ON CONFLICT(album_id,rule_code,evidence_key) DO NOTHING`)
+                    VALUES (?,?,?,?, 'open',?,?,?,?) ON CONFLICT(album_id,rule_code,evidence_key)
+                    DO UPDATE SET evidence_json=excluded.evidence_json,updated_at=excluded.updated_at`)
                 const quietOlder = db.prepare(`UPDATE reflection_inbox_items SET state='resolved',resolved_at=?,resolution='superseded',updated_at=?
                     WHERE album_id=? AND state IN ('open','snoozed') AND NOT (rule_code=? AND evidence_key=?)`)
                 for (const candidate of candidates) {
