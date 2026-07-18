@@ -6,7 +6,8 @@ const roles=(overrides:Partial<ReturnType<InsightEvidenceRepository["roleOvervie
 const repository=(overrides:Partial<InsightEvidenceRepository>={}):InsightEvidenceRepository=>({
     roleOverview:()=>roles({new:10,growing:10,"comfort-food":10,classic:10}),
     listeningWindow:(from)=>from.startsWith("2026-04")?{total:10,discovery:8,familiar:2}:{total:10,discovery:3,familiar:7},
-    dormantAlbums:()=>0,rediscoveredListens:()=>0,recentRoleTransitions:()=>0,rotationComparison:()=>null,...overrides,
+    dormantAlbums:()=>0,rediscoveredListens:()=>0,recentRoleTransitions:()=>0,rotationComparison:()=>null,
+    recurringArtist:()=>null,listeningEra:()=>null,personalHistory:()=>null,...overrides,
 })
 
 describe("insights service",()=>{
@@ -28,7 +29,13 @@ describe("insights service",()=>{
     })
     it("prioritizes rediscovery and exposes bounded factual evidence",()=>{
         const result=createInsightsService(repository({rediscoveredListens:()=>3,recentRoleTransitions:()=>6,rotationComparison:()=>({entering:4,leaving:4,unchanged:17})})).evaluate(now)
-        expect(result.insights.map(item=>item.code)).toEqual(["rediscovery-moments","discovery-rising","roles-in-motion","rotation-evolving"])
+        expect(result.insights.map(item=>item.code)).toEqual(expect.arrayContaining(["rediscovery-moments","discovery-rising","roles-in-motion","rotation-evolving"]))
         expect(JSON.stringify(result)).not.toContain("note")
+    })
+    it("adds bounded extended families and keeps weekly selection stable",()=>{
+        const source=repository({recurringArtist:()=>({artist:"Air",listenCount:4,albumCount:2,totalListens:10}),listeningEra:()=>({era:"1990s",listenCount:4,albumCount:6,knownYearAlbums:30,totalKnownYearListens:8}),personalHistory:()=>({kind:"life-phase",value:"school",listenCount:4,annotatedAlbums:12})})
+        const service=createInsightsService(source),first=service.evaluate(now),again=service.evaluate(new Date("2026-07-19T12:00:00.000Z"))
+        expect(first.insights).toHaveLength(4);expect(first.insights.map(item=>`${item.code}:${item.subject?.value??""}`)).toEqual(again.insights.map(item=>`${item.code}:${item.subject?.value??""}`))
+        expect(first.insights.flatMap(item=>item.subject?.value??[])).toEqual(expect.arrayContaining(["Air","1990s","school"]))
     })
 })

@@ -1,6 +1,6 @@
 # Sprint 86 — Deeper Insights
 
-**Status:** 86.1 implemented — local validation complete; NAS acceptance pending
+**Status:** 86.1 accepted ✅ — 86.2 implemented; NAS acceptance pending
 
 **Target version:** Future minor version
 
@@ -21,7 +21,7 @@ history, and a refined weekly narrative rotation only after 86.1 has passed NAS 
 
 ## Workstream 86.1 — Evidence Engine and Core Narratives
 
-**Implementation status:** Complete in code ✅
+**Implementation status:** Accepted on NAS ✅
 
 ### Evidence contract
 
@@ -64,16 +64,19 @@ single calm building state instead of invented copy.
 
 ## Workstream 86.2 — Extended Narrative Families
 
-**Implementation status:** Planned after 86.1 acceptance
+**Implementation status:** Complete in code ✅ — NAS acceptance pending
 
-- Add recurring-artist observations with meaningful minimums.
-- Compare represented and recently heard release decades without treating breadth as
-  a virtue.
-- Use only structured acquisition reason and life-phase fields for personal-history
-  themes; never interpret `memoryNote` or Journal prose.
-- Refine narrative selection so equally eligible observations can rotate stably by
-  calendar week without changing on reload.
-- Reassess information density and tone from production evidence before implementation.
+- Recurring-artist observations require at least eight recent listens, three for the
+  artist, two distinct Albums, and a meaningful share of the listening window.
+- Release-decade observations require at least ten Albums with usable years, five
+  recent year-backed listens, and a repeated decade signal. Breadth is never scored.
+- Personal-history observations require at least eight Albums with structured Story
+  fields and three matching recent listens. Only enumerated acquisition reason or
+  life phase is read; `memoryNote` and Journal prose remain excluded.
+- Equally important eligible narratives are selected by a stable calendar-week seed.
+  The same evidence does not jump on reload or between browsers within that week.
+- Production verification follows
+  [the Sprint-86.2 NAS acceptance](../acceptance/SPRINT-86.2-NAS-ACCEPTANCE.md).
 
 ## Optional AI boundary
 
@@ -93,12 +96,12 @@ Albums, Roles, Rotations, Reflections, or Archive state. See
 - [x] DE/EN output is complete and deterministic fallback is always available.
 - [x] Performance remains bounded for a 10,000-Album Library.
 - [x] No insight changes an Album, Role, Rotation, Reflection, or Archive state.
-- [ ] Production NAS acceptance confirms tone, evidence, persistence independence, and performance.
+- [x] Production NAS acceptance confirms tone, evidence, persistence independence, and performance.
 
 ### 86.2
 
-- [ ] Extended artist, era, and structured personal-history families are implemented.
-- [ ] Stable weekly selection is evaluated against real production density.
+- [x] Extended artist, era, and structured personal-history families are implemented.
+- [x] Stable weekly selection is deterministic and covered with fixed-clock tests.
 - [ ] Final Sprint 86 NAS acceptance passes.
 
 ## Non-goals

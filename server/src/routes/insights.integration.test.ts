@@ -13,7 +13,10 @@ describe("insights route",()=>{
     let db:Database.Database,server:Server,baseUrl:string
     beforeAll(async()=>{
         db=initDatabase(":memory:")
-        db.prepare("INSERT INTO albums (id,title,artist,category,role_history,listen_count,created_at,updated_at) VALUES ('album','Album','Artist','new','[]',0,?,?)").run("2026-01-01T00:00:00.000Z","2026-01-01T00:00:00.000Z")
+        const timestamp="2026-01-01T00:00:00.000Z",story=JSON.stringify({lifePhase:"school",memoryNote:"PRIVATE MEMORY",createdAt:timestamp,updatedAt:timestamp})
+        db.prepare("INSERT INTO albums (id,title,artist,category,role_history,listen_count,story,created_at,updated_at) VALUES ('album','Album','Artist','new','[]',1,?,?,?)").run(story,timestamp,timestamp)
+        db.prepare("INSERT INTO listen_events VALUES ('listen','album','2026-07-01T00:00:00.000Z')").run()
+        db.prepare("INSERT INTO listening_journal_entries VALUES ('listen','PRIVATE JOURNAL','[]','[]',?,?)").run(timestamp,timestamp)
         const app=express();app.use("/insights",createInsightsRouter(createInsightsService(createInsightEvidenceRepository(db))))
         server=app.listen(0,"127.0.0.1");await once(server,"listening")
         baseUrl=`http://127.0.0.1:${(server.address() as AddressInfo).port}`
@@ -22,6 +25,6 @@ describe("insights route",()=>{
     it("provides a public read-only, evidence-shaped response",async()=>{
         const response=await fetch(`${baseUrl}/insights`),body=await response.json() as Record<string,unknown>
         expect(response.status).toBe(200);expect(body).toMatchObject({roleOverview:{new:1},insights:[],buildingAreas:expect.arrayContaining(["library"])})
-        expect(JSON.stringify(body)).not.toContain("memoryNote")
+        expect(JSON.stringify(body)).not.toContain("PRIVATE MEMORY");expect(JSON.stringify(body)).not.toContain("PRIVATE JOURNAL")
     })
 })

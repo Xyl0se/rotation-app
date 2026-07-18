@@ -29,12 +29,15 @@ Insight codes. Role changes persist only after explicit server confirmation. Arc
 rediscovery continues to use the Archive Return Coach.
 
 Every narrative provides an optional evidence disclosure with its bounded period,
-supporting counts, and stable rule code. At most four observations are visible. When
+supporting counts, and stable rule code. At most four observations are visible. Their
+selection remains stable within a calendar week. When
 minimum samples are missing, the page says which comparison is still developing
 instead of inventing a conclusion.
 
 Free Journal prose and Album Story memory notes are outside the Insight evidence
-boundary. Historical Listening evidence uses the Role valid at the time of listening.
+boundary. Extended narratives may use artist, release year, and the enumerated Story
+fields `lifePhase` and `acquiredBecause`. Historical Listening evidence uses the Role
+valid at the time of listening.
 
 ## Product Limit
 

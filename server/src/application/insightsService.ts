@@ -4,6 +4,12 @@ import type { InsightEvidenceRepository } from "../infrastructure/persistence/sq
 const DAY=86_400_000
 const ratio=(part:number,total:number)=>total?part/total:0
 const iso=(value:number)=>new Date(value).toISOString()
+const stableHash=(value:string)=>{let hash=2166136261;for(const character of value){hash^=character.charCodeAt(0);hash=Math.imul(hash,16777619)}return hash>>>0}
+const selectNarratives=(insights:Insight[],nowMs:number)=>{
+    const tier:Record<Insight["family"],number>={rediscovery:0,"role-movement":1,"rotation-change":1,"listening-balance":2,artist:2,era:2,"personal-history":2,"library-activity":3}
+    const week=Math.floor(nowMs/(7*DAY))
+    return [...insights].sort((a,b)=>tier[a.family]-tier[b.family]||stableHash(`${week}:${a.code}:${a.subject?.value??""}`)-stableHash(`${week}:${b.code}:${b.subject?.value??""}`)).slice(0,4)
+}
 
 export function createInsightsService(repository:InsightEvidenceRepository) {
     return {
@@ -33,13 +39,17 @@ export function createInsightsService(repository:InsightEvidenceRepository) {
             if(transitions>=5)insights.push({code:"roles-in-motion",family:"role-movement",evidenceLevel:transitions>=10?"strong":"supported",period:{from:previousFrom,to},evidence:[{metric:"recent-role-transitions",value:transitions}]})
             const rotation=repository.rotationComparison()
             if(rotation&&rotation.entering+rotation.leaving>=4)insights.push({code:"rotation-evolving",family:"rotation-change",evidenceLevel:rotation.entering+rotation.leaving>=10?"strong":"supported",evidence:[{metric:"rotation-entering",value:rotation.entering},{metric:"rotation-leaving",value:rotation.leaving},{metric:"rotation-unchanged",value:rotation.unchanged}]})
-            const priority:Insight["family"][]=["rediscovery","listening-balance","role-movement","rotation-change","library-activity"]
-            insights.sort((a,b)=>priority.indexOf(a.family)-priority.indexOf(b.family))
+            const artist=repository.recurringArtist(currentFrom)
+            if(artist&&artist.totalListens>=8&&artist.listenCount>=3&&artist.albumCount>=2&&ratio(artist.listenCount,artist.totalListens)>=.25)insights.push({code:"recurring-artist",family:"artist",subject:{kind:"artist",value:artist.artist},evidenceLevel:artist.listenCount>=6&&artist.albumCount>=3?"strong":"supported",period:{from:currentFrom,to},evidence:[{metric:"artist-listens",value:artist.listenCount},{metric:"artist-albums",value:artist.albumCount},{metric:"recent-listens",value:artist.totalListens}]})
+            const era=repository.listeningEra(currentFrom)
+            if(era&&era.knownYearAlbums>=10&&era.totalKnownYearListens>=5&&era.listenCount>=3&&ratio(era.listenCount,era.totalKnownYearListens)>=.4)insights.push({code:"listening-era",family:"era",subject:{kind:"era",value:era.era},evidenceLevel:era.listenCount>=6&&era.albumCount>=5?"strong":"supported",period:{from:currentFrom,to},evidence:[{metric:"era-listens",value:era.listenCount},{metric:"era-albums",value:era.albumCount},{metric:"known-year-albums",value:era.knownYearAlbums}]})
+            const personal=repository.personalHistory(previousFrom)
+            if(personal&&personal.annotatedAlbums>=8&&personal.listenCount>=3)insights.push({code:personal.kind==="life-phase"?"life-phase-return":"acquisition-thread",family:"personal-history",subject:{kind:personal.kind,value:personal.value},evidenceLevel:personal.listenCount>=5&&personal.annotatedAlbums>=15?"strong":"supported",period:{from:previousFrom,to},evidence:[{metric:"personal-theme-listens",value:personal.listenCount},{metric:"annotated-albums",value:personal.annotatedAlbums}]})
             const buildingAreas:InsightsResponse["buildingAreas"]=[]
             if(libraryTotal<3)buildingAreas.push("library")
             if(current.total<5||previous.total<5)buildingAreas.push("listening-comparison")
             if(!rotation)buildingAreas.push("rotation-comparison")
-            return {generatedAt:to,roleOverview:roles,insights:insights.slice(0,4),buildingAreas}
+            return {generatedAt:to,roleOverview:roles,insights:selectNarratives(insights,nowMs),buildingAreas}
         },
     }
 }

@@ -29,6 +29,9 @@ would undermine the product's reflective tone and privacy boundary.
 - Sparse or contradictory evidence suppresses a narrative and produces an honest
   building state where useful.
 - Insight responses are read-only projections and cannot mutate domain state.
+- When more narratives qualify than the bounded response permits, equal-priority
+  candidates use a deterministic calendar-week seed. Selection is stable on reload
+  and across browsers without persisting derived Insight state.
 - A future AI integration may only provide optional wording over a sanitized evidence
   packet after explicit opt-in. It cannot select facts, determine eligibility, read
   private prose by default, or perform mutations. Deterministic copy remains mandatory.

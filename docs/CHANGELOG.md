@@ -9,6 +9,14 @@
     Role movement, and Rotation change, with honest sparse-data states.
   - Excluded free Journal and Album Story prose, formalized the optional AI boundary,
     and added a sub-250 ms 10,000-Album performance gate.
+  - Passed the complete Sprint 86.1 production NAS acceptance.
+- **Sprint 86.2 — extended deterministic narratives**
+  - Added bounded recurring-artist, release-decade, and structured personal-history
+    observations with explicit minimum samples and evidence disclosures.
+  - Added reload- and browser-stable calendar-week selection among equally important
+    eligible narratives while retaining the four-card limit.
+  - Kept Journal and `memoryNote` prose outside every query and localized structured
+    life phases, acquisition reasons, and German decade labels.
 
 - **Sprint 85 — dependency stewardship**
   - Added a practical Dependabot runbook covering terminology, risk classification,

@@ -172,9 +172,14 @@ export const en = {
             rediscoveryMoments:{title:"Something long quiet has returned",description:"Several recent listens followed a pause of at least six months."},
             rolesInMotion:{title:"Album relationships have been moving",description:"Several established albums have received a new role during the recent months."},
             rotationEvolving:{title:"The Rotation has changed its company",description:"The current Rotation brings in and leaves behind a noticeable set of albums compared with the previous cycle."},
+            recurringArtist:{title:"{subject} keeps returning",description:"Recent listening has moved through several Albums by {subject}, forming a recurring artist thread."},
+            listeningEra:{title:"The {subject} are in the room",description:"Albums released in the {subject} have appeared repeatedly in recent listening."},
+            lifePhaseReturn:{title:"Music from {subject} has resurfaced",description:"Several recent listens connect to Albums you assigned to the life phase {subject}."},
+            acquisitionThread:{title:"A shared origin is echoing",description:"Several recent listens connect to Albums acquired through “{subject}”."},
         },
         evidence: {
             recentListens:"{count} listens in the recent 90-day window",previousListens:"{count} listens in the preceding 90-day window",recentDiscoveryListens:"{count} recent listens were discovery or growth",previousDiscoveryListens:"{count} earlier listens were discovery or growth",recentFamiliarListens:"{count} recent listens were comfort or classics",previousFamiliarListens:"{count} earlier listens were comfort or classics",dormantAlbums:"{count} albums were quiet and outside the active Rotation",libraryAlbums:"{count} albums form the current Library",rediscoveredListens:"{count} listens returned after at least 180 days",recentRoleTransitions:"{count} established Album roles changed in the last 180 days",rotationEntering:"{count} albums entered the current Rotation",rotationLeaving:"{count} albums left after the previous Rotation",rotationUnchanged:"{count} albums remained across both Rotations",
+            artistListens:"{count} recent listens belonged to this artist",artistAlbums:"{count} different Albums support the artist thread",knownYearAlbums:"{count} Library Albums have a usable release year",eraListens:"{count} recent listens belonged to this release decade",eraAlbums:"{count} Library Albums belong to this decade",annotatedAlbums:"{count} Albums have structured personal-history fields",personalThemeListens:"{count} recent listens share this structured personal-history theme",
         },
         building: {
             library:{title:"The Library is still taking shape",description:"A few more Albums are needed before Rotation can describe a reliable pattern."},
