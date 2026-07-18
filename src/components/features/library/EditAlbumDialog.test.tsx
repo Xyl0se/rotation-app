@@ -17,6 +17,16 @@ const rolelessAlbum: Album = {
 }
 
 describe("EditAlbumDialog Album Coach", () => {
+    it("offers digital acquisition and an explicit unknown answer", () => {
+        render(
+            <I18nContext.Provider value={{ t: en, language: "en", setLanguage: () => {} }}>
+                <EditAlbumDialog album={rolelessAlbum} onClose={() => {}} onSave={async () => true}
+                    onUpdateCoverOverride={async () => true} onSetCoverUrlOverride={async () => true} onRemoveCoverOverride={async () => true} />
+            </I18nContext.Provider>,
+        )
+        expect(screen.getByRole("option", { name: "iTunes / Online" })).toBeTruthy()
+        expect(screen.getAllByRole("option", { name: "I don't remember" })).toHaveLength(2)
+    })
     it("shows the folder assigned through the library binding", () => {
         const binding: Binding = {
             albumId: "file-album-id",

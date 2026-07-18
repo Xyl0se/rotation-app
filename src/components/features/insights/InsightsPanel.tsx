@@ -10,7 +10,7 @@ const metricKeys:Record<InsightMetric,keyof ReturnType<typeof useI18n>["t"]["ins
 }
 const buildingKeys:Record<InsightBuildingArea,keyof ReturnType<typeof useI18n>["t"]["insights"]["building"]>={library:"library", "listening-comparison":"listeningComparison", "rotation-comparison":"rotationComparison"}
 
-export default function InsightsPanel({data,isLoading,error,onRetry}:{data:InsightsResponse|null;isLoading:boolean;error:string|null;onRetry:()=>void}) {
+export default function InsightsPanel({data,isLoading,error,onRetry,onOpenMemoryPrompt}:{data:InsightsResponse|null;isLoading:boolean;error:string|null;onRetry:()=>void;onOpenMemoryPrompt?:(albumId:string)=>void}) {
     const {t,language}=useI18n()
     const formatDate=(value:string)=>new Intl.DateTimeFormat(language,{dateStyle:"medium"}).format(new Date(value))
     const subjectLabel=(subject?:InsightSubject)=>{if(!subject)return "";if(subject.kind==="life-phase")return t.lifePhases[subject.value as keyof typeof t.lifePhases]??subject.value;if(subject.kind==="acquisition")return t.acquisitionReasons[subject.value as keyof typeof t.acquisitionReasons]??subject.value;if(subject.kind==="era"&&language==="de")return subject.value.replace(/^(\d{4})s$/,"$1er");return subject.value}
@@ -19,6 +19,13 @@ export default function InsightsPanel({data,isLoading,error,onRetry}:{data:Insig
         {isLoading&&<div className="insights-building" role="status">{t.insights.loading}</div>}
         {!isLoading&&error&&<div className="sync-status sync-status--warning" role="status"><span>{t.insights.unavailable}</span><Button variant="secondary" onClick={onRetry}>{t.insights.retry}</Button></div>}
         {!isLoading&&!error&&data&&<>
+            {data.memoryPrompt&&<article className="insight-card insight-card--memory">
+                <span className="insight-card-level">{t.insights.memoryPrompt.eyebrow}</span>
+                <h3>{data.memoryPrompt.title}</h3>
+                <p>{data.memoryPrompt.artist}</p>
+                <p>{data.memoryPrompt.missingField==="acquiredBecause"?t.insights.memoryPrompt.acquisitionQuestion:t.insights.memoryPrompt.lifePhaseQuestion}</p>
+                {onOpenMemoryPrompt&&<Button variant="secondary" onClick={()=>onOpenMemoryPrompt(data.memoryPrompt!.albumId)}>{t.insights.memoryPrompt.openAlbum}</Button>}
+            </article>}
             <div className="insights-list">{data.insights.map(insight=>{const copy=t.insights.narratives[codeKeys[insight.code]],subject=subjectLabel(insight.subject);return <article key={`${insight.code}:${subject}`} className="insight-card">
                 <span className="insight-card-level">{insight.evidenceLevel==="strong"?t.insights.strongEvidence:t.insights.supportedEvidence}</span><h3>{copy.title.replace("{subject}",subject)}</h3><p>{copy.description.replace("{subject}",subject)}</p>
                 {insight.period&&<p className="insight-period">{formatDate(insight.period.from)} – {formatDate(insight.period.to)}</p>}

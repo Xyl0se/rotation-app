@@ -10,6 +10,7 @@ import { createRequireWriteTokenForMutations } from "./middleware/writeToken.js"
 
 const TOKEN = "album-integration-token"
 const ALBUM_ID = "550e8400-e29b-41d4-a716-446655440000"
+const UNICODE_EDGE_TITLE = "Vįr+üål Åįrßñß & h º r ¡ z º n щ ¡ r e l e s s - E м e я a l d D į ѵ e"
 
 describe("album identity contract", () => {
     let database: Database.Database
@@ -81,6 +82,18 @@ describe("album identity contract", () => {
         const response = await write("POST", "/albums", { ...album, title: "Collision" })
 
         expect(response.status).toBe(409)
+    })
+
+    it("preserves a mixed-script and diacritic-heavy title byte-for-byte", async () => {
+        const id = "550e8400-e29b-41d4-a716-446655440003"
+        const created = await write("POST", "/albums", { ...album, id, title: UNICODE_EDGE_TITLE })
+        expect(created.status).toBe(201)
+        await expect(created.json()).resolves.toMatchObject({ id, title: UNICODE_EDGE_TITLE })
+
+        const read = await fetch(`${baseUrl}/albums/${id}`)
+        expect(read.status).toBe(200)
+        await expect(read.json()).resolves.toMatchObject({ title: UNICODE_EDGE_TITLE })
+        expect((database.prepare("SELECT title FROM albums WHERE id = ?").get(id) as { title:string }).title).toBe(UNICODE_EDGE_TITLE)
     })
 
     it("rolls back the complete import batch when one database write fails", async () => {

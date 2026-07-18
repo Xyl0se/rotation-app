@@ -6,10 +6,11 @@ export interface RotationComparisonEvidence { entering:number;leaving:number;unc
 export interface ArtistEvidence { artist:string;listenCount:number;albumCount:number;totalListens:number }
 export interface EraEvidence { era:string;listenCount:number;albumCount:number;knownYearAlbums:number;totalKnownYearListens:number }
 export interface PersonalHistoryEvidence { kind:"life-phase"|"acquisition";value:string;listenCount:number;annotatedAlbums:number }
+export interface MemoryPromptCandidate { albumId:string;title:string;artist:string;missingAcquisition:boolean;missingLifePhase:boolean }
 
 export function createInsightEvidenceRepository(db:Database.Database) {
     const validLifePhases="'childhood','school','studies','first-apartment','relationship','breakup','work','travel','family','current','other'"
-    const validAcquisitionReasons="'artist','friend-recommendation','specific-song','concert','review','record-store','gift','random-discovery','life-phase','other'"
+    const validAcquisitionReasons="'artist','friend-recommendation','specific-song','concert','review','record-store','gift','digital','random-discovery','life-phase','other'"
     const usableYear="length(year)=4 AND year GLOB '[0-9][0-9][0-9][0-9]' AND CAST(year AS INTEGER) BETWEEN 1900 AND 2099"
     const roleAtListen=`COALESCE((SELECT json_extract(entry.value,'$.role') FROM json_each(CASE WHEN json_valid(a.role_history) THEN a.role_history ELSE '[]' END) entry
         WHERE json_extract(entry.value,'$.recordedAt')<=l.listened_at ORDER BY json_extract(entry.value,'$.recordedAt') DESC LIMIT 1),a.category)`
@@ -78,6 +79,18 @@ export function createInsightEvidenceRepository(db:Database.Database) {
             if(!life&&!acquisition)return null
             if(life&&(!acquisition||life.listenCount>=acquisition.listenCount))return {kind:"life-phase",...life,annotatedAlbums}
             return {kind:"acquisition",...acquisition!,annotatedAlbums}
+        },
+        memoryPromptCandidates():MemoryPromptCandidate[] {
+            const safeStory="CASE WHEN story IS NOT NULL AND json_valid(story) THEN story ELSE '{}' END"
+            return (db.prepare(`SELECT id albumId,title,artist,
+                CASE WHEN json_type(${safeStory},'$.acquiredBecause') IS NULL OR COALESCE(json_extract(${safeStory},'$.acquiredBecause'),'')='' THEN 1 ELSE 0 END missingAcquisition,
+                CASE WHEN json_type(${safeStory},'$.lifePhase') IS NULL OR COALESCE(json_extract(${safeStory},'$.lifePhase'),'')='' THEN 1 ELSE 0 END missingLifePhase
+                FROM albums
+                WHERE json_type(${safeStory},'$.acquiredBecause') IS NULL OR COALESCE(json_extract(${safeStory},'$.acquiredBecause'),'')=''
+                   OR json_type(${safeStory},'$.lifePhase') IS NULL OR COALESCE(json_extract(${safeStory},'$.lifePhase'),'')=''
+                ORDER BY id`).all() as Array<Omit<MemoryPromptCandidate,"missingAcquisition"|"missingLifePhase">&{missingAcquisition:number;missingLifePhase:number}>).map(row=>({
+                    ...row,missingAcquisition:row.missingAcquisition===1,missingLifePhase:row.missingLifePhase===1,
+                }))
         },
     }
 }

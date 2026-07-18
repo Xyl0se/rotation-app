@@ -18,8 +18,10 @@ const ACQUISITION_OPTIONS: AlbumAcquisitionReason[] = [
     "review",
     "record-store",
     "gift",
+    "digital",
     "random-discovery",
     "life-phase",
+    "unknown",
     "other",
 ]
 
@@ -34,6 +36,7 @@ const LIFE_PHASE_OPTIONS: AlbumLifePhase[] = [
     "travel",
     "family",
     "current",
+    "unknown",
     "other",
 ]
 

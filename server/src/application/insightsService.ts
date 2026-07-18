@@ -10,6 +10,16 @@ const selectNarratives=(insights:Insight[],nowMs:number)=>{
     const week=Math.floor(nowMs/(7*DAY))
     return [...insights].sort((a,b)=>tier[a.family]-tier[b.family]||stableHash(`${week}:${a.code}:${a.subject?.value??""}`)-stableHash(`${week}:${b.code}:${b.subject?.value??""}`)).slice(0,4)
 }
+const selectMemoryPrompt=(candidates:ReturnType<InsightEvidenceRepository["memoryPromptCandidates"]>,nowMs:number)=>{
+    if(candidates.length===0)return undefined
+    const week=Math.floor(nowMs/(7*DAY))
+    const ranked=[...candidates].sort((a,b)=>stableHash(`memory:${a.albumId}`)-stableHash(`memory:${b.albumId}`))
+    const candidate=ranked[week%ranked.length]!
+    const missingField=candidate.missingAcquisition&&candidate.missingLifePhase
+        ? (stableHash(`${week}:${candidate.albumId}:field`)%2===0?"acquiredBecause":"lifePhase")
+        : candidate.missingAcquisition?"acquiredBecause":"lifePhase"
+    return {albumId:candidate.albumId,title:candidate.title,artist:candidate.artist,missingField} as const
+}
 
 export function createInsightsService(repository:InsightEvidenceRepository) {
     return {
@@ -49,7 +59,8 @@ export function createInsightsService(repository:InsightEvidenceRepository) {
             if(libraryTotal<3)buildingAreas.push("library")
             if(current.total<5||previous.total<5)buildingAreas.push("listening-comparison")
             if(!rotation)buildingAreas.push("rotation-comparison")
-            return {generatedAt:to,roleOverview:roles,insights:selectNarratives(insights,nowMs),buildingAreas}
+            const memoryPrompt=selectMemoryPrompt(repository.memoryPromptCandidates(),nowMs)
+            return {generatedAt:to,roleOverview:roles,insights:selectNarratives(insights,nowMs),buildingAreas,...(memoryPrompt?{memoryPrompt}:{})}
         },
     }
 }

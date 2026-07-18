@@ -28,4 +28,11 @@ describe("InsightsPanel",()=>{
         expect(screen.getByRole("heading",{name:"Musik aus der Lebensphase Schulzeit ist wieder da"})).toBeTruthy()
         expect(screen.queryByText(/memoryNote|Journal/)).toBeNull()
     })
+    it("shows a memory prompt and opens the matching Album history",()=>{
+        const onOpen=vi.fn(),prompt={...data,memoryPrompt:{albumId:"album-1",title:"Moon Safari",artist:"Air",missingField:"acquiredBecause" as const}}
+        render(<WithI18n><InsightsPanel data={prompt} isLoading={false} error={null} onRetry={vi.fn()} onOpenMemoryPrompt={onOpen}/></WithI18n>)
+        fireEvent.click(screen.getByRole("button",{name:"Add to Album history"}))
+        expect(screen.getByText("Do you remember how this Album came to you?")).toBeTruthy()
+        expect(onOpen).toHaveBeenCalledWith("album-1")
+    })
 })

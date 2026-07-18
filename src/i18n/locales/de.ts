@@ -99,8 +99,10 @@ export const de: Translation = {
         review: "Rezension",
         "record-store": "Plattenladen",
         gift: "Geschenk",
+        digital: "iTunes / Online",
         "random-discovery": "Zufall",
         "life-phase": "Lebensphase",
+        unknown: "Ich erinnere mich nicht",
         other: "Sonstiges",
     },
 
@@ -115,6 +117,7 @@ export const de: Translation = {
         travel: "Reise",
         family: "Familie",
         current: "Aktuell",
+        unknown: "Ich erinnere mich nicht",
         other: "Andere",
     },
 
@@ -165,6 +168,12 @@ export const de: Translation = {
         why: "Warum sehe ich das?",
         supportedEvidence: "Ein erkennbares Muster",
         strongEvidence: "Ein gut belegtes Muster",
+        memoryPrompt: {
+            eyebrow: "Eine offene Erinnerung",
+            acquisitionQuestion: "Fällt dir noch ein, wie dieses Album zu dir kam?",
+            lifePhaseQuestion: "Fällt dir noch ein, in welcher Lebensphase dieses Album zu dir kam?",
+            openAlbum: "Albumgeschichte ergänzen",
+        },
         narratives: {
             discoveryRising:{title:"Entdeckung ist nach vorn gerückt",description:"Zuletzt entfiel mehr Hörzeit auf neue oder noch wachsende Alben als im Zeitraum davor."},
             familiarityRising:{title:"Vertraute Alben sind näher gerückt",description:"Zuletzt bist du häufiger zu Comfort Food und Klassikern zurückgekehrt als im Zeitraum davor."},
@@ -562,8 +571,10 @@ export const de: Translation = {
             review: "Eine Rezension gelesen",
             "record-store": "Im Plattenladen gefunden",
             gift: "Geschenk",
+            digital: "iTunes / Online",
             "random-discovery": "Zufällig entdeckt",
             "life-phase": "Es gehört zu einer bestimmten Lebensphase",
+            unknown: "Ich erinnere mich nicht",
             other: "Anderer Grund",
         },
     },

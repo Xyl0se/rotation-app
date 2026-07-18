@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import type { Album } from "../../types/album"
 import { emptyLibraryFilters, filterLibraryAlbums, hasActiveLibraryFilters } from "./libraryFilters"
 
+const UNICODE_EDGE_TITLE = "Vįr+üål Åįrßñß & h º r ¡ z º n щ ¡ r e l e s s - E м e я a l d D į ѵ e"
+
 function album(overrides: Partial<Album> = {}): Album {
     return {
         id: crypto.randomUUID(), title: "Blue Train", artist: "John Coltrane", year: "1957",
@@ -18,6 +20,14 @@ describe("filterLibraryAlbums", () => {
         for (const query of ["BLUE TRAIN", "coltrane", "cafe in montreal", "travel"]) {
             expect(filterLibraryAlbums(albums, { ...emptyLibraryFilters, query })).toHaveLength(1)
         }
+    })
+
+    it("finds a mixed-script title through its original and decomposed Unicode forms", () => {
+        const edge=album({title:UNICODE_EDGE_TITLE})
+        for(const query of [UNICODE_EDGE_TITLE,UNICODE_EDGE_TITLE.normalize("NFD"),"VIR+UAL"]){
+            expect(filterLibraryAlbums([edge],{...emptyLibraryFilters,query})).toEqual([edge])
+        }
+        expect(filterLibraryAlbums([edge],{...emptyLibraryFilters,query:"Emerald Dive"})).toEqual([])
     })
 
     it("combines role, archive, inclusive year, and listening filters", () => {

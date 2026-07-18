@@ -1,6 +1,6 @@
 # Sprint 86 — Deeper Insights
 
-**Status:** 86.1 accepted ✅ — 86.2 implemented; NAS acceptance pending
+**Status:** 86.1 and 86.2 accepted ✅ — 86.3 implemented; NAS acceptance pending
 
 **Target version:** Future minor version
 
@@ -76,7 +76,25 @@ single calm building state instead of invented copy.
 - Equally important eligible narratives are selected by a stable calendar-week seed.
   The same evidence does not jump on reload or between browsers within that week.
 - Production verification follows
-  [the Sprint-86.2 NAS acceptance](../acceptance/SPRINT-86.2-NAS-ACCEPTANCE.md).
+[the Sprint-86.2 NAS acceptance](../acceptance/SPRINT-86.2-NAS-ACCEPTANCE.md).
+
+## Workstream 86.3 — Memory Prompts
+
+**Implementation status:** Complete in code ✅ — NAS acceptance pending
+
+- Album Story acquisition now distinguishes digital/iTunes purchases and the explicit
+  answer “I don't remember” from a field that has never been answered.
+- Life phase also supports an explicit unknown answer so a deliberate lack of memory
+  is never treated as incomplete data.
+- Insights presents at most one calm weekly prompt for an Album missing acquisition or
+  life-phase context and opens the existing Album editor directly.
+- Selection follows a stable pseudo-random Album order, remains unchanged throughout
+  a calendar week, and moves through eligible Albums before returning to one.
+- The read-only Insights request records no impression state and performs no mutation.
+- `unknown` is excluded from personal-history narratives and from Story-derived
+  Rotation explanations.
+- Production verification follows
+  [the Sprint-86.3 NAS acceptance](../acceptance/SPRINT-86.3-NAS-ACCEPTANCE.md).
 
 ## Optional AI boundary
 
@@ -102,7 +120,14 @@ Albums, Roles, Rotations, Reflections, or Archive state. See
 
 - [x] Extended artist, era, and structured personal-history families are implemented.
 - [x] Stable weekly selection is deterministic and covered with fixed-clock tests.
-- [ ] Final Sprint 86 NAS acceptance passes.
+- [x] Final Sprint 86.2 NAS acceptance passes.
+
+### 86.3
+
+- [x] Digital acquisition and explicit unknown answers are supported end to end.
+- [x] Missing Story fields yield one stable, actionable weekly Memory Prompt.
+- [x] Explicit unknown answers suppress prompts without becoming insight themes.
+- [ ] Final Sprint 86.3 NAS acceptance passes.
 
 ## Non-goals
 

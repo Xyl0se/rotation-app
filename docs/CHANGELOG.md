@@ -17,6 +17,14 @@
     eligible narratives while retaining the four-card limit.
   - Kept Journal and `memoryNote` prose outside every query and localized structured
     life phases, acquisition reasons, and German decade labels.
+  - Passed the complete Sprint 86.2 production NAS acceptance.
+- **Sprint 86.3 — Memory Prompts**
+  - Added iTunes/online acquisition plus explicit “I don't remember” answers without
+    conflating a deliberate answer with missing Album history.
+  - Added one stable weekly Insight prompt for an Album missing acquisition or
+    life-phase context, with a direct path into the existing Album editor.
+  - Kept selection read-only, excluded unknown answers from narratives, and avoided
+    recent repetition by walking a stable pseudo-random Album order.
 
 - **Sprint 85 — dependency stewardship**
   - Added a practical Dependabot runbook covering terminology, risk classification,

@@ -150,10 +150,14 @@ export function createAlbumTimeline(
                 return "Record Store"
             case "gift":
                 return "Gift"
+            case "digital":
+                return "iTunes / online"
             case "random-discovery":
                 return "Randomly discovered"
             case "life-phase":
                 return "Life phase"
+            case "unknown":
+                return "I don't remember"
             case "other":
                 return "Other reason"
             default:

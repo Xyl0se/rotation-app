@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest"
 import { matchAlbumToFolder, rankBindingCandidates, suggestBindings } from "./albumMatcher.js"
 
+const UNICODE_EDGE_TITLE = "Vįr+üål Åįrßñß & h º r ¡ z º n щ ¡ r e l e s s - E м e я a l d D į ѵ e"
+
 const candidates = [
     { albumId: "1", relativePath: "Pink Floyd/The Dark Side of the Moon", artistName: "Pink Floyd", albumName: "The Dark Side of the Moon" },
     { albumId: "2", relativePath: "Radiohead/OK Computer", artistName: "Radiohead", albumName: "OK Computer" },
@@ -45,6 +47,14 @@ describe("matchAlbumToFolder", () => {
         expect(result!.source).toBe("exact")
         expect(result!.libraryAlbumId).toBe("e")
     })
+
+    it("matches canonically equivalent filesystem Unicode without losing mixed scripts", () => {
+        const decomposedTitle = UNICODE_EDGE_TITLE.normalize("NFD")
+        const result = matchAlbumToFolder("unicode", UNICODE_EDGE_TITLE, "Edge Artist", [{
+            albumId:"unicode-folder",relativePath:`Edge Artist/${decomposedTitle}`,artistName:"Edge Artist",albumName:decomposedTitle,
+        }])
+        expect(result).toMatchObject({libraryAlbumId:"unicode",candidateAlbumId:"unicode-folder",source:"normalized",score:.9})
+    })
 })
 
 describe("suggestBindings", () => {
@@ -81,6 +91,15 @@ describe("rankBindingCandidates", () => {
         )
         expect(result[0]).toMatchObject({ libraryAlbumId: "a", confidence: "strong" })
         expect(result[0]?.reasons).toContain("artist-exact")
+    })
+
+    it("ranks the complete mixed-script edge title as the exact normalized candidate", () => {
+        const result=rankBindingCandidates({albumName:UNICODE_EDGE_TITLE.normalize("NFD"),artistName:"Edge Artist"},[
+            {id:"edge",title:UNICODE_EDGE_TITLE,artist:"Edge Artist"},
+            {id:"plain",title:"Emerald Dive",artist:"Edge Artist"},
+        ])
+        expect(result[0]).toMatchObject({libraryAlbumId:"edge",confidence:"strong"})
+        expect(result[0]?.reasons).toContain("title-exact")
     })
 
     it("penalizes conflicting volume numbers", () => {

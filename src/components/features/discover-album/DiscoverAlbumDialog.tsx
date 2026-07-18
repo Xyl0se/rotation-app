@@ -15,11 +15,11 @@ type DiscoverStep = "title" | "artist" | "metadata" | "story"
 const steps: DiscoverStep[] = ["title", "artist", "metadata", "story"]
 const acquisitionOptions: AlbumAcquisitionReason[] = [
     "artist", "friend-recommendation", "specific-song", "concert", "review",
-    "record-store", "gift", "random-discovery", "life-phase", "other",
+    "record-store", "gift", "digital", "random-discovery", "life-phase", "unknown", "other",
 ]
 const lifePhaseOptions: AlbumLifePhase[] = [
     "childhood", "school", "studies", "first-apartment", "relationship",
-    "breakup", "work", "travel", "family", "current", "other",
+    "breakup", "work", "travel", "family", "current", "unknown", "other",
 ]
 
 interface DiscoverAlbumDialogProps {

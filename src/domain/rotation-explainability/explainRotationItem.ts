@@ -224,7 +224,7 @@ function storyExplanation(
         }
     }
 
-    if (story.lifePhase) {
+    if (story.lifePhase && story.lifePhase !== "unknown") {
         return {
             text: "It's connected to a specific life phase.",
             source: "story",

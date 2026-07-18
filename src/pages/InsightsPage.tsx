@@ -3,6 +3,7 @@ import { useState } from "react"
 import AlbumCoach from "../components/features/album-coach/AlbumCoach"
 import ArchiveReturnCoach from "../components/features/archive/ArchiveReturnCoach"
 import InsightsPanel from "../components/features/insights/InsightsPanel"
+import EditAlbumDialog from "../components/features/library/EditAlbumDialog"
 import ReflectionInbox from "../components/features/reflection/ReflectionInbox"
 import RoleOverviewPanel from "../components/features/rotation-dashboard/RoleOverviewPanel"
 import Button from "../components/ui/Button"
@@ -21,16 +22,18 @@ export default function InsightsPage() {
     const { t } = useI18n()
     const { isOnline, apiReachable } = useConnection()
     const serverConnected = isOnline && apiReachable === true
-    const { albums, isLoading, libraryError, refresh, updateAlbumRole } = useLibrary(serverConnected)
+    const { albums, isLoading, libraryError, refresh, updateAlbumRole,updateAlbum,updateAlbumCoverOverride,setCoverUrlOverride,removeAlbumCoverOverride,retryAlbumCover } = useLibrary(serverConnected)
     const [reflectionAlbumId, setReflectionAlbumId] = useState<string | null>(null)
     const [archiveReturnAlbumId, setArchiveReturnAlbumId] = useState<string | null>(null)
     const [activeReflection,setActiveReflection]=useState<ReflectionInboxItem|null>(null)
+    const [memoryAlbumId,setMemoryAlbumId]=useState<string|null>(null)
     const inbox=useReflectionInbox(serverConnected)
     const {listenEvents}=useListenEvents(albums,serverConnected)
     const insightEvidence=useInsights(serverConnected)
 
     const reflectionAlbum = albums.find(album => album.id === reflectionAlbumId)
     const archiveReturnAlbum = albums.find(album => album.id === archiveReturnAlbumId)
+    const memoryAlbum=albums.find(album=>album.id===memoryAlbumId)
 
     async function handleReflectionComplete(role: RoleId,archiveReason?:ArchiveReason) {
         if (!reflectionAlbumId) return
@@ -81,7 +84,7 @@ export default function InsightsPage() {
                         <h2 id="reflection-heading">{t.dashboard.nextQuestion}</h2>
                         <ReflectionInbox items={inbox.items} listenEvents={listenEvents} isLoading={inbox.isLoading} error={inbox.error} onRetry={()=>void inbox.refresh()} onReflect={handleReflect} onSnooze={(id,days)=>void inbox.snooze(id,days)} onDismiss={id=>void inbox.dismiss(id)} />
                     </section>
-                    <InsightsPanel data={insightEvidence.data} isLoading={insightEvidence.isLoading} error={insightEvidence.error} onRetry={()=>void insightEvidence.refresh()} />
+                    <InsightsPanel data={insightEvidence.data} isLoading={insightEvidence.isLoading} error={insightEvidence.error} onRetry={()=>void insightEvidence.refresh()} onOpenMemoryPrompt={setMemoryAlbumId} />
                     <section aria-labelledby="roles-heading">
                         <h2 id="roles-heading">{t.dashboard.roleOverview}</h2>
                         {insightEvidence.data&&<RoleOverviewPanel counts={insightEvidence.data.roleOverview} />}
@@ -120,6 +123,18 @@ export default function InsightsPage() {
                     </>
                 )}
             </Dialog>
+
+            {memoryAlbum&&<EditAlbumDialog
+                key={`memory-${memoryAlbum.id}`}
+                album={memoryAlbum}
+                onClose={()=>setMemoryAlbumId(null)}
+                onSave={async album=>{const saved=await updateAlbum(album);if(saved){setMemoryAlbumId(null);await insightEvidence.refresh()}return saved}}
+                onUpdateCoverOverride={updateAlbumCoverOverride}
+                onSetCoverUrlOverride={setCoverUrlOverride}
+                onRemoveCoverOverride={removeAlbumCoverOverride}
+                onRetryCover={retryAlbumCover}
+                listenEvents={listenEvents}
+            />}
         </main>
     )
 }

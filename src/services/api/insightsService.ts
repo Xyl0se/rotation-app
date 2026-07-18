@@ -6,6 +6,7 @@ export type InsightMetric="recent-listens"|"previous-listens"|"recent-discovery-
 export type InsightBuildingArea="library"|"listening-comparison"|"rotation-comparison"
 export interface InsightSubject {kind:"artist"|"era"|"life-phase"|"acquisition";value:string}
 export interface ServerInsight {code:InsightCode;family:string;evidenceLevel:"supported"|"strong";subject?:InsightSubject;period?:{from:string;to:string;comparisonFrom?:string;comparisonTo?:string};evidence:Array<{metric:InsightMetric;value:number}>}
+export interface MemoryPrompt {albumId:string;title:string;artist:string;missingField:"acquiredBecause"|"lifePhase"}
 export type ServerRoleOverview=Record<RoleId|"unassigned",number>
-export interface InsightsResponse {generatedAt:string;roleOverview:ServerRoleOverview;insights:ServerInsight[];buildingAreas:InsightBuildingArea[]}
+export interface InsightsResponse {generatedAt:string;roleOverview:ServerRoleOverview;insights:ServerInsight[];buildingAreas:InsightBuildingArea[];memoryPrompt?:MemoryPrompt}
 export const fetchInsights=():Promise<InsightsResponse>=>get("/insights")

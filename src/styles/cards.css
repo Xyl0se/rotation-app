@@ -1001,6 +1001,7 @@
 .insight-card.reflection {
     border-left: 3px solid var(--color-primary);
 }
+.insight-card--memory{margin-bottom:16px;border-color:color-mix(in srgb,var(--color-blush) 58%,var(--color-divider));background:color-mix(in srgb,var(--color-blush) 24%,var(--color-paper))}.insight-card--memory .button{margin-top:12px}
 
 .insight-card h3 {
     margin: 0;

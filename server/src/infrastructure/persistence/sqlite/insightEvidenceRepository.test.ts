@@ -30,4 +30,18 @@ describe("insight evidence repository",()=>{
         expect(JSON.stringify(evidence.personalHistory("2026-06-01T00:00:00.000Z"))).not.toContain("PRIVATE PROSE")
         db.close()
     })
+    it("finds missing Story fields but treats explicit unknown values as answered",()=>{
+        const db=initDatabase(":memory:"),insert=db.prepare(`INSERT INTO albums (id,title,artist,category,role_history,listen_count,story,created_at,updated_at)
+            VALUES (?,?,?,'classic','[]',0,?,?,?)`),timestamp="2026-01-01T00:00:00.000Z"
+        insert.run("missing-both","Missing both","Artist",null,timestamp,timestamp)
+        insert.run("missing-life","Missing life","Artist",JSON.stringify({acquiredBecause:"digital",createdAt:timestamp,updatedAt:timestamp}),timestamp,timestamp)
+        insert.run("answered","Answered","Artist",JSON.stringify({acquiredBecause:"unknown",lifePhase:"unknown",createdAt:timestamp,updatedAt:timestamp}),timestamp,timestamp)
+        const candidates=createInsightEvidenceRepository(db).memoryPromptCandidates()
+        expect(candidates).toEqual(expect.arrayContaining([
+            {albumId:"missing-both",title:"Missing both",artist:"Artist",missingAcquisition:true,missingLifePhase:true},
+            {albumId:"missing-life",title:"Missing life",artist:"Artist",missingAcquisition:false,missingLifePhase:true},
+        ]))
+        expect(candidates.some(item=>item.albumId==="answered")).toBe(false)
+        db.close()
+    })
 })

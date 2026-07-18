@@ -98,8 +98,10 @@ export const en = {
         review: "Review",
         "record-store": "Record Store",
         gift: "Gift",
+        digital: "iTunes / Online",
         "random-discovery": "Random Discovery",
         "life-phase": "Life Phase",
+        unknown: "I don't remember",
         other: "Other",
     },
 
@@ -114,6 +116,7 @@ export const en = {
         travel: "Travel",
         family: "Family",
         current: "Current",
+        unknown: "I don't remember",
         other: "Other",
     },
 
@@ -164,6 +167,12 @@ export const en = {
         why: "Why am I seeing this?",
         supportedEvidence: "A visible pattern",
         strongEvidence: "A well-supported pattern",
+        memoryPrompt: {
+            eyebrow: "An open memory",
+            acquisitionQuestion: "Do you remember how this Album came to you?",
+            lifePhaseQuestion: "Do you remember which phase of life this Album belongs to?",
+            openAlbum: "Add to Album history",
+        },
         narratives: {
             discoveryRising:{title:"Discovery has moved forward",description:"Recent listening has leaned more toward albums that are new or still growing than the period before."},
             familiarityRising:{title:"Familiar albums have come closer",description:"Recent listening has returned more often to comfort and classics than in the period before."},
@@ -561,8 +570,10 @@ export const en = {
             review: "Read a review",
             "record-store": "Found at a record store",
             gift: "Gift",
+            digital: "iTunes / Online",
             "random-discovery": "Random discovery",
             "life-phase": "It belongs to a specific life phase",
+            unknown: "I don't remember",
             other: "Other reason",
         },
     },

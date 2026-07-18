@@ -34,8 +34,10 @@ export type AlbumAcquisitionReason =
     | "review"
     | "record-store"
     | "gift"
+    | "digital"
     | "random-discovery"
     | "life-phase"
+    | "unknown"
     | "other"
 
 export type AlbumLifePhase =
@@ -49,6 +51,7 @@ export type AlbumLifePhase =
     | "travel"
     | "family"
     | "current"
+    | "unknown"
     | "other"
 
 export interface AlbumStory {
