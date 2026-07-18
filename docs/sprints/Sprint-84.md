@@ -41,8 +41,8 @@ record, bounded semantic tags, idempotent updates, and backup coverage.
 is offered only after server confirmation and retains typed text after a failed save.
 
 - Keep the existing “Listened” action immediate and confirmed.
-- After success, offer a dismissible “Add a thought” affordance rather than opening a
-  mandatory modal.
+- After success, open a lightweight journal overlay at the user's current viewport.
+  It remains entirely optional and closes through Cancel, the backdrop, or Escape.
 - Provide a spacious, highly readable journal sheet with Album cover, date, optional
   note, and optional context/mood selection.
 - Support edit and delete for the note while keeping the underlying Listening Event.

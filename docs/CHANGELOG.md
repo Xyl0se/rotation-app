@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- **Bindings maintenance correction**
+  - Restored an explicit Delete action for unresolved Binding records whose music
+    folders were reported missing, without opening the Album resolution dialog.
+
+- **Sprint 84 — optional Listening Journal**
+  - Added server-owned notes plus bounded mood/context tags to immutable Listening
+    Events, with Timeline, Album editing, Reflection, backup, and privacy-safe audit
+    integration.
+  - Kept “Listened” as one confirmed action and now opens a freely dismissible journal
+    overlay at the current viewport instead of placing an affordance at the top of Home.
+  - Styled the journal as a restrained pastel thought cloud and fixed selected mood and
+    context controls becoming invisible because of an undefined color token.
+
 - **Single moving deployment channel**
   - Production Compose now always pulls matching API and Web `latest` images.
   - Main-branch publish workflows overwrite only `latest`; version and SHA container

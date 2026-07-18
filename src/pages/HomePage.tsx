@@ -37,7 +37,6 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     const [deleteAlbumId, setDeleteAlbumId] = useState<string | null>(null)
     const [editingAlbumId, setEditingAlbumId] = useState<string | null>(null)
     const [manualCoachAlbumId, setManualCoachAlbumId] = useState<string | null>(null)
-    const [journalPromptEventId,setJournalPromptEventId]=useState<string|null>(null)
     const [journalEditorEventId,setJournalEditorEventId]=useState<string|null>(null)
 
     const { isOnline, apiReachable } = useConnection()
@@ -82,7 +81,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
 
     async function handleLogListen(id: string) {
         const event=await logListen(id)
-        if(event){setJournalPromptEventId(event.id);await refreshLibrary()}
+        if(event){setJournalEditorEventId(event.id);await refreshLibrary()}
     }
 
     async function handleDeleteAlbum(id: string) {
@@ -140,9 +139,6 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                 <div className="sync-status sync-status--warning" role="status">
                     {rotationError ?? listenError}
                 </div>
-            )}
-            {journalPromptEventId&&(
-                <div className="journal-prompt" role="status"><span>{t.journal.kicker}</span><div><Button onClick={()=>{setJournalEditorEventId(journalPromptEventId);setJournalPromptEventId(null)}}>{t.journal.addThought}</Button><Button variant="secondary" onClick={()=>setJournalPromptEventId(null)}>{t.journal.dismiss}</Button></div></div>
             )}
             {
                 albums.length === 0

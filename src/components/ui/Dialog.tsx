@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { useEffect,type ReactNode } from "react"
 
 type DialogProps = {
     open: boolean
@@ -8,6 +8,13 @@ type DialogProps = {
 }
 
 function Dialog({ open, children, onClose,ariaLabel }: DialogProps) {
+
+    useEffect(()=>{
+        if(!open||!onClose)return
+        const close=(event:KeyboardEvent)=>{if(event.key==="Escape")onClose()}
+        document.addEventListener("keydown",close)
+        return()=>document.removeEventListener("keydown",close)
+    },[open,onClose])
 
     if (!open) {
         return null

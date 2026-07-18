@@ -400,9 +400,12 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
                 {bindings.map((b) => (
                     <Card key={b.albumId} className="binding-card">
                         {!b.libraryExists?(
-                            <button className="binding-card-trigger" onClick={()=>void handleOpenResolution(b)} disabled={processingId===b.albumId}>
-                                <span><span className="binding-column-label">{t.bindings.sourceFolder}</span><strong>{b.suggestedArtist} — {b.suggestedTitle}</strong><code className="binding-path">{b.relativePath}</code></span><span className="binding-card-trigger-action">{t.bindings.resolver.open} →</span>
-                            </button>
+                            <>
+                                <button className="binding-card-trigger" onClick={()=>void handleOpenResolution(b)} disabled={processingId===b.albumId}>
+                                    <span><span className="binding-column-label">{t.bindings.sourceFolder}</span><strong>{b.suggestedArtist} — {b.suggestedTitle}</strong><code className="binding-path">{b.relativePath}</code></span><span className="binding-card-trigger-action">{t.bindings.resolver.open} →</span>
+                                </button>
+                                {(b.state==="missing"||!b.folderExists)&&<div className="binding-card-maintenance"><span className="binding-missing">{t.bindings.folderMissing}</span><Button variant="secondary" onClick={()=>void handleDelete(b.albumId)} disabled={processingId===b.albumId}>{t.bindings.delete}</Button></div>}
+                            </>
                         ):(
                         <div className="binding-row">
                             <section className="binding-source">

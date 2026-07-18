@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
     fetchBindingCandidates:vi.fn(),
     fetchAlbums:vi.fn(),
     selectBindingCandidate:vi.fn(),
+    deleteBinding:vi.fn(),
 }))
 
 vi.mock("../components/features/diagnostics/DiagnosticsPanel.js", () => ({
@@ -41,7 +42,7 @@ vi.mock("../services/api/albumsService.js", () => ({
 vi.mock("../services/api/bindingsService.js", () => ({
     fetchBindings: mocks.fetchBindings,
     confirmBinding: vi.fn(),
-    deleteBinding: vi.fn(),
+    deleteBinding: mocks.deleteBinding,
     verifyBindings: vi.fn(),
     reconcileBindings: vi.fn(),
     captureBinding: mocks.captureBinding,
@@ -163,5 +164,13 @@ describe("BindingsPage manual music scan", () => {
         expect(await screen.findByText("Artist/Loose")).toBeTruthy();expect(screen.queryByText("Artist/Done")).toBeNull()
         fireEvent.click(screen.getByRole("button",{name:/Artist — Loose/}));const dialog=await screen.findByRole("dialog",{name:"Resolve album folder"});fireEvent.click(within(dialog).getByRole("button",{name:/Artist — Loose/}))
         await waitFor(()=>expect(mocks.selectBindingCandidate).toHaveBeenCalledWith("Artist/Loose","library-loose","scan"))
+    })
+
+    it("deletes a missing unresolved Binding without opening its resolver",async()=>{
+        mocks.fetchBindings.mockReset();mocks.fetchBindings.mockResolvedValue({bindings:[{albumId:"Artist/Gone",relativePath:"Artist/Gone",state:"missing",matchSource:null,proposedAt:null,confirmedAt:null,libraryAlbumId:null,folderExists:false,libraryExists:false,suggestedArtist:"Artist",suggestedTitle:"Gone"}],count:1});mocks.deleteBinding.mockResolvedValue(undefined);vi.spyOn(window,"confirm").mockReturnValue(true)
+        render(<I18nContext.Provider value={{t:en,language:"en",setLanguage:()=>{}}}><BindingsPage/></I18nContext.Provider>)
+        const path=await screen.findByText("Artist/Gone");const card=path.closest("article")??path.closest("div.binding-card")
+        fireEvent.click(within(card as HTMLElement).getByRole("button",{name:"Delete"}))
+        await waitFor(()=>expect(mocks.deleteBinding).toHaveBeenCalledWith("Artist/Gone"));expect(screen.queryByRole("dialog",{name:"Resolve album folder"})).toBeNull()
     })
 })

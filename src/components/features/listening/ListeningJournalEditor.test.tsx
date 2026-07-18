@@ -18,4 +18,7 @@ describe("ListeningJournalEditor",()=>{
         render(<Wrapper><ListeningJournalEditor event={{...event,journal:{note:"Old",moodTags:[],contextTags:[],createdAt:event.listenedAt,updatedAt:event.listenedAt}}} album={album} onClose={vi.fn()} onSave={vi.fn()} onDelete={vi.fn()}/></Wrapper>)
         expect(screen.getByRole("button",{name:"Remove note"})).toBeTruthy()
     })
+    it("can be dismissed without saving",()=>{
+        const close=vi.fn();render(<Wrapper><ListeningJournalEditor event={event} album={album} onClose={close} onSave={vi.fn()} onDelete={vi.fn()}/></Wrapper>);fireEvent.keyDown(document,{key:"Escape"});expect(close).toHaveBeenCalledOnce()
+    })
 })

@@ -15,8 +15,9 @@ attached to the correct immutable Listening Event.
 ## A. Optional capture
 
 - [ ] Click **Gehört** and confirm the Listening Event is saved immediately.
-- [ ] Dismiss **Gedanken hinzufügen** and confirm no note is required.
-- [ ] Record another listen, open the optional affordance, and save Unicode text.
+- [ ] Dismiss the journal overlay through its backdrop or Cancel and confirm no note
+  is required and no scrolling is necessary.
+- [ ] Record another listen, use the optional overlay, and save Unicode text.
 - [ ] Confirm mood and context tags are optional and translated in DE/EN.
 
 ## B. Edit and deletion semantics
