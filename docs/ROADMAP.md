@@ -63,6 +63,8 @@ Not optimization.
 | Current | [Sprint 86](./sprints/Sprint-86.md) | Deeper deterministic Insights and Memory Prompts | Future minor | 86.1/86.2 accepted; 86.3 implemented, NAS acceptance pending |
 | 6 | [Sprint 87](./sprints/Sprint-87.md) | Local-first artwork with remote fallback | Future release | Feasibility spike first |
 | 7 | [Sprint 88](./sprints/Sprint-88.md) | Album Detail with persisted MusicBrainz/Wikipedia source links | Future minor | Planned |
+| 8 | [Sprint 89](./sprints/Sprint-89.md) | Safe read-only Playback Foundation and real NAS feasibility | Future major capability | Planned; architecture decision and spike first |
+| 9 | [Sprint 90](./sprints/Sprint-90.md) | Persistent Whole Album Session with Play/Pause-only philosophy | Future major capability | Planned; depends on Sprint 89 go decision |
 
 Sprint numbers express the present recommended order, not a promise to implement
 features without re-evaluating production evidence after each sprint.
