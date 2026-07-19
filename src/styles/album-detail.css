@@ -21,6 +21,15 @@
 .album-detail-empty { color: var(--color-smoke); }
 .album-detail-state { padding: 40px; border-radius: var(--radius-large); background: var(--color-paper); }
 .album-source-editor { grid-column: 1 / -1; }
+.album-external-sources { grid-column: 1 / -1; }
+.album-external-source-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 20px; }
+.album-external-source-card { display: grid; gap: 6px; padding: 18px; color: var(--color-ink); text-decoration: none; border: 1px solid var(--color-divider); border-radius: var(--radius-medium); background: var(--color-sand); transition: transform var(--transition-base), box-shadow var(--transition-base); }
+.album-external-source-card:hover, .album-external-source-card:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+.album-external-source-card > span { color: var(--color-primary); font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.album-external-source-card small { color: var(--color-smoke); overflow-wrap: anywhere; }
+.album-source-management { grid-column: 1 / -1; }
+.album-source-management > summary { padding: 14px 18px; border: 1px solid var(--color-divider); border-radius: var(--radius-medium); color: var(--color-smoke); cursor: pointer; }
+.album-source-management[open] > summary { margin-bottom: 12px; }
 .album-source-edit-row { display: grid; grid-template-columns: 160px minmax(0, 1fr) auto; gap: 12px; align-items: end; padding-block: 12px; border-bottom: 1px solid var(--color-divider); }
 .album-source-edit-row label { display: grid; gap: 5px; min-width: 0; }
 .album-source-edit-row label span { color: var(--color-smoke); font-size: .85rem; }

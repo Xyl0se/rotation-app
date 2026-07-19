@@ -122,6 +122,13 @@ export const de: Translation = {
         provider: "Anbieter", url: "Kanonische URL", remove: "Entfernen", matches: "MusicBrainz-Treffer prüfen",
         noMatches: "Starte eine ausdrückliche Suche, um Verweise zu finden oder zu ersetzen.", find: "Externe Quellen finden", working: "Suche läuft…", save: "Geprüfte Quellen speichern", saved: "Die geprüften Quellen wurden gespeichert.", error: "Die Quellenaktion ist fehlgeschlagen.",
         providers: { musicbrainz: "MusicBrainz", wikipedia: "Wikipedia", wikidata: "Wikidata" },
+        manage: "Externe Quellen verwalten",
+    },
+
+    externalSources: {
+        kicker: "Weiterlesen", title: "Externe Quellen", description: "Von Rotation gespeicherte, geprüfte Ziele. Sie öffnen sich auf der Website des Anbieters.",
+        providers: { musicbrainz: "MusicBrainz", wikipedia: "Wikipedia", wikidata: "Wikidata" },
+        actions: { musicbrainz: "Auf MusicBrainz ansehen", wikipedia: "Auf Wikipedia lesen", wikidata: "Auf Wikidata ansehen" },
     },
 
     acquisitionReasons: {

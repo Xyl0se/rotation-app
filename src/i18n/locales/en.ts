@@ -121,6 +121,13 @@ export const en = {
         provider: "Provider", url: "Canonical URL", remove: "Remove", matches: "Review MusicBrainz matches",
         noMatches: "Start an explicit search to find or replace references.", find: "Find external sources", working: "Searching…", save: "Save reviewed sources", saved: "The reviewed sources were saved.", error: "The source operation failed.",
         providers: { musicbrainz: "MusicBrainz", wikipedia: "Wikipedia", wikidata: "Wikidata" },
+        manage: "Manage external sources",
+    },
+
+    externalSources: {
+        kicker: "Further reading", title: "External sources", description: "Verified destinations stored by Rotation. They open on the provider's website.",
+        providers: { musicbrainz: "MusicBrainz", wikipedia: "Wikipedia", wikidata: "Wikidata" },
+        actions: { musicbrainz: "View on MusicBrainz", wikipedia: "Read on Wikipedia", wikidata: "View on Wikidata" },
     },
 
     acquisitionReasons: {

@@ -1,6 +1,6 @@
 # Sprint 88 — Album Detail and External Sources
 
-**Status:** In progress (88A–88D implemented)
+**Status:** In progress (88A–88E implemented)
 
 **Target version:** Future minor version
 
@@ -134,11 +134,16 @@ write source records, and there is no startup or bulk-backfill request.
 
 ## Workstream 88E — External-source presentation
 
-- Render stored sources as compact, clearly external link cards.
-- Open sources safely in a new browser context and protect the originating page.
-- Identify each provider by name and keep the destination URL inspectable.
-- Do not fetch previews, favicons, summaries, HTML, or article content while rendering.
-- The page remains useful when the NAS has no internet connection.
+- [x] Render stored sources as compact, clearly external link cards.
+- [x] Open sources safely in a new browser context and protect the originating page.
+- [x] Identify each provider by name and keep the destination URL inspectable.
+- [x] Do not fetch previews, favicons, summaries, HTML, or article content while rendering.
+- [x] The page remains useful when the NAS has no internet connection.
+
+Implementation note: presentation reads only persisted Album source records. It renders
+one MusicBrainz destination, prefers Wikipedia over Wikidata, omits unavailable or
+unsafe records, and uses `noopener noreferrer` for every new browsing context. Source
+management remains available through separate progressive disclosure.
 
 ## Workstream 88F — Optional Discogs evaluation
 

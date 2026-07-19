@@ -10,6 +10,7 @@ import Button from "../components/ui/Button"
 import { useI18n } from "../i18n/useI18n"
 import AlbumSourceEditor from "../components/features/album-sources/AlbumSourceEditor"
 import type { AlbumSource } from "../types/album"
+import AlbumExternalSources from "../components/features/album-sources/AlbumExternalSources"
 
 interface AlbumDetailPageProps {
     album?: Album
@@ -67,7 +68,8 @@ export default function AlbumDetailPage({ album, albumId, listenEvents, reflecti
             <section className="album-detail-panel"><h2>{t.albumDetail.rotation.title}</h2>{inCurrentRotation && <p>{t.albumDetail.rotation.current(currentRotation?.name ?? "")}</p>}{historicRotations.length > 0 && <details><summary>{t.albumDetail.rotation.history(historicRotations.length)}</summary><ul>{historicRotations.map(plan => <li key={plan.id}>{plan.name} · {formatDate(plan.archivedAt ?? plan.acceptedAt ?? plan.createdAt)}</li>)}</ul></details>}{!inCurrentRotation && historicRotations.length === 0 && <p className="album-detail-empty">{t.albumDetail.rotation.empty}</p>}</section>
 
             <section className="album-detail-panel"><h2>{t.albumDetail.binding.title}</h2>{binding ? <dl><dt>{t.albumDetail.binding.stateLabel}</dt><dd>{t.albumDetail.binding.states[binding.state]}</dd><dt>{t.albumDetail.binding.folder}</dt><dd>{binding.relativePath}</dd>{!binding.folderExists && <><dt>{t.albumDetail.binding.availability}</dt><dd>{t.albumDetail.binding.missing}</dd></>}</dl> : <p className="album-detail-empty">{t.albumDetail.binding.empty}</p>}</section>
-            <AlbumSourceEditor album={album} onSave={onSaveSources} />
+            <AlbumExternalSources sources={album.sources ?? []} />
+            <details className="album-source-management"><summary>{t.albumSources.manage}</summary><AlbumSourceEditor album={album} onSave={onSaveSources} /></details>
         </div>
         <AlbumTimeline album={album} listenEvents={albumListens} />
     </main>
