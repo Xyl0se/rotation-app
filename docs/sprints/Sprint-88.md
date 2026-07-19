@@ -1,6 +1,6 @@
 # Sprint 88 — Album Detail and External Sources
 
-**Status:** In progress (88A–88E implemented)
+**Status:** Implementation complete (88A–88E delivered; 88F no-go decision recorded; NAS acceptance pending)
 
 **Target version:** Future minor version
 
@@ -149,11 +149,17 @@ management remains available through separate progressive disclosure.
 
 Discogs is not required for the first Album Detail release. Before adding it:
 
-- evaluate whether its data adds meaningful value beyond MusicBrainz;
-- document authentication, attribution, rate-limit, and API-terms implications;
-- prefer a stored outbound link over reproducing Discogs content;
-- require an explicit product decision before introducing credentials or another
+- [x] evaluate whether its data adds meaningful value beyond MusicBrainz;
+- [x] document authentication, attribution, rate-limit, and API-terms implications;
+- [x] prefer a stored outbound link over reproducing Discogs content;
+- [x] require an explicit product decision before introducing credentials or another
   runtime dependency.
+
+Decision: Discogs is deferred. Its edition-level collector data does not currently add
+enough value to Rotation's personal Album-history model to justify credentials,
+provider-specific freshness and attribution behavior, or another runtime dependency.
+ADR 018 records the reconsideration gate and requires a stored outbound link as the
+preferred first step if a physical-edition use case is later proven.
 
 ## Data and API direction
 

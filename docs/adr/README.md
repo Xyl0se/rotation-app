@@ -33,6 +33,7 @@ ADRs preserve durable decisions. They are not current feature manuals; use the
 | [015](./015-rotation-generation-policy.md) | Rotation generation policy | Accepted |
 | [016](./016-deterministic-insight-evidence.md) | Deterministic Insight evidence and AI boundary | Accepted |
 | [017](./017-local-cover-extraction.md) | Bounded local cover extraction | Proposed — NAS gate pending |
+| [018](./018-defer-discogs-integration.md) | Defer Discogs integration | Accepted |
 
 ADR 011 was never assigned. The gap is retained deliberately so historical numbering
 is never reused or made ambiguous.
