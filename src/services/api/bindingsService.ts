@@ -70,10 +70,11 @@ export async function linkBinding(albumId: string, libraryAlbumId: string): Prom
 export async function captureBinding(
     albumId: string,
     album: Album,
+    coverCandidates: string[] = [],
 ): Promise<{ album: Album; binding: Binding }> {
     return post<{ album: Album; binding: Binding }>(
         "/bindings/capture",
-        { albumId, album },
+        { albumId, album, coverCandidates },
     )
 }
 

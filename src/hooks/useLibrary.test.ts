@@ -66,6 +66,7 @@ describe("useLibrary server ownership", () => {
             expect(await mutation).toBe(true)
         })
         expect(result.current.albums).toEqual([created])
+        expect(createAlbum).toHaveBeenCalledWith(created, [])
     })
 
     it("keeps confirmed state unchanged when a server mutation fails", async () => {

@@ -148,6 +148,7 @@ describe("BindingsPage manual music scan", () => {
         expect(mocks.captureBinding).toHaveBeenCalledWith(
             "Artist/New Album",
             expect.objectContaining({ id: expect.any(String) }),
+            [],
         )
         fireEvent.click(await screen.findByRole("button", { name: "Complete coach" }))
         await waitFor(() => expect(mocks.updateAlbum).toHaveBeenCalledWith(

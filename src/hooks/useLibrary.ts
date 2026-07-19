@@ -16,9 +16,11 @@ import {
 } from "../services/api/albumsService"
 import {
     deleteCover as apiDeleteCover,
+    fetchCoverResolutionStatus,
     resolveServerCover,
     uploadCover as apiUploadCover,
 } from "../services/api/coversService"
+import type { CoverResolutionDiagnostics } from "../services/api/coversService"
 
 function normalizeAlbum(album: Album): Album {
     return {
@@ -91,12 +93,13 @@ export function useLibrary(isConnected: boolean = false) {
         }
     }, [isConnected])
 
-    const addAlbum = useCallback(async (album: Album): Promise<boolean> =>
+    const addAlbum = useCallback(async (album: Album, coverCandidates: string[] = []): Promise<boolean> =>
         runMutation(
             async () => {
-                const confirmed = await apiCreateAlbum(album)
-                if (confirmed.coverUrl) await resolveServerCover(confirmed.id, confirmed.coverUrl).catch(() => undefined)
-                return confirmed
+                const candidates = coverCandidates.length > 0
+                    ? coverCandidates
+                    : (album.coverUrl ? [album.coverUrl] : [])
+                return apiCreateAlbum(album, candidates)
             },
             confirmed => setAlbums(previous => [...previous, confirmed]),
         ), [runMutation])
@@ -208,21 +211,22 @@ export function useLibrary(isConnected: boolean = false) {
         }
     }, [albums, isConnected, updateAlbum])
 
-    const retryAlbumCover = useCallback(async (id: string): Promise<boolean> => {
+    const retryAlbumCover = useCallback(async (id: string): Promise<CoverResolutionDiagnostics | null> => {
         const current = albums.find(album => album.id === id)
-        if (!current?.coverUrl || !isConnected) return false
+        if (!current || !isConnected) return null
         try {
-            const result = await resolveServerCover(id, current.coverUrl, true)
+            const result = await resolveServerCover(id, [], true)
+            const diagnostics = await fetchCoverResolutionStatus(id)
             if (result.status !== "cached") {
                 setLibraryError(`Cover resolution failed: ${result.status}`)
-                return false
+                return diagnostics
             }
             await clearCoverCache(id).catch(() => undefined)
             setLibraryError(null)
-            return true
+            return diagnostics
         } catch (error) {
             setLibraryError(error instanceof Error ? error.message : "Cover resolution failed")
-            return false
+            return null
         }
     }, [albums, isConnected])
 

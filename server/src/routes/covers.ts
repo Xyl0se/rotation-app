@@ -18,13 +18,13 @@ export function createCoversRouter(coverService: CoverService, coverResolver?: C
         if ((req.headers["content-type"] ?? "").includes("application/json")) {
             try {
                 const parsed = JSON.parse(body) as { sourceUrls?: unknown; forceRefresh?: unknown }
-                if (!Array.isArray(parsed.sourceUrls) || !parsed.sourceUrls.every(value => typeof value === "string")) {
+                if (parsed.sourceUrls !== undefined && (!Array.isArray(parsed.sourceUrls) || !parsed.sourceUrls.every(value => typeof value === "string"))) {
                     return void res.status(400).json({ error: "Expected cover source URLs" })
                 }
                 if (parsed.forceRefresh !== undefined && typeof parsed.forceRefresh !== "boolean") {
                     return void res.status(400).json({ error: "Expected boolean forceRefresh" })
                 }
-                sourceUrls = parsed.sourceUrls
+                sourceUrls = parsed.sourceUrls ?? []
                 res.locals.forceRefresh = parsed.forceRefresh === true
             } catch {
                 return void res.status(400).json({ error: "Invalid cover resolution request" })
@@ -44,13 +44,24 @@ export function createCoversRouter(coverService: CoverService, coverResolver?: C
         const albumId = req.params.albumId as string
         if (!parseRequest(CoverAlbumIdSchema, { albumId }, res)) return
         const meta = coverService.getMeta(albumId)
+        const sourceType = meta?.source === "url" ? "remote" : (meta?.source ?? null)
+        const localCandidateFound = sourceType === "folder" || sourceType === "embedded"
+            ? true
+            : meta?.failureCode === "local-artwork-not-found" || sourceType === "remote"
+                ? false
+                : null
         res.json({
             status: meta?.resolutionStatus ?? (coverService.getCoverPath(albumId) ? "cached" : "not-found"),
+            sourceType,
+            lastAttemptAt: meta?.lastResolutionAt ?? null,
+            lastSuccessAt: meta?.resolvedAt ?? null,
+            localCandidateFound,
+            // Kept during the rolling API/web deployment for older clients.
             lastResolutionAt: meta?.lastResolutionAt ?? null,
             resolvedAt: meta?.resolvedAt ?? null,
             candidateCount: meta?.candidateUrls?.length ?? 0,
             hasCachedCover: coverService.getCoverPath(albumId) !== null,
-            source: meta?.source === "url" ? "remote" : (meta?.source ?? null),
+            source: sourceType,
             failureCode: meta?.failureCode ?? null,
             sizeBytes: meta?.sizeBytes ?? null,
             mimeType: meta?.contentType ?? null,

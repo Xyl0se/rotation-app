@@ -78,6 +78,14 @@ Use a deterministic preference order:
   synchronously during Card rendering.
 - Persist source type and sanitized failure reason for manual diagnostics.
 - Let “Find cover again” retry local sources before remote providers.
+- Keep MusicBrainz metadata lookup independent from cover extraction and downloads;
+  remote candidates are handed to the server only after the Album exists.
+- Queue post-create, Binding Capture, and manual-confirmation resolution in a bounded
+  in-process queue of at most 25 pending Albums and process it sequentially.
+- Persist the bounded remote candidate set with resolution state. Explicit retries send
+  no provider ordering from the browser and reuse the server-owned candidates.
+- Keep explicit scans synchronous for their bounded summary while interactive Create
+  and Capture responses do not wait for music parsing or remote-provider retries.
 
 ## Workstream 87E — Diagnostics and Frontend
 
@@ -86,6 +94,12 @@ Use a deterministic preference order:
 - Keep all Album rendering on the same-origin cached cover endpoint.
 - Expose only bounded resolution state, timestamps, source type, sanitized failure,
   cache presence, candidate count, and safe image properties.
+- Name the diagnostic timestamps explicitly as last attempt and last success while
+  retaining the previous response aliases during rolling API/web deployments.
+- Report only a tri-state indication of whether a local candidate was found; never
+  expose its filename, directory, parser output, provider response, or image bytes.
+- Let the retry result explain cached success, missing local artwork, invalid artwork,
+  and a temporarily unavailable remote provider in German and English.
 - Invalidate the browser display cache after an explicit resolution attempt.
 
 ## Workstream 87F — Tests and Rollout

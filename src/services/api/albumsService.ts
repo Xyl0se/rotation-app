@@ -13,8 +13,8 @@ export async function fetchAlbum(id: string): Promise<Album> {
     return get<Album>(`/albums/${encodeURIComponent(id)}`)
 }
 
-export async function createAlbum(album: Album): Promise<Album> {
-    return post<Album>("/albums", album)
+export async function createAlbum(album: Album, coverCandidates: string[] = []): Promise<Album> {
+    return post<Album>("/albums", { ...album, coverCandidates })
 }
 
 export async function updateAlbum(album: Album): Promise<Album> {

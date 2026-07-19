@@ -527,6 +527,13 @@ export const de: Translation = {
 
     editDialog: {
         retryCover: "Cover erneut suchen",
+        coverResolution: {
+            cached: "Cover wurde gefunden und aktualisiert.",
+            localNotFound: "Kein lokales Artwork gefunden.",
+            localInvalid: "Das gefundene Artwork ist beschädigt oder ungültig.",
+            remoteUnavailable: "Der externe Cover-Anbieter ist vorübergehend nicht verfügbar.",
+            notFound: "Es konnte kein Cover gefunden werden.",
+        },
         startCoach: "Rolle mit Album Coach bestimmen",
         changeRole: "Rolle mit Album Coach ändern",
         title: "Album-Metadaten bearbeiten",

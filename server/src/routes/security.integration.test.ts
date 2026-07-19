@@ -289,6 +289,10 @@ describe("mutating API route security", () => {
         expect(response.status).toBe(200)
         await expect(response.json()).resolves.toEqual({
             status: "temporarily-unavailable",
+            sourceType: null,
+            lastAttemptAt: "2026-07-16T12:00:00.000Z",
+            lastSuccessAt: null,
+            localCandidateFound: null,
             lastResolutionAt: "2026-07-16T12:00:00.000Z",
             resolvedAt: null,
             candidateCount: 2,

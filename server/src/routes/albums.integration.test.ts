@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest"
 import express from "express"
 import type { Server } from "node:http"
 import type { AddressInfo } from "node:net"
@@ -16,6 +16,7 @@ describe("album identity contract", () => {
     let database: Database.Database
     let server: Server
     let baseUrl: string
+    const onCreatedAlbum = vi.fn()
 
     beforeAll(async () => {
         database = initDatabase(":memory:")
@@ -24,7 +25,7 @@ describe("album identity contract", () => {
         app.use(
             "/albums",
             createRequireWriteTokenForMutations(TOKEN),
-            createAlbumsRouter(createAlbumRepository(database)),
+            createAlbumsRouter(createAlbumRepository(database), undefined, undefined, onCreatedAlbum),
         )
         await new Promise<void>((resolve, reject) => {
             server = app.listen(0, "127.0.0.1", () => {
@@ -76,6 +77,18 @@ describe("album identity contract", () => {
 
         expect(response.status).toBe(200)
         await expect(response.json()).resolves.toMatchObject({ id: ALBUM_ID, title: "Album" })
+    })
+
+    it("queues bounded remote candidates only after the Album exists", async () => {
+        const id = "550e8400-e29b-41d4-a716-446655440004"
+        const coverCandidates = [
+            "https://coverartarchive.org/release/one/front",
+            "https://coverartarchive.org/release-group/two/front",
+        ]
+        const response = await write("POST", "/albums", { ...album, id, coverCandidates })
+
+        expect(response.status).toBe(201)
+        expect(onCreatedAlbum).toHaveBeenCalledWith(id, coverCandidates)
     })
 
     it("rejects a conflicting create with the same ID", async () => {

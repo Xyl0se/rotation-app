@@ -1,10 +1,13 @@
 import { act, fireEvent, render, screen } from "@testing-library/react"
 import { useState } from "react"
-import { describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { Album } from "../../../types/album"
 import { I18nContext } from "../../../i18n/I18nContext"
 import { en } from "../../../i18n/locales/en"
 import DiscoverAlbumDialog from "./DiscoverAlbumDialog"
+import { searchAlbum } from "../../../services/music/albumMetadata"
+
+vi.mock("../../../services/music/albumMetadata", () => ({ searchAlbum: vi.fn() }))
 
 function emptyAlbum(): Album {
     return {
@@ -39,6 +42,7 @@ function CaptureHarness({ renderVersion }: { renderVersion: number }) {
 }
 
 describe("DiscoverAlbumDialog capture prefill", () => {
+    beforeEach(() => vi.clearAllMocks())
     it("stays open when its parent recreates an equivalent prefill object", async () => {
         const view = render(<CaptureHarness renderVersion={1} />)
         await act(async () => {})
@@ -95,6 +99,43 @@ describe("DiscoverAlbumDialog capture prefill", () => {
                 createdAt: expect.any(String),
                 updatedAt: expect.any(String),
             }),
-        }))
+        }), [])
+    })
+
+    it("keeps metadata lookup fast and hands remote cover candidates to post-capture resolution", async () => {
+        const onFinish = vi.fn()
+        vi.mocked(searchAlbum).mockResolvedValue({
+            title: "Matched Album",
+            artist: "Detected Artist",
+            year: "2026",
+            coverUrl: "https://coverartarchive.org/release/one/front",
+            coverCandidates: [
+                "https://coverartarchive.org/release/one/front",
+                "https://coverartarchive.org/release-group/two/front",
+            ],
+        })
+
+        function MetadataHarness() {
+            const [album, setAlbum] = useState(emptyAlbum)
+            return <I18nContext.Provider value={{ t: en, language: "en", setLanguage: () => {} }}>
+                <DiscoverAlbumDialog open album={album} setAlbum={setAlbum} onClose={() => {}}
+                    onFinish={onFinish} prefill={{ title: "Detected Album", artist: "Detected Artist" }} />
+            </I18nContext.Provider>
+        }
+
+        render(<MetadataHarness />)
+        await act(async () => {})
+        fireEvent.click(screen.getByRole("button", { name: "Add Album Data" }))
+        expect(await screen.findByText("Album data found and added.")).toBeTruthy()
+        fireEvent.click(screen.getByRole("button", { name: "Next" }))
+        fireEvent.click(screen.getByRole("button", { name: "Finish" }))
+
+        expect(onFinish).toHaveBeenCalledWith(expect.objectContaining({
+            title: "Matched Album",
+            coverUrl: "https://coverartarchive.org/release/one/front",
+        }), [
+            "https://coverartarchive.org/release/one/front",
+            "https://coverartarchive.org/release-group/two/front",
+        ])
     })
 })

@@ -8,7 +8,13 @@ export type CoverResolutionStatus = "cached" | "not-found" | "temporarily-unavai
 export type CoverResolutionSource = "folder" | "embedded" | "upload" | "alternative" | "remote" | "cache" | "placeholder"
 export interface CoverResolutionResult { status: CoverResolutionStatus; source?: CoverResolutionSource | null }
 export interface CoverResolutionDiagnostics extends CoverResolutionResult {
+    sourceType: CoverResolutionSource | null
+    lastAttemptAt: string | null
+    lastSuccessAt: string | null
+    localCandidateFound: boolean | null
+    /** @deprecated Compatibility alias for lastAttemptAt. */
     lastResolutionAt: string | null
+    /** @deprecated Compatibility alias for lastSuccessAt. */
     resolvedAt: string | null
     candidateCount: number
     hasCachedCover: boolean
@@ -43,7 +49,7 @@ export async function deleteCover(albumId: string): Promise<void> {
 
 export async function resolveServerCover(
     albumId: string,
-    sourceUrls: string | string[],
+    sourceUrls: string | string[] = [],
     forceRefresh = false,
 ): Promise<CoverResolutionResult> {
     return post<CoverResolutionResult>(`/covers/${encodeURIComponent(albumId)}/resolve`, {

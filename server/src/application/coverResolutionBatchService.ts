@@ -2,6 +2,7 @@ import type { BindingRepository } from "../infrastructure/persistence/sqlite/bin
 import type { CoverResolver, CoverResolverResult } from "./coverResolver.js"
 
 const MAX_ALBUMS_PER_BATCH = 25
+const MAX_PENDING_RESOLUTIONS = 25
 
 export interface CoverResolutionBatchReport {
     attempted: number
@@ -13,13 +14,45 @@ export interface CoverResolutionBatchReport {
 
 export function createCoverResolutionBatchService(bindingRepo: BindingRepository, coverResolver: CoverResolver) {
     let lastReport: CoverResolutionBatchReport | null = null
+    const pending: Array<{ albumId: string; remoteUrls: string[]; forceRefresh: boolean }> = []
+    let draining = false
 
-    async function resolveOne(albumId: string): Promise<CoverResolverResult> {
-        return coverResolver.resolve(albumId)
+    async function resolveOne(albumId: string, remoteUrls: string[] = [], forceRefresh = false): Promise<CoverResolverResult> {
+        return coverResolver.resolve(albumId, remoteUrls, forceRefresh)
+    }
+
+    async function drain(): Promise<void> {
+        if (draining) return
+        draining = true
+        try {
+            while (pending.length > 0) {
+                const task = pending.shift()!
+                await resolveOne(task.albumId, task.remoteUrls, task.forceRefresh).catch(() => undefined)
+            }
+        } finally {
+            draining = false
+        }
     }
 
     return {
         resolveOne,
+
+        enqueueOne(albumId: string, remoteUrls: string[] = [], forceRefresh = false): boolean {
+            const existing = pending.find(task => task.albumId === albumId)
+            if (existing) {
+                existing.remoteUrls = [...new Set([...existing.remoteUrls, ...remoteUrls])]
+                existing.forceRefresh ||= forceRefresh
+                return true
+            }
+            if (pending.length >= MAX_PENDING_RESOLUTIONS) return false
+            pending.push({ albumId, remoteUrls: [...new Set(remoteUrls)], forceRefresh })
+            queueMicrotask(() => void drain())
+            return true
+        },
+
+        getQueueStatus(): { pending: number; running: boolean } {
+            return { pending: pending.length, running: draining }
+        },
 
         async resolveConfirmed(): Promise<CoverResolutionBatchReport> {
             const albumIds = bindingRepo.findByState("confirmed")

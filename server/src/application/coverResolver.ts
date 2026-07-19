@@ -23,8 +23,9 @@ export function createCoverResolver(coverService: CoverService, localArtworkServ
                 return { status: "cached", source: "cache" }
             }
 
-            if (remoteUrls.length > 0) {
-                const result = await coverService.resolveRemoteCover(albumId, remoteUrls)
+            const candidates = [...new Set([...remoteUrls, ...(previous?.candidateUrls ?? [])])]
+            if (candidates.length > 0) {
+                const result = await coverService.resolveRemoteCover(albumId, candidates)
                 return { ...result, source: result.status === "cached" ? "remote" : (coverService.getCoverPath(albumId) ? "cache" : "placeholder") }
             }
 

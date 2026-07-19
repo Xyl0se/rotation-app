@@ -74,7 +74,8 @@ export const AlbumSchema = AlbumBaseSchema.superRefine((album, context) => {
     }
 })
 
-export const CreateAlbumSchema = AlbumSchema
+const CoverCandidatesSchema = z.array(z.string().url().max(4096)).max(4).default([])
+export const CreateAlbumSchema = z.intersection(AlbumSchema, z.object({ coverCandidates: CoverCandidatesSchema }))
 export const UpdateAlbumSchema = AlbumBaseSchema.partial().omit({ id: true })
 export const ImportAlbumsSchema = z.object({
     albums: z.array(AlbumSchema).max(10_000),
@@ -100,6 +101,7 @@ export const LinkBindingBodySchema = z.object({
 export const CaptureBindingBodySchema = z.object({
     albumId: BindingIdSchema,
     album: AlbumSchema,
+    coverCandidates: CoverCandidatesSchema,
 })
 export const DeleteBindingQuerySchema = z.object({ albumId: BindingIdSchema })
 export const SelectBindingCandidateSchema = z.object({

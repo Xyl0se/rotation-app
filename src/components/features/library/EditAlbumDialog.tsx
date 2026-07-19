@@ -9,6 +9,7 @@ import TextField from "../../ui/TextField"
 import AlbumCover from "../../ui/AlbumCover"
 import { useI18n } from "../../../i18n/useI18n"
 import type { ListenEvent } from "../../../domain/listening/listenEvents"
+import type { CoverResolutionDiagnostics } from "../../../services/api/coversService"
 
 const ACQUISITION_OPTIONS: AlbumAcquisitionReason[] = [
     "artist",
@@ -55,7 +56,7 @@ type EditAlbumDialogProps = {
         url: string,
     ) => Promise<boolean>
     onRemoveCoverOverride: (id: string) => Promise<boolean>
-    onRetryCover?: (id: string) => Promise<boolean>
+    onRetryCover?: (id: string) => Promise<CoverResolutionDiagnostics | null>
     onStartCoach?: (albumId: string) => void
     listenEvents?: ListenEvent[]
     onEditJournal?: (eventId:string)=>void
@@ -80,6 +81,7 @@ function EditAlbumDialog({
     const [urlInput, setUrlInput] = useState("")
     const [isLoadingUrl, setIsLoadingUrl] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [coverDiagnostics, setCoverDiagnostics] = useState<CoverResolutionDiagnostics | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     async function handleUrlLoad() {
@@ -354,12 +356,28 @@ function EditAlbumDialog({
                             {t.editDialog.resetCover}
                         </Button>
                     )}
-                    {album.coverUrl && onRetryCover && (
+                    {onRetryCover && (
                         <Button variant="secondary" onClick={async () => {
                             setIsLoadingUrl(true); setError(null)
-                            if (!await onRetryCover(album.id)) setError(t.editDialog.errors.setCoverUrl)
+                            const diagnostics = await onRetryCover(album.id)
+                            setCoverDiagnostics(diagnostics)
+                            if (!diagnostics) setError(t.editDialog.errors.setCoverUrl)
                             setIsLoadingUrl(false)
                         }}>{t.editDialog.retryCover}</Button>
+                    )}
+
+                    {coverDiagnostics && (
+                        <p className="cover-resolution-status" role="status">
+                            {coverDiagnostics.status === "cached"
+                                ? t.editDialog.coverResolution.cached
+                                : coverDiagnostics.failureCode === "local-artwork-not-found"
+                                    ? t.editDialog.coverResolution.localNotFound
+                                    : coverDiagnostics.failureCode === "invalid-image"
+                                        ? t.editDialog.coverResolution.localInvalid
+                                        : coverDiagnostics.failureCode === "remote-temporarily-unavailable"
+                                            ? t.editDialog.coverResolution.remoteUnavailable
+                                            : t.editDialog.coverResolution.notFound}
+                        </p>
                     )}
 
                     {error && (

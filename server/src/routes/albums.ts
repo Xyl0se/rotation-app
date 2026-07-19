@@ -17,7 +17,12 @@ export interface ImportResult {
     failed: number
 }
 
-export function createAlbumsRouter(albumRepo: AlbumRepository, auditRepo?: AuditRepository, onRelevantEvent?:()=>void): Router {
+export function createAlbumsRouter(
+    albumRepo: AlbumRepository,
+    auditRepo?: AuditRepository,
+    onRelevantEvent?: () => void,
+    onCreatedAlbum?: (albumId: string, remoteUrls: string[]) => void,
+): Router {
     const router = Router()
 
     // GET /albums — list all albums
@@ -70,6 +75,7 @@ export function createAlbumsRouter(albumRepo: AlbumRepository, auditRepo?: Audit
 
         albumRepo.save(album)
         onRelevantEvent?.()
+        onCreatedAlbum?.(album.id, body.coverCandidates ?? [])
         res.status(201).json(album)
     })
 

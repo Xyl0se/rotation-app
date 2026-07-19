@@ -86,6 +86,32 @@ describe("cover resolver", () => {
             failureCode: "local-artwork-not-found",
         })
     })
+
+    it("reuses server-stored remote candidates when retry receives no browser URLs", async () => {
+        const coverService = service()
+        const local = { findForAlbum: vi.fn(async () => null) } as LocalArtworkService
+        vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 404 })))
+        await createCoverResolver(coverService, local).resolve(ALBUM_ID, [
+            "https://coverartarchive.org/release/id/front",
+        ], true)
+
+        const image = await sharp({
+            create: { width: 2, height: 2, channels: 3, background: "green" },
+        }).png().toBuffer()
+        const responseBody = image.buffer.slice(image.byteOffset, image.byteOffset + image.byteLength) as ArrayBuffer
+        const retryFetch = vi.fn(async () => new Response(responseBody, {
+            status: 200,
+            headers: { "content-type": "image/png" },
+        }))
+        vi.stubGlobal("fetch", retryFetch)
+
+        await expect(createCoverResolver(coverService, local).resolve(ALBUM_ID, [], true))
+            .resolves.toEqual({ status: "cached", source: "remote" })
+        expect(retryFetch).toHaveBeenCalledWith(
+            new URL("https://coverartarchive.org/release/id/front"),
+            expect.objectContaining({ redirect: "follow" }),
+        )
+    })
 })
 
 function service() {

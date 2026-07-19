@@ -8,7 +8,6 @@ import Button from "../../ui/Button"
 import { searchAlbum } from "../../../services/music/albumMetadata"
 import { useI18n } from "../../../i18n/useI18n"
 import AlbumCover from "../../ui/AlbumCover"
-import { resolveServerCover } from "../../../services/api/coversService"
 
 type DiscoverStep = "title" | "artist" | "metadata" | "story"
 
@@ -27,7 +26,7 @@ interface DiscoverAlbumDialogProps {
     album: Album
     setAlbum: React.Dispatch<React.SetStateAction<Album>>
     onClose: () => void
-    onFinish: (album: Album) => void
+    onFinish: (album: Album, coverCandidates: string[]) => void
     prefill?: { title?: string; artist?: string }
 }
 
@@ -44,6 +43,7 @@ function DiscoverAlbumDialog({
     const [metadataState, setMetadataState] = useState<
         "idle" | "searching" | "found" | "not-found"
     >("idle")
+    const [coverCandidates, setCoverCandidates] = useState<string[]>([])
     const prefillTitle = prefill?.title
     const prefillArtist = prefill?.artist
 
@@ -71,9 +71,10 @@ function DiscoverAlbumDialog({
             setCurrentStepIndex(currentStepIndex + 1)
             return
         }
-        onFinish(album)
+        onFinish(album, coverCandidates)
         setCurrentStepIndex(0)
         setMetadataState("idle")
+        setCoverCandidates([])
     }
 
     function handleBack() {
@@ -119,9 +120,7 @@ function DiscoverAlbumDialog({
         try {
             const metadata = await searchAlbum(album.title, album.artist)
             if (metadata) {
-                if (metadata.coverCandidates?.length) {
-                    await resolveServerCover(album.id, metadata.coverCandidates).catch(() => undefined)
-                }
+                setCoverCandidates(metadata.coverCandidates ?? [])
                 setAlbum(prev => ({
                     ...prev,
                     title: metadata.title,

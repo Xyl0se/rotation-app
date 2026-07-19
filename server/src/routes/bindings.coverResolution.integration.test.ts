@@ -66,7 +66,7 @@ describe("binding cover resolution hooks", () => {
             body: JSON.stringify({ albumId: "Artist/Album" }),
         })
         expect(response.status).toBe(200)
-        expect(resolveCover).toHaveBeenCalledWith(LIBRARY_ALBUM_ID)
+        expect(resolveCover).toHaveBeenCalledWith(LIBRARY_ALBUM_ID, [])
     })
 
     it("resolves artwork after atomic capture", async () => {
@@ -85,9 +85,10 @@ describe("binding cover resolution hooks", () => {
                     lastListened: null,
                     createdAt: new Date().toISOString(),
                 },
+                coverCandidates: ["https://coverartarchive.org/release/id/front"],
             }),
         })
         expect(response.status).toBe(201)
-        expect(resolveCover).toHaveBeenCalledWith(LIBRARY_ALBUM_ID)
+        expect(resolveCover).toHaveBeenCalledWith(LIBRARY_ALBUM_ID, ["https://coverartarchive.org/release/id/front"])
     })
 })

@@ -163,9 +163,14 @@ app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(
     bindingCaptureService,
     bindingCandidateRepo,
     auditRepo,
-    albumId => coverBatchService.resolveOne(albumId),
+    async (albumId, remoteUrls) => coverBatchService.enqueueOne(albumId, remoteUrls),
 ))
-app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo, auditRepo, ()=>reflectionInboxService.evaluate()))
+app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(
+    albumRepo,
+    auditRepo,
+    () => reflectionInboxService.evaluate(),
+    (albumId, remoteUrls) => { coverBatchService.enqueueOne(albumId, remoteUrls) },
+))
 app.use("/audit", requireWriteTokenForMutations, createAuditRouter(auditRepo))
 app.use("/reflections", requireWriteTokenForMutations, createReflectionsRouter(reflectionInboxService, auditRepo))
 app.use("/insights", createInsightsRouter(insightsService))

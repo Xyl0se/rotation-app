@@ -526,6 +526,13 @@ export const en = {
 
     editDialog: {
         retryCover: "Find cover again",
+        coverResolution: {
+            cached: "The cover was found and updated.",
+            localNotFound: "No local artwork was found.",
+            localInvalid: "The artwork found is corrupt or invalid.",
+            remoteUnavailable: "The remote cover provider is temporarily unavailable.",
+            notFound: "No cover could be found.",
+        },
         startCoach: "Determine role with Album Coach",
         changeRole: "Change role with Album Coach",
         title: "Edit Album Metadata",

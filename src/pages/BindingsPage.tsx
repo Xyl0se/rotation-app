@@ -246,10 +246,10 @@ export default function BindingsPage({ onNavigateToLibrary, onBindingsChanged }:
         await handleReviewCandidates(binding.albumId)
     }
 
-    async function handleCaptureFinish(album: Album) {
+    async function handleCaptureFinish(album: Album, coverCandidates: string[] = []) {
         if (!captureBindingId) return
         try {
-            const captured = await captureBinding(captureBindingId, album)
+            const captured = await captureBinding(captureBindingId, album, coverCandidates)
             toast.success(t.bindings.captureSuccess)
             setShowCaptureDialog(false)
             setCaptureAlbum(makeEmptyAlbum())

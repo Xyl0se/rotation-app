@@ -43,6 +43,31 @@ describe("cover resolution batch service", () => {
         )
 
         await expect(service.resolveOne("album-id")).resolves.toEqual({ status: "cached", source: "embedded" })
-        expect(resolve).toHaveBeenCalledWith("album-id")
+        expect(resolve).toHaveBeenCalledWith("album-id", [], false)
+    })
+
+    it("queues interactive resolutions without blocking and drains them sequentially", async () => {
+        const bindingRepo = { findByState: () => [] } as unknown as BindingRepository
+        let releaseFirst!: () => void
+        const first = new Promise<void>(resolvePromise => { releaseFirst = resolvePromise })
+        let active = 0
+        let maxActive = 0
+        const resolve = vi.fn(async (albumId: string) => {
+            active++
+            maxActive = Math.max(maxActive, active)
+            if (albumId === "first") await first
+            active--
+            return { status: "cached" as const, source: "remote" as const }
+        })
+        const service = createCoverResolutionBatchService(bindingRepo, { resolve } as unknown as CoverResolver)
+
+        expect(service.enqueueOne("first", ["https://coverartarchive.org/first"])).toBe(true)
+        expect(service.enqueueOne("second", ["https://coverartarchive.org/second"])).toBe(true)
+        await vi.waitFor(() => expect(resolve).toHaveBeenCalledTimes(1))
+        expect(service.getQueueStatus()).toEqual({ pending: 1, running: true })
+        releaseFirst()
+        await vi.waitFor(() => expect(resolve).toHaveBeenCalledTimes(2))
+        await vi.waitFor(() => expect(service.getQueueStatus()).toEqual({ pending: 0, running: false }))
+        expect(maxActive).toBe(1)
     })
 })

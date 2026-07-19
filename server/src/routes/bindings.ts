@@ -89,13 +89,13 @@ export function createBindingsRouter(
     captureService?: BindingCaptureService,
     candidateRepo?: BindingCandidateRepository,
     auditRepo?: AuditRepository,
-    onConfirmedAlbum?: (libraryAlbumId: string) => Promise<unknown>,
+    onConfirmedAlbum?: (libraryAlbumId: string, remoteUrls?: string[]) => Promise<unknown>,
 ): Router {
     const router = Router()
 
-    async function resolveConfirmedAlbum(libraryAlbumId: string | null): Promise<void> {
+    async function resolveConfirmedAlbum(libraryAlbumId: string | null, remoteUrls: string[] = []): Promise<void> {
         if (!libraryAlbumId || !onConfirmedAlbum) return
-        await onConfirmedAlbum(libraryAlbumId).catch(() => undefined)
+        await onConfirmedAlbum(libraryAlbumId, remoteUrls).catch(() => undefined)
     }
 
     router.get("/:albumId/candidates", (req: Request, res: Response) => {
@@ -253,7 +253,7 @@ export function createBindingsRouter(
                 listenCount: body.album.listenCount ?? 0,
                 lastListened: body.album.lastListened ?? null,
             })
-            await resolveConfirmedAlbum(result.album.id)
+            await resolveConfirmedAlbum(result.album.id, body.coverCandidates)
             res.status(201).json({
                 album: result.album,
                 binding: toDTO(result.binding, musicGuard),
