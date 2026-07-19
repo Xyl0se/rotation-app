@@ -52,6 +52,7 @@ import { createArtworkFeasibilityService } from "./application/artworkFeasibilit
 import { createLocalArtworkService } from "./application/localArtworkService.js"
 import { createCoverResolver } from "./application/coverResolver.js"
 import { createCoverResolutionBatchService } from "./application/coverResolutionBatchService.js"
+import { createCoverResolutionRepository } from "./infrastructure/persistence/sqlite/coverResolutionRepository.js"
 
 const config = loadConfig()
 
@@ -76,7 +77,8 @@ const rotationStateRepo = createRotationStateRepository(db)
 const auditRepo = createAuditRepository(db, albumRepo)
 const reflectionInboxRepo = createReflectionInboxRepository(db)
 const reflectionInboxService = createReflectionInboxService(albumRepo, reflectionInboxRepo, rotationStateRepo)
-const coverService = createCoverService(config.ROTATION_DATA_DIR)
+const coverResolutionRepo = createCoverResolutionRepository(db)
+const coverService = createCoverService(config.ROTATION_DATA_DIR, coverResolutionRepo)
 const insightsService = createInsightsService(createInsightEvidenceRepository(db))
 
 const musicGuard = createPathGuard(config.ROTATION_MUSIC_PATH)

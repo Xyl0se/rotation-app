@@ -76,9 +76,9 @@ unchanged after the probe.
 - [ ] Or record a no-go/tighter-budget decision before implementing workstream 87B.
 - [ ] Document any real naming variants that require a bounded addition to the allowlist.
 
-## E. Local-first rollout acceptance (87B/87C)
+## E. Local-first rollout acceptance (87B–87E)
 
-- [ ] Deploy API and Web images from the same green 87C commit.
+- [ ] Deploy API and Web images from the same green 87E commit.
 - [ ] Run an explicit music-folder scan and record the bounded cover-resolution summary.
 - [ ] Confirm an Album with folder artwork receives that artwork before embedded or remote art.
 - [ ] Confirm an Album without folder artwork receives valid embedded MP3, M4A, or FLAC art.

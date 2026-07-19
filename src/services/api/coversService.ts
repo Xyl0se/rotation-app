@@ -9,10 +9,15 @@ export type CoverResolutionSource = "folder" | "embedded" | "upload" | "alternat
 export interface CoverResolutionResult { status: CoverResolutionStatus; source?: CoverResolutionSource | null }
 export interface CoverResolutionDiagnostics extends CoverResolutionResult {
     lastResolutionAt: string | null
+    resolvedAt: string | null
     candidateCount: number
     hasCachedCover: boolean
     source: CoverResolutionSource | null
     failureCode: "local-artwork-not-found" | "remote-not-found" | "remote-temporarily-unavailable" | "invalid-image" | null
+    sizeBytes: number | null
+    mimeType: "image/jpeg" | "image/png" | "image/webp" | "image/gif" | null
+    width: number | null
+    height: number | null
 }
 
 export async function fetchCoverUrl(albumId: string): Promise<string | null> {

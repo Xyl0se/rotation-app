@@ -1,5 +1,8 @@
 # Sprint 87 — Local-First Cover Sources
 
+> Personal-history follow-up: [Sprint 87.1 — Acquisition Context](./Sprint-87.1.md)
+> extends the structured reasons why an Album entered the collection.
+
 **Status:** In progress — feasibility runner ready; production NAS measurements required
 
 **Target version:** Future minor or focused maintenance release
@@ -48,7 +51,26 @@ Use a deterministic preference order:
 - Copy/normalize accepted artwork into the existing server cover cache.
 - Keep the last known-good cover until a replacement has been fully validated.
 
-## Workstream 87C — Scan and Diagnostics
+## Workstream 87C — Persistent and Atomic Resolution
+
+**Implementation status:** Complete in code ✅ — production migration acceptance pending
+
+- Migration 14 stores one durable resolution record per Album with current source and
+  cache status, last attempt and successful resolution timestamps, sanitized failure
+  code, non-reversible source fingerprint, byte size, MIME type, and dimensions.
+- No music-folder path, filename, parser message, or image payload is persisted in the
+  resolution table or returned by its API projection.
+- A failed retry records its attempt and failure without erasing the last successful
+  source metadata or changing an available last known-good cover from `cached`.
+- Replacement candidates are fully validated and written to temporary files first.
+  The previous cover and file metadata remain recoverable until the replacement and
+  SQLite state have committed; a persistence failure restores both.
+- Explicit uploads and deliberately selected alternatives remain authoritative and
+  automatic local-first resolution never replaces them.
+- Legacy JSON cover metadata remains a compatibility fallback for pre-migration files;
+  SQLite is authoritative after the next resolution attempt.
+
+## Workstream 87D — Scan, Capture, and Retry
 
 **Implementation status:** Complete in code ✅ — production NAS acceptance pending
 
@@ -56,6 +78,25 @@ Use a deterministic preference order:
   synchronously during Card rendering.
 - Persist source type and sanitized failure reason for manual diagnostics.
 - Let “Find cover again” retry local sources before remote providers.
+
+## Workstream 87E — Diagnostics and Frontend
+
+**Implementation status:** Implemented in code ✅ — production NAS acceptance pending
+
+- Keep all Album rendering on the same-origin cached cover endpoint.
+- Expose only bounded resolution state, timestamps, source type, sanitized failure,
+  cache presence, candidate count, and safe image properties.
+- Invalidate the browser display cache after an explicit resolution attempt.
+
+## Workstream 87F — Tests and Rollout
+
+**Implementation status:** In progress — automated regression coverage is green; NAS
+edge-case and rollout evidence remains pending
+
+- Cover migration, repository, restart persistence, rollback, validation, resolver
+  priority, bounded batch, Binding integration, and API sanitization have automated tests.
+- Complete the remaining production cases in the Sprint-87 NAS acceptance record before
+  declaring the sprint done.
 
 ## Definition of Done
 

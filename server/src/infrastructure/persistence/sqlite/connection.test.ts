@@ -45,7 +45,7 @@ describe("SQLite schema migrations", () => {
     it("records every migration and sets the user version", () => {
         const db = initDatabase(":memory:")
 
-        expect(db.pragma("user_version", { simple: true })).toBe(13)
+        expect(db.pragma("user_version", { simple: true })).toBe(14)
         expect(db.prepare("SELECT version, name FROM schema_migrations ORDER BY version").all())
             .toEqual([
                 { version: 1, name: "initial-schema" },
@@ -61,6 +61,7 @@ describe("SQLite schema migrations", () => {
                 { version: 11, name: "bounded-list-query-indexes" },
                 { version: 12, name: "reflection-inbox" },
                 { version: 13, name: "listening-journal" },
+                { version: 14, name: "cover-resolution-state" },
             ])
         db.close()
     })
@@ -109,7 +110,7 @@ describe("SQLite schema migrations", () => {
         const second = initDatabase(path)
 
         expect(second.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get())
-            .toEqual({ count: 13 })
+                .toEqual({ count: 14 })
         second.close()
     })
 
@@ -126,13 +127,36 @@ describe("SQLite schema migrations", () => {
         v7.close()
 
         const upgraded = initDatabase(path)
-        expect(upgraded.pragma("user_version", { simple: true })).toBe(13)
+        expect(upgraded.pragma("user_version", { simple: true })).toBe(14)
         expect(upgraded.prepare("SELECT title FROM albums WHERE id='album-v7'").get()).toEqual({ title: "Preserved" })
         expect(upgraded.prepare("SELECT status, archived_at FROM rotation_plans WHERE id='rotation-v7'").get()).toEqual({ status: "active", archived_at: null })
         expect(upgraded.prepare("SELECT album_title_snapshot, album_artist_snapshot FROM rotation_plan_items WHERE rotation_plan_id='rotation-v7'").get())
             .toEqual({ album_title_snapshot: "Preserved", album_artist_snapshot: "Artist" })
         expect(upgraded.prepare("SELECT album_id FROM listen_events WHERE id='listen-v7'").get()).toEqual({ album_id: "album-v7" })
         expect(upgraded.prepare("SELECT COUNT(*) count FROM domain_audit_events").get()).toEqual({ count: 0 })
+        upgraded.close()
+    })
+
+    it("upgrades schema 13 with durable cover resolution state and cascade cleanup", () => {
+        const directory = mkdtempSync(join(tmpdir(), "rotation-cover-migration-"))
+        temporaryDirectories.push(directory)
+        const path = join(directory, "rotation.db")
+        const v13 = initDatabase(path, 13)
+        v13.prepare("INSERT INTO albums (id,title,artist,role_history,listen_count,created_at,updated_at) VALUES (?,?,?,?,?,?,?)")
+            .run("album-cover", "Album", "Artist", "[]", 0, "created", "updated")
+        expect(v13.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='cover_resolution_state'").get())
+            .toBeUndefined()
+        v13.close()
+
+        const upgraded = initDatabase(path)
+        upgraded.prepare(`INSERT INTO cover_resolution_state
+            (album_id,source_type,status,last_attempt_at,resolved_at,mime_type,width,height)
+            VALUES (?,?,?,?,?,?,?,?)`)
+            .run("album-cover", "folder", "cached", "attempt", "resolved", "image/png", 10, 10)
+        expect(upgraded.prepare("SELECT source_type,status FROM cover_resolution_state WHERE album_id=?").get("album-cover"))
+            .toEqual({ source_type: "folder", status: "cached" })
+        upgraded.prepare("DELETE FROM albums WHERE id=?").run("album-cover")
+        expect(upgraded.prepare("SELECT COUNT(*) count FROM cover_resolution_state").get()).toEqual({ count: 0 })
         upgraded.close()
     })
 })

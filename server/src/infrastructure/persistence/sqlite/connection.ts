@@ -463,6 +463,30 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 14,
+        name: "cover-resolution-state",
+        run(db) {
+            db.exec(`
+                CREATE TABLE cover_resolution_state (
+                    album_id TEXT PRIMARY KEY REFERENCES albums(id) ON DELETE CASCADE,
+                    source_type TEXT CHECK(source_type IS NULL OR source_type IN ('folder','embedded','remote','upload','alternative')),
+                    status TEXT NOT NULL CHECK(status IN ('cached','not-found','temporarily-unavailable','invalid-image')),
+                    last_attempt_at TEXT NOT NULL,
+                    resolved_at TEXT,
+                    failure_code TEXT CHECK(failure_code IS NULL OR failure_code IN ('local-artwork-not-found','remote-not-found','remote-temporarily-unavailable','invalid-image')),
+                    source_fingerprint TEXT,
+                    size_bytes INTEGER CHECK(size_bytes IS NULL OR size_bytes BETWEEN 0 AND 5242880),
+                    mime_type TEXT CHECK(mime_type IS NULL OR mime_type IN ('image/jpeg','image/png','image/webp','image/gif')),
+                    width INTEGER CHECK(width IS NULL OR width > 0),
+                    height INTEGER CHECK(height IS NULL OR height > 0),
+                    candidate_urls_json TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(candidate_urls_json))
+                );
+                CREATE INDEX idx_cover_resolution_status_attempt
+                    ON cover_resolution_state(status, last_attempt_at DESC);
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database, maxMigrationVersion: number): void {

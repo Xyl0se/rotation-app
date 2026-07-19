@@ -1,7 +1,8 @@
 import { writeFileSync, readFileSync, existsSync, unlinkSync, mkdirSync, renameSync } from "node:fs"
 import { join, extname, relative, resolve } from "node:path"
-import { randomUUID } from "node:crypto"
+import { createHash, randomUUID } from "node:crypto"
 import { validateImage } from "./imageValidator.js"
+import type { CoverResolutionRepository } from "../infrastructure/persistence/sqlite/coverResolutionRepository.js"
 
 export type CoverSource = "upload" | "url" | "remote" | "alternative" | "folder" | "embedded"
 export type CoverFailureCode = "local-artwork-not-found" | "remote-not-found" | "remote-temporarily-unavailable" | "invalid-image"
@@ -12,8 +13,13 @@ export interface CoverMeta {
     source?: CoverSource
     resolutionStatus?: CoverResolutionStatus
     lastResolutionAt?: string
+    resolvedAt?: string
     candidateUrls?: string[]
     failureCode?: CoverFailureCode
+    sizeBytes?: number
+    width?: number
+    height?: number
+    sourceFingerprint?: string
 }
 
 export type CoverResolutionStatus = "cached" | "not-found" | "temporarily-unavailable" | "invalid-image"
@@ -38,6 +44,14 @@ function assertValidAlbumId(albumId: string): void {
     }
 }
 
+function removeIfExists(path: string): void {
+    try {
+        if (existsSync(path)) unlinkSync(path)
+    } catch {
+        // Cleanup never invalidates an already committed replacement.
+    }
+}
+
 function hasExpectedSignature(buffer: Buffer, contentType: string): boolean {
     switch (contentType) {
         case "image/jpeg":
@@ -57,7 +71,7 @@ function hasExpectedSignature(buffer: Buffer, contentType: string): boolean {
     }
 }
 
-export function createCoverService(dataDir: string) {
+export function createCoverService(dataDir: string, resolutionRepository?: CoverResolutionRepository) {
     const coversDir = join(dataDir, "covers")
     mkdirSync(coversDir, { recursive: true })
 
@@ -106,11 +120,31 @@ export function createCoverService(dataDir: string) {
 
     function readMeta(albumId: string): CoverMeta | null {
         const metaPath = getMetaPath(albumId)
-        if (!existsSync(metaPath)) return null
-        try {
-            return JSON.parse(readFileSync(metaPath, "utf-8")) as CoverMeta
-        } catch {
-            return null
+        let fileMeta: CoverMeta | null
+        if (!existsSync(metaPath)) {
+            fileMeta = null
+        } else {
+            try {
+                fileMeta = JSON.parse(readFileSync(metaPath, "utf-8")) as CoverMeta
+            } catch {
+                fileMeta = null
+            }
+        }
+        const persisted = resolutionRepository?.findByAlbumId(albumId)
+        if (!persisted) return fileMeta
+        return {
+            ...fileMeta,
+            source: persisted.source_type ?? fileMeta?.source,
+            resolutionStatus: persisted.status,
+            lastResolutionAt: persisted.last_attempt_at,
+            resolvedAt: persisted.resolved_at ?? undefined,
+            candidateUrls: persisted.candidate_urls,
+            failureCode: persisted.failure_code ?? undefined,
+            sizeBytes: persisted.size_bytes ?? undefined,
+            contentType: persisted.mime_type ?? fileMeta?.contentType,
+            width: persisted.width ?? undefined,
+            height: persisted.height ?? undefined,
+            sourceFingerprint: persisted.source_fingerprint ?? undefined,
         }
     }
 
@@ -133,7 +167,8 @@ export function createCoverService(dataDir: string) {
     return {
         coversDir,
 
-        saveCover(albumId: string, buffer: Buffer, contentType: string, source?: CoverSource): void {
+        saveCover(albumId: string, buffer: Buffer, contentType: string, source?: CoverSource,
+            dimensions?: { width: number; height: number }): void {
             assertValidAlbumId(albumId)
             if (buffer.length > MAX_COVER_SIZE_BYTES) {
                 throw new Error(`Cover exceeds maximum size of ${MAX_COVER_SIZE_BYTES} bytes`)
@@ -168,36 +203,75 @@ export function createCoverService(dataDir: string) {
             const temporarySuffix = `.tmp-${randomUUID()}`
             const temporaryCoverPath = safeCoverPath(`${albumId}${ext}${temporarySuffix}`)
             const temporaryMetaPath = safeCoverPath(`${albumId}.json${temporarySuffix}`)
+            const backupCoverPath = safeCoverPath(`${albumId}.cover-backup${temporarySuffix}`)
+            const backupMetaPath = safeCoverPath(`${albumId}.meta-backup${temporarySuffix}`)
 
             const previousMeta = readMeta(albumId)
+            const previousCoverPath = getCoverPath(albumId)
+            const previousMetaPath = getMetaPath(albumId)
+            const now = new Date().toISOString()
+            const fingerprint = createHash("sha256").update(buffer).digest("hex")
             const meta: CoverMeta = {
                 contentType,
-                uploadedAt: new Date().toISOString(),
+                uploadedAt: now,
                 source,
                 resolutionStatus: "cached",
-                lastResolutionAt: source === "url" || source === "remote" ? new Date().toISOString() : previousMeta?.lastResolutionAt,
+                lastResolutionAt: now,
+                resolvedAt: now,
                 candidateUrls: previousMeta?.candidateUrls,
                 failureCode: undefined,
+                sizeBytes: buffer.length,
+                width: dimensions?.width,
+                height: dimensions?.height,
+                sourceFingerprint: fingerprint,
             }
+            let replacementInstalled = false
             try {
                 writeFileSync(temporaryCoverPath, buffer, { flag: "wx" })
                 writeFileSync(temporaryMetaPath, JSON.stringify(meta), { flag: "wx" })
+                if (previousCoverPath) renameSync(previousCoverPath, backupCoverPath)
+                if (existsSync(previousMetaPath)) renameSync(previousMetaPath, backupMetaPath)
                 renameSync(temporaryCoverPath, filePath)
+                replacementInstalled = true
                 renameSync(temporaryMetaPath, getMetaPath(albumId))
+                if (source) {
+                    resolutionRepository?.recordSuccess({
+                        albumId,
+                        source: source === "url" ? "remote" : source,
+                        attemptedAt: now,
+                        resolvedAt: now,
+                        fingerprint,
+                        sizeBytes: buffer.length,
+                        mimeType: contentType as "image/jpeg" | "image/png" | "image/webp" | "image/gif",
+                        width: dimensions?.width,
+                        height: dimensions?.height,
+                        candidateUrls: previousMeta?.candidateUrls,
+                    })
+                }
                 for (const oldExt of [".jpg", ".jpeg", ".png", ".webp", ".gif"]) {
                     if (oldExt === ext) continue
                     const oldPath = safeCoverPath(`${albumId}${oldExt}`)
-                    if (existsSync(oldPath)) unlinkSync(oldPath)
+                    removeIfExists(oldPath)
                 }
+                removeIfExists(backupCoverPath)
+                removeIfExists(backupMetaPath)
+            } catch (error) {
+                if (replacementInstalled && existsSync(filePath)) unlinkSync(filePath)
+                if (replacementInstalled && existsSync(getMetaPath(albumId))) unlinkSync(getMetaPath(albumId))
+                if (previousCoverPath && existsSync(backupCoverPath)) renameSync(backupCoverPath, previousCoverPath)
+                if (existsSync(backupMetaPath)) renameSync(backupMetaPath, previousMetaPath)
+                throw error
             } finally {
-                if (existsSync(temporaryCoverPath)) unlinkSync(temporaryCoverPath)
-                if (existsSync(temporaryMetaPath)) unlinkSync(temporaryMetaPath)
+                removeIfExists(temporaryCoverPath)
+                removeIfExists(temporaryMetaPath)
+                removeIfExists(backupCoverPath)
+                removeIfExists(backupMetaPath)
             }
         },
 
         async saveValidatedCover(albumId: string, buffer: Buffer, contentType: string, source: CoverSource): Promise<void> {
             const validated = await validateImage(buffer, contentType)
-            this.saveCover(albumId, validated.buffer, validated.contentType, source)
+            this.saveCover(albumId, validated.buffer, validated.contentType, source, validated)
         },
 
         recordResolutionDiagnostic(albumId: string, status: CoverResolutionStatus, failureCode?: CoverFailureCode): void {
@@ -208,6 +282,10 @@ export function createCoverService(dataDir: string) {
                 lastResolutionAt: new Date().toISOString(),
                 failureCode,
             })
+            if (failureCode) {
+                resolutionRepository?.recordFailure(albumId, status, new Date().toISOString(), failureCode,
+                    previousMeta?.candidateUrls ?? [])
+            }
         },
 
         async resolveRemoteCover(albumId: string, sourceUrls: string | string[]): Promise<CoverResolutionResult> {
@@ -262,6 +340,17 @@ export function createCoverService(dataDir: string) {
                         ? "remote-temporarily-unavailable"
                         : "invalid-image",
             })
+            resolutionRepository?.recordFailure(
+                albumId,
+                getCoverPath(albumId) ? "cached" : finalStatus,
+                new Date().toISOString(),
+                finalStatus === "not-found"
+                    ? "remote-not-found"
+                    : finalStatus === "temporarily-unavailable"
+                        ? "remote-temporarily-unavailable"
+                        : "invalid-image",
+                candidates,
+            )
             return { status: finalStatus }
         },
 
@@ -284,6 +373,7 @@ export function createCoverService(dataDir: string) {
                 unlinkSync(metaPath)
                 deleted = true
             }
+            resolutionRepository?.delete(albumId)
             return deleted
         },
 

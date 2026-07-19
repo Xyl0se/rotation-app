@@ -3,6 +3,7 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { createCoverService } from "./coverService.js"
+import type { CoverResolutionRepository } from "../infrastructure/persistence/sqlite/coverResolutionRepository.js"
 
 const ALBUM_ID = "550e8400-e29b-41d4-a716-446655440000"
 const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64")
@@ -84,6 +85,24 @@ describe("coverService security", () => {
 
         expect(coverService.getCoverPath(ALBUM_ID)).toBe(join(directory, "covers", `${ALBUM_ID}.jpg`))
         expect(() => readFileSync(join(directory, "covers", `${ALBUM_ID}.png`))).toThrow()
+    })
+
+    it("restores the last known-good cover and metadata when persistence fails", () => {
+        const { directory, coverService } = service()
+        coverService.saveCover(ALBUM_ID, PNG, "image/png", "upload")
+        const failingRepository = {
+            findByAlbumId: vi.fn(() => undefined),
+            recordSuccess: vi.fn(() => { throw new Error("database unavailable") }),
+            recordFailure: vi.fn(),
+            delete: vi.fn(),
+        } as unknown as CoverResolutionRepository
+        const persistentService = createCoverService(directory, failingRepository)
+
+        expect(() => persistentService.saveCover(ALBUM_ID, JPEG, "image/jpeg", "remote"))
+            .toThrow("database unavailable")
+        expect(persistentService.getCoverPath(ALBUM_ID)).toBe(join(directory, "covers", `${ALBUM_ID}.png`))
+        expect(readFileSync(join(directory, "covers", `${ALBUM_ID}.png`))).toEqual(PNG)
+        expect(persistentService.getMeta(ALBUM_ID)).toMatchObject({ source: "upload", contentType: "image/png" })
     })
 
     it("downloads and persists a validated Cover Art Archive image", async () => {

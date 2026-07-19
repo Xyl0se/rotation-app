@@ -47,10 +47,15 @@ export function createCoversRouter(coverService: CoverService, coverResolver?: C
         res.json({
             status: meta?.resolutionStatus ?? (coverService.getCoverPath(albumId) ? "cached" : "not-found"),
             lastResolutionAt: meta?.lastResolutionAt ?? null,
+            resolvedAt: meta?.resolvedAt ?? null,
             candidateCount: meta?.candidateUrls?.length ?? 0,
             hasCachedCover: coverService.getCoverPath(albumId) !== null,
             source: meta?.source === "url" ? "remote" : (meta?.source ?? null),
             failureCode: meta?.failureCode ?? null,
+            sizeBytes: meta?.sizeBytes ?? null,
+            mimeType: meta?.contentType ?? null,
+            width: meta?.width ?? null,
+            height: meta?.height ?? null,
         })
     })
 

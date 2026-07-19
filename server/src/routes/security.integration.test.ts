@@ -290,10 +290,15 @@ describe("mutating API route security", () => {
         await expect(response.json()).resolves.toEqual({
             status: "temporarily-unavailable",
             lastResolutionAt: "2026-07-16T12:00:00.000Z",
+            resolvedAt: null,
             candidateCount: 2,
             hasCachedCover: false,
             source: null,
             failureCode: null,
+            sizeBytes: null,
+            mimeType: null,
+            width: null,
+            height: null,
         })
     })
 
