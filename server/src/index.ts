@@ -51,6 +51,7 @@ import { createInsightsRouter } from "./routes/insights.js"
 import { createArtworkFeasibilityService } from "./application/artworkFeasibilityService.js"
 import { createLocalArtworkService } from "./application/localArtworkService.js"
 import { createCoverResolver } from "./application/coverResolver.js"
+import { createCoverResolutionBatchService } from "./application/coverResolutionBatchService.js"
 
 const config = loadConfig()
 
@@ -85,6 +86,7 @@ const syncthingGuard = createPathGuard(config.ROTATION_SYNCTHING_ROOT)
 const scanner = createDirectoryScanner(musicGuard)
 const localArtworkService = createLocalArtworkService(bindingRepo, musicGuard)
 const coverResolver = createCoverResolver(coverService, localArtworkService)
+const coverBatchService = createCoverResolutionBatchService(bindingRepo, coverResolver)
 const artworkFeasibilityService = createArtworkFeasibilityService(bindingRepo, musicGuard)
 const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo, bindingCandidateRepo)
 const lockRepo = createExportLockRepository(db)
@@ -142,7 +144,7 @@ app.use(express.json())
 
 app.use("/health", createHealthRouter(db, config, scanRunRepo))
 app.use("/config", createConfigRouter(config))
-app.use("/scan", requireSameOriginForMutations, createScanRouter(scanService, scanRunRepo, bindingRepo))
+app.use("/scan", requireSameOriginForMutations, createScanRouter(scanService, scanRunRepo, bindingRepo, coverBatchService))
 app.use("/diagnostics", requireWriteTokenForMutations, createDiagnosticsRouter(
     config,
     bindingRepo,
@@ -153,7 +155,14 @@ app.use("/diagnostics", requireWriteTokenForMutations, createDiagnosticsRouter(
     artworkFeasibilityService,
 ))
 
-app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, bindingCaptureService, bindingCandidateRepo, auditRepo))
+app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(
+    bindingRepo,
+    musicGuard,
+    bindingCaptureService,
+    bindingCandidateRepo,
+    auditRepo,
+    albumId => coverBatchService.resolveOne(albumId),
+))
 app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo, auditRepo, ()=>reflectionInboxService.evaluate()))
 app.use("/audit", requireWriteTokenForMutations, createAuditRouter(auditRepo))
 app.use("/reflections", requireWriteTokenForMutations, createReflectionsRouter(reflectionInboxService, auditRepo))

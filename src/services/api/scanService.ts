@@ -3,6 +3,13 @@ import { post, get } from "./apiClient.js"
 export interface ScanResponse {
     scanId: string
     status: string
+    coverResolution?: {
+        attempted: number
+        local: number
+        cached: number
+        missing: number
+        failed: number
+    }
 }
 
 export interface ScanProgressResponse {

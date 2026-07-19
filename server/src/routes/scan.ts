@@ -4,21 +4,26 @@ import type { ScanService } from "../application/scanService.js"
 import type { ScanRunRepository } from "../infrastructure/persistence/sqlite/scanRunRepository.js"
 import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
 import { randomUUID } from "node:crypto"
+import type { CoverResolutionBatchService } from "../application/coverResolutionBatchService.js"
 
 export function createScanRouter(
     scanService: ScanService,
     scanRunRepo: ScanRunRepository,
     bindingRepo: BindingRepository,
+    coverBatchService?: CoverResolutionBatchService,
 ): Router {
     const router = Router()
 
-    router.post("/", (_req: Request, res: Response) => {
+    router.post("/", async (_req: Request, res: Response) => {
         const scanId = randomUUID()
 
         try {
             scanService.runScan(scanId)
+            const coverResolution = coverBatchService
+                ? await coverBatchService.resolveConfirmed()
+                : undefined
             const scanRun = scanRunRepo.findById(scanId)
-            res.status(201).json({ scanId, status: scanRun?.status ?? "unknown" })
+            res.status(201).json({ scanId, status: scanRun?.status ?? "unknown", coverResolution })
         } catch (err) {
             res.status(500).json({
                 error: "Scan failed",

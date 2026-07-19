@@ -81,6 +81,10 @@ describe("cover resolver", () => {
             "https://coverartarchive.org/release/id/front",
         ])).resolves.toEqual({ status: "cached", source: "cache" })
         expect(fetchMock).not.toHaveBeenCalled()
+        expect(coverService.getMeta(ALBUM_ID)).toMatchObject({
+            resolutionStatus: "cached",
+            failureCode: "local-artwork-not-found",
+        })
     })
 })
 

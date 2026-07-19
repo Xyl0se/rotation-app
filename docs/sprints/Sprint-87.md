@@ -50,6 +50,8 @@ Use a deterministic preference order:
 
 ## Workstream 87C — Scan and Diagnostics
 
+**Implementation status:** Complete in code ✅ — production NAS acceptance pending
+
 - Resolve local covers during explicit scan/capture or a bounded background job, not
   synchronously during Card rendering.
 - Persist source type and sanitized failure reason for manual diagnostics.

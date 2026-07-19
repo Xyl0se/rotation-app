@@ -75,3 +75,15 @@ unchanged after the probe.
 - [ ] Accept ADR 017 and proceed with the production adapter.
 - [ ] Or record a no-go/tighter-budget decision before implementing workstream 87B.
 - [ ] Document any real naming variants that require a bounded addition to the allowlist.
+
+## E. Local-first rollout acceptance (87B/87C)
+
+- [ ] Deploy API and Web images from the same green 87C commit.
+- [ ] Run an explicit music-folder scan and record the bounded cover-resolution summary.
+- [ ] Confirm an Album with folder artwork receives that artwork before embedded or remote art.
+- [ ] Confirm an Album without folder artwork receives valid embedded MP3, M4A, or FLAC art.
+- [ ] Confirm an existing manual upload remains unchanged after scan and retry.
+- [ ] Confirm “Find cover again” retries local sources before the remote provider.
+- [ ] Confirm ordinary Library and Cover GET requests trigger no music metadata parsing.
+- [ ] Confirm `/music` remains read-only and sampled source-file hashes remain unchanged.
+- [ ] Confirm a failed or corrupt replacement leaves the last known-good cached cover visible.

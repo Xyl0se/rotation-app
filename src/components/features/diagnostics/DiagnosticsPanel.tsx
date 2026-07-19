@@ -57,6 +57,9 @@ export default function DiagnosticsPanel() {
     const [scanning, setScanning] = useState(false)
     const [scanQueued, setScanQueued] = useState(false)
     const [scanProgress, setScanProgress] = useState<{ directoriesScanned: number; directoriesSkipped: number } | null>(null)
+    const [coverBatch, setCoverBatch] = useState<{
+        attempted: number; local: number; cached: number; missing: number; failed: number
+    } | null>(null)
     const [artworkProbeRunning, setArtworkProbeRunning] = useState(false)
     const [artworkReport, setArtworkReport] = useState<ArtworkFeasibilityReport | null>(null)
     const [artworkProbeError, setArtworkProbeError] = useState<string | null>(null)
@@ -94,10 +97,12 @@ export default function DiagnosticsPanel() {
         setScanning(true)
         setScanQueued(false)
         setScanProgress(null)
+        setCoverBatch(null)
         let progressPoll: ReturnType<typeof setInterval> | null = null
 
         try {
             const response = await triggerScan()
+            setCoverBatch(response.coverResolution ?? null)
             setScanQueued(true)
 
             // Poll for scan progress every 2 seconds
@@ -278,6 +283,17 @@ export default function DiagnosticsPanel() {
                             </button>
                             {scanQueued && !scanning && (
                                 <span className="diagnostics-scan-queued">{t.diagnostics.scanQueued}</span>
+                            )}
+                        </div>
+                    )}
+                    {coverBatch && (
+                        <div className="diagnostics-meta">
+                            {t.diagnostics.coverBatchSummary(
+                                coverBatch.attempted,
+                                coverBatch.local,
+                                coverBatch.cached,
+                                coverBatch.missing,
+                                coverBatch.failed,
                             )}
                         </div>
                     )}

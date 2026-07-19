@@ -6,11 +6,13 @@ import { postRaw, del, get, post } from "./apiClient.js"
 
 export type CoverResolutionStatus = "cached" | "not-found" | "temporarily-unavailable" | "invalid-image"
 export type CoverResolutionSource = "folder" | "embedded" | "upload" | "alternative" | "remote" | "cache" | "placeholder"
-export interface CoverResolutionResult { status: CoverResolutionStatus; source?: CoverResolutionSource }
+export interface CoverResolutionResult { status: CoverResolutionStatus; source?: CoverResolutionSource | null }
 export interface CoverResolutionDiagnostics extends CoverResolutionResult {
     lastResolutionAt: string | null
     candidateCount: number
     hasCachedCover: boolean
+    source: CoverResolutionSource | null
+    failureCode: "local-artwork-not-found" | "remote-not-found" | "remote-temporarily-unavailable" | "invalid-image" | null
 }
 
 export async function fetchCoverUrl(albumId: string): Promise<string | null> {

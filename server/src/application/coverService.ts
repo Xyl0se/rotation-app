@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto"
 import { validateImage } from "./imageValidator.js"
 
 export type CoverSource = "upload" | "url" | "remote" | "alternative" | "folder" | "embedded"
+export type CoverFailureCode = "local-artwork-not-found" | "remote-not-found" | "remote-temporarily-unavailable" | "invalid-image"
 
 export interface CoverMeta {
     contentType?: string
@@ -12,6 +13,7 @@ export interface CoverMeta {
     resolutionStatus?: CoverResolutionStatus
     lastResolutionAt?: string
     candidateUrls?: string[]
+    failureCode?: CoverFailureCode
 }
 
 export type CoverResolutionStatus = "cached" | "not-found" | "temporarily-unavailable" | "invalid-image"
@@ -175,6 +177,7 @@ export function createCoverService(dataDir: string) {
                 resolutionStatus: "cached",
                 lastResolutionAt: source === "url" || source === "remote" ? new Date().toISOString() : previousMeta?.lastResolutionAt,
                 candidateUrls: previousMeta?.candidateUrls,
+                failureCode: undefined,
             }
             try {
                 writeFileSync(temporaryCoverPath, buffer, { flag: "wx" })
@@ -195,6 +198,16 @@ export function createCoverService(dataDir: string) {
         async saveValidatedCover(albumId: string, buffer: Buffer, contentType: string, source: CoverSource): Promise<void> {
             const validated = await validateImage(buffer, contentType)
             this.saveCover(albumId, validated.buffer, validated.contentType, source)
+        },
+
+        recordResolutionDiagnostic(albumId: string, status: CoverResolutionStatus, failureCode?: CoverFailureCode): void {
+            const previousMeta = readMeta(albumId)
+            writeMeta(albumId, {
+                ...previousMeta,
+                resolutionStatus: status,
+                lastResolutionAt: new Date().toISOString(),
+                failureCode,
+            })
         },
 
         async resolveRemoteCover(albumId: string, sourceUrls: string | string[]): Promise<CoverResolutionResult> {
@@ -243,6 +256,11 @@ export function createCoverService(dataDir: string) {
                 resolutionStatus: finalStatus,
                 lastResolutionAt: new Date().toISOString(),
                 candidateUrls: candidates,
+                failureCode: finalStatus === "not-found"
+                    ? "remote-not-found"
+                    : finalStatus === "temporarily-unavailable"
+                        ? "remote-temporarily-unavailable"
+                        : "invalid-image",
             })
             return { status: finalStatus }
         },

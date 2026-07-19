@@ -89,8 +89,14 @@ export function createBindingsRouter(
     captureService?: BindingCaptureService,
     candidateRepo?: BindingCandidateRepository,
     auditRepo?: AuditRepository,
+    onConfirmedAlbum?: (libraryAlbumId: string) => Promise<unknown>,
 ): Router {
     const router = Router()
+
+    async function resolveConfirmedAlbum(libraryAlbumId: string | null): Promise<void> {
+        if (!libraryAlbumId || !onConfirmedAlbum) return
+        await onConfirmedAlbum(libraryAlbumId).catch(() => undefined)
+    }
 
     router.get("/:albumId/candidates", (req: Request, res: Response) => {
         if (!candidateRepo) return void res.json({ candidates: [] })
@@ -99,7 +105,7 @@ export function createBindingsRouter(
         res.json({ candidates: candidateRepo.findByBinding(albumId) })
     })
 
-    router.post("/:albumId/select-candidate", (req: Request, res: Response) => {
+    router.post("/:albumId/select-candidate", async (req: Request, res: Response) => {
         if (!candidateRepo) return void res.status(501).json({ error: "Candidate review unavailable" })
         const albumId = req.params.albumId as string
         const body = parseRequest(SelectBindingCandidateSchema, req.body, res)
@@ -110,6 +116,7 @@ export function createBindingsRouter(
         if (result !== "SELECTED") return void res.status(409).json({ error: result })
         const after = bindingRepo.findById(albumId)
         if (auditRepo && before?.library_album_id !== after?.library_album_id) auditRepo.record("binding-reassigned", albumId, before, after)
+        await resolveConfirmedAlbum(after?.library_album_id ?? null)
         res.json(toDTO(bindingRepo.findWithAlbumDataById(albumId), musicGuard))
     })
 
@@ -121,7 +128,7 @@ export function createBindingsRouter(
         res.json({ rejected: true })
     })
 
-    router.post("/:albumId/select-library-album", (req: Request, res: Response) => {
+    router.post("/:albumId/select-library-album", async (req: Request, res: Response) => {
         if (!candidateRepo) return void res.status(501).json({ error: "Candidate review unavailable" })
         const albumId = req.params.albumId as string
         const body = parseRequest(LinkBindingBodySchema.omit({ albumId: true }), req.body, res)
@@ -132,6 +139,7 @@ export function createBindingsRouter(
         if (result !== "SELECTED") return void res.status(409).json({ error: result })
         const after = bindingRepo.findById(albumId)
         if (auditRepo && before?.library_album_id !== after?.library_album_id) auditRepo.record("binding-reassigned", albumId, before, after)
+        await resolveConfirmedAlbum(after?.library_album_id ?? null)
         res.json(toDTO(bindingRepo.findWithAlbumDataById(albumId), musicGuard))
     })
 
@@ -183,7 +191,7 @@ export function createBindingsRouter(
     })
 
     // POST /bindings/confirm – confirm a binding by albumId
-    router.post("/confirm", (req: Request, res: Response) => {
+    router.post("/confirm", async (req: Request, res: Response) => {
         const body = parseRequest(BindingAlbumIdBodySchema, req.body, res)
         if (!body) return
         const { albumId } = body
@@ -199,11 +207,12 @@ export function createBindingsRouter(
         }
         const updated = bindingRepo.findWithAlbumDataById(albumId)!
         if (auditRepo && record.library_album_id !== updated.library_album_id) auditRepo.record("binding-reassigned", albumId, record, updated)
+        await resolveConfirmedAlbum(updated.library_album_id)
         res.json(toDTO(updated, musicGuard))
     })
 
     // POST /bindings/link – manually link a binding to a library album
-    router.post("/link", (req: Request, res: Response) => {
+    router.post("/link", async (req: Request, res: Response) => {
         const body = parseRequest(LinkBindingBodySchema, req.body, res)
         if (!body) return
         const { albumId, libraryAlbumId } = body
@@ -224,11 +233,12 @@ export function createBindingsRouter(
         }
         const updated = bindingRepo.findWithAlbumDataById(albumId)!
         if (auditRepo && record.library_album_id !== updated.library_album_id) auditRepo.record("binding-reassigned", albumId, record, updated)
+        if (updated.state === "confirmed") await resolveConfirmedAlbum(updated.library_album_id)
         res.json(toDTO(updated, musicGuard))
     })
 
     // POST /bindings/capture – atomically create one Library Album and link its Binding
-    router.post("/capture", (req: Request, res: Response) => {
+    router.post("/capture", async (req: Request, res: Response) => {
         if (!captureService) {
             res.status(501).json({ error: "Binding capture is unavailable" })
             return
@@ -243,6 +253,7 @@ export function createBindingsRouter(
                 listenCount: body.album.listenCount ?? 0,
                 lastListened: body.album.lastListened ?? null,
             })
+            await resolveConfirmedAlbum(result.album.id)
             res.status(201).json({
                 album: result.album,
                 binding: toDTO(result.binding, musicGuard),

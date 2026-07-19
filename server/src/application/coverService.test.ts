@@ -108,6 +108,7 @@ describe("coverService security", () => {
         expect(coverService.getMeta(ALBUM_ID)).toMatchObject({
             resolutionStatus: "invalid-image",
             candidateUrls: [],
+            failureCode: "invalid-image",
         })
     })
 

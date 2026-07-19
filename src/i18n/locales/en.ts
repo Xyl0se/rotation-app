@@ -859,6 +859,8 @@ export const en = {
         scanningWithProgress: (scanned: number, skipped: number) =>
             `Scanning… (${scanned} directories scanned, ${skipped} skipped)`,
         scanQueued: "Scan started, please wait…",
+        coverBatchSummary: (attempted: number, local: number, cached: number, missing: number, failed: number) =>
+            `Cover resolution: ${attempted} checked, ${local} local, ${cached} cached, ${missing} missing, ${failed} failed`,
         database: "Database",
         databaseFail: "Not reachable",
         musicFolder: "Music folder",

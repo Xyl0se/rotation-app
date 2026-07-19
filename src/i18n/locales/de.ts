@@ -860,6 +860,8 @@ export const de: Translation = {
         scanningWithProgress: (scanned: number, skipped: number) =>
             `Scan läuft… (${scanned} Verzeichnisse gescannt, ${skipped} übersprungen)`,
         scanQueued: "Scan gestartet, bitte warten…",
+        coverBatchSummary: (attempted: number, local: number, cached: number, missing: number, failed: number) =>
+            `Cover-Auflösung: ${attempted} geprüft, ${local} lokal, ${cached} gecacht, ${missing} fehlend, ${failed} fehlgeschlagen`,
         database: "Datenbank",
         databaseFail: "Nicht erreichbar",
         musicFolder: "Musik-Ordner",

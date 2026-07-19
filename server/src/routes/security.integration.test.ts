@@ -292,6 +292,8 @@ describe("mutating API route security", () => {
             lastResolutionAt: "2026-07-16T12:00:00.000Z",
             candidateCount: 2,
             hasCachedCover: false,
+            source: null,
+            failureCode: null,
         })
     })
 

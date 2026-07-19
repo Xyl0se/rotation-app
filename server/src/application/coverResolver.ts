@@ -19,6 +19,7 @@ export function createCoverResolver(coverService: CoverService, localArtworkServ
             }
 
             if (coverService.getCoverPath(albumId) && !forceRefresh) {
+                coverService.recordResolutionDiagnostic(albumId, "cached", "local-artwork-not-found")
                 return { status: "cached", source: "cache" }
             }
 
@@ -28,6 +29,7 @@ export function createCoverResolver(coverService: CoverService, localArtworkServ
             }
 
             if (coverService.getCoverPath(albumId)) return { status: "cached", source: "cache" }
+            coverService.recordResolutionDiagnostic(albumId, "not-found", "local-artwork-not-found")
             return { status: "not-found", source: "placeholder" }
         },
     }
