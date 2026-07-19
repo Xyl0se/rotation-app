@@ -38,7 +38,7 @@ export default function AlbumCover({
             setHasError(false)
 
             // 1. URL override: fetch as a Blob so no third-party URL reaches <img>.
-            if (coverOverride?.type === "url") {
+            if (coverOverride?.type === "url" && !albumId) {
                 try {
                     const response = await fetch(coverOverride.url)
                     if (!response.ok) throw new Error("Cover unavailable")
@@ -84,6 +84,11 @@ export default function AlbumCover({
                     } else URL.revokeObjectURL(serverUrl)
                     return
                 }
+                if (!cancelled) {
+                    setHasError(true)
+                    setIsLoading(false)
+                }
+                return
             }
 
             if (!coverUrl) {

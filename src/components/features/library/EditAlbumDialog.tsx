@@ -51,10 +51,6 @@ type EditAlbumDialogProps = {
         blob: Blob,
         source: "upload" | "alternative",
     ) => Promise<boolean>
-    onSetCoverUrlOverride: (
-        id: string,
-        url: string,
-    ) => Promise<boolean>
     onRemoveCoverOverride: (id: string) => Promise<boolean>
     onRetryCover?: (id: string) => Promise<CoverResolutionDiagnostics | null>
     onStartCoach?: (albumId: string) => void
@@ -68,7 +64,6 @@ function EditAlbumDialog({
     onClose,
     onSave,
     onUpdateCoverOverride,
-    onSetCoverUrlOverride,
     onRemoveCoverOverride,
     onRetryCover,
     onStartCoach,
@@ -99,7 +94,15 @@ function EditAlbumDialog({
         setIsLoadingUrl(true)
         setError(null)
         try {
-            if (!await onSetCoverUrlOverride(album.id, validUrl)) {
+            const response = await fetch(validUrl)
+            if (!response.ok) throw new Error(t.editDialog.errors.setCoverUrl)
+            const blob = await response.blob()
+            if (!blob.type.startsWith("image/") || blob.size > MAX_FILE_SIZE) {
+                throw new Error(blob.size > MAX_FILE_SIZE
+                    ? t.editDialog.errors.imageTooLarge
+                    : t.editDialog.errors.invalidImageFormat)
+            }
+            if (!await onUpdateCoverOverride(album.id, blob, "alternative")) {
                 setError(t.editDialog.errors.setCoverUrl)
                 return
             }

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest"
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs"
+import { createHash } from "node:crypto"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
 import sharp from "sharp"
@@ -19,6 +20,20 @@ afterEach(() => {
 })
 
 describe("local artwork service", () => {
+    it.each([
+        ["cover.jpg", "jpeg", "image/jpeg"],
+        ["folder.png", "png", "image/png"],
+        ["front.webp", "webp", "image/webp"],
+    ] as const)("accepts bounded folder artwork %s", async (filename, format, contentType) => {
+        const { albumDirectory, service } = setup()
+        writeFileSync(join(albumDirectory, filename), await image(format, "navy"))
+
+        await expect(service.findForAlbum("album")).resolves.toMatchObject({
+            source: "folder",
+            contentType,
+        })
+    })
+
     it("prefers the first valid deterministic folder candidate", async () => {
         const { root, albumDirectory, service } = setup()
         void root
@@ -43,6 +58,27 @@ describe("local artwork service", () => {
         })
     })
 
+    it("treats missing and corrupt local artwork as a bounded miss", async () => {
+        const { albumDirectory, service } = setup()
+        writeFileSync(join(albumDirectory, "cover.jpg"), "not an image")
+        writeFileSync(join(albumDirectory, "track.flac"), "not valid media")
+
+        await expect(service.findForAlbum("album")).resolves.toBeNull()
+    })
+
+    it("does not modify folder artwork or embedded media while reading", async () => {
+        const { albumDirectory, service } = setup()
+        const coverPath = join(albumDirectory, "cover.png")
+        const audioPath = join(albumDirectory, "track.mp3")
+        writeFileSync(coverPath, await image("png", "orange"))
+        writeFileSync(audioPath, id3WithCover(await image("png", "purple")))
+        const before = [snapshot(coverPath), snapshot(audioPath)]
+
+        await service.findForAlbum("album")
+
+        expect([snapshot(coverPath), snapshot(audioPath)]).toEqual(before)
+    })
+
     it("requires a confirmed binding for the canonical library album", async () => {
         const { service } = setup({ state: "proposed" })
         await expect(service.findForAlbum("album")).resolves.toBeNull()
@@ -60,8 +96,17 @@ function setup(overrides: { state?: "confirmed" | "proposed" } = {}) {
     return { root, albumDirectory, service: createLocalArtworkService(repo, createPathGuard(root)) }
 }
 
-async function image(format: "png" | "webp", color: string): Promise<Buffer> {
+async function image(format: "jpeg" | "png" | "webp", color: string): Promise<Buffer> {
     return sharp({ create: { width: 4, height: 4, channels: 3, background: color } })[format]().toBuffer()
+}
+
+function snapshot(path: string) {
+    const fileStat = statSync(path)
+    return {
+        size: fileStat.size,
+        modifiedAt: fileStat.mtimeMs,
+        digest: createHash("sha256").update(readFileSync(path)).digest("hex"),
+    }
 }
 
 function id3WithCover(cover: Buffer): Buffer {

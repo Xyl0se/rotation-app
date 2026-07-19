@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { I18nContext } from "../../../i18n/I18nContext"
 import { en } from "../../../i18n/locales/en"
 import type { Album } from "../../../types/album"
@@ -16,6 +16,8 @@ const rolelessAlbum: Album = {
     lastListened: null,
 }
 
+afterEach(() => vi.unstubAllGlobals())
+
 describe("EditAlbumDialog Album Coach", () => {
     it("shows a sanitized reason after cover retry", async () => {
         render(
@@ -25,7 +27,6 @@ describe("EditAlbumDialog Album Coach", () => {
                     onClose={() => {}}
                     onSave={async () => true}
                     onUpdateCoverOverride={async () => true}
-                    onSetCoverUrlOverride={async () => true}
                     onRemoveCoverOverride={async () => true}
                     onRetryCover={async () => ({
                         status: "temporarily-unavailable",
@@ -53,11 +54,46 @@ describe("EditAlbumDialog Album Coach", () => {
             .toBe("The remote cover provider is temporarily unavailable."))
     })
 
+    it("imports a URL once as a server-cached alternative cover", async () => {
+        const image = new Blob(["image"], { type: "image/png" })
+        const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+            void input
+            return {
+                ok: true,
+                blob: async () => image,
+            } as Response
+        })
+        vi.stubGlobal("fetch", fetchMock)
+        const onUpdateCoverOverride = vi.fn(async () => true)
+        const onClose = vi.fn()
+        render(
+            <I18nContext.Provider value={{ t: en, language: "en", setLanguage: () => {} }}>
+                <EditAlbumDialog
+                    album={rolelessAlbum}
+                    onClose={onClose}
+                    onSave={async () => true}
+                    onUpdateCoverOverride={onUpdateCoverOverride}
+                    onRemoveCoverOverride={async () => true}
+                />
+            </I18nContext.Provider>,
+        )
+
+        const urlInputs = screen.getAllByPlaceholderText("https://...")
+        fireEvent.change(urlInputs[1], { target: { value: "https://example.test/cover.png" } })
+        fireEvent.click(screen.getByRole("button", { name: "Load" }))
+
+        await waitFor(() => expect(onUpdateCoverOverride)
+            .toHaveBeenCalledWith(rolelessAlbum.id, expect.any(Blob), "alternative"))
+        expect(fetchMock.mock.calls.filter(([url]) => url === "https://example.test/cover.png"))
+            .toHaveLength(1)
+        expect(onClose).toHaveBeenCalled()
+    })
+
     it("offers digital acquisition and an explicit unknown answer", () => {
         render(
             <I18nContext.Provider value={{ t: en, language: "en", setLanguage: () => {} }}>
                 <EditAlbumDialog album={rolelessAlbum} onClose={() => {}} onSave={async () => true}
-                    onUpdateCoverOverride={async () => true} onSetCoverUrlOverride={async () => true} onRemoveCoverOverride={async () => true} />
+                    onUpdateCoverOverride={async () => true} onRemoveCoverOverride={async () => true} />
             </I18nContext.Provider>,
         )
         expect(screen.getByRole("option", { name: "iTunes / Online" })).toBeTruthy()
@@ -83,7 +119,6 @@ describe("EditAlbumDialog Album Coach", () => {
                     onClose={() => {}}
                     onSave={async () => true}
                     onUpdateCoverOverride={async () => true}
-                    onSetCoverUrlOverride={async () => true}
                     onRemoveCoverOverride={async () => true}
                 />
             </I18nContext.Provider>,
@@ -102,7 +137,6 @@ describe("EditAlbumDialog Album Coach", () => {
                     onClose={() => {}}
                     onSave={async () => true}
                     onUpdateCoverOverride={async () => true}
-                    onSetCoverUrlOverride={async () => true}
                     onRemoveCoverOverride={async () => true}
                     onStartCoach={onStartCoach}
                 />
@@ -122,7 +156,6 @@ describe("EditAlbumDialog Album Coach", () => {
                     onClose={() => {}}
                     onSave={async () => true}
                     onUpdateCoverOverride={async () => true}
-                    onSetCoverUrlOverride={async () => true}
                     onRemoveCoverOverride={async () => true}
                     onStartCoach={onStartCoach}
                 />

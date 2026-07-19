@@ -51,7 +51,6 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
         updateAlbum,
         updateAlbumRole,
         updateAlbumCoverOverride,
-        setCoverUrlOverride,
         removeAlbumCoverOverride,
         retryAlbumCover,
     } = useLibrary(serverConnected)
@@ -202,7 +201,6 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                         onClose={() => setEditingAlbumId(null)}
                         onSave={updateAlbum}
                         onUpdateCoverOverride={updateAlbumCoverOverride}
-                        onSetCoverUrlOverride={setCoverUrlOverride}
                         onRemoveCoverOverride={removeAlbumCoverOverride}
                         onRetryCover={retryAlbumCover}
                         onStartCoach={(albumId) => {

@@ -187,16 +187,6 @@ export function useLibrary(isConnected: boolean = false) {
         }
     }, [albums, isConnected, updateAlbum])
 
-    const setCoverUrlOverride = useCallback(async (id: string, url: string): Promise<boolean> => {
-        const current = albums.find(album => album.id === id)
-        if (!current) return false
-        await clearCoverCache(id).catch(() => undefined)
-        return updateAlbum({
-            ...current,
-            coverOverride: { type: "url", albumId: id, url, fetchedAt: new Date().toISOString() },
-        })
-    }, [albums, updateAlbum])
-
     const removeAlbumCoverOverride = useCallback(async (id: string): Promise<boolean> => {
         const current = albums.find(album => album.id === id)
         if (!current || !isConnected) return false
@@ -241,7 +231,6 @@ export function useLibrary(isConnected: boolean = false) {
         updateAlbumRole,
         logListenForAlbum,
         updateAlbumCoverOverride,
-        setCoverUrlOverride,
         removeAlbumCoverOverride,
         retryAlbumCover,
     }

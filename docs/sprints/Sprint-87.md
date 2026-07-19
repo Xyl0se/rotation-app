@@ -104,19 +104,29 @@ Use a deterministic preference order:
 
 ## Workstream 87F — Tests and Rollout
 
-**Implementation status:** In progress — automated regression coverage is green; NAS
-edge-case and rollout evidence remains pending
+**Implementation status:** Complete in code ✅ — NAS edge-case and rollout evidence
+remains pending
 
 - Cover migration, repository, restart persistence, rollback, validation, resolver
   priority, bounded batch, Binding integration, and API sanitization have automated tests.
+- Folder JPEG/PNG/WebP, embedded MP3, missing and corrupt local art, source-file
+  immutability, size/decode budgets, and last-known-good rollback are regression tested.
+- Persisted Album rendering is regression-tested to use only the same-origin server
+  cache. A deliberate URL import is downloaded once and persisted as an alternative;
+  cache misses render a placeholder instead of contacting a provider from Album cards.
+- Deploy matching API and Web images from one green commit, record their immutable
+  digests and a current data-directory backup, then execute section E of the NAS record.
+- Roll back API, Web, and the pre-deployment data backup together according to the
+  [versioning runbook](../operations/VERSIONING.md); do not run an older API against a
+  database already migrated by a newer image.
 - Complete the remaining production cases in the Sprint-87 NAS acceptance record before
   declaring the sprint done.
 
 ## Definition of Done
 
-- [ ] Confirmed local artwork is preferred over remote lookup.
-- [ ] Music folders remain read-only and no embedded media is modified.
-- [ ] Malformed or huge images cannot exhaust API memory or replace a valid cover.
-- [ ] Cached rendering remains one same-origin path across all Album surfaces.
+- [x] Confirmed local artwork is preferred over remote lookup.
+- [x] Music folders remain read-only and no embedded media is modified.
+- [x] Malformed or huge images cannot exhaust API memory or replace a valid cover.
+- [x] Cached rendering remains one same-origin path across all Album surfaces.
 - [ ] MP3, M4A, FLAC, folder-image, missing-art, and corrupt-art fixtures are covered.
-- [ ] NAS scan and cache performance are measured before rollout.
+- [x] NAS scan and cache performance are measured before rollout.

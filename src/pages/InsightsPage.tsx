@@ -22,7 +22,7 @@ export default function InsightsPage() {
     const { t } = useI18n()
     const { isOnline, apiReachable } = useConnection()
     const serverConnected = isOnline && apiReachable === true
-    const { albums, isLoading, libraryError, refresh, updateAlbumRole,updateAlbum,updateAlbumCoverOverride,setCoverUrlOverride,removeAlbumCoverOverride,retryAlbumCover } = useLibrary(serverConnected)
+    const { albums, isLoading, libraryError, refresh, updateAlbumRole,updateAlbum,updateAlbumCoverOverride,removeAlbumCoverOverride,retryAlbumCover } = useLibrary(serverConnected)
     const [reflectionAlbumId, setReflectionAlbumId] = useState<string | null>(null)
     const [archiveReturnAlbumId, setArchiveReturnAlbumId] = useState<string | null>(null)
     const [activeReflection,setActiveReflection]=useState<ReflectionInboxItem|null>(null)
@@ -130,7 +130,6 @@ export default function InsightsPage() {
                 onClose={()=>setMemoryAlbumId(null)}
                 onSave={async album=>{const saved=await updateAlbum(album);if(saved){setMemoryAlbumId(null);await insightEvidence.refresh()}return saved}}
                 onUpdateCoverOverride={updateAlbumCoverOverride}
-                onSetCoverUrlOverride={setCoverUrlOverride}
                 onRemoveCoverOverride={removeAlbumCoverOverride}
                 onRetryCover={retryAlbumCover}
                 listenEvents={listenEvents}
