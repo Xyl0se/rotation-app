@@ -18,6 +18,7 @@ type GroupedLibraryViewProps = {
     onReconsider: (id: string) => void
     onSetFocus: (id: string) => void
     onStartCoach: (id: string) => void
+    onOpenDetail?: (id: string) => void
     emptyMessage?: string
 }
 
@@ -31,6 +32,7 @@ function GroupedLibraryView({
     onReconsider,
     onSetFocus,
     onStartCoach,
+    onOpenDetail,
     emptyMessage = "In dieser Ansicht sind noch keine Alben sichtbar.",
 }: GroupedLibraryViewProps) {
     const { bindings } = useBindings()
@@ -86,6 +88,7 @@ function GroupedLibraryView({
                                 onReconsider={onReconsider}
                                 onSetFocus={onSetFocus}
                                 onStartCoach={onStartCoach}
+                                onOpenDetail={onOpenDetail}
                             />
                         ))}
                     </div>

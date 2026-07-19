@@ -7,6 +7,8 @@ import { useLibrary } from "../hooks/useLibrary"
 import { useRotationPlan } from "../hooks/useRotationPlan"
 import { useListenEvents } from "../hooks/useListenEvents"
 import { useBindings } from "../hooks/useBindings"
+import { useReflectionInbox } from "../hooks/useReflectionInbox"
+import { useAlbumRotationHistory } from "../hooks/useAlbumRotationHistory"
 import { useConnection } from "../contexts/connectionState"
 
 import EmptyLibrary from "../components/features/EmptyLibrary"
@@ -22,15 +24,19 @@ import AlbumCoach from "../components/features/album-coach/AlbumCoach"
 import ArchiveProtectionCoach from "../components/features/archive/ArchiveProtectionCoach"
 import ArchiveReturnCoach from "../components/features/archive/ArchiveReturnCoach"
 import ListeningJournalEditor from "../components/features/listening/ListeningJournalEditor"
+import AlbumDetailPage from "./AlbumDetailPage"
 
 import { useI18n } from "../i18n/useI18n"
 
 interface HomePageProps {
     onNavigateToBindings?: () => void
     highlightAlbumId?: string | null
+    albumDetailId?: string | null
+    onOpenAlbum?: (albumId: string) => void
+    onCloseAlbum?: () => void
 }
 
-function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
+function HomePage({ onNavigateToBindings, highlightAlbumId, albumDetailId = null, onOpenAlbum, onCloseAlbum }: HomePageProps) {
     const { t } = useI18n()
     const [archiveAlbumId, setArchiveAlbumId] = useState<string | null>(null)
     const [archiveReturnAlbumId, setArchiveReturnAlbumId] = useState<string | null>(null)
@@ -66,6 +72,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
         setFocusAlbumId,
         suggestFocusAlbum,
         error: rotationError,
+        isLoading: isRotationLoading,
     } = useRotationPlan(albums, serverConnected)
 
     const {
@@ -74,9 +81,12 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
         saveJournal,
         deleteJournal,
         error: listenError,
+        isLoading: isListenLoading,
     } = useListenEvents(albums, serverConnected)
 
-    const { getBindingForLibraryAlbum } = useBindings()
+    const { getBindingForLibraryAlbum, loading: bindingsLoading, error: bindingsError } = useBindings()
+    const reflectionInbox = useReflectionInbox(serverConnected && albumDetailId !== null)
+    const rotationHistory = useAlbumRotationHistory(albumDetailId, serverConnected)
 
     async function handleLogListen(id: string) {
         const event=await logListen(id)
@@ -111,6 +121,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
     const manualCoachAlbum = albums.find(album => album.id === manualCoachAlbumId)
     const journalEditorEvent=listenEvents.find(event=>event.id===journalEditorEventId)??null
     const journalEditorAlbum=albums.find(album=>album.id===journalEditorEvent?.albumId)
+    const detailAlbum = albums.find(album => album.id === albumDetailId)
 
     async function handleManualCoachComplete(role: RoleId, archiveReason?:ArchiveReason) {
         if (!manualCoachAlbumId) return
@@ -119,8 +130,24 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
         }
     }
 
+    const detailView = albumDetailId ? <AlbumDetailPage
+        albumId={albumDetailId}
+        album={detailAlbum}
+        listenEvents={listenEvents}
+        reflections={reflectionInbox.items}
+        currentRotation={rotationPlan}
+        historicRotations={rotationHistory.plans}
+        binding={getBindingForLibraryAlbum(albumDetailId)}
+        isLoading={isLibraryLoading || bindingsLoading || isRotationLoading || isListenLoading || reflectionInbox.isLoading || rotationHistory.isLoading}
+        partialErrors={[libraryError, listenError, rotationError, bindingsError, reflectionInbox.error, rotationHistory.error].filter((value): value is string => Boolean(value))}
+        onBack={() => onCloseAlbum?.()}
+        onEdit={() => setEditingAlbumId(albumDetailId)}
+        onLogListen={() => void handleLogListen(albumDetailId)}
+    /> : null
+
     return (
-        <main className="container home-page">
+        <>
+        {detailView ?? <main className="container home-page">
             {isLibraryLoading && (
                 <div className="sync-status" role="status">
                     {t.home.syncingLibrary}
@@ -188,10 +215,12 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                                 onReconsider={setArchiveReturnAlbumId}
                                 onSetFocus={setFocusAlbumId}
                                 onStartCoach={setManualCoachAlbumId}
+                                onOpenDetail={onOpenAlbum}
                             />
                         </>
                     )
             }
+            </main>}
             {
                 editingAlbum && (
                     <EditAlbumDialog
@@ -270,7 +299,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId }: HomePageProps) {
                     )
                 }
             </Dialog>
-        </main>
+        </>
     )
 }
 

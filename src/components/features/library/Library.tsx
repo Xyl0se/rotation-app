@@ -41,6 +41,7 @@ type LibraryProps = {
     onReconsider: (id: string) => void
     onSetFocus: (id: string) => void
     onStartCoach: (id: string) => void
+    onOpenDetail?: (id: string) => void
 }
 
 function Library({
@@ -65,6 +66,7 @@ function Library({
 
     onSetFocus,
     onStartCoach,
+    onOpenDetail,
 
 }: LibraryProps) {
     const { t } = useI18n()
@@ -218,6 +220,7 @@ function Library({
 
                                 onSetFocus={onSetFocus}
                                 onStartCoach={onStartCoach}
+                                onOpenDetail={onOpenDetail}
 
                             />
 
@@ -248,6 +251,7 @@ function Library({
                     onReconsider={onReconsider}
                     onSetFocus={onSetFocus}
                     onBack={handleBack}
+                    onOpenDetail={onOpenDetail}
                 />
             )}
 
@@ -262,6 +266,7 @@ function Library({
                     onReconsider={onReconsider}
                     onSetFocus={onSetFocus}
                     onStartCoach={onStartCoach}
+                    onOpenDetail={onOpenDetail}
                 />
             )}
 
@@ -276,6 +281,7 @@ function Library({
                     onReconsider={onReconsider}
                     onSetFocus={onSetFocus}
                     onStartCoach={onStartCoach}
+                    onOpenDetail={onOpenDetail}
                 />
             )}
 
@@ -291,6 +297,7 @@ function Library({
                     onReconsider={onReconsider}
                     onSetFocus={onSetFocus}
                     onStartCoach={onStartCoach}
+                    onOpenDetail={onOpenDetail}
                 />
             )}
 
@@ -305,6 +312,7 @@ function Library({
                     onReconsider={onReconsider}
                     onSetFocus={onSetFocus}
                     onStartCoach={onStartCoach}
+                    onOpenDetail={onOpenDetail}
                 />
             )}
 

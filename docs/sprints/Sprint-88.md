@@ -1,6 +1,6 @@
 # Sprint 88 — Album Detail and External Sources
 
-**Status:** Planned
+**Status:** In progress (88A implemented)
 
 **Target version:** Future minor version
 
@@ -74,13 +74,18 @@ suffixes make such URLs too easy to get wrong.
 
 ## Workstream 88A — Detail-page foundation
 
-- Add a first-class Album Detail route and navigation from Library Album Cards.
-- Keep “Edit Album” available as a clear secondary action.
-- Compose the view from canonical server-owned Album, Story, Role History, Listening,
+- [x] Add a first-class Album Detail route and navigation from Library Album Cards.
+- [x] Keep “Edit Album” available as a clear secondary action.
+- [x] Compose the view from canonical server-owned Album, Story, Role History, Listening,
   Reflection, Rotation, and Binding data.
-- Provide complete DE/EN copy, loading, empty, partial-data, and failure states.
-- Preserve readable typography; longer personal history may use progressive disclosure
+- [x] Provide complete DE/EN copy, loading, empty, partial-data, and failure states.
+- [x] Preserve readable typography; longer personal history may use progressive disclosure
   but not inaccessible miniature text.
+
+Implementation note: Album Detail uses the browser-native `/albums/:albumId` route and
+composes existing Rotation API responses. It performs no third-party request. Historic
+Rotation membership is collapsed behind progressive disclosure; missing related data
+does not hide the canonical Album record.
 
 ## Workstream 88B — Persistent external identity
 
@@ -185,4 +190,3 @@ retry, never to React components.
 - Automatic bulk enrichment during server startup
 - Treating external metadata as more authoritative than the user's stored Album story
 - AI-written Album biographies or summaries
-

@@ -27,6 +27,7 @@ type AlbumCardProps = {
     showRoleLabel?: boolean
     binding?: Binding | null
     id?: string
+    onOpenDetail?: (id: string) => void
 }
 
 function AlbumCard({
@@ -41,6 +42,7 @@ function AlbumCard({
     showRoleLabel = true,
     binding = null,
     id,
+    onOpenDetail,
 }: AlbumCardProps) {
     const { t } = useI18n()
 
@@ -81,7 +83,7 @@ function AlbumCard({
                             </span>
                         )}
 
-                        <h3>{album.title}</h3>
+                        <h3>{onOpenDetail ? <button className="album-card-detail-link" onClick={() => onOpenDetail(album.id)}>{album.title}</button> : album.title}</h3>
 
                         <p>{album.artist}</p>
 

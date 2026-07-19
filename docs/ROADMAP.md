@@ -66,6 +66,7 @@ Not optimization.
 | 7 | [Sprint 88](./sprints/Sprint-88.md) | Album Detail with persisted MusicBrainz/Wikipedia source links | Future minor | Planned |
 | 8 | [Sprint 89](./sprints/Sprint-89.md) | Safe read-only Playback Foundation and real NAS feasibility | Future major capability | Planned; architecture decision and spike first |
 | 9 | [Sprint 90](./sprints/Sprint-90.md) | Persistent Whole Album Session with Play/Pause-only philosophy | Future major capability | Planned; depends on Sprint 89 go decision |
+| 10 | [Sprint 91](./sprints/Sprint-91.md) | Unified TypeScript 6 and Node 22 development contract | Maintenance release | Planned; after current Dependabot triage |
 
 Sprint numbers express the present recommended order, not a promise to implement
 features without re-evaluating production evidence after each sprint.

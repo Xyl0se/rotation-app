@@ -90,6 +90,30 @@ export const en = {
         when: "When",
     },
 
+    albumDetail: {
+        kicker: "Album journey",
+        back: "← Back to Library",
+        loading: "Loading Album details…",
+        loadingRelated: "Loading related Album history…",
+        notFoundTitle: "Album not found",
+        notFound: (id: string) => `No Album with the ID ${id} is available.`,
+        unknownYear: "Release year unknown",
+        listened: "Listened",
+        edit: "Edit Album",
+        partialTitle: "Some related information is unavailable.",
+        partialDescription: "The Album data that is already available remains visible.",
+        story: { title: "My story", memory: "Memory", empty: "No personal Album story has been recorded yet." },
+        roleHistory: { title: "Role history", empty: "No Role changes have been documented yet.", source: { coach: "Album Coach", reflection: "Reflection", archive: "Archive workflow" } },
+        listening: { title: "Listening sessions", summary: (count: number) => `${count} documented ${count === 1 ? "session" : "sessions"}`, empty: "This Album has no documented listening session yet." },
+        reflections: {
+            title: "Reflections", empty: "There are no open Reflections for this Album.",
+            rules: { "new-after-listens": "Review discovery", "growing-for-a-while": "Review growth", "comfort-not-recent": "Revisit a familiar Album", "archive-return-candidate": "Possible return from Archive", "never-heard-dormant": "Still unheard", "rotation-absent-dormant": "Outside the Rotation" },
+            state: { open: "Open", snoozed: "Snoozed", resolved: "Resolved", dismissed: "Dismissed" },
+        },
+        rotation: { title: "Rotation", current: (name: string) => `Currently included in “${name}”.`, history: (count: number) => `${count} historic ${count === 1 ? "Rotation" : "Rotations"}`, empty: "This Album is not part of a current or documented historic Rotation." },
+        binding: { title: "Music folder", stateLabel: "Binding", folder: "Folder", availability: "Availability", missing: "The linked folder is currently missing.", empty: "No music-folder Binding is confirmed for this Album.", states: { proposed: "Proposed", confirmed: "Confirmed", missing: "Missing" } },
+    },
+
     acquisitionReasons: {
         artist: "Artist",
         "friend-recommendation": "Recommendation",
@@ -403,6 +427,7 @@ export const en = {
     },
 
     timeline: {
+        title: "Album timeline",
         header: "The documented story of this album so far.",
         noEvents: "No documented events yet.",
         latestEvents: "Latest Events",

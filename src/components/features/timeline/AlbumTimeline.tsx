@@ -61,7 +61,7 @@ function AlbumTimeline({
 
                 <h2>
 
-                    Album Timeline
+                    {t.timeline.title}
 
                 </h2>
 

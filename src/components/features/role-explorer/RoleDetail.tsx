@@ -27,6 +27,7 @@ type RoleDetailProps = {
     onReconsider: (id: string) => void
     onSetFocus: (id: string) => void
     onBack: () => void
+    onOpenDetail?: (id: string) => void
 }
 
 function RoleDetail({
@@ -40,6 +41,7 @@ function RoleDetail({
     onReconsider,
     onSetFocus,
     onBack,
+    onOpenDetail,
 }: RoleDetailProps) {
     const { t } = useI18n()
     const { bindings } = useBindings()
@@ -113,6 +115,7 @@ function RoleDetail({
                             onLogListen={onLogListen}
                             onReconsider={onReconsider}
                             onSetFocus={onSetFocus}
+                            onOpenDetail={onOpenDetail}
                         />
                     ))}
                 </div>

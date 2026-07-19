@@ -91,6 +91,30 @@ export const de: Translation = {
         when: "Wann",
     },
 
+    albumDetail: {
+        kicker: "Albumreise",
+        back: "← Zurück zur Bibliothek",
+        loading: "Albumdetails werden geladen…",
+        loadingRelated: "Zugehörige Albumhistorie wird geladen…",
+        notFoundTitle: "Album nicht gefunden",
+        notFound: (id: string) => `Es ist kein Album mit der ID ${id} verfügbar.`,
+        unknownYear: "Erscheinungsjahr unbekannt",
+        listened: "Gehört",
+        edit: "Album bearbeiten",
+        partialTitle: "Einige zugehörige Informationen sind nicht verfügbar.",
+        partialDescription: "Die bereits verfügbaren Albumdaten bleiben sichtbar.",
+        story: { title: "Meine Geschichte", memory: "Erinnerung", empty: "Für dieses Album ist noch keine persönliche Geschichte festgehalten." },
+        roleHistory: { title: "Rollenverlauf", empty: "Noch keine Rollenwechsel dokumentiert.", source: { coach: "Album-Coach", reflection: "Reflexion", archive: "Archiv-Workflow" } },
+        listening: { title: "Hörsessions", summary: (count: number) => `${count} dokumentierte ${count === 1 ? "Session" : "Sessions"}`, empty: "Für dieses Album ist noch keine Hörsession dokumentiert." },
+        reflections: {
+            title: "Reflexionen", empty: "Für dieses Album gibt es keine offenen Reflexionen.",
+            rules: { "new-after-listens": "Entdeckung überprüfen", "growing-for-a-while": "Entwicklung überprüfen", "comfort-not-recent": "Vertrautes Album wiederhören", "archive-return-candidate": "Mögliche Rückkehr aus dem Archiv", "never-heard-dormant": "Noch ungehört", "rotation-absent-dormant": "Außerhalb der Rotation" },
+            state: { open: "Offen", snoozed: "Zurückgestellt", resolved: "Erledigt", dismissed: "Verworfen" },
+        },
+        rotation: { title: "Rotation", current: (name: string) => `Aktuell in „${name}“ enthalten.`, history: (count: number) => `${count} frühere ${count === 1 ? "Rotation" : "Rotationen"}`, empty: "Dieses Album gehört zu keiner aktuellen oder dokumentierten früheren Rotation." },
+        binding: { title: "Musikordner", stateLabel: "Binding", folder: "Ordner", availability: "Verfügbarkeit", missing: "Der verknüpfte Ordner fehlt derzeit.", empty: "Für dieses Album ist kein Musikordner-Binding bestätigt.", states: { proposed: "Vorgeschlagen", confirmed: "Bestätigt", missing: "Fehlt" } },
+    },
+
     acquisitionReasons: {
         artist: "Künstler",
         "friend-recommendation": "Empfehlung",
@@ -404,6 +428,7 @@ export const de: Translation = {
     },
 
     timeline: {
+        title: "Albumhistorie",
         header: "Die bisher dokumentierte Geschichte dieses Albums.",
         noEvents: "Noch keine dokumentierten Ereignisse.",
         latestEvents: "Letzte Ereignisse",

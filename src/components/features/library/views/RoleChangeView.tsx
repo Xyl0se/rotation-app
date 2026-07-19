@@ -14,6 +14,7 @@ type RoleChangeViewProps = {
     onReconsider: (id: string) => void
     onSetFocus: (id: string) => void
     onStartCoach: (id: string) => void
+    onOpenDetail?: (id: string) => void
 }
 
 function RoleChangeView({
@@ -26,6 +27,7 @@ function RoleChangeView({
     onReconsider,
     onSetFocus,
     onStartCoach,
+    onOpenDetail,
 }: RoleChangeViewProps) {
 
     const groups = groupByRoleChange(albums)
@@ -41,6 +43,7 @@ function RoleChangeView({
             onReconsider={onReconsider}
             onSetFocus={onSetFocus}
             onStartCoach={onStartCoach}
+            onOpenDetail={onOpenDetail}
             emptyMessage="Noch keine Alben in der Bibliothek."
         />
     )
