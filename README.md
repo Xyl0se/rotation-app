@@ -69,6 +69,6 @@ Rotation has a binding design system (`docs/design/DESIGN_SYSTEM.md`). The visua
 
 ## Status
 
-Current version: `v0.29.2` (visual acceptance candidate)
+Current version: `v0.30.0` (release candidate; `v0.29.1` remains the stable tag)
 
 Rotation is in active development. The domain is stable, the infrastructure is being hardened for production use on home servers. The roadmap is in `docs/ROADMAP.md`.

@@ -87,6 +87,6 @@ widen the limits.
 
 ## Related documentation
 
-- [Sprint 87](../sprints/Sprint-87.md)
+- [Sprint 87](../sprints/done/Sprint-87.md)
 - [Sprint 87 NAS acceptance](../acceptance/SPRINT-87-NAS-ACCEPTANCE.md)
 - [ADR 013 — Data Ownership Boundaries](./013-data-ownership-boundaries.md)

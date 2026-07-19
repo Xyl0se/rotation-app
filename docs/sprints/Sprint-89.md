@@ -41,7 +41,7 @@ Before implementation begins, Sprint 89 must add a new ADR that explicitly recor
 
 ## Dependencies and reuse
 
-- [Sprint 87](./Sprint-87.md) should establish the safe local metadata parser used for
+- [Sprint 87](./done/Sprint-87.md) establishes the safe local metadata parser used for
   embedded cover extraction. Sprint 89 should reuse that bounded parser for disc number,
   Track number, title, duration, and codec/container evidence rather than introduce a
   second media parsing stack.
@@ -174,4 +174,3 @@ decision after this gate.
 - Editing source-file metadata
 - Automatic transcoding without a separate approved decision
 - Claiming DRM-like prevention of technically sophisticated seeking
-

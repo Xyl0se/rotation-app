@@ -30,6 +30,8 @@ export type AlbumAcquisitionReason =
     | "digital"
     | "random-discovery"
     | "life-phase"
+    | "completion"
+    | "collection-essential"
     | "unknown"
     | "other"
 

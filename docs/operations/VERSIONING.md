@@ -6,7 +6,11 @@ Early tags remain as historical markers. Versions are not retroactively added.
 
 ## Current Anchor
 
-`v0.29.1` is the current stable patch release. `v0.29.0` was the first deliberately
+`v0.29.1` remains the current stable patch release. `v0.30.0` is the current release
+candidate containing the accumulated server-owned Reflection, Journal, Insights,
+local-first artwork, and acquisition-context work through Sprint 87.1. It becomes the
+stable source release only after matching API/Web images pass deployment acceptance
+and the Git tag is created. `v0.29.0` was the first deliberately
 accepted stable release and advanced the minor
 version after Sprint 80/81 established the `v0.28.x-dev` line and Sprint 82 added a
 durable Rotation lifecycle. Production NAS lifecycle, backup/restore, desktop,

@@ -39,7 +39,8 @@ const CoverOverrideSchema = z.discriminatedUnion("type", [
 const AlbumStorySchema = z.object({
     acquiredBecause: z.enum([
         "artist", "friend-recommendation", "specific-song", "concert", "review",
-        "record-store", "gift", "digital", "random-discovery", "life-phase", "unknown", "other",
+        "record-store", "gift", "digital", "random-discovery", "life-phase",
+        "completion", "collection-essential", "unknown", "other",
     ]).optional(),
     lifePhase: z.enum([
         "childhood", "school", "studies", "first-apartment", "relationship",

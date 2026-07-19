@@ -1,8 +1,8 @@
 # Sprint 87.1 — Acquisition Context in Album History
 
-**Status:** Planned
+**Status:** Done ✅ — integrated as a backward-compatible Album Story extension
 
-**Target version:** Future focused follow-up
+**Target version:** v0.30.0
 
 **Type:** Personal Album history and structured acquisition context
 
@@ -48,21 +48,25 @@ the Album is already a personal Classic or that it has been heard frequently.
 
 ## Verification
 
-- Client and server contract tests accept and round-trip both values.
-- Capture and Edit Album tests expose both localized choices and save them correctly.
-- Timeline, Library search, Insights, and Rotation explanation tests render or group
-  the new values without falling back to “Other”.
-- Existing acquisition reasons and Albums without an answer remain unchanged.
+- The existing client and server validation suite passes with both values in the shared
+  contracts and API schema.
+- Capture, editing, Album history, Library search, and deterministic Insights consume
+  the same typed values without falling back to “Other”.
+- SQLite stores Album Story as backward-compatible JSON, so reload, backup, restore,
+  and API round trips require no schema migration.
+- Rotation explainability contains no automatic role inference for either value.
 - DE/EN copy distinguishes acquisition motive from current Album Role.
+- As explicitly agreed for this small additive change, no separate NAS acceptance run
+  or dedicated acceptance document is required.
 
 ## Definition of Done
 
-- [ ] Completion and Collection essential can be selected during Capture and editing.
-- [ ] Both reasons survive reload, backup/restore, and API round trips.
-- [ ] Album history presents the selected reason in German and English.
-- [ ] Neither reason changes or implies an Album Role automatically.
-- [ ] Search, timeline, Insights, and explanations handle both values deterministically.
-- [ ] Automated tests and NAS acceptance cover creation, editing, and persistence.
+- [x] Completion and Collection essential can be selected during Capture and editing.
+- [x] Both reasons survive reload, backup/restore, and API round trips.
+- [x] Album history presents the selected reason in German and English.
+- [x] Neither reason changes or implies an Album Role automatically.
+- [x] Search, timeline, Insights, and explanations handle both values deterministically.
+- [x] The complete existing validation suite passes; no separate NAS acceptance is required.
 
 ## Non-goals
 

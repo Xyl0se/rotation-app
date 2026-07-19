@@ -3,9 +3,9 @@
 > Personal-history follow-up: [Sprint 87.1 — Acquisition Context](./Sprint-87.1.md)
 > extends the structured reasons why an Album entered the collection.
 
-**Status:** In progress — feasibility runner ready; production NAS measurements required
+**Status:** Done ✅ — all workstreams implemented and accepted on the production NAS
 
-**Target version:** Future minor or focused maintenance release
+**Target version:** v0.30.0
 
 **Type:** Media metadata extraction and cover-source resilience
 
@@ -17,13 +17,13 @@ normal Library reads.
 
 ## Workstream 87A — Source Inventory and Safety
 
-- [ADR 017](../adr/017-local-cover-extraction.md) records the initial parser decision,
+- [ADR 017](../../adr/017-local-cover-extraction.md) records the initial parser decision,
   safety budgets, source order, and manual-override boundary. The bounded runner is
   available as `npm --prefix server run spike:artwork -- <explicit files>`.
 - The deployed application exposes the same bounded check through the expanded Diagnostics
   panel; it selects samples from confirmed Bindings and requires no container shell.
 - Complete and accept
-  [the Sprint-87 NAS record](../acceptance/SPRINT-87-NAS-ACCEPTANCE.md) before production
+  [the Sprint-87 NAS record](../../acceptance/SPRINT-87-NAS-ACCEPTANCE.md) before production
   extraction is connected to scan, capture, or retry flows.
 - Measure real NAS formats and naming: embedded MP3/M4A/FLAC artwork plus bounded
   folder files such as `cover`, `folder`, or `front` in JPEG/PNG/WebP form.
@@ -37,7 +37,7 @@ checks remain visible in the NAS record and are not silently treated as passed.
 
 ## Workstream 87B — Ordered Resolution
 
-**Implementation status:** Complete in code ✅ — production acceptance follows with 87C
+**Implementation status:** Accepted on NAS ✅
 
 Use a deterministic preference order:
 
@@ -53,7 +53,7 @@ Use a deterministic preference order:
 
 ## Workstream 87C — Persistent and Atomic Resolution
 
-**Implementation status:** Complete in code ✅ — production migration acceptance pending
+**Implementation status:** Accepted on NAS ✅
 
 - Migration 14 stores one durable resolution record per Album with current source and
   cache status, last attempt and successful resolution timestamps, sanitized failure
@@ -72,7 +72,7 @@ Use a deterministic preference order:
 
 ## Workstream 87D — Scan, Capture, and Retry
 
-**Implementation status:** Complete in code ✅ — production NAS acceptance pending
+**Implementation status:** Accepted on NAS ✅
 
 - Resolve local covers during explicit scan/capture or a bounded background job, not
   synchronously during Card rendering.
@@ -89,7 +89,7 @@ Use a deterministic preference order:
 
 ## Workstream 87E — Diagnostics and Frontend
 
-**Implementation status:** Implemented in code ✅ — production NAS acceptance pending
+**Implementation status:** Accepted on NAS ✅
 
 - Keep all Album rendering on the same-origin cached cover endpoint.
 - Expose only bounded resolution state, timestamps, source type, sanitized failure,
@@ -104,8 +104,7 @@ Use a deterministic preference order:
 
 ## Workstream 87F — Tests and Rollout
 
-**Implementation status:** Complete in code ✅ — NAS edge-case and rollout evidence
-remains pending
+**Implementation status:** Accepted on NAS ✅
 
 - Cover migration, repository, restart persistence, rollback, validation, resolver
   priority, bounded batch, Binding integration, and API sanitization have automated tests.
@@ -117,10 +116,11 @@ remains pending
 - Deploy matching API and Web images from one green commit, record their immutable
   digests and a current data-directory backup, then execute section E of the NAS record.
 - Roll back API, Web, and the pre-deployment data backup together according to the
-  [versioning runbook](../operations/VERSIONING.md); do not run an older API against a
+  [versioning runbook](../../operations/VERSIONING.md); do not run an older API against a
   database already migrated by a newer image.
-- Complete the remaining production cases in the Sprint-87 NAS acceptance record before
-  declaring the sprint done.
+- The production NAS record is complete: matching API/Web images, local-first priority,
+  manual-override protection, read-only behavior, bounded fallbacks, and last-known-good
+  retention were verified after deployment.
 
 ## Definition of Done
 
@@ -128,5 +128,5 @@ remains pending
 - [x] Music folders remain read-only and no embedded media is modified.
 - [x] Malformed or huge images cannot exhaust API memory or replace a valid cover.
 - [x] Cached rendering remains one same-origin path across all Album surfaces.
-- [ ] MP3, M4A, FLAC, folder-image, missing-art, and corrupt-art fixtures are covered.
+- [x] MP3, M4A, FLAC, folder-image, missing-art, and corrupt-art fixtures are covered.
 - [x] NAS scan and cache performance are measured before rollout.

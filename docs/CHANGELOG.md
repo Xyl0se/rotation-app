@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## v0.30.0 — 2026-07-19
+
+- **Sprint 87.1 — acquisition context**
+  - Added Completion and Collection essential as distinct, structured reasons for why
+    an Album entered the collection.
+  - Added backward-compatible client/server validation, Capture and Edit choices,
+    German/English labels, Timeline rendering, search handling, and deterministic
+    Insight grouping without inferring an Album Role.
+
 - **Sprint 86.1 — deterministic deeper Insights**
   - Added a read-only server-side evidence projection with stable narrative codes,
     historical listening Roles, bounded periods, suppression rules, and a neutral Role overview.

@@ -10,7 +10,7 @@ export interface MemoryPromptCandidate { albumId:string;title:string;artist:stri
 
 export function createInsightEvidenceRepository(db:Database.Database) {
     const validLifePhases="'childhood','school','studies','first-apartment','relationship','breakup','work','travel','family','current','other'"
-    const validAcquisitionReasons="'artist','friend-recommendation','specific-song','concert','review','record-store','gift','digital','random-discovery','life-phase','other'"
+    const validAcquisitionReasons="'artist','friend-recommendation','specific-song','concert','review','record-store','gift','digital','random-discovery','life-phase','completion','collection-essential','other'"
     const usableYear="length(year)=4 AND year GLOB '[0-9][0-9][0-9][0-9]' AND CAST(year AS INTEGER) BETWEEN 1900 AND 2099"
     const roleAtListen=`COALESCE((SELECT json_extract(entry.value,'$.role') FROM json_each(CASE WHEN json_valid(a.role_history) THEN a.role_history ELSE '[]' END) entry
         WHERE json_extract(entry.value,'$.recordedAt')<=l.listened_at ORDER BY json_extract(entry.value,'$.recordedAt') DESC LIMIT 1),a.category)`

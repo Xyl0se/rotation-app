@@ -22,6 +22,8 @@ const ACQUISITION_OPTIONS: AlbumAcquisitionReason[] = [
     "digital",
     "random-discovery",
     "life-phase",
+    "completion",
+    "collection-essential",
     "unknown",
     "other",
 ]

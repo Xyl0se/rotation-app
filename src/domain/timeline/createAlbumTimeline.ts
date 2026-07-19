@@ -156,6 +156,10 @@ export function createAlbumTimeline(
                 return "Randomly discovered"
             case "life-phase":
                 return "Life phase"
+            case "completion":
+                return "Completion"
+            case "collection-essential":
+                return "Collection essential"
             case "unknown":
                 return "I don't remember"
             case "other":
