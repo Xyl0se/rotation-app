@@ -19,6 +19,8 @@ export interface AlbumMetadata {
 
     musicBrainzId?: string
 
+    musicBrainzReleaseGroupId?: string
+
     coverCandidates?: string[]
 
 }
@@ -101,6 +103,7 @@ export async function searchAlbum(
         year: release.date?.slice(0, 4),
 
         musicBrainzId: release.id,
+        musicBrainzReleaseGroupId: releaseGroupId,
 
         coverUrl: coverCandidates[0],
         coverCandidates: [...new Set(coverCandidates)].slice(0, 4),

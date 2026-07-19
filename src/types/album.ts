@@ -57,6 +57,19 @@ export interface AlbumStory {
     updatedAt: string
 }
 
+export type AlbumSourceProvider = "musicbrainz" | "wikipedia" | "wikidata"
+export type AlbumSourceResolutionStatus = "resolved" | "missing" | "ambiguous" | "failed"
+
+export interface AlbumSource {
+    provider: AlbumSourceProvider
+    externalId?: string
+    url?: string
+    locale?: "de" | "en"
+    resolutionStatus: AlbumSourceResolutionStatus
+    resolvedAt: string
+    confirmedByUser: boolean
+}
+
 export interface Album {
 
     id: string
@@ -86,5 +99,8 @@ export interface Album {
 
     /** Server creation timestamp used for stable newest-first Library ordering. */
     createdAt?: string
+
+    /** Persisted provider identities and links; never resolved while rendering. */
+    sources?: AlbumSource[]
 
 }

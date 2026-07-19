@@ -7,7 +7,7 @@ export type AuditEventType = "album-role-changed" | "binding-reassigned" | "draf
 export interface AuditEvent { id:string;eventType:AuditEventType;entityId:string;before:unknown;after:unknown;createdAt:string;undoneAt:string|null }
 
 export function createAuditRepository(db: Database.Database, albums: AlbumRepository) {
-    const comparable = (album: Album) => ({ ...album, createdAt: undefined })
+    const comparable = (album: Album) => ({ ...album, sources: album.sources ?? [], createdAt: undefined })
     const hydrate = (row: {id:string;event_type:AuditEventType;entity_id:string;before_json:string;after_json:string;created_at:string;undone_at:string|null}): AuditEvent => ({ id:row.id,eventType:row.event_type,entityId:row.entity_id,before:JSON.parse(row.before_json) as unknown,after:JSON.parse(row.after_json) as unknown,createdAt:row.created_at,undoneAt:row.undone_at })
     const record = (eventType: AuditEventType, entityId: string, before: unknown, after: unknown) => {
         const event: AuditEvent = { id: randomUUID(), eventType, entityId, before, after, createdAt: new Date().toISOString(), undoneAt: null }

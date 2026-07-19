@@ -1,6 +1,6 @@
 # Sprint 88 — Album Detail and External Sources
 
-**Status:** In progress (88A implemented)
+**Status:** In progress (88A–88B implemented)
 
 **Target version:** Future minor version
 
@@ -89,13 +89,18 @@ does not hide the canonical Album record.
 
 ## Workstream 88B — Persistent external identity
 
-- Persist the selected MusicBrainz release ID and, where appropriate, release-group ID
+- [x] Persist the selected MusicBrainz release ID and, where appropriate, release-group ID
   as stable external identities instead of treating them as transient Capture results.
-- Store normalized source records with provider, canonical URL, external identifier,
+- [x] Store normalized source records with provider, canonical URL, external identifier,
   locale where relevant, resolution status, and resolution timestamp.
-- Validate provider and protocol server-side; arbitrary executable or malformed URLs
+- [x] Validate provider and protocol server-side; arbitrary executable or malformed URLs
   must never be returned to the client.
-- Keep source identity separate from mutable Album title, artist, and year fields.
+- [x] Keep source identity separate from mutable Album title, artist, and year fields.
+
+Implementation note: schema migration 15 stores normalized records in `album_sources`
+with cascading Album ownership. Album reads include the records, while ordinary metadata
+edits preserve them. Capture now retains the selected MusicBrainz release and release
+group identities; relationship enrichment remains part of 88C.
 
 ## Workstream 88C — Capture enrichment
 

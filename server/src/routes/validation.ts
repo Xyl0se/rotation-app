@@ -51,6 +51,37 @@ const AlbumStorySchema = z.object({
     updatedAt: IsoDateSchema,
 })
 
+const AlbumSourceSchema = z.object({
+    provider: z.enum(["musicbrainz", "wikipedia", "wikidata"]),
+    externalId: z.string().trim().min(1).max(200).optional(),
+    url: z.string().url().max(4096).optional(),
+    locale: z.enum(["de", "en"]).optional(),
+    resolutionStatus: z.enum(["resolved", "missing", "ambiguous", "failed"]),
+    resolvedAt: IsoDateSchema,
+    confirmedByUser: z.boolean(),
+}).superRefine((source, context) => {
+    if (!source.externalId && !source.url) context.addIssue({ code: z.ZodIssueCode.custom, path: ["externalId"], message: "External ID or URL is required" })
+    let url: URL | undefined
+    if (source.url) {
+        try { url = new URL(source.url) } catch { return }
+        if (url.protocol !== "https:" || url.username || url.password || url.port) context.addIssue({ code: z.ZodIssueCode.custom, path: ["url"], message: "Source URL must be canonical HTTPS" })
+    }
+    if (source.provider === "musicbrainz") {
+        if (!source.externalId || !UUIDSchema.safeParse(source.externalId).success) context.addIssue({ code: z.ZodIssueCode.custom, path: ["externalId"], message: "Invalid MusicBrainz identifier" })
+        if (url && (url.hostname !== "musicbrainz.org" || !/^\/(release|release-group)\/[0-9a-f-]{36}$/.test(url.pathname))) context.addIssue({ code: z.ZodIssueCode.custom, path: ["url"], message: "Invalid MusicBrainz URL" })
+        if (source.locale) context.addIssue({ code: z.ZodIssueCode.custom, path: ["locale"], message: "MusicBrainz sources have no locale" })
+    }
+    if (source.provider === "wikipedia") {
+        if (!source.locale) context.addIssue({ code: z.ZodIssueCode.custom, path: ["locale"], message: "Wikipedia locale is required" })
+        if (url && (url.hostname !== `${source.locale}.wikipedia.org` || !url.pathname.startsWith("/wiki/"))) context.addIssue({ code: z.ZodIssueCode.custom, path: ["url"], message: "Invalid Wikipedia URL" })
+    }
+    if (source.provider === "wikidata") {
+        if (!source.externalId || !/^Q[1-9][0-9]*$/.test(source.externalId)) context.addIssue({ code: z.ZodIssueCode.custom, path: ["externalId"], message: "Invalid Wikidata identifier" })
+        if (url && (url.hostname !== "www.wikidata.org" || url.pathname !== `/wiki/${source.externalId}`)) context.addIssue({ code: z.ZodIssueCode.custom, path: ["url"], message: "Invalid Wikidata URL" })
+        if (source.locale) context.addIssue({ code: z.ZodIssueCode.custom, path: ["locale"], message: "Wikidata sources have no locale" })
+    }
+})
+
 const AlbumBaseSchema = z.object({
     id: UUIDSchema,
     title: z.string().trim().min(1).max(500),
@@ -63,6 +94,7 @@ const AlbumBaseSchema = z.object({
     listenCount: z.number().int().nonnegative().default(0),
     lastListened: IsoDateSchema.nullable().default(null),
     story: AlbumStorySchema.optional(),
+    sources: z.array(AlbumSourceSchema).max(20).optional(),
 })
 
 export const AlbumSchema = AlbumBaseSchema.superRefine((album, context) => {

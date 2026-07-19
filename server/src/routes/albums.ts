@@ -71,6 +71,7 @@ export function createAlbumsRouter(
             listenCount: body.listenCount ?? 0,
             lastListened: body.lastListened ?? null,
             story: body.story,
+            sources: body.sources ?? [],
         }
 
         albumRepo.save(album)
@@ -115,6 +116,7 @@ export function createAlbumsRouter(
             listenCount: body.listenCount ?? existing.listenCount,
             lastListened: body.lastListened ?? existing.lastListened,
             story: body.story ?? existing.story,
+            sources: body.sources ?? existing.sources,
         }
 
         if (auditRepo) auditRepo.saveAlbumWithAudit(existing, album)
@@ -162,6 +164,7 @@ export function createAlbumsRouter(
                 listenCount: body.listenCount ?? 0,
                 lastListened: body.lastListened ?? null,
                 story: body.story,
+                sources: body.sources ?? existing?.sources ?? [],
             }
 
             parsedAlbums.push(album)

@@ -140,6 +140,33 @@ describe("album identity contract", () => {
         expect(invalid.status).toBe(400)
     })
 
+    it("persists stable MusicBrainz identities independently from editable metadata", async () => {
+        const releaseId = "123e4567-e89b-42d3-a456-426614174000"
+        const source = {
+            provider: "musicbrainz",
+            externalId: releaseId,
+            url: `https://musicbrainz.org/release/${releaseId}`,
+            resolutionStatus: "resolved",
+            resolvedAt: "2026-07-20T20:00:00.000Z",
+            confirmedByUser: false,
+        }
+        const update = await write("PUT", `/albums/${ALBUM_ID}`, { sources: [source] })
+        expect(update.status).toBe(200)
+        await expect(update.json()).resolves.toMatchObject({ sources: [source] })
+
+        const rename = await write("PUT", `/albums/${ALBUM_ID}`, { title: "Renamed Album" })
+        expect(rename.status).toBe(200)
+        await expect(rename.json()).resolves.toMatchObject({ title: "Renamed Album", sources: [source] })
+    })
+
+    it("rejects unsafe or provider-inconsistent source records", async () => {
+        const externalId = "123e4567-e89b-42d3-a456-426614174001"
+        const base = { provider: "musicbrainz", externalId, resolutionStatus: "resolved", resolvedAt: "2026-07-20T20:00:00.000Z", confirmedByUser: false }
+        expect((await write("PUT", `/albums/${ALBUM_ID}`, { sources: [{ ...base, url: `http://musicbrainz.org/release/${externalId}` }] })).status).toBe(400)
+        expect((await write("PUT", `/albums/${ALBUM_ID}`, { sources: [{ ...base, url: `https://evil.example/release/${externalId}` }] })).status).toBe(400)
+        expect((await write("PUT", `/albums/${ALBUM_ID}`, { sources: [{ ...base, externalId: "not-an-id", url: "https://musicbrainz.org/release/not-an-id" }] })).status).toBe(400)
+    })
+
     it("updates and deletes the same canonical ID", async () => {
         const createdAt = (database.prepare("SELECT created_at FROM albums WHERE id = ?").get(ALBUM_ID) as { created_at: string }).created_at
         const update = await write("PUT", `/albums/${ALBUM_ID}`, { ...album, title: "Updated" })

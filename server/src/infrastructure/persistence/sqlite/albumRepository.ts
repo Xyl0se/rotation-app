@@ -1,5 +1,5 @@
 import Database from "better-sqlite3"
-import type { Album, CoverOverride, AlbumStory, RoleHistoryEntry } from "../../../domain/albumTypes.js"
+import type { Album, AlbumSource, CoverOverride, AlbumStory, RoleHistoryEntry } from "../../../domain/albumTypes.js"
 
 // --- SnakeCase DB Record ---
 
@@ -17,6 +17,17 @@ interface AlbumRecord {
     story: string | null
     created_at: string
     updated_at: string
+}
+
+interface AlbumSourceRecord {
+    album_id: string
+    provider: AlbumSource["provider"]
+    external_id: string | null
+    url: string | null
+    locale: AlbumSource["locale"] | null
+    resolution_status: AlbumSource["resolutionStatus"]
+    resolved_at: string
+    confirmed_by_user: number
 }
 
 // --- Normalization (defensive, analogous to client-side albumRepository.ts) ---
@@ -133,7 +144,19 @@ function parseAlbumStory(raw: string | null): AlbumStory | undefined {
     return undefined
 }
 
-function recordToAlbum(record: AlbumRecord): Album {
+function sourceRecordToDomain(record: AlbumSourceRecord): AlbumSource {
+    return {
+        provider: record.provider,
+        externalId: record.external_id ?? undefined,
+        url: record.url ?? undefined,
+        locale: record.locale ?? undefined,
+        resolutionStatus: record.resolution_status,
+        resolvedAt: record.resolved_at,
+        confirmedByUser: record.confirmed_by_user === 1,
+    }
+}
+
+function recordToAlbum(record: AlbumRecord, sources: AlbumSource[] = []): Album {
     return {
         id: record.id,
         title: record.title,
@@ -149,6 +172,7 @@ function recordToAlbum(record: AlbumRecord): Album {
         lastListened: record.last_listened,
         story: parseAlbumStory(record.story),
         createdAt: record.created_at,
+        sources,
     }
 }
 
@@ -223,7 +247,17 @@ export function createAlbumRepository(db: Database.Database) {
         SELECT 1 FROM albums WHERE id = ?
     `)
 
-    function persist(album: Album): void {
+    const hasSourcesTable = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='album_sources'").get() !== undefined
+    const findSourcesByAlbumId = hasSourcesTable ? db.prepare<[string]>(`
+        SELECT * FROM album_sources WHERE album_id = ? ORDER BY provider, external_id
+    `) : null
+    const deleteSourcesByAlbumId = hasSourcesTable ? db.prepare<[string]>(`DELETE FROM album_sources WHERE album_id = ?`) : null
+    const insertSource = hasSourcesTable ? db.prepare<[string, string, string | null, string | null, string | null, string, string, number]>(`
+        INSERT INTO album_sources (album_id, provider, external_id, url, locale, resolution_status, resolved_at, confirmed_by_user)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `) : null
+
+    function persistAlbumRecord(album: Album): void {
         const record = albumToRecord(album)
         insert.run(
             record.id,
@@ -241,19 +275,38 @@ export function createAlbumRepository(db: Database.Database) {
             record.updated_at,
         )
     }
-    const persistMany = db.transaction((albums: Album[]) => {
-        for (const album of albums) persist(album)
+    function replaceSources(album: Album): void {
+        if (album.sources === undefined || !deleteSourcesByAlbumId || !insertSource) return
+        deleteSourcesByAlbumId.run(album.id)
+        for (const source of album.sources) insertSource.run(
+            album.id, source.provider, source.externalId ?? null, source.url ?? null,
+            source.locale ?? null, source.resolutionStatus, source.resolvedAt, source.confirmedByUser ? 1 : 0,
+        )
+    }
+    const persist = db.transaction((album: Album) => {
+        persistAlbumRecord(album)
+        replaceSources(album)
     })
+    const persistMany = db.transaction((albums: Album[]) => {
+        for (const album of albums) {
+            persistAlbumRecord(album)
+            replaceSources(album)
+        }
+    })
+
+    const sourcesFor = (albumId: string) => findSourcesByAlbumId
+        ? (findSourcesByAlbumId.all(albumId) as AlbumSourceRecord[]).map(sourceRecordToDomain)
+        : undefined
 
     return {
         findAll(limit = 10_000, offset = 0): Album[] {
             const records = findAllStmt.all(limit, offset) as AlbumRecord[]
-            return records.map(recordToAlbum)
+            return records.map(record => recordToAlbum(record, sourcesFor(record.id)))
         },
 
         findById(id: string): Album | undefined {
             const record = findByIdStmt.get(id) as AlbumRecord | undefined
-            return record ? recordToAlbum(record) : undefined
+            return record ? recordToAlbum(record, sourcesFor(record.id)) : undefined
         },
 
         save(album: Album): void {
@@ -276,12 +329,12 @@ export function createAlbumRepository(db: Database.Database) {
 
         findByArtist(artist: string): Album[] {
             const records = findByArtistStmt.all(artist) as AlbumRecord[]
-            return records.map(recordToAlbum)
+            return records.map(record => recordToAlbum(record, sourcesFor(record.id)))
         },
 
         findByTitle(title: string): Album[] {
             const records = findByTitleStmt.all(title) as AlbumRecord[]
-            return records.map(recordToAlbum)
+            return records.map(record => recordToAlbum(record, sourcesFor(record.id)))
         },
     }
 }

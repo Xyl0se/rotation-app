@@ -487,6 +487,28 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 15,
+        name: "album-external-sources",
+        run(db) {
+            db.exec(`
+                CREATE TABLE album_sources (
+                    album_id TEXT NOT NULL REFERENCES albums(id) ON DELETE CASCADE,
+                    provider TEXT NOT NULL CHECK(provider IN ('musicbrainz','wikipedia','wikidata')),
+                    external_id TEXT,
+                    url TEXT,
+                    locale TEXT CHECK(locale IS NULL OR locale IN ('de','en')),
+                    resolution_status TEXT NOT NULL CHECK(resolution_status IN ('resolved','missing','ambiguous','failed')),
+                    resolved_at TEXT NOT NULL,
+                    confirmed_by_user INTEGER NOT NULL DEFAULT 0 CHECK(confirmed_by_user IN (0,1)),
+                    CHECK(url IS NULL OR (length(url) BETWEEN 1 AND 4096 AND substr(url,1,8)='https://')),
+                    CHECK(external_id IS NOT NULL OR url IS NOT NULL),
+                    PRIMARY KEY (album_id, provider, external_id)
+                );
+                CREATE INDEX idx_album_sources_album ON album_sources(album_id, provider);
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database, maxMigrationVersion: number): void {

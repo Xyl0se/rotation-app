@@ -108,6 +108,8 @@ describe("DiscoverAlbumDialog capture prefill", () => {
             title: "Matched Album",
             artist: "Detected Artist",
             year: "2026",
+            musicBrainzId: "123e4567-e89b-42d3-a456-426614174000",
+            musicBrainzReleaseGroupId: "123e4567-e89b-42d3-a456-426614174001",
             coverUrl: "https://coverartarchive.org/release/one/front",
             coverCandidates: [
                 "https://coverartarchive.org/release/one/front",
@@ -133,6 +135,10 @@ describe("DiscoverAlbumDialog capture prefill", () => {
         expect(onFinish).toHaveBeenCalledWith(expect.objectContaining({
             title: "Matched Album",
             coverUrl: "https://coverartarchive.org/release/one/front",
+            sources: expect.arrayContaining([
+                expect.objectContaining({ provider: "musicbrainz", externalId: "123e4567-e89b-42d3-a456-426614174000", url: "https://musicbrainz.org/release/123e4567-e89b-42d3-a456-426614174000" }),
+                expect.objectContaining({ provider: "musicbrainz", externalId: "123e4567-e89b-42d3-a456-426614174001", url: "https://musicbrainz.org/release-group/123e4567-e89b-42d3-a456-426614174001" }),
+            ]),
         }), [
             "https://coverartarchive.org/release/one/front",
             "https://coverartarchive.org/release-group/two/front",

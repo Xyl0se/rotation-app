@@ -127,6 +127,24 @@ function DiscoverAlbumDialog({
                     title: metadata.title,
                     year: metadata.year ?? prev.year,
                     coverUrl: metadata.coverUrl ?? prev.coverUrl,
+                    sources: metadata.musicBrainzId ? [
+                        {
+                            provider: "musicbrainz" as const,
+                            externalId: metadata.musicBrainzId,
+                            url: `https://musicbrainz.org/release/${metadata.musicBrainzId}`,
+                            resolutionStatus: "resolved" as const,
+                            resolvedAt: new Date().toISOString(),
+                            confirmedByUser: false,
+                        },
+                        ...(metadata.musicBrainzReleaseGroupId ? [{
+                            provider: "musicbrainz" as const,
+                            externalId: metadata.musicBrainzReleaseGroupId,
+                            url: `https://musicbrainz.org/release-group/${metadata.musicBrainzReleaseGroupId}`,
+                            resolutionStatus: "resolved" as const,
+                            resolvedAt: new Date().toISOString(),
+                            confirmedByUser: false,
+                        }] : []),
+                    ] : prev.sources,
                 }))
                 setMetadataState("found")
             } else {

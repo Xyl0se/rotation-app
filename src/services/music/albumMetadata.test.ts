@@ -31,6 +31,8 @@ describe("searchAlbum cover candidates", () => {
             "https://coverartarchive.org/release-group/group-1/front",
         ])
         expect(result?.coverUrl).toBe(result?.coverCandidates?.[0])
+        expect(result?.musicBrainzId).toBe("release-1")
+        expect(result?.musicBrainzReleaseGroupId).toBe("group-1")
     })
 
     it("keeps a genuine underscore when the original title matches", async () => {
