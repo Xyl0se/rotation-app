@@ -48,5 +48,5 @@ would undermine the product's reflective tone and privacy boundary.
 ## Related documentation
 
 - [Insights Page](../product/INSIGHTS_PAGE.md)
-- [Sprint 86](../sprints/Sprint-86.md)
+- [Sprint 86](../sprints/done/Sprint-86.md)
 - [ADR 013 — Data Ownership Boundaries](./013-data-ownership-boundaries.md)

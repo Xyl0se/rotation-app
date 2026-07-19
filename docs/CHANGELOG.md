@@ -25,6 +25,7 @@
     life-phase context, with a direct path into the existing Album editor.
   - Kept selection read-only, excluded unknown answers from narratives, and avoided
     recent repetition by walking a stable pseudo-random Album order.
+  - Passed the complete Sprint 86.3 production NAS acceptance; Sprint 86 is closed.
 
 - **Sprint 85 — dependency stewardship**
   - Added a practical Dependabot runbook covering terminology, risk classification,

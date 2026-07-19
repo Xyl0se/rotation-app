@@ -33,5 +33,5 @@ Role valid at listening time. Free Journal notes and Album Story memory prose ar
 read by the Insight engine. Insights cannot mutate Albums, Roles, Rotations,
 Reflections, Bindings, or Archive state.
 
-See [Insights Page](./INSIGHTS_PAGE.md), [Sprint 86](../sprints/Sprint-86.md), and
+See [Insights Page](./INSIGHTS_PAGE.md), [Sprint 86](../sprints/done/Sprint-86.md), and
 [ADR 016](../adr/016-deterministic-insight-evidence.md).

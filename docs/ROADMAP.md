@@ -60,8 +60,8 @@ Not optimization.
 | Done | [Sprint 83.1](./sprints/done/Sprint-83.1.md) | Compressed Album Coach and Binding intake | v0.30.1 | Done ✅ |
 | Done | [Sprint 84](./sprints/done/Sprint-84.md) | Optional Listening Journal | Subsequent minor | Done ✅; NAS acceptance passed |
 | Done | [Sprint 85](./sprints/done/Sprint-85.md) | Dependabot and dependency stewardship | Maintenance patch | Implemented ✅; recurring PR triage follows runbook |
-| Current | [Sprint 86](./sprints/Sprint-86.md) | Deeper deterministic Insights and Memory Prompts | Future minor | 86.1/86.2 accepted; 86.3 implemented, NAS acceptance pending |
-| 6 | [Sprint 87](./sprints/Sprint-87.md) | Local-first artwork with remote fallback | Future release | Feasibility spike first |
+| Done | [Sprint 86](./sprints/done/Sprint-86.md) | Deeper deterministic Insights and Memory Prompts | Future minor | Done ✅; 86.1–86.3 accepted on NAS |
+| Next | [Sprint 87](./sprints/Sprint-87.md) | Local-first artwork with remote fallback | Future release | Feasibility spike first |
 | 7 | [Sprint 88](./sprints/Sprint-88.md) | Album Detail with persisted MusicBrainz/Wikipedia source links | Future minor | Planned |
 | 8 | [Sprint 89](./sprints/Sprint-89.md) | Safe read-only Playback Foundation and real NAS feasibility | Future major capability | Planned; architecture decision and spike first |
 | 9 | [Sprint 90](./sprints/Sprint-90.md) | Persistent Whole Album Session with Play/Pause-only philosophy | Future major capability | Planned; depends on Sprint 89 go decision |
@@ -102,6 +102,9 @@ These items should receive a sprint only when their trigger is observed:
 
 See [Phase IX](./sprints/Phase-IX.md) for the next product phase and
 [Phase X](./sprints/Phase-X.md) for conditional platform/companion directions.
+[Phase XI](./sprints/Phase-XI.md) records the unscheduled long-term direction for a
+shared household catalog with private user relationships; it reserves no Sprint
+numbers.
 
 ## Completed Foundation
 

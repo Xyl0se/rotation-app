@@ -1,6 +1,6 @@
 # Sprint 86 — Deeper Insights
 
-**Status:** 86.1 and 86.2 accepted ✅ — 86.3 implemented; NAS acceptance pending
+**Status:** Done ✅ — 86.1, 86.2, and 86.3 accepted on NAS
 
 **Target version:** Future minor version
 
@@ -14,10 +14,11 @@ scores, judgment, opaque recommendations, or automatic mutations.
 
 ## Delivery strategy
 
-Sprint 86 has two deliberately separate deliveries. **86.1** establishes the
+Sprint 86 has three deliberately separate deliveries. **86.1** establishes the
 canonical server-side evidence system and the least interpretatively sensitive core
-narratives. **86.2** may add recurring artists, release eras, structured personal
-history, and a refined weekly narrative rotation only after 86.1 has passed NAS review.
+narratives. **86.2** adds recurring artists, release eras, structured personal
+history, and a refined weekly narrative rotation after 86.1 passed NAS review.
+**86.3** adds quiet, actionable prompts for incomplete structured Album history.
 
 ## Workstream 86.1 — Evidence Engine and Core Narratives
 
@@ -60,11 +61,11 @@ single calm building state instead of invented copy.
 - Route coverage proves the endpoint is public/read-only and excludes personal text.
 - The representative 10,000-Album gate requires evaluation below 250 ms.
 - Production verification follows
-  [the Sprint-86.1 NAS acceptance](../acceptance/SPRINT-86.1-NAS-ACCEPTANCE.md).
+  [the Sprint-86.1 NAS acceptance](../../acceptance/SPRINT-86.1-NAS-ACCEPTANCE.md).
 
 ## Workstream 86.2 — Extended Narrative Families
 
-**Implementation status:** Complete in code ✅ — NAS acceptance pending
+**Implementation status:** Accepted on NAS ✅
 
 - Recurring-artist observations require at least eight recent listens, three for the
   artist, two distinct Albums, and a meaningful share of the listening window.
@@ -76,11 +77,11 @@ single calm building state instead of invented copy.
 - Equally important eligible narratives are selected by a stable calendar-week seed.
   The same evidence does not jump on reload or between browsers within that week.
 - Production verification follows
-[the Sprint-86.2 NAS acceptance](../acceptance/SPRINT-86.2-NAS-ACCEPTANCE.md).
+  [the Sprint-86.2 NAS acceptance](../../acceptance/SPRINT-86.2-NAS-ACCEPTANCE.md).
 
 ## Workstream 86.3 — Memory Prompts
 
-**Implementation status:** Complete in code ✅ — NAS acceptance pending
+**Implementation status:** Accepted on NAS ✅
 
 - Album Story acquisition now distinguishes digital/iTunes purchases and the explicit
   answer “I don't remember” from a field that has never been answered.
@@ -94,7 +95,7 @@ single calm building state instead of invented copy.
 - `unknown` is excluded from personal-history narratives and from Story-derived
   Rotation explanations.
 - Production verification follows
-  [the Sprint-86.3 NAS acceptance](../acceptance/SPRINT-86.3-NAS-ACCEPTANCE.md).
+  [the Sprint-86.3 NAS acceptance](../../acceptance/SPRINT-86.3-NAS-ACCEPTANCE.md).
 
 ## Optional AI boundary
 
@@ -102,7 +103,7 @@ No AI provider is part of Sprint 86. Facts, eligibility, suppression, and fallba
 wording remain deterministic. Any future AI may only rephrase a sanitized evidence
 packet after explicit opt-in and can never read private prose by default or mutate
 Albums, Roles, Rotations, Reflections, or Archive state. See
-[ADR 016](../adr/016-deterministic-insight-evidence.md).
+[ADR 016](../../adr/016-deterministic-insight-evidence.md).
 
 ## Definition of Done
 
@@ -127,7 +128,7 @@ Albums, Roles, Rotations, Reflections, or Archive state. See
 - [x] Digital acquisition and explicit unknown answers are supported end to end.
 - [x] Missing Story fields yield one stable, actionable weekly Memory Prompt.
 - [x] Explicit unknown answers suppress prompts without becoming insight themes.
-- [ ] Final Sprint 86.3 NAS acceptance passes.
+- [x] Final Sprint 86.3 NAS acceptance passes.
 
 ## Non-goals
 
