@@ -53,7 +53,7 @@ import { createLocalArtworkService } from "./application/localArtworkService.js"
 import { createCoverResolver } from "./application/coverResolver.js"
 import { createCoverResolutionBatchService } from "./application/coverResolutionBatchService.js"
 import { createCoverResolutionRepository } from "./infrastructure/persistence/sqlite/coverResolutionRepository.js"
-import { createExternalSourceResolver } from "./application/externalSourceResolver.js"
+import { createExternalSourceResolver, createMusicBrainzReleaseSearch } from "./application/externalSourceResolver.js"
 
 const config = loadConfig()
 
@@ -92,6 +92,7 @@ const coverResolver = createCoverResolver(coverService, localArtworkService)
 const coverBatchService = createCoverResolutionBatchService(bindingRepo, coverResolver)
 const artworkFeasibilityService = createArtworkFeasibilityService(bindingRepo, musicGuard)
 const externalSourceResolver = createExternalSourceResolver()
+const musicBrainzReleaseSearch = createMusicBrainzReleaseSearch()
 const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo, bindingCandidateRepo)
 const lockRepo = createExportLockRepository(db)
 const exportService = createExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard, albumRepo, rotationStateRepo)
@@ -173,6 +174,7 @@ app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(
     () => reflectionInboxService.evaluate(),
     (albumId, remoteUrls) => { coverBatchService.enqueueOne(albumId, remoteUrls) },
     externalSourceResolver,
+    musicBrainzReleaseSearch,
 ))
 app.use("/audit", requireWriteTokenForMutations, createAuditRouter(auditRepo))
 app.use("/reflections", requireWriteTokenForMutations, createReflectionsRouter(reflectionInboxService, auditRepo))

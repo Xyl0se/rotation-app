@@ -13,6 +13,7 @@ import {
     deleteAlbum as apiDeleteAlbum,
     fetchAlbums as apiFetchAlbums,
     updateAlbum as apiUpdateAlbum,
+    saveAlbumSources as apiSaveAlbumSources,
 } from "../services/api/albumsService"
 import {
     deleteCover as apiDeleteCover,
@@ -110,6 +111,12 @@ export function useLibrary(isConnected: boolean = false) {
             confirmed => setAlbums(previous => previous.map(existing =>
                 existing.id === confirmed.id ? confirmed : existing,
             )),
+        ), [runMutation])
+
+    const updateAlbumSources = useCallback(async (id: string, sources: NonNullable<Album["sources"]>): Promise<boolean> =>
+        runMutation(
+            () => apiSaveAlbumSources(id, sources),
+            confirmed => setAlbums(previous => previous.map(existing => existing.id === confirmed.id ? confirmed : existing)),
         ), [runMutation])
 
     const deleteAlbum = useCallback(async (id: string): Promise<boolean> => {
@@ -228,6 +235,7 @@ export function useLibrary(isConnected: boolean = false) {
         addAlbum,
         deleteAlbum,
         updateAlbum,
+        updateAlbumSources,
         updateAlbumRole,
         logListenForAlbum,
         updateAlbumCoverOverride,

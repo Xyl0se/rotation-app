@@ -51,7 +51,7 @@ const AlbumStorySchema = z.object({
     updatedAt: IsoDateSchema,
 })
 
-const AlbumSourceSchema = z.object({
+export const AlbumSourceSchema = z.object({
     provider: z.enum(["musicbrainz", "wikipedia", "wikidata"]),
     externalId: z.string().trim().min(1).max(200).optional(),
     url: z.string().url().max(4096).optional(),
@@ -82,6 +82,12 @@ const AlbumSourceSchema = z.object({
     }
 })
 
+export const AlbumSourcesUpdateSchema = z.object({ sources: z.array(AlbumSourceSchema).max(20) })
+export const AlbumSourcePreviewSchema = z.object({
+    releaseId: UUIDSchema,
+    releaseGroupId: UUIDSchema.optional(),
+})
+
 const AlbumBaseSchema = z.object({
     id: UUIDSchema,
     title: z.string().trim().min(1).max(500),
@@ -109,7 +115,7 @@ export const AlbumSchema = AlbumBaseSchema.superRefine((album, context) => {
 
 const CoverCandidatesSchema = z.array(z.string().url().max(4096)).max(4).default([])
 export const CreateAlbumSchema = z.intersection(AlbumSchema, z.object({ coverCandidates: CoverCandidatesSchema }))
-export const UpdateAlbumSchema = AlbumBaseSchema.partial().omit({ id: true })
+export const UpdateAlbumSchema = AlbumBaseSchema.partial().omit({ id: true, sources: true })
 export const ImportAlbumsSchema = z.object({
     albums: z.array(AlbumSchema).max(10_000),
 }).superRefine(({ albums }, context) => {

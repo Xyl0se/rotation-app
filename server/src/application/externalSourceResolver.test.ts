@@ -1,10 +1,25 @@
 import { describe, expect, it, vi } from "vitest"
-import { createExternalSourceResolver } from "./externalSourceResolver.js"
+import { createExternalSourceResolver, createMusicBrainzReleaseSearch } from "./externalSourceResolver.js"
 
 const RELEASE = "123e4567-e89b-42d3-a456-426614174000"
 const json = (body: unknown) => new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } })
 
 describe("external source resolver", () => {
+    it("returns a bounded review list for an explicit Album search", async () => {
+        const releases = Array.from({ length: 7 }, (_, index) => ({
+            id: `123e4567-e89b-42d3-a456-42661417410${index}`,
+            title: `Album ${index}`,
+            date: "2024-01-01",
+            "release-group": { id: `123e4567-e89b-42d3-a456-42661417420${index}` },
+            "artist-credit": [{ name: "Artist" }],
+        }))
+        const fetchImpl = vi.fn<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>(async () => json({ releases }))
+        const candidates = await createMusicBrainzReleaseSearch({ fetchImpl: fetchImpl as typeof fetch, delay: async () => {} })("Album", "Artist")
+        expect(candidates).toHaveLength(5)
+        expect(candidates[0]).toMatchObject({ title: "Album 0", artist: "Artist", year: "2024", releaseGroupId: releases[0]["release-group"].id })
+        expect(decodeURIComponent(String(fetchImpl.mock.calls[0]?.[0]))).toContain('release:"Album" AND artist:"Artist"')
+    })
+
     it("uses one direct entity-correct Wikipedia relationship", async () => {
         const fetchImpl = vi.fn<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>(async () => json({ relations: [{ type: "wikipedia", url: { resource: "https://de.wikipedia.org/wiki/Album" } }] }))
         const sources = await createExternalSourceResolver({ fetchImpl: fetchImpl as typeof fetch, delay: async () => {} })(RELEASE)

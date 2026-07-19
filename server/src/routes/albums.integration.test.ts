@@ -19,6 +19,7 @@ describe("album identity contract", () => {
     let baseUrl: string
     const onCreatedAlbum = vi.fn()
     const resolveExternalSources = vi.fn<(releaseId: string) => Promise<AlbumSource[]>>(async () => [])
+    const searchMusicBrainzReleases = vi.fn(async () => [{ releaseId: "123e4567-e89b-42d3-a456-426614174020", title: "Album", artist: "Artist", year: "2024" }])
 
     beforeAll(async () => {
         database = initDatabase(":memory:")
@@ -27,7 +28,7 @@ describe("album identity contract", () => {
         app.use(
             "/albums",
             createRequireWriteTokenForMutations(TOKEN),
-            createAlbumsRouter(createAlbumRepository(database), undefined, undefined, onCreatedAlbum, resolveExternalSources),
+            createAlbumsRouter(createAlbumRepository(database), undefined, undefined, onCreatedAlbum, resolveExternalSources, searchMusicBrainzReleases),
         )
         await new Promise<void>((resolve, reject) => {
             server = app.listen(0, "127.0.0.1", () => {
@@ -166,21 +167,40 @@ describe("album identity contract", () => {
             resolvedAt: "2026-07-20T20:00:00.000Z",
             confirmedByUser: false,
         }
-        const update = await write("PUT", `/albums/${ALBUM_ID}`, { sources: [source] })
+        const update = await write("PUT", `/albums/${ALBUM_ID}/sources`, { sources: [source] })
         expect(update.status).toBe(200)
-        await expect(update.json()).resolves.toMatchObject({ sources: [source] })
+        await expect(update.json()).resolves.toMatchObject({ sources: [{ ...source, confirmedByUser: true }] })
 
         const rename = await write("PUT", `/albums/${ALBUM_ID}`, { title: "Renamed Album" })
         expect(rename.status).toBe(200)
-        await expect(rename.json()).resolves.toMatchObject({ title: "Renamed Album", sources: [source] })
+        await expect(rename.json()).resolves.toMatchObject({ title: "Renamed Album", sources: [{ ...source, confirmedByUser: true }] })
     })
 
     it("rejects unsafe or provider-inconsistent source records", async () => {
         const externalId = "123e4567-e89b-42d3-a456-426614174001"
         const base = { provider: "musicbrainz", externalId, resolutionStatus: "resolved", resolvedAt: "2026-07-20T20:00:00.000Z", confirmedByUser: false }
-        expect((await write("PUT", `/albums/${ALBUM_ID}`, { sources: [{ ...base, url: `http://musicbrainz.org/release/${externalId}` }] })).status).toBe(400)
-        expect((await write("PUT", `/albums/${ALBUM_ID}`, { sources: [{ ...base, url: `https://evil.example/release/${externalId}` }] })).status).toBe(400)
-        expect((await write("PUT", `/albums/${ALBUM_ID}`, { sources: [{ ...base, externalId: "not-an-id", url: "https://musicbrainz.org/release/not-an-id" }] })).status).toBe(400)
+        expect((await write("PUT", `/albums/${ALBUM_ID}/sources`, { sources: [{ ...base, url: `http://musicbrainz.org/release/${externalId}` }] })).status).toBe(400)
+        expect((await write("PUT", `/albums/${ALBUM_ID}/sources`, { sources: [{ ...base, url: `https://evil.example/release/${externalId}` }] })).status).toBe(400)
+        expect((await write("PUT", `/albums/${ALBUM_ID}/sources`, { sources: [{ ...base, externalId: "not-an-id", url: "https://musicbrainz.org/release/not-an-id" }] })).status).toBe(400)
+    })
+
+    it("keeps confirmed sources unchanged until an explicit reviewed save", async () => {
+        const existing = (await (await fetch(`${baseUrl}/albums/${ALBUM_ID}`)).json()).sources as AlbumSource[]
+        const confirmed = await write("PUT", `/albums/${ALBUM_ID}/sources`, { sources: existing })
+        expect(confirmed.status).toBe(200)
+        expect((await confirmed.json()).sources.every((source: AlbumSource) => source.confirmedByUser)).toBe(true)
+
+        expect((await write("POST", `/albums/${ALBUM_ID}/sources/search`)).status).toBe(200)
+        const attemptedSilentReplacement = await write("PUT", `/albums/${ALBUM_ID}`, { sources: [] })
+        expect((await attemptedSilentReplacement.json()).sources).toHaveLength(existing.length)
+
+        const corrected = existing.map(source => source.provider === "musicbrainz" ? { ...source, url: source.url?.replace("/release/", "/release-group/") } : source)
+        const saved = await write("PUT", `/albums/${ALBUM_ID}/sources`, { sources: corrected })
+        expect(saved.status).toBe(200)
+        expect((await saved.json()).sources[0].confirmedByUser).toBe(true)
+        const removed = await write("PUT", `/albums/${ALBUM_ID}/sources`, { sources: [] })
+        expect(removed.status).toBe(200)
+        expect((await removed.json()).sources).toEqual([])
     })
 
     it("updates and deletes the same canonical ID", async () => {

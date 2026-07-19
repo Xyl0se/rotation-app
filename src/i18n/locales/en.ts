@@ -114,6 +114,15 @@ export const en = {
         binding: { title: "Music folder", stateLabel: "Binding", folder: "Folder", availability: "Availability", missing: "The linked folder is currently missing.", empty: "No music-folder Binding is confirmed for this Album.", states: { proposed: "Proposed", confirmed: "Confirmed", missing: "Missing" } },
     },
 
+    albumSources: {
+        title: "External sources",
+        description: "Search only when you want to review or correct stored references. Nothing is replaced before you save.",
+        empty: "No external source is stored for this Album.",
+        provider: "Provider", url: "Canonical URL", remove: "Remove", matches: "Review MusicBrainz matches",
+        noMatches: "Start an explicit search to find or replace references.", find: "Find external sources", working: "Searching…", save: "Save reviewed sources", saved: "The reviewed sources were saved.", error: "The source operation failed.",
+        providers: { musicbrainz: "MusicBrainz", wikipedia: "Wikipedia", wikidata: "Wikidata" },
+    },
+
     acquisitionReasons: {
         artist: "Artist",
         "friend-recommendation": "Recommendation",

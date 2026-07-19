@@ -8,6 +8,8 @@ import AlbumCover from "../components/ui/AlbumCover"
 import AlbumTimeline from "../components/features/timeline/AlbumTimeline"
 import Button from "../components/ui/Button"
 import { useI18n } from "../i18n/useI18n"
+import AlbumSourceEditor from "../components/features/album-sources/AlbumSourceEditor"
+import type { AlbumSource } from "../types/album"
 
 interface AlbumDetailPageProps {
     album?: Album
@@ -22,11 +24,12 @@ interface AlbumDetailPageProps {
     onBack: () => void
     onEdit: () => void
     onLogListen: () => void
+    onSaveSources: (sources: AlbumSource[]) => Promise<boolean>
 }
 
 const formatDate = (value: string) => new Date(value).toLocaleDateString(undefined, { day: "2-digit", month: "2-digit", year: "numeric" })
 
-export default function AlbumDetailPage({ album, albumId, listenEvents, reflections, currentRotation, historicRotations, binding, isLoading, partialErrors, onBack, onEdit, onLogListen }: AlbumDetailPageProps) {
+export default function AlbumDetailPage({ album, albumId, listenEvents, reflections, currentRotation, historicRotations, binding, isLoading, partialErrors, onBack, onEdit, onLogListen, onSaveSources }: AlbumDetailPageProps) {
     const { t } = useI18n()
 
     if (isLoading && !album) return <main className="container album-detail"><p role="status">{t.albumDetail.loading}</p></main>
@@ -64,6 +67,7 @@ export default function AlbumDetailPage({ album, albumId, listenEvents, reflecti
             <section className="album-detail-panel"><h2>{t.albumDetail.rotation.title}</h2>{inCurrentRotation && <p>{t.albumDetail.rotation.current(currentRotation?.name ?? "")}</p>}{historicRotations.length > 0 && <details><summary>{t.albumDetail.rotation.history(historicRotations.length)}</summary><ul>{historicRotations.map(plan => <li key={plan.id}>{plan.name} · {formatDate(plan.archivedAt ?? plan.acceptedAt ?? plan.createdAt)}</li>)}</ul></details>}{!inCurrentRotation && historicRotations.length === 0 && <p className="album-detail-empty">{t.albumDetail.rotation.empty}</p>}</section>
 
             <section className="album-detail-panel"><h2>{t.albumDetail.binding.title}</h2>{binding ? <dl><dt>{t.albumDetail.binding.stateLabel}</dt><dd>{t.albumDetail.binding.states[binding.state]}</dd><dt>{t.albumDetail.binding.folder}</dt><dd>{binding.relativePath}</dd>{!binding.folderExists && <><dt>{t.albumDetail.binding.availability}</dt><dd>{t.albumDetail.binding.missing}</dd></>}</dl> : <p className="album-detail-empty">{t.albumDetail.binding.empty}</p>}</section>
+            <AlbumSourceEditor album={album} onSave={onSaveSources} />
         </div>
         <AlbumTimeline album={album} listenEvents={albumListens} />
     </main>

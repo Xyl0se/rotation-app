@@ -55,6 +55,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId, albumDetailId = null
         refresh: refreshLibrary,
         deleteAlbum,
         updateAlbum,
+        updateAlbumSources,
         updateAlbumRole,
         updateAlbumCoverOverride,
         removeAlbumCoverOverride,
@@ -143,6 +144,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId, albumDetailId = null
         onBack={() => onCloseAlbum?.()}
         onEdit={() => setEditingAlbumId(albumDetailId)}
         onLogListen={() => void handleLogListen(albumDetailId)}
+        onSaveSources={(sources) => updateAlbumSources(albumDetailId, sources)}
     /> : null
 
     return (

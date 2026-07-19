@@ -5,6 +5,8 @@ import type { Album } from "../domain/albumTypes.js"
 import type { AuditRepository } from "../infrastructure/persistence/sqlite/auditRepository.js"
 import {
     CreateAlbumSchema,
+    AlbumSourcePreviewSchema,
+    AlbumSourcesUpdateSchema,
     ImportAlbumsSchema,
     UpdateAlbumSchema,
     UUIDSchema,
@@ -12,6 +14,7 @@ import {
 } from "./validation.js"
 import type { AlbumSource } from "../domain/albumTypes.js"
 import { createLogger } from "../infrastructure/logger/logger.js"
+import type { MusicBrainzReleaseCandidate } from "../application/externalSourceResolver.js"
 
 const log = createLogger("album-sources")
 
@@ -27,6 +30,7 @@ export function createAlbumsRouter(
     onRelevantEvent?: () => void,
     onCreatedAlbum?: (albumId: string, remoteUrls: string[]) => void,
     resolveExternalSources?: (releaseId: string) => Promise<AlbumSource[]>,
+    searchMusicBrainzReleases?: (title: string, artist: string) => Promise<MusicBrainzReleaseCandidate[]>,
 ): Router {
     const router = Router()
 
@@ -136,13 +140,57 @@ export function createAlbumsRouter(
             listenCount: body.listenCount ?? existing.listenCount,
             lastListened: body.lastListened ?? existing.lastListened,
             story: body.story ?? existing.story,
-            sources: body.sources ?? existing.sources,
+            sources: existing.sources,
         }
 
         if (auditRepo) auditRepo.saveAlbumWithAudit(existing, album)
         else albumRepo.save(album)
         onRelevantEvent?.()
         res.json(album)
+    })
+
+    router.post("/:id/sources/search", async (req: Request, res: Response) => {
+        const id = req.params.id as string
+        if (!parseRequest(UUIDSchema, id, res)) return
+        const album = albumRepo.findById(id)
+        if (!album) { res.status(404).json({ error: "Album not found" }); return }
+        if (!searchMusicBrainzReleases) { res.status(503).json({ error: "Source search unavailable" }); return }
+        try {
+            res.json({ candidates: await searchMusicBrainzReleases(album.title, album.artist) })
+        } catch (error) {
+            log.warn("External source search failed", { albumId: id, error: error instanceof Error ? error.message : String(error) })
+            res.status(502).json({ error: "External source search failed" })
+        }
+    })
+
+    router.post("/:id/sources/preview", async (req: Request, res: Response) => {
+        const id = req.params.id as string
+        if (!parseRequest(UUIDSchema, id, res)) return
+        if (!albumRepo.exists(id)) { res.status(404).json({ error: "Album not found" }); return }
+        const selection = parseRequest(AlbumSourcePreviewSchema, req.body, res)
+        if (!selection) return
+        if (!resolveExternalSources) { res.status(503).json({ error: "Source resolution unavailable" }); return }
+        try {
+            const now = new Date().toISOString()
+            const sources: AlbumSource[] = [{ provider: "musicbrainz", externalId: selection.releaseId, url: `https://musicbrainz.org/release/${selection.releaseId}`, resolutionStatus: "resolved", resolvedAt: now, confirmedByUser: false }]
+            if (selection.releaseGroupId) sources.push({ provider: "musicbrainz", externalId: selection.releaseGroupId, url: `https://musicbrainz.org/release-group/${selection.releaseGroupId}`, resolutionStatus: "resolved", resolvedAt: now, confirmedByUser: false })
+            res.json({ sources: [...sources, ...await resolveExternalSources(selection.releaseId)] })
+        } catch (error) {
+            log.warn("External source preview failed", { albumId: id, error: error instanceof Error ? error.message : String(error) })
+            res.status(502).json({ error: "External source preview failed" })
+        }
+    })
+
+    router.put("/:id/sources", (req: Request, res: Response) => {
+        const id = req.params.id as string
+        if (!parseRequest(UUIDSchema, id, res)) return
+        const album = albumRepo.findById(id)
+        if (!album) { res.status(404).json({ error: "Album not found" }); return }
+        const body = parseRequest(AlbumSourcesUpdateSchema, req.body, res)
+        if (!body) return
+        const updated: Album = { ...album, sources: body.sources.map(source => ({ ...source, confirmedByUser: true })) }
+        albumRepo.save(updated)
+        res.json(updated)
     })
 
     // DELETE /albums/:id — delete album

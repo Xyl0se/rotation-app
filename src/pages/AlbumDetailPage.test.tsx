@@ -30,6 +30,7 @@ const defaults = {
     onBack: vi.fn(),
     onEdit: vi.fn(),
     onLogListen: vi.fn(),
+    onSaveSources: vi.fn(async () => true),
 }
 
 const renderPage = (overrides: Partial<Parameters<typeof AlbumDetailPage>[0]> = {}) => render(

@@ -115,6 +115,15 @@ export const de: Translation = {
         binding: { title: "Musikordner", stateLabel: "Binding", folder: "Ordner", availability: "Verfügbarkeit", missing: "Der verknüpfte Ordner fehlt derzeit.", empty: "Für dieses Album ist kein Musikordner-Binding bestätigt.", states: { proposed: "Vorgeschlagen", confirmed: "Bestätigt", missing: "Fehlt" } },
     },
 
+    albumSources: {
+        title: "Externe Quellen",
+        description: "Starte die Suche nur, wenn du gespeicherte Verweise prüfen oder korrigieren möchtest. Vor dem Speichern wird nichts ersetzt.",
+        empty: "Für dieses Album ist keine externe Quelle gespeichert.",
+        provider: "Anbieter", url: "Kanonische URL", remove: "Entfernen", matches: "MusicBrainz-Treffer prüfen",
+        noMatches: "Starte eine ausdrückliche Suche, um Verweise zu finden oder zu ersetzen.", find: "Externe Quellen finden", working: "Suche läuft…", save: "Geprüfte Quellen speichern", saved: "Die geprüften Quellen wurden gespeichert.", error: "Die Quellenaktion ist fehlgeschlagen.",
+        providers: { musicbrainz: "MusicBrainz", wikipedia: "Wikipedia", wikidata: "Wikidata" },
+    },
+
     acquisitionReasons: {
         artist: "Künstler",
         "friend-recommendation": "Empfehlung",

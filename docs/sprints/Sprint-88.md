@@ -1,6 +1,6 @@
 # Sprint 88 — Album Detail and External Sources
 
-**Status:** In progress (88A–88C implemented)
+**Status:** In progress (88A–88D implemented)
 
 **Target version:** Future minor version
 
@@ -120,12 +120,17 @@ are logged without rolling back Capture. React never calls Wikipedia or Wikidata
 
 ## Workstream 88D — Existing Albums and correction
 
-- Add an explicit “Find external sources” action to Album editing or the Detail page.
-- Let users review found references before saving when matching is ambiguous.
-- Permit stored source URLs to be corrected, replaced, or removed manually.
-- Never silently replace a user-confirmed source during a later lookup.
-- Provide a bounded migration/backfill path for existing Albums without generating a
+- [x] Add an explicit “Find external sources” action to Album editing or the Detail page.
+- [x] Let users review found references before saving when matching is ambiguous.
+- [x] Permit stored source URLs to be corrected, replaced, or removed manually.
+- [x] Never silently replace a user-confirmed source during a later lookup.
+- [x] Provide a bounded migration/backfill path for existing Albums without generating a
   burst of external requests on application startup.
+
+Implementation note: each existing Album is enriched only through its Detail page.
+Search returns at most five review candidates, source preview is non-mutating, and a
+dedicated save marks the reviewed set as user-confirmed. Ordinary Album updates cannot
+write source records, and there is no startup or bulk-backfill request.
 
 ## Workstream 88E — External-source presentation
 

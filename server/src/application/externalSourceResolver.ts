@@ -10,6 +10,14 @@ export interface ExternalSourceResolverOptions {
     now?: () => number
 }
 
+export interface MusicBrainzReleaseCandidate {
+    releaseId: string
+    releaseGroupId?: string
+    title: string
+    artist: string
+    year?: string
+}
+
 const USER_AGENT = "Rotation/0.30.0 (https://github.com/Xyl0se/rotation-app)"
 const wait = (milliseconds: number) => new Promise<void>(resolve => setTimeout(resolve, milliseconds))
 
@@ -106,5 +114,29 @@ export function createExternalSourceResolver(options: ExternalSourceResolverOpti
             resolutionStatus: "resolved", resolvedAt, confirmedByUser: false,
         }
         return article ? [article, wikidata] : [wikidata]
+    }
+}
+
+export function createMusicBrainzReleaseSearch(options: ExternalSourceResolverOptions = {}) {
+    const fetchImpl = options.fetchImpl ?? fetch
+    const delay = options.delay ?? wait
+    const timeoutMs = options.timeoutMs ?? 4_000
+
+    return async function searchMusicBrainzReleases(title: string, artist: string): Promise<MusicBrainzReleaseCandidate[]> {
+        const escape = (value: string) => value.replace(/([+\-!(){}[\]^"~*?:\\/]|&&|\|\|)/g, "\\$1")
+        const query = encodeURIComponent(`release:"${escape(title)}" AND artist:"${escape(artist)}"`)
+        const data = await requestJson(fetchImpl, `https://musicbrainz.org/ws/2/release?fmt=json&limit=5&query=${query}`, timeoutMs, delay, { "User-Agent": USER_AGENT }) as {
+            releases?: Array<{ id?: string; title?: string; date?: string; "release-group"?: { id?: string }; "artist-credit"?: Array<{ name?: string }> }>
+        }
+        return (data.releases ?? []).flatMap(release => {
+            if (!release.id || !release.title) return []
+            return [{
+                releaseId: release.id,
+                releaseGroupId: release["release-group"]?.id,
+                title: release.title,
+                artist: release["artist-credit"]?.map(credit => credit.name).filter(Boolean).join(", ") || artist,
+                year: release.date?.slice(0, 4),
+            }]
+        }).slice(0, 5)
     }
 }
