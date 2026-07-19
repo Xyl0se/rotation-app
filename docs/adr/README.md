@@ -6,6 +6,7 @@ ADRs preserve durable decisions. They are not current feature manuals; use the
 
 ## Status Vocabulary
 
+- **Proposed** — decision under evaluation; its explicit gate is not yet complete.
 - **Accepted** — current and binding.
 - **Amended** — current, with a later ADR refining part of the decision.
 - **Superseded** — replaced; retained only as historical context.
@@ -31,6 +32,7 @@ ADRs preserve durable decisions. They are not current feature manuals; use the
 | [014](./014-server-owned-rotation-state.md) | Server-owned Rotation state | Accepted |
 | [015](./015-rotation-generation-policy.md) | Rotation generation policy | Accepted |
 | [016](./016-deterministic-insight-evidence.md) | Deterministic Insight evidence and AI boundary | Accepted |
+| [017](./017-local-cover-extraction.md) | Bounded local cover extraction | Proposed — NAS gate pending |
 
 ADR 011 was never assigned. The gap is retained deliberately so historical numbering
 is never reused or made ambiguous.

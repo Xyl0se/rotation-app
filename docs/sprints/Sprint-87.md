@@ -1,6 +1,6 @@
 # Sprint 87 — Local-First Cover Sources
 
-**Status:** Planned — feasibility spike required
+**Status:** In progress — feasibility runner ready; production NAS measurements required
 
 **Target version:** Future minor or focused maintenance release
 
@@ -14,6 +14,14 @@ normal Library reads.
 
 ## Workstream 87A — Source Inventory and Safety
 
+- [ADR 017](../adr/017-local-cover-extraction.md) records the initial parser decision,
+  safety budgets, source order, and manual-override boundary. The bounded runner is
+  available as `npm --prefix server run spike:artwork -- <explicit files>`.
+- The deployed application exposes the same bounded check through the expanded Diagnostics
+  panel; it selects samples from confirmed Bindings and requires no container shell.
+- Complete and accept
+  [the Sprint-87 NAS record](../acceptance/SPRINT-87-NAS-ACCEPTANCE.md) before production
+  extraction is connected to scan, capture, or retry flows.
 - Measure real NAS formats and naming: embedded MP3/M4A/FLAC artwork plus bounded
   folder files such as `cover`, `folder`, or `front` in JPEG/PNG/WebP form.
 - Confirm required parsers, licenses, memory limits, malformed-tag behavior, and NAS
@@ -49,4 +57,3 @@ Use a deterministic preference order:
 - [ ] Cached rendering remains one same-origin path across all Album surfaces.
 - [ ] MP3, M4A, FLAC, folder-image, missing-art, and corrupt-art fixtures are covered.
 - [ ] NAS scan and cache performance are measured before rollout.
-

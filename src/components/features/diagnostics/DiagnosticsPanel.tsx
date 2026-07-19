@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from "react"
-import { fetchDiagnostics, type DiagnosticsResponse } from "../../../services/api/diagnosticsService.js"
+import {
+    fetchDiagnostics,
+    runArtworkFeasibility,
+    type ArtworkFeasibilityReport,
+    type DiagnosticsResponse,
+} from "../../../services/api/diagnosticsService.js"
 import { triggerScan, getScanProgress } from "../../../services/api/scanService.js"
 import { getApiErrorMessage, ApiError } from "../../../services/api/apiClient.js"
 import { useI18n } from "../../../i18n/useI18n.js"
@@ -52,6 +57,9 @@ export default function DiagnosticsPanel() {
     const [scanning, setScanning] = useState(false)
     const [scanQueued, setScanQueued] = useState(false)
     const [scanProgress, setScanProgress] = useState<{ directoriesScanned: number; directoriesSkipped: number } | null>(null)
+    const [artworkProbeRunning, setArtworkProbeRunning] = useState(false)
+    const [artworkReport, setArtworkReport] = useState<ArtworkFeasibilityReport | null>(null)
+    const [artworkProbeError, setArtworkProbeError] = useState<string | null>(null)
 
     const load = useCallback(async () => {
         setLoading(true)
@@ -63,6 +71,18 @@ export default function DiagnosticsPanel() {
             setError(getApiErrorMessage(e))
         } finally {
             setLoading(false)
+        }
+    }, [])
+
+    const handleArtworkProbe = useCallback(async () => {
+        setArtworkProbeRunning(true)
+        setArtworkProbeError(null)
+        try {
+            setArtworkReport(await runArtworkFeasibility())
+        } catch (e) {
+            setArtworkProbeError(getApiErrorMessage(e))
+        } finally {
+            setArtworkProbeRunning(false)
         }
     }, [])
 
@@ -261,10 +281,53 @@ export default function DiagnosticsPanel() {
                             )}
                         </div>
                     )}
+                    <div className="diagnostics-artwork-probe">
+                        <div>
+                            <strong>{t.diagnostics.artworkProbeTitle}</strong>
+                            <p>{t.diagnostics.artworkProbeDescription}</p>
+                        </div>
+                        <button
+                            className="diagnostics-scan-button"
+                            onClick={handleArtworkProbe}
+                            disabled={artworkProbeRunning || diag!.bindings.confirmed === 0}
+                        >
+                            {artworkProbeRunning
+                                ? t.diagnostics.artworkProbeRunning
+                                : t.diagnostics.artworkProbeRun}
+                        </button>
+                        {artworkProbeError && (
+                            <p className="diagnostics-artwork-error">{artworkProbeError}</p>
+                        )}
+                        {artworkReport && (
+                            <div className="diagnostics-artwork-results">
+                                <p>{t.diagnostics.artworkProbeInspected(artworkReport.bindingsInspected)}</p>
+                                {artworkReport.samples.map(sample => (
+                                    <div className="diagnostics-artwork-result" key={sample.format}>
+                                        <strong>{sample.format.toUpperCase()}</strong>
+                                        <span>{t.diagnostics.artworkProbeOutcome[sample.outcome]}</span>
+                                        <span>{t.diagnostics.artworkProbeTime(sample.elapsedMs)}</span>
+                                        <span>{t.diagnostics.artworkProbeMemory(formatBytes(sample.rssDeltaBytes))}</span>
+                                        <span>{t.diagnostics.artworkProbeCover(
+                                            sample.coverBytes === null ? "—" : formatBytes(sample.coverBytes),
+                                        )}</span>
+                                    </div>
+                                ))}
+                                {artworkReport.missingFormats.length > 0 && (
+                                    <p>{t.diagnostics.artworkProbeMissing(artworkReport.missingFormats.join(", ").toUpperCase())}</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
     )
+}
+
+function formatBytes(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KiB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MiB`
 }
 
 function CheckRow({

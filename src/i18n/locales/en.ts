@@ -878,6 +878,20 @@ export const en = {
         bindingsEmptyAfterScan: "No bindings found after last scan",
         bindingsNoScan: "No scan performed yet",
         lastScan: "Last scan",
+        artworkProbeTitle: "Local artwork feasibility",
+        artworkProbeDescription: "Read one bounded MP3, M4A, and FLAC sample from confirmed bindings. No paths, tags, or image data leave the server.",
+        artworkProbeRun: "Run artwork test",
+        artworkProbeRunning: "Testing artwork…",
+        artworkProbeInspected: (count: number) => `${count} confirmed bindings inspected`,
+        artworkProbeTime: (milliseconds: number) => `${milliseconds} ms`,
+        artworkProbeMemory: (memory: string) => `RSS delta ${memory}`,
+        artworkProbeCover: (size: string) => `Cover ${size}`,
+        artworkProbeMissing: (formats: string) => `No bounded sample found for: ${formats}`,
+        artworkProbeOutcome: {
+            cover: "Embedded cover found",
+            "no-cover": "No embedded cover",
+            "parse-error": "Metadata could not be parsed",
+        },
     },
 }
 

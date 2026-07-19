@@ -7,6 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "lint": "eslint --config ../eslint.config.js src",
+    "spike:artwork": "node --import tsx scripts/artwork-feasibility.ts",
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -16,6 +17,7 @@
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
+    "music-metadata": "^11.14.0",
     "node-cron": "^4.6.0",
     "zod": "^3.25.0"
   },

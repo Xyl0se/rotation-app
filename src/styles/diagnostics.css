@@ -155,3 +155,45 @@
     color: #059669;
     font-weight: 500;
 }
+
+.diagnostics-artwork-probe {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.diagnostics-artwork-probe p {
+    margin: 0.25rem 0 0;
+    color: #4b5563;
+}
+
+.diagnostics-artwork-results {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding-top: 0.25rem;
+}
+
+.diagnostics-artwork-result {
+    display: grid;
+    grid-template-columns: 3rem minmax(9rem, 1fr) repeat(3, auto);
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.375rem 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 0.8125rem;
+}
+
+.diagnostics-artwork-error {
+    color: #dc2626 !important;
+}
+
+@media (max-width: 700px) {
+    .diagnostics-artwork-result {
+        grid-template-columns: 3rem 1fr;
+    }
+}

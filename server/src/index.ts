@@ -48,6 +48,7 @@ import { createReflectionsRouter } from "./routes/reflections.js"
 import { createInsightEvidenceRepository } from "./infrastructure/persistence/sqlite/insightEvidenceRepository.js"
 import { createInsightsService } from "./application/insightsService.js"
 import { createInsightsRouter } from "./routes/insights.js"
+import { createArtworkFeasibilityService } from "./application/artworkFeasibilityService.js"
 
 const config = loadConfig()
 
@@ -80,6 +81,7 @@ const workspaceGuard = createPathGuard(config.ROTATION_WORKSPACE_PATH)
 const syncthingGuard = createPathGuard(config.ROTATION_SYNCTHING_ROOT)
 
 const scanner = createDirectoryScanner(musicGuard)
+const artworkFeasibilityService = createArtworkFeasibilityService(bindingRepo, musicGuard)
 const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo, bindingCandidateRepo)
 const lockRepo = createExportLockRepository(db)
 const exportService = createExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard, albumRepo, rotationStateRepo)
@@ -137,7 +139,15 @@ app.use(express.json())
 app.use("/health", createHealthRouter(db, config, scanRunRepo))
 app.use("/config", createConfigRouter(config))
 app.use("/scan", requireSameOriginForMutations, createScanRouter(scanService, scanRunRepo, bindingRepo))
-app.use("/diagnostics", createDiagnosticsRouter(config, bindingRepo, scanRunRepo, musicGuard, workspaceGuard, syncthingGuard))
+app.use("/diagnostics", requireWriteTokenForMutations, createDiagnosticsRouter(
+    config,
+    bindingRepo,
+    scanRunRepo,
+    musicGuard,
+    workspaceGuard,
+    syncthingGuard,
+    artworkFeasibilityService,
+))
 
 app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(bindingRepo, musicGuard, bindingCaptureService, bindingCandidateRepo, auditRepo))
 app.use("/albums", requireWriteTokenForMutations, createAlbumsRouter(albumRepo, auditRepo, ()=>reflectionInboxService.evaluate()))

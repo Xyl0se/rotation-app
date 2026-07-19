@@ -6,6 +6,7 @@ import type { ScanRunRepository } from "../infrastructure/persistence/sqlite/sca
 import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
 import { createDirectoryScanner } from "../infrastructure/filesystem/directoryScanner.js"
 import type { Config } from "../application/config.js"
+import type { ArtworkFeasibilityService } from "../application/artworkFeasibilityService.js"
 
 export interface DiagnosticsResponse {
     connectivity: {
@@ -60,6 +61,7 @@ export function createDiagnosticsRouter(
     musicGuard: PathGuard,
     _workspaceGuard: PathGuard,
     _syncthingGuard: PathGuard,
+    artworkFeasibilityService?: ArtworkFeasibilityService,
 ): Router {
     void _workspaceGuard
     void _syncthingGuard
@@ -126,6 +128,14 @@ export function createDiagnosticsRouter(
         }
 
         res.json(response)
+    })
+
+    router.post("/artwork-feasibility", async (_req: Request, res: Response) => {
+        if (!artworkFeasibilityService) {
+            res.status(503).json({ error: "Artwork feasibility service is unavailable" })
+            return
+        }
+        res.json(await artworkFeasibilityService.run())
     })
 
     return router
