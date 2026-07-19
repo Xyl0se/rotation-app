@@ -7,6 +7,7 @@ import { initDatabase } from "../infrastructure/persistence/sqlite/connection.js
 import { createAlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
 import { createAlbumsRouter } from "./albums.js"
 import { createRequireWriteTokenForMutations } from "./middleware/writeToken.js"
+import type { AlbumSource } from "../domain/albumTypes.js"
 
 const TOKEN = "album-integration-token"
 const ALBUM_ID = "550e8400-e29b-41d4-a716-446655440000"
@@ -17,6 +18,7 @@ describe("album identity contract", () => {
     let server: Server
     let baseUrl: string
     const onCreatedAlbum = vi.fn()
+    const resolveExternalSources = vi.fn<(releaseId: string) => Promise<AlbumSource[]>>(async () => [])
 
     beforeAll(async () => {
         database = initDatabase(":memory:")
@@ -25,7 +27,7 @@ describe("album identity contract", () => {
         app.use(
             "/albums",
             createRequireWriteTokenForMutations(TOKEN),
-            createAlbumsRouter(createAlbumRepository(database), undefined, undefined, onCreatedAlbum),
+            createAlbumsRouter(createAlbumRepository(database), undefined, undefined, onCreatedAlbum, resolveExternalSources),
         )
         await new Promise<void>((resolve, reject) => {
             server = app.listen(0, "127.0.0.1", () => {
@@ -89,6 +91,20 @@ describe("album identity contract", () => {
 
         expect(response.status).toBe(201)
         expect(onCreatedAlbum).toHaveBeenCalledWith(id, coverCandidates)
+    })
+
+    it("stores resolved relationships while keeping capture successful when enrichment fails", async () => {
+        const releaseId = "123e4567-e89b-42d3-a456-426614174010"
+        const musicBrainz = { provider: "musicbrainz", externalId: releaseId, url: `https://musicbrainz.org/release/${releaseId}`, resolutionStatus: "resolved", resolvedAt: "2026-07-20T20:00:00.000Z", confirmedByUser: false }
+        resolveExternalSources.mockResolvedValueOnce([{ provider: "wikipedia", externalId: "Album", url: "https://de.wikipedia.org/wiki/Album", locale: "de", resolutionStatus: "resolved", resolvedAt: "2026-07-20T20:01:00.000Z", confirmedByUser: false }])
+        const enriched = await write("POST", "/albums", { ...album, id: "550e8400-e29b-41d4-a716-446655440010", sources: [musicBrainz] })
+        expect(enriched.status).toBe(201)
+        expect((await enriched.json()).sources).toHaveLength(2)
+
+        resolveExternalSources.mockRejectedValueOnce(new Error("provider timeout"))
+        const resilient = await write("POST", "/albums", { ...album, id: "550e8400-e29b-41d4-a716-446655440011", sources: [musicBrainz] })
+        expect(resilient.status).toBe(201)
+        expect((await resilient.json()).sources).toEqual([musicBrainz])
     })
 
     it("rejects a conflicting create with the same ID", async () => {

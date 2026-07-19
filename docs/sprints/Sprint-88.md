@@ -1,6 +1,6 @@
 # Sprint 88 — Album Detail and External Sources
 
-**Status:** In progress (88A–88B implemented)
+**Status:** In progress (88A–88C implemented)
 
 **Target version:** Future minor version
 
@@ -104,14 +104,19 @@ group identities; relationship enrichment remains part of 88C.
 
 ## Workstream 88C — Capture enrichment
 
-- After a MusicBrainz result is selected, request its URL relationships once.
-- Prefer a direct, entity-correct Wikipedia relationship.
-- Otherwise use a MusicBrainz-linked Wikidata entity as the language bridge and prefer
+- [x] After a MusicBrainz result is selected, request its URL relationships once.
+- [x] Prefer a direct, entity-correct Wikipedia relationship.
+- [x] Otherwise use a MusicBrainz-linked Wikidata entity as the language bridge and prefer
   the German Wikipedia article, with English as a documented fallback.
-- Store the resolved URLs together with the Album creation transaction where practical.
-- A failed enrichment request must not prevent Capture: the Album is created and the
+- [x] Store the resolved URLs during Album creation where practical.
+- [x] A failed enrichment request must not prevent Capture: the Album is created and the
   missing sources can be retried later.
-- Respect provider identification, timeout, retry, and rate-limit requirements.
+- [x] Respect provider identification, timeout, retry, and rate-limit requirements.
+
+Implementation note: the API performs the bounded relationship lookup after the Album
+has been durably created. MusicBrainz requests are identified and serialized to one per
+second, provider calls use four-second timeouts and one retry, and enrichment failures
+are logged without rolling back Capture. React never calls Wikipedia or Wikidata.
 
 ## Workstream 88D — Existing Albums and correction
 

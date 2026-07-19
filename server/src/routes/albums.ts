@@ -10,6 +10,10 @@ import {
     UUIDSchema,
     parseRequest,
 } from "./validation.js"
+import type { AlbumSource } from "../domain/albumTypes.js"
+import { createLogger } from "../infrastructure/logger/logger.js"
+
+const log = createLogger("album-sources")
 
 export interface ImportResult {
     imported: number
@@ -22,6 +26,7 @@ export function createAlbumsRouter(
     auditRepo?: AuditRepository,
     onRelevantEvent?: () => void,
     onCreatedAlbum?: (albumId: string, remoteUrls: string[]) => void,
+    resolveExternalSources?: (releaseId: string) => Promise<AlbumSource[]>,
 ): Router {
     const router = Router()
 
@@ -45,7 +50,7 @@ export function createAlbumsRouter(
     })
 
     // POST /albums — create album
-    router.post("/", (req: Request, res: Response) => {
+    router.post("/", async (req: Request, res: Response) => {
         const body = parseRequest(CreateAlbumSchema, req.body, res)
         if (!body) return
         const id = body.id
@@ -59,7 +64,7 @@ export function createAlbumsRouter(
             return
         }
 
-        const album: Album = {
+        let album: Album = {
             id,
             title: body.title,
             artist: body.artist,
@@ -77,6 +82,21 @@ export function createAlbumsRouter(
         albumRepo.save(album)
         onRelevantEvent?.()
         onCreatedAlbum?.(album.id, body.coverCandidates ?? [])
+        const release = album.sources?.find(source => source.provider === "musicbrainz" && source.url?.includes("/release/"))
+        if (release?.externalId && resolveExternalSources) {
+            try {
+                const enrichedSources = await resolveExternalSources(release.externalId)
+                if (enrichedSources.length > 0) {
+                    album = { ...album, sources: [...(album.sources ?? []), ...enrichedSources] }
+                    albumRepo.save(album)
+                }
+            } catch (error) {
+                log.warn("External source enrichment failed; Album capture continues", {
+                    albumId: album.id,
+                    error: error instanceof Error ? error.message : String(error),
+                })
+            }
+        }
         res.status(201).json(album)
     })
 
