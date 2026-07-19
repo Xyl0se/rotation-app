@@ -49,6 +49,8 @@ import { createInsightEvidenceRepository } from "./infrastructure/persistence/sq
 import { createInsightsService } from "./application/insightsService.js"
 import { createInsightsRouter } from "./routes/insights.js"
 import { createArtworkFeasibilityService } from "./application/artworkFeasibilityService.js"
+import { createLocalArtworkService } from "./application/localArtworkService.js"
+import { createCoverResolver } from "./application/coverResolver.js"
 
 const config = loadConfig()
 
@@ -81,6 +83,8 @@ const workspaceGuard = createPathGuard(config.ROTATION_WORKSPACE_PATH)
 const syncthingGuard = createPathGuard(config.ROTATION_SYNCTHING_ROOT)
 
 const scanner = createDirectoryScanner(musicGuard)
+const localArtworkService = createLocalArtworkService(bindingRepo, musicGuard)
+const coverResolver = createCoverResolver(coverService, localArtworkService)
 const artworkFeasibilityService = createArtworkFeasibilityService(bindingRepo, musicGuard)
 const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo, bindingCandidateRepo)
 const lockRepo = createExportLockRepository(db)
@@ -155,7 +159,7 @@ app.use("/audit", requireWriteTokenForMutations, createAuditRouter(auditRepo))
 app.use("/reflections", requireWriteTokenForMutations, createReflectionsRouter(reflectionInboxService, auditRepo))
 app.use("/insights", createInsightsRouter(insightsService))
 app.use("/rotation-state", requireWriteTokenForMutations, createRotationStateRouter(rotationStateRepo, bindingRepo, musicGuard, auditRepo, ()=>reflectionInboxService.evaluate()))
-app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService))
+app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService, coverResolver))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))
 app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))
 

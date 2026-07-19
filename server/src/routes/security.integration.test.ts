@@ -25,7 +25,7 @@ import type { CoverService } from "../application/coverService.js"
 
 const WRITE_TOKEN = "integration-test-token"
 const ALBUM_ID = "550e8400-e29b-41d4-a716-446655440000"
-const PNG = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 0])
+const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64")
 
 interface RouteCase {
     name: string
@@ -125,6 +125,7 @@ function createTestApp() {
         })),
         resolveRemoteCover: vi.fn(async () => ({ status: "cached" as const })),
         saveCover: vi.fn(),
+        saveValidatedCover: vi.fn(async () => undefined),
         deleteCover: vi.fn(() => true),
     } as unknown as CoverService
 
@@ -183,7 +184,7 @@ function createTestApp() {
         spies: {
             saveAlbum: albumRepo.save,
             deleteAlbum: albumRepo.delete,
-            saveCover: coverService.saveCover,
+            saveCover: coverService.saveValidatedCover,
             confirmBinding: bindingRepo.confirm,
             runScan: scanService.runScan,
             createPreview: exportService.createPreview,

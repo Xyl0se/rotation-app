@@ -5,7 +5,7 @@ import { join } from "node:path"
 import { createCoverService } from "./coverService.js"
 
 const ALBUM_ID = "550e8400-e29b-41d4-a716-446655440000"
-const PNG = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 0])
+const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64")
 const JPEG = Buffer.from([0xff, 0xd8, 0xff, 0xdb, 0, 0])
 
 const temporaryDirectories: string[] = []

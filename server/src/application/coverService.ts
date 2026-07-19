@@ -1,11 +1,14 @@
 import { writeFileSync, readFileSync, existsSync, unlinkSync, mkdirSync, renameSync } from "node:fs"
 import { join, extname, relative, resolve } from "node:path"
 import { randomUUID } from "node:crypto"
+import { validateImage } from "./imageValidator.js"
+
+export type CoverSource = "upload" | "url" | "remote" | "alternative" | "folder" | "embedded"
 
 export interface CoverMeta {
     contentType?: string
     uploadedAt?: string
-    source?: "upload" | "url" | "alternative"
+    source?: CoverSource
     resolutionStatus?: CoverResolutionStatus
     lastResolutionAt?: string
     candidateUrls?: string[]
@@ -128,7 +131,7 @@ export function createCoverService(dataDir: string) {
     return {
         coversDir,
 
-        saveCover(albumId: string, buffer: Buffer, contentType: string, source?: "upload" | "url" | "alternative"): void {
+        saveCover(albumId: string, buffer: Buffer, contentType: string, source?: CoverSource): void {
             assertValidAlbumId(albumId)
             if (buffer.length > MAX_COVER_SIZE_BYTES) {
                 throw new Error(`Cover exceeds maximum size of ${MAX_COVER_SIZE_BYTES} bytes`)
@@ -170,7 +173,7 @@ export function createCoverService(dataDir: string) {
                 uploadedAt: new Date().toISOString(),
                 source,
                 resolutionStatus: "cached",
-                lastResolutionAt: source === "url" ? new Date().toISOString() : previousMeta?.lastResolutionAt,
+                lastResolutionAt: source === "url" || source === "remote" ? new Date().toISOString() : previousMeta?.lastResolutionAt,
                 candidateUrls: previousMeta?.candidateUrls,
             }
             try {
@@ -187,6 +190,11 @@ export function createCoverService(dataDir: string) {
                 if (existsSync(temporaryCoverPath)) unlinkSync(temporaryCoverPath)
                 if (existsSync(temporaryMetaPath)) unlinkSync(temporaryMetaPath)
             }
+        },
+
+        async saveValidatedCover(albumId: string, buffer: Buffer, contentType: string, source: CoverSource): Promise<void> {
+            const validated = await validateImage(buffer, contentType)
+            this.saveCover(albumId, validated.buffer, validated.contentType, source)
         },
 
         async resolveRemoteCover(albumId: string, sourceUrls: string | string[]): Promise<CoverResolutionResult> {
@@ -216,7 +224,12 @@ export function createCoverService(dataDir: string) {
                         const buffer = Buffer.from(await response.arrayBuffer())
                         if (buffer.length === 0 || buffer.length > MAX_COVER_SIZE_BYTES || !hasExpectedSignature(buffer, contentType)) { finalStatus = "invalid-image"; break }
                         writeMeta(albumId, { ...previousMeta, candidateUrls: candidates })
-                        this.saveCover(albumId, buffer, contentType, "url")
+                        try {
+                            await this.saveValidatedCover(albumId, buffer, contentType, "remote")
+                        } catch {
+                            finalStatus = "invalid-image"
+                            break
+                        }
                         return { status: "cached" }
                     } catch {
                         finalStatus = "temporarily-unavailable"

@@ -28,7 +28,13 @@ normal Library reads.
   performance before selecting a dependency.
 - Preserve `/music` as read-only and never expose arbitrary source paths to the browser.
 
+**Gate exception (2026-07-19):** Implementation of 87B was explicitly authorized before
+the missing-art, corrupt-art, and folder-art production observations were complete. Those
+checks remain visible in the NAS record and are not silently treated as passed.
+
 ## Workstream 87B — Ordered Resolution
+
+**Implementation status:** Complete in code ✅ — production acceptance follows with 87C
 
 Use a deterministic preference order:
 

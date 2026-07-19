@@ -212,7 +212,7 @@ export function useLibrary(isConnected: boolean = false) {
         const current = albums.find(album => album.id === id)
         if (!current?.coverUrl || !isConnected) return false
         try {
-            const result = await resolveServerCover(id, current.coverUrl)
+            const result = await resolveServerCover(id, current.coverUrl, true)
             if (result.status !== "cached") {
                 setLibraryError(`Cover resolution failed: ${result.status}`)
                 return false

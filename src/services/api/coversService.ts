@@ -5,7 +5,8 @@
 import { postRaw, del, get, post } from "./apiClient.js"
 
 export type CoverResolutionStatus = "cached" | "not-found" | "temporarily-unavailable" | "invalid-image"
-export interface CoverResolutionResult { status: CoverResolutionStatus }
+export type CoverResolutionSource = "folder" | "embedded" | "upload" | "alternative" | "remote" | "cache" | "placeholder"
+export interface CoverResolutionResult { status: CoverResolutionStatus; source?: CoverResolutionSource }
 export interface CoverResolutionDiagnostics extends CoverResolutionResult {
     lastResolutionAt: string | null
     candidateCount: number
@@ -33,9 +34,14 @@ export async function deleteCover(albumId: string): Promise<void> {
     return del(`/covers/${encodeURIComponent(albumId)}`)
 }
 
-export async function resolveServerCover(albumId: string, sourceUrls: string | string[]): Promise<CoverResolutionResult> {
+export async function resolveServerCover(
+    albumId: string,
+    sourceUrls: string | string[],
+    forceRefresh = false,
+): Promise<CoverResolutionResult> {
     return post<CoverResolutionResult>(`/covers/${encodeURIComponent(albumId)}/resolve`, {
         sourceUrls: Array.isArray(sourceUrls) ? sourceUrls : [sourceUrls],
+        forceRefresh,
     })
 }
 

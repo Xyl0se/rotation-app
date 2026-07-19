@@ -2,10 +2,11 @@ import { Router } from "express"
 import type { Request, Response } from "express"
 import type { CoverService } from "../application/coverService.js"
 import { CoverAlbumIdSchema, parseRequest } from "./validation.js"
+import type { CoverResolver } from "../application/coverResolver.js"
 
 const MAX_COVER_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
 
-export function createCoversRouter(coverService: CoverService): Router {
+export function createCoversRouter(coverService: CoverService, coverResolver?: CoverResolver): Router {
     const router = Router()
 
     router.post("/:albumId/resolve", async (req: Request, res: Response) => {
@@ -16,16 +17,26 @@ export function createCoversRouter(coverService: CoverService): Router {
         let sourceUrls: string | string[] = body
         if ((req.headers["content-type"] ?? "").includes("application/json")) {
             try {
-                const parsed = JSON.parse(body) as { sourceUrls?: unknown }
+                const parsed = JSON.parse(body) as { sourceUrls?: unknown; forceRefresh?: unknown }
                 if (!Array.isArray(parsed.sourceUrls) || !parsed.sourceUrls.every(value => typeof value === "string")) {
                     return void res.status(400).json({ error: "Expected cover source URLs" })
                 }
+                if (parsed.forceRefresh !== undefined && typeof parsed.forceRefresh !== "boolean") {
+                    return void res.status(400).json({ error: "Expected boolean forceRefresh" })
+                }
                 sourceUrls = parsed.sourceUrls
+                res.locals.forceRefresh = parsed.forceRefresh === true
             } catch {
                 return void res.status(400).json({ error: "Invalid cover resolution request" })
             }
         }
-        const result = await coverService.resolveRemoteCover(albumId, sourceUrls)
+        const result = coverResolver
+            ? await coverResolver.resolve(
+                albumId,
+                Array.isArray(sourceUrls) ? sourceUrls : [sourceUrls],
+                res.locals.forceRefresh === true,
+            )
+            : await coverService.resolveRemoteCover(albumId, sourceUrls)
         res.status(result.status === "cached" ? 201 : 200).json(result)
     })
 
@@ -66,7 +77,7 @@ export function createCoversRouter(coverService: CoverService): Router {
     })
 
     // POST /covers/:albumId — upload cover
-    router.post("/:albumId", (req: Request, res: Response) => {
+    router.post("/:albumId", async (req: Request, res: Response) => {
         const albumId = req.params.albumId as string
         if (!parseRequest(CoverAlbumIdSchema, { albumId }, res)) return
 
@@ -87,7 +98,7 @@ export function createCoversRouter(coverService: CoverService): Router {
         const contentType = req.headers["content-type"] || "image/jpeg"
 
         try {
-            coverService.saveCover(albumId, req.body, contentType, "upload")
+            await coverService.saveValidatedCover(albumId, req.body, contentType, "upload")
             res.status(201).json({ success: true })
         } catch (err) {
             res.status(400).json({
