@@ -124,6 +124,7 @@ The API handles file-system operations that the browser cannot perform:
 - `/bindings` — Album File Binding management (read-only safe)
 - `/scan` — Directory scanning and fuzzy matching (write-protected)
 - `/exports` — Export preview, staging, and apply (write-protected)
+- `/playback` — Canonical playback manifest for confirmed Albums (read-only)
 - `/config` — Runtime configuration (read-only)
 - `/health` — Healthcheck
 

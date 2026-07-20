@@ -1,13 +1,14 @@
 # Sprint 89 — Playback Foundation
 
-**Status:** Planned — feasibility spike and explicit architecture decision required
+**Status:** In Progress — 89A implemented, 89B implemented, 89C–89F pending
 
 **Target version:** Future major product capability
 
 **Type:** Read-only media delivery, metadata extraction, security, and NAS validation
 
-**Progress:** Workstream 89A implemented — ADR 019 accepted; production inventory and
-direct-play compatibility evidence pending in the deployed NAS environment
+**Progress:** Workstream 89A implemented — ADR 019 accepted; production inventory
+complete. Workstream 89B implemented — manifest endpoint, cache, and invalidation
+deployed. Workstreams 89C–89F pending NAS validation.
 
 ## Goal
 

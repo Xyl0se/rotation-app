@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+- **Sprint 89B — Canonical Playback Manifest**
+  - Added server-owned `GET /playback/manifest/:albumId` endpoint producing bounded,
+    deterministic playback manifests for confirmed Album Bindings.
+  - Manifest contains `albumId`, `title`, `artist`, `coverPath`, `totalDuration`,
+    and `tracks[]` with opaque Track IDs, validated disc/track ordering, duration,
+    media type, and playability — never physical source paths.
+  - Added shared `audioEntryCollector` module for bounded audio file collection,
+    reused by the existing playback inventory (89A) and the new manifest service.
+  - Added SQLite migration v16 (`playback_manifest_cache`) with CRUD repository,
+    deterministic SHA-256-based `opaqueTrackId`, and explicit cache invalidation
+    on scan (`invalidateAll`) and binding confirmation (`invalidateManifest`).
+  - Surfaces incomplete or ambiguous track ordering as a `503` diagnostic;
+    never silently invents a sequence.
+  - Added route integration tests and service unit tests (10 tests total).
+  - Updated `ARCHITECTURE.md`, `server/README.md`, and Sprint 89 acceptance
+    documentation.
+
 ## v0.30.0 — 2026-07-19
 
 - **Sprint 87.1 — acquisition context**
