@@ -48,13 +48,13 @@ export function useAlbumPlayback(): UseAlbumPlaybackReturn {
         const audio = audioRef.current
         if (audio) {
             audio.pause()
-            audio.src = ""
+            audio.removeAttribute("src")
             audio.load()
         }
         const preload = preloadAudioRef.current
         if (preload) {
             preload.pause()
-            preload.src = ""
+            preload.removeAttribute("src")
             preload.load()
         }
         setManifest(null)

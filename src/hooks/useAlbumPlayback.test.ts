@@ -35,6 +35,10 @@ class MockAudioElement {
 
     load = vi.fn()
 
+    removeAttribute = vi.fn((name: string) => {
+        if (name === "src") this.src = ""
+    })
+
     addEventListener = vi.fn((event: string, handler: EventListener) => {
         if (!this.eventListeners.has(event)) {
             this.eventListeners.set(event, new Set())

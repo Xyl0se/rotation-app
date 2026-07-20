@@ -17,7 +17,7 @@ export async function getPlaybackManifest(albumId: string): Promise<PlaybackMani
 }
 
 export function buildMediaUrl(albumId: string, opaqueTrackId: string): string {
-    const url = `/playback/media/${encodeURIComponent(albumId)}/${encodeURIComponent(opaqueTrackId)}`
+    const url = `/api/playback/media/${encodeURIComponent(albumId)}/${encodeURIComponent(opaqueTrackId)}`
     console.log("[playbackService] buildMediaUrl", url)
     return url
 }
