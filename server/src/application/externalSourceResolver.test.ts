@@ -28,6 +28,25 @@ describe("external source resolver", () => {
         expect(fetchImpl.mock.calls[0]?.[1]?.headers).toMatchObject({ "User-Agent": expect.stringContaining("Rotation/") })
     })
 
+    it("prefers release-group relationships over the concrete release", async () => {
+        const fetchImpl = vi.fn<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>()
+            .mockResolvedValueOnce(json({ relations: [{ type: "wikidata", url: { resource: "https://www.wikidata.org/wiki/Q155339" } }] }))
+            .mockResolvedValueOnce(json({ entities: { Q155339: { sitelinks: { dewiki: { url: "https://de.wikipedia.org/wiki/The_Eminem_Show" } } } } }))
+        const sources = await createExternalSourceResolver({ fetchImpl: fetchImpl as typeof fetch, delay: async () => {} })(RELEASE, "e9585ed4-d148-3711-bbee-55a97b58325a")
+        expect(sources[0]).toMatchObject({ provider: "wikipedia", locale: "de", url: "https://de.wikipedia.org/wiki/The_Eminem_Show" })
+        expect(String(fetchImpl.mock.calls[0]?.[0])).toContain("/release-group/e9585ed4-d148-3711-bbee-55a97b58325a")
+        expect(fetchImpl.mock.calls.some(call => String(call[0]).includes(`/release/${RELEASE}`))).toBe(false)
+    })
+
+    it("falls back to release relationships when the release group has none", async () => {
+        const fetchImpl = vi.fn<(input: string | URL | Request, init?: RequestInit) => Promise<Response>>()
+            .mockResolvedValueOnce(json({ relations: [] }))
+            .mockResolvedValueOnce(json({ relations: [{ type: "wikipedia", url: { resource: "https://en.wikipedia.org/wiki/Album" } }] }))
+        const sources = await createExternalSourceResolver({ fetchImpl: fetchImpl as typeof fetch, delay: async () => {} })(RELEASE, "e9585ed4-d148-3711-bbee-55a97b58325a")
+        expect(sources).toEqual([expect.objectContaining({ provider: "wikipedia", locale: "en" })])
+        expect(String(fetchImpl.mock.calls[1]?.[0])).toContain(`/release/${RELEASE}`)
+    })
+
     it("bridges one Wikidata relationship to German Wikipedia", async () => {
         const fetchImpl = vi.fn()
             .mockResolvedValueOnce(json({ relations: [{ type: "wikidata", url: { resource: "https://www.wikidata.org/wiki/Q42" } }] }))

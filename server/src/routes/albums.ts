@@ -29,7 +29,7 @@ export function createAlbumsRouter(
     auditRepo?: AuditRepository,
     onRelevantEvent?: () => void,
     onCreatedAlbum?: (albumId: string, remoteUrls: string[]) => void,
-    resolveExternalSources?: (releaseId: string) => Promise<AlbumSource[]>,
+    resolveExternalSources?: (releaseId: string, releaseGroupId?: string) => Promise<AlbumSource[]>,
     searchMusicBrainzReleases?: (title: string, artist: string) => Promise<MusicBrainzReleaseCandidate[]>,
 ): Router {
     const router = Router()
@@ -87,9 +87,10 @@ export function createAlbumsRouter(
         onRelevantEvent?.()
         onCreatedAlbum?.(album.id, body.coverCandidates ?? [])
         const release = album.sources?.find(source => source.provider === "musicbrainz" && source.url?.includes("/release/"))
+        const releaseGroup = album.sources?.find(source => source.provider === "musicbrainz" && source.url?.includes("/release-group/"))
         if (release?.externalId && resolveExternalSources) {
             try {
-                const enrichedSources = await resolveExternalSources(release.externalId)
+                const enrichedSources = await resolveExternalSources(release.externalId, releaseGroup?.externalId)
                 if (enrichedSources.length > 0) {
                     album = { ...album, sources: [...(album.sources ?? []), ...enrichedSources] }
                     albumRepo.save(album)
@@ -174,7 +175,7 @@ export function createAlbumsRouter(
             const now = new Date().toISOString()
             const sources: AlbumSource[] = [{ provider: "musicbrainz", externalId: selection.releaseId, url: `https://musicbrainz.org/release/${selection.releaseId}`, resolutionStatus: "resolved", resolvedAt: now, confirmedByUser: false }]
             if (selection.releaseGroupId) sources.push({ provider: "musicbrainz", externalId: selection.releaseGroupId, url: `https://musicbrainz.org/release-group/${selection.releaseGroupId}`, resolutionStatus: "resolved", resolvedAt: now, confirmedByUser: false })
-            res.json({ sources: [...sources, ...await resolveExternalSources(selection.releaseId)] })
+            res.json({ sources: [...sources, ...await resolveExternalSources(selection.releaseId, selection.releaseGroupId)] })
         } catch (error) {
             log.warn("External source preview failed", { albumId: id, error: error instanceof Error ? error.message : String(error) })
             res.status(502).json({ error: "External source preview failed" })

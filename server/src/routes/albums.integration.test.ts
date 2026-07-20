@@ -18,7 +18,7 @@ describe("album identity contract", () => {
     let server: Server
     let baseUrl: string
     const onCreatedAlbum = vi.fn()
-    const resolveExternalSources = vi.fn<(releaseId: string) => Promise<AlbumSource[]>>(async () => [])
+    const resolveExternalSources = vi.fn<(releaseId: string, releaseGroupId?: string) => Promise<AlbumSource[]>>(async () => [])
     const searchMusicBrainzReleases = vi.fn(async () => [{ releaseId: "123e4567-e89b-42d3-a456-426614174020", title: "Album", artist: "Artist", year: "2024" }])
 
     beforeAll(async () => {
@@ -96,11 +96,14 @@ describe("album identity contract", () => {
 
     it("stores resolved relationships while keeping capture successful when enrichment fails", async () => {
         const releaseId = "123e4567-e89b-42d3-a456-426614174010"
+        const releaseGroupId = "123e4567-e89b-42d3-a456-426614174012"
         const musicBrainz = { provider: "musicbrainz", externalId: releaseId, url: `https://musicbrainz.org/release/${releaseId}`, resolutionStatus: "resolved", resolvedAt: "2026-07-20T20:00:00.000Z", confirmedByUser: false }
+        const musicBrainzGroup = { ...musicBrainz, externalId: releaseGroupId, url: `https://musicbrainz.org/release-group/${releaseGroupId}` }
         resolveExternalSources.mockResolvedValueOnce([{ provider: "wikipedia", externalId: "Album", url: "https://de.wikipedia.org/wiki/Album", locale: "de", resolutionStatus: "resolved", resolvedAt: "2026-07-20T20:01:00.000Z", confirmedByUser: false }])
-        const enriched = await write("POST", "/albums", { ...album, id: "550e8400-e29b-41d4-a716-446655440010", sources: [musicBrainz] })
+        const enriched = await write("POST", "/albums", { ...album, id: "550e8400-e29b-41d4-a716-446655440010", sources: [musicBrainz, musicBrainzGroup] })
         expect(enriched.status).toBe(201)
-        expect((await enriched.json()).sources).toHaveLength(2)
+        expect((await enriched.json()).sources).toHaveLength(3)
+        expect(resolveExternalSources).toHaveBeenCalledWith(releaseId, releaseGroupId)
 
         resolveExternalSources.mockRejectedValueOnce(new Error("provider timeout"))
         const resilient = await write("POST", "/albums", { ...album, id: "550e8400-e29b-41d4-a716-446655440011", sources: [musicBrainz] })
@@ -191,6 +194,10 @@ describe("album identity contract", () => {
         expect((await confirmed.json()).sources.every((source: AlbumSource) => source.confirmedByUser)).toBe(true)
 
         expect((await write("POST", `/albums/${ALBUM_ID}/sources/search`)).status).toBe(200)
+        const previewReleaseId = "123e4567-e89b-42d3-a456-426614174020"
+        const previewGroupId = "123e4567-e89b-42d3-a456-426614174021"
+        expect((await write("POST", `/albums/${ALBUM_ID}/sources/preview`, { releaseId: previewReleaseId, releaseGroupId: previewGroupId })).status).toBe(200)
+        expect(resolveExternalSources).toHaveBeenCalledWith(previewReleaseId, previewGroupId)
         const attemptedSilentReplacement = await write("PUT", `/albums/${ALBUM_ID}`, { sources: [] })
         expect((await attemptedSilentReplacement.json()).sources).toHaveLength(existing.length)
 

@@ -79,10 +79,7 @@ export function createExternalSourceResolver(options: ExternalSourceResolverOpti
         return scheduled
     }
 
-    return async function resolveExternalSources(releaseId: string): Promise<AlbumSource[]> {
-        const releaseUrl = `https://musicbrainz.org/ws/2/release/${encodeURIComponent(releaseId)}?inc=url-rels&fmt=json`
-        const release = await requestMusicBrainz(() => requestJson(fetchImpl, releaseUrl, timeoutMs, delay, { "User-Agent": USER_AGENT })) as { relations?: MusicBrainzRelation[] }
-        const relations = release.relations ?? []
+    async function resolveRelations(relations: MusicBrainzRelation[]): Promise<AlbumSource[] | null> {
         const resolvedAt = new Date().toISOString()
 
         const directWikipedia = relations
@@ -101,7 +98,8 @@ export function createExternalSourceResolver(options: ExternalSourceResolverOpti
             .filter((url): url is URL => url?.hostname === "www.wikidata.org")
             .map(url => url.pathname.match(/^\/wiki\/(Q[1-9][0-9]*)$/)?.[1])
             .filter((id): id is string => Boolean(id)))]
-        if (wikidataIds.length !== 1) return []
+        if (wikidataIds.length > 1) return []
+        if (wikidataIds.length === 0) return null
 
         const wikidataId = wikidataIds[0]
         const data = await requestJson(fetchImpl, `https://www.wikidata.org/wiki/Special:EntityData/${wikidataId}.json`, timeoutMs, delay) as { entities?: Record<string, WikidataEntity> }
@@ -114,6 +112,20 @@ export function createExternalSourceResolver(options: ExternalSourceResolverOpti
             resolutionStatus: "resolved", resolvedAt, confirmedByUser: false,
         }
         return article ? [article, wikidata] : [wikidata]
+    }
+
+    async function resolveMusicBrainzEntity(entity: "release" | "release-group", id: string): Promise<AlbumSource[] | null> {
+        const url = `https://musicbrainz.org/ws/2/${entity}/${encodeURIComponent(id)}?inc=url-rels&fmt=json`
+        const data = await requestMusicBrainz(() => requestJson(fetchImpl, url, timeoutMs, delay, { "User-Agent": USER_AGENT })) as { relations?: MusicBrainzRelation[] }
+        return resolveRelations(data.relations ?? [])
+    }
+
+    return async function resolveExternalSources(releaseId: string, releaseGroupId?: string): Promise<AlbumSource[]> {
+        if (releaseGroupId) {
+            const groupSources = await resolveMusicBrainzEntity("release-group", releaseGroupId)
+            if (groupSources !== null) return groupSources
+        }
+        return await resolveMusicBrainzEntity("release", releaseId) ?? []
     }
 }
 
