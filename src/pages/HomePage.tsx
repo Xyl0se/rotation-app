@@ -188,6 +188,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId, albumDetailId = null
                                         onSuggestAnother={() => void suggestFocusAlbum()}
                                         onEdit={() => setEditingAlbumId(focusAlbum.id)}
                                         onEditJournal={setJournalEditorEventId}
+                                        onOpenAlbum={onOpenAlbum}
                                     />
                                 ) : (
                                     <EmptyFocusAlbumCard
@@ -205,6 +206,7 @@ function HomePage({ onNavigateToBindings, highlightAlbumId, albumDetailId = null
                                 onReplace={replaceAlbum}
                                 onAccept={acceptPlan}
                                 onGetReplacementCandidates={getReplacementCandidates}
+                                onOpenAlbum={onOpenAlbum}
                             />
                             <Library
                                 albums={albums}

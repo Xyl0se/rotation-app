@@ -61,6 +61,8 @@ type FocusAlbumCardProps = {
 
     onEditJournal?: (eventId:string)=>void
 
+    onOpenAlbum?: (albumId: string) => void
+
 }
 
 function formatLastListened(date: string | null, t: ReturnType<typeof useI18n>["t"]) {
@@ -127,6 +129,7 @@ function FocusAlbumCard({
     onSuggestAnother,
     onEdit,
     onEditJournal,
+    onOpenAlbum,
 
 }: FocusAlbumCardProps) {
 
@@ -162,21 +165,32 @@ function FocusAlbumCard({
 
             <div className="focus-album-hero">
 
-                <AlbumCover
-                    coverUrl={album.coverUrl}
-                    coverOverride={album.coverOverride}
-                    albumId={album.id}
-                    title={album.title}
-                    alt={album.title}
-                    className="focus-album-cover"
-                    lazy={false}
-                />
+                <button
+                    className="focus-album-cover-button"
+                    onClick={() => onOpenAlbum?.(album.id)}
+                    aria-label={`${album.title} von ${album.artist} öffnen`}
+                >
+                    <AlbumCover
+                        coverUrl={album.coverUrl}
+                        coverOverride={album.coverOverride}
+                        albumId={album.id}
+                        title={album.title}
+                        alt={album.title}
+                        className="focus-album-cover"
+                        lazy={false}
+                    />
+                </button>
 
                 <div className="focus-album-info">
 
                     <h1>
 
-                        {album.title}
+                        <button
+                            className="focus-album-title-button"
+                            onClick={() => onOpenAlbum?.(album.id)}
+                        >
+                            {album.title}
+                        </button>
 
                     </h1>
 

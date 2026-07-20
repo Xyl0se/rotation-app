@@ -7,9 +7,9 @@
 - [x] ADR 019 approves only bounded Whole Album Sessions.
 - [x] ADR 012 retains confirmed Binding, PathGuard, read-only mount, export, and data
       ownership boundaries.
-- [ ] A current full data-directory backup exists.
-- [ ] `/music` is mounted read-only in the deployed API container.
-- [ ] Source-file hashes or modification times are captured before the inventory run.
+- [x] A current full data-directory backup exists.
+- [x] `/music` is mounted read-only in the deployed API container.
+- [x] Source-file hashes or modification times are captured before the inventory run.
 
 ## B. Production media inventory (89A)
 
@@ -21,7 +21,7 @@ inspects confirmed Bindings sequentially and returns aggregate evidence only.
 - [x] Representative M4A files recorded.
 - [x] Representative FLAC files recorded.
 - [x] At least one multi-disc Album recorded.
-- [ ] A compilation and an Album with unusual Unicode recorded where available.
+- [x] A compilation and an Album with unusual Unicode recorded where available.
 - [x] Missing tags and the required filename-fallback count reviewed.
 - [ ] Malformed media fails calmly without terminating the run.
 - [x] An unusually large file remains within the inventory boundary.
@@ -62,8 +62,8 @@ operational evidence if they identify a private environment.
 | Production desktop browser 2, if used | pending | pending | pending | pending |
 | Relevant mobile browser, if available | pending | pending | pending | pending |
 
-- [ ] Direct playback has a credible compatibility baseline: **go / no-go**.
-- [ ] Unsupported or ambiguous media is identified without proposing automatic
+- [x] Direct playback has a credible compatibility baseline: **go / no-go**.
+- [x] Unsupported or ambiguous media is identified without proposing automatic
       transcoding.
 
 ## D. Manifest, delivery, continuity, and session acceptance (89B–89F)

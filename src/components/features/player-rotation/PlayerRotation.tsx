@@ -43,6 +43,8 @@ type PlayerRotationProps = {
         removedAlbumId: string,
     ) => Album[]
 
+    onOpenAlbum?: (albumId: string) => void
+
 }
 
 function getRoleTitle(role: RoleId): string {
@@ -74,6 +76,8 @@ function PlayerRotation({
     onAccept,
 
     onGetReplacementCandidates,
+
+    onOpenAlbum,
 
 }: PlayerRotationProps) {
     const { t } = useI18n()
@@ -278,6 +282,7 @@ function PlayerRotation({
                                         onGetReplacementCandidates={
                                             onGetReplacementCandidates
                                         }
+                                        onOpenAlbum={onOpenAlbum}
 
                                     />
 
@@ -304,6 +309,7 @@ function RotationTile({
     onRemove,
     onReplace,
     onGetReplacementCandidates,
+    onOpenAlbum,
 
 }: {
 
@@ -319,6 +325,7 @@ function RotationTile({
     onGetReplacementCandidates?: (
         removedAlbumId: string,
     ) => Album[]
+    onOpenAlbum?: (albumId: string) => void
 
 }) {
 
@@ -341,34 +348,40 @@ function RotationTile({
 
         <article className="player-rotation-tile">
 
-            <RotationTileTooltip
-                album={album}
-                item={item}
-                listenEvents={listenEvents}
-            />
+            <button
+                className="player-rotation-tile-link"
+                onClick={() => onOpenAlbum?.(album.id)}
+                aria-label={`${album.title} von ${album.artist} öffnen`}
+            >
+                <RotationTileTooltip
+                    album={album}
+                    item={item}
+                    listenEvents={listenEvents}
+                />
 
-            <div className="player-rotation-copy">
+                <div className="player-rotation-copy">
 
-                <span>
+                    <span>
 
-                    {getRoleIcon(item.role)}{" "}
-                    {getRoleTitle(item.role)}
+                        {getRoleIcon(item.role)}{" "}
+                        {getRoleTitle(item.role)}
 
-                </span>
+                    </span>
 
-                <h3>
+                    <h3>
 
-                    {album.title}
+                        {album.title}
 
-                </h3>
+                    </h3>
 
-                <p>
+                    <p>
 
-                    {album.artist}
+                        {album.artist}
 
-                </p>
+                    </p>
 
-            </div>
+                </div>
+            </button>
 
             {
                 isDraft && (
