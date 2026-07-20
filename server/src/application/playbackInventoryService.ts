@@ -1,15 +1,13 @@
-import { readdir, stat } from "node:fs/promises"
+import { stat } from "node:fs/promises"
 import { extname } from "node:path"
 import { parseFile } from "music-metadata"
 import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
 import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
+import { collectAudioEntries, COLLECTION_LIMITS } from "../domain/playback/audioEntryCollector.js"
 
-const SUPPORTED_EXTENSIONS = [".mp3", ".m4a", ".flac"] as const
 const MAX_BINDINGS_INSPECTED = 25
-const MAX_TRACKS_PER_ALBUM = 100
 const MAX_FILES_INSPECTED = 500
 const MAX_AUDIO_BYTES = 2 * 1024 * 1024 * 1024
-const MAX_DIRECTORY_DEPTH = 2
 
 type PlaybackFormat = "mp3" | "m4a" | "flac"
 
@@ -64,17 +62,12 @@ interface ParsedOrder {
     track: number | null
 }
 
-interface AudioEntry {
-    name: string
-    relativePath: string
-}
-
 export function createPlaybackInventoryService(bindingRepo: BindingRepository, musicGuard: PathGuard) {
     async function run(): Promise<PlaybackInventoryReport> {
         const confirmed = bindingRepo.findByState("confirmed")
         const bindings = confirmed.slice(0, MAX_BINDINGS_INSPECTED)
         const formats = new Map<PlaybackFormat, MutableFormatInventory>(
-            SUPPORTED_EXTENSIONS.map(extension => {
+            [".mp3", ".m4a", ".flac"].map(extension => {
                 const format = extension.slice(1) as PlaybackFormat
                 return [format, emptyFormat(format)]
             }),
@@ -104,7 +97,7 @@ export function createPlaybackInventoryService(bindingRepo: BindingRepository, m
             let taggedCompilation = false
             for (const entry of audioEntries) {
                 if (filesInspected >= MAX_FILES_INSPECTED) break
-                const extension = extname(entry.name).toLowerCase() as typeof SUPPORTED_EXTENSIONS[number]
+                const extension = extname(entry.name).toLowerCase() as ".mp3" | ".m4a" | ".flac"
                 const aggregate = formats.get(extension.slice(1) as PlaybackFormat)!
                 let filePath: string
                 let fileStat
@@ -167,45 +160,16 @@ export function createPlaybackInventoryService(bindingRepo: BindingRepository, m
             skippedOversizedFiles,
             budgets: {
                 maxBindingsInspected: MAX_BINDINGS_INSPECTED,
-                maxTracksPerAlbum: MAX_TRACKS_PER_ALBUM,
+                maxTracksPerAlbum: COLLECTION_LIMITS.MAX_TRACKS_PER_ALBUM,
                 maxFilesInspected: MAX_FILES_INSPECTED,
                 maxAudioBytes: MAX_AUDIO_BYTES,
-                maxDirectoryDepth: MAX_DIRECTORY_DEPTH,
+                maxDirectoryDepth: COLLECTION_LIMITS.MAX_DIRECTORY_DEPTH,
             },
             formats: [...formats.values()].map(serializeFormat),
         }
     }
 
     return { run }
-}
-
-async function collectAudioEntries(bindingPath: string, musicGuard: PathGuard): Promise<AudioEntry[]> {
-    const result: AudioEntry[] = []
-    const pending = [{ relativePath: bindingPath, depth: 0 }]
-    while (pending.length > 0 && result.length < MAX_TRACKS_PER_ALBUM) {
-        const directory = pending.shift()!
-        let entries
-        try {
-            entries = (await readdir(musicGuard(directory.relativePath), { withFileTypes: true }))
-                .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
-        } catch {
-            continue
-        }
-        for (const entry of entries) {
-            if (entry.isSymbolicLink()) continue
-            const relativePath = `${directory.relativePath}/${entry.name}`
-            if (entry.isDirectory() && directory.depth < MAX_DIRECTORY_DEPTH) {
-                pending.push({ relativePath, depth: directory.depth + 1 })
-                continue
-            }
-            if (!entry.isFile()) continue
-            const extension = extname(entry.name).toLowerCase()
-            if (!SUPPORTED_EXTENSIONS.includes(extension as typeof SUPPORTED_EXTENSIONS[number])) continue
-            result.push({ name: entry.name, relativePath })
-            if (result.length >= MAX_TRACKS_PER_ALBUM) break
-        }
-    }
-    return result
 }
 
 function emptyFormat(format: PlaybackFormat): MutableFormatInventory {

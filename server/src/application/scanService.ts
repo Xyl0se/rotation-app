@@ -6,6 +6,7 @@ import type { ScanOptions } from "../domain/scan/albumFolder.js"
 import { suggestBindings } from "../domain/binding/albumMatcher.js"
 import { rankBindingCandidates } from "../domain/binding/albumMatcher.js"
 import type { BindingCandidateRepository } from "../infrastructure/persistence/sqlite/bindingCandidateRepository.js"
+import type { PlaybackManifestRepository } from "../infrastructure/persistence/sqlite/playbackManifestRepository.js"
 
 export interface ScanService {
     runScan(scanId: string, options?: ScanOptions): void
@@ -17,6 +18,7 @@ export function createScanService(
     albumRepo: AlbumRepository,
     scanRunRepo: ScanRunRepository,
     candidateRepo?: BindingCandidateRepository,
+    manifestRepo?: PlaybackManifestRepository,
 ): ScanService {
     return {
         runScan(scanId: string, options?: ScanOptions): void {
@@ -101,6 +103,9 @@ export function createScanService(
                     "completed",
                     null,
                 )
+                // Invalidate all playback manifests after a successful scan
+                // because directory structure may have changed.
+                manifestRepo?.invalidateAll()
             } catch (err) {
                 scanRunRepo.updateResult(
                     scanId,

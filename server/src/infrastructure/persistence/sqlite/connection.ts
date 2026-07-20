@@ -509,6 +509,22 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 16,
+        name: "playback-manifest-cache",
+        run(db) {
+            db.exec(`
+                CREATE TABLE playback_manifest_cache (
+                    album_id TEXT PRIMARY KEY REFERENCES albums(id) ON DELETE CASCADE,
+                    manifest_json TEXT NOT NULL,
+                    ordering_diagnostic TEXT NOT NULL CHECK(ordering_diagnostic IN ('ok','missing-track-numbers','missing-disc-numbers','duplicate-positions','filename-fallback-used')),
+                    filename_fallback_used INTEGER NOT NULL DEFAULT 0 CHECK(filename_fallback_used IN (0,1)),
+                    cached_at TEXT NOT NULL,
+                    invalidated_at TEXT
+                );
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database, maxMigrationVersion: number): void {

@@ -2,11 +2,13 @@ import type Database from "better-sqlite3"
 import type { Album } from "../domain/albumTypes.js"
 import type { AlbumRepository } from "../infrastructure/persistence/sqlite/albumRepository.js"
 import type { BindingRepository } from "../infrastructure/persistence/sqlite/bindingRepository.js"
+import type { PlaybackManifestRepository } from "../infrastructure/persistence/sqlite/playbackManifestRepository.js"
 
 export function createBindingCaptureService(
     db: Database.Database,
     albumRepo: AlbumRepository,
     bindingRepo: BindingRepository,
+    manifestRepo?: PlaybackManifestRepository,
 ) {
     const capture = db.transaction((bindingId: string, album: Album) => {
         const binding = bindingRepo.findById(bindingId)
@@ -29,6 +31,8 @@ export function createBindingCaptureService(
         if (!bindingRepo.confirm(bindingId,"manual",new Date().toISOString())) {
             throw new Error("BINDING_CONFIRM_FAILED")
         }
+        // Invalidate cached manifest when binding is confirmed or re-linked
+        manifestRepo?.invalidateManifest(album.id)
         return {
             album: albumRepo.findById(album.id)!,
             binding: bindingRepo.findWithAlbumDataById(bindingId)!,

@@ -50,11 +50,14 @@ import { createInsightsService } from "./application/insightsService.js"
 import { createInsightsRouter } from "./routes/insights.js"
 import { createArtworkFeasibilityService } from "./application/artworkFeasibilityService.js"
 import { createPlaybackInventoryService } from "./application/playbackInventoryService.js"
+import { createPlaybackManifestService } from "./application/playbackManifestService.js"
 import { createLocalArtworkService } from "./application/localArtworkService.js"
 import { createCoverResolver } from "./application/coverResolver.js"
 import { createCoverResolutionBatchService } from "./application/coverResolutionBatchService.js"
 import { createCoverResolutionRepository } from "./infrastructure/persistence/sqlite/coverResolutionRepository.js"
+import { createPlaybackManifestRepository } from "./infrastructure/persistence/sqlite/playbackManifestRepository.js"
 import { createExternalSourceResolver, createMusicBrainzReleaseSearch } from "./application/externalSourceResolver.js"
+import { createPlaybackRouter } from "./routes/playback.js"
 
 const config = loadConfig()
 
@@ -82,6 +85,7 @@ const reflectionInboxService = createReflectionInboxService(albumRepo, reflectio
 const coverResolutionRepo = createCoverResolutionRepository(db)
 const coverService = createCoverService(config.ROTATION_DATA_DIR, coverResolutionRepo)
 const insightsService = createInsightsService(createInsightEvidenceRepository(db))
+const playbackManifestRepo = createPlaybackManifestRepository(db)
 
 const musicGuard = createPathGuard(config.ROTATION_MUSIC_PATH)
 const workspaceGuard = createPathGuard(config.ROTATION_WORKSPACE_PATH)
@@ -93,12 +97,15 @@ const coverResolver = createCoverResolver(coverService, localArtworkService)
 const coverBatchService = createCoverResolutionBatchService(bindingRepo, coverResolver)
 const artworkFeasibilityService = createArtworkFeasibilityService(bindingRepo, musicGuard)
 const playbackInventoryService = createPlaybackInventoryService(bindingRepo, musicGuard)
+const playbackManifestService = createPlaybackManifestService(
+    bindingRepo, albumRepo, playbackManifestRepo, musicGuard
+)
 const externalSourceResolver = createExternalSourceResolver()
 const musicBrainzReleaseSearch = createMusicBrainzReleaseSearch()
-const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo, bindingCandidateRepo)
+const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo, bindingCandidateRepo, playbackManifestRepo)
 const lockRepo = createExportLockRepository(db)
 const exportService = createExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard, albumRepo, rotationStateRepo)
-const bindingCaptureService = createBindingCaptureService(db, albumRepo, bindingRepo)
+const bindingCaptureService = createBindingCaptureService(db, albumRepo, bindingRepo, playbackManifestRepo)
 
 // Run crash recovery on startup
 const recovery = runCrashRecovery(exportRepo, lockRepo, workspaceGuard)
@@ -186,6 +193,7 @@ app.use("/rotation-state", requireWriteTokenForMutations, createRotationStateRou
 app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService, coverResolver))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))
 app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))
+app.use("/playback", createPlaybackRouter(playbackManifestService))
 
 app.use((_req, res) => {
     res.status(404).json({ error: "Not found" })

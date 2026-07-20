@@ -45,7 +45,7 @@ describe("SQLite schema migrations", () => {
     it("records every migration and sets the user version", () => {
         const db = initDatabase(":memory:")
 
-        expect(db.pragma("user_version", { simple: true })).toBe(15)
+        expect(db.pragma("user_version", { simple: true })).toBe(16)
         expect(db.prepare("SELECT version, name FROM schema_migrations ORDER BY version").all())
             .toEqual([
                 { version: 1, name: "initial-schema" },
@@ -63,6 +63,7 @@ describe("SQLite schema migrations", () => {
                 { version: 13, name: "listening-journal" },
                 { version: 14, name: "cover-resolution-state" },
                 { version: 15, name: "album-external-sources" },
+                { version: 16, name: "playback-manifest-cache" },
             ])
         db.close()
     })
@@ -111,7 +112,7 @@ describe("SQLite schema migrations", () => {
         const second = initDatabase(path)
 
         expect(second.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get())
-                .toEqual({ count: 15 })
+                .toEqual({ count: 16 })
         second.close()
     })
 
@@ -128,7 +129,7 @@ describe("SQLite schema migrations", () => {
         v7.close()
 
         const upgraded = initDatabase(path)
-        expect(upgraded.pragma("user_version", { simple: true })).toBe(15)
+        expect(upgraded.pragma("user_version", { simple: true })).toBe(16)
         expect(upgraded.prepare("SELECT title FROM albums WHERE id='album-v7'").get()).toEqual({ title: "Preserved" })
         expect(upgraded.prepare("SELECT status, archived_at FROM rotation_plans WHERE id='rotation-v7'").get()).toEqual({ status: "active", archived_at: null })
         expect(upgraded.prepare("SELECT album_title_snapshot, album_artist_snapshot FROM rotation_plan_items WHERE rotation_plan_id='rotation-v7'").get())

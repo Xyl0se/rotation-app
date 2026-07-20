@@ -17,32 +17,39 @@ Deploy matching API and Web images, open **Bindings → Diagnostics**, and selec
 **Run media inventory**. No container console or shell is required. The explicit action
 inspects confirmed Bindings sequentially and returns aggregate evidence only.
 
-- [ ] Representative MP3 files recorded.
-- [ ] Representative M4A files recorded.
-- [ ] Representative FLAC files recorded.
-- [ ] At least one multi-disc Album recorded.
+- [x] Representative MP3 files recorded.
+- [x] Representative M4A files recorded.
+- [x] Representative FLAC files recorded.
+- [x] At least one multi-disc Album recorded.
 - [ ] A compilation and an Album with unusual Unicode recorded where available.
-- [ ] Missing tags and the required filename-fallback count reviewed.
+- [x] Missing tags and the required filename-fallback count reviewed.
 - [ ] Malformed media fails calmly without terminating the run.
-- [ ] An unusually large file remains within the inventory boundary.
-- [ ] Report contains no path, filename, artist, Album title, Track title, or media bytes.
+- [x] An unusually large file remains within the inventory boundary.
+- [x] Report contains no path, filename, artist, Album title, Track title, or media bytes.
 - [ ] Source-file hashes or modification times remain unchanged after the run.
 
 Record aggregate production output here; never copy private names or paths:
 
 | Format | Files | Containers/codecs | Largest file | Parse errors | Filename fallback |
 |---|---:|---|---:|---:|---:|
-| MP3 | pending | pending | pending | pending | pending |
-| M4A | pending | pending | pending | pending | pending |
-| FLAC | pending | pending | pending | pending | pending |
+| MP3 | 68 | MPEG / MPEG 1 Layer 3 | 15.2 MiB | 0 | 0 |
+| M4A | 113 | M4A/mp42/isom / MPEG-4/AAC | 14.6 MiB | 0 | 0 |
+| FLAC | 155 | FLAC / FLAC | 99.4 MiB | 0 | 0 |
 
 | Ordering evidence | Count |
 |---|---:|
-| Albums inspected | pending |
-| Multi-disc Albums | pending |
+| Albums inspected | 25 |
+| Multi-disc Albums | 3 |
 | Compilations | pending |
 | Albums with Unicode filenames | pending |
-| Ambiguous ordering | pending |
+| Ambiguous ordering | 0 |
+
+Production inventory recorded on 2026-07-20: 25 confirmed Bindings yielded 25 Albums
+and 336 audio files. Every inspected file contained Track number, title, and duration
+metadata. The run reported no parse error, no filename fallback, and no ambiguous Album
+ordering. Observed sample rates were 44.1 kHz for all formats and additionally 48 kHz
+for FLAC; M4A reported 16-bit depth and FLAC reported 16- and 24-bit depth. MP3 did not
+expose a meaningful bit-depth value through the parser.
 
 ## C. Direct-play compatibility baseline (89A gate)
 
@@ -61,15 +68,49 @@ operational evidence if they identify a private environment.
 
 ## D. Manifest, delivery, continuity, and session acceptance (89B–89F)
 
-- [ ] Confirmed Albums produce deterministic, bounded manifests.
+### D1. Manifest (89B) — Implemented
+
+- [x] Confirmed Albums produce deterministic, bounded manifests via
+      `GET /playback/manifest/:albumId`.
+- [x] Manifest contains `albumId`, `title`, `artist`, `coverPath`,
+      `totalDuration`, and `tracks[]` with `opaqueTrackId`, `discNumber`,
+      `trackNumber`, `title`, `duration`, `mediaType`, `playable`.
+- [x] Only files below the confirmed Binding directory are resolved.
+- [x] Tracks are sorted by validated disc/track numbers; natural-filename
+      fallback is used only when tags are absent (documented as
+      `filename-fallback-used` diagnostic).
+- [x] Artwork, playlists, hidden control files, and unsupported file types
+      are excluded by the existing `collectAudioEntries` boundary.
+- [x] Incomplete or ambiguous ordering (duplicate positions) surfaces as a
+      503 diagnostic; the endpoint never silently invents a sequence.
+- [x] Manifests are cached in `playback_manifest_cache` outside the read-only
+      music folder and invalidated when an explicit scan detects relevant
+      file changes (`scanService.invalidateAll()`) or a binding is confirmed
+      (`bindingCaptureService.invalidateManifest()`).
+- [x] Response contains no source paths, filenames, or physical identities.
+
+### D2. Safe media delivery (89C) — Pending
+
 - [ ] Opaque media endpoints expose no source paths and reject wrong Album/Track pairs.
 - [ ] `HEAD`, full `GET`, valid Range, malformed Range, and `416` behaviour pass.
 - [ ] Aborts close file handles and bounded concurrency does not exhaust API or NAS.
+
+### D3. Browser and continuity (89D) — Pending
+
 - [ ] Track transition, interruption, restart, backgrounding, and next-Track preload pass.
 - [ ] Achieved continuous/live Album transition behaviour is documented without an
       unmeasured gapless claim.
+
+### D4. Transcoding gate (89E) — Pending
+
 - [ ] Transcoding decision gate is recorded explicitly.
+
+### D5. Session contract (89F) — Pending
+
 - [ ] Ephemeral session and idempotent completion contracts are defined.
+
+### D6. Cross-cutting
+
 - [ ] No playback-foundation action creates a Listening Event.
 
 ## E. Final decision
