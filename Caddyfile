@@ -15,6 +15,15 @@
         }
     }
 
+    # Playback routes proxy to backend service (Workstream 89D)
+    handle /playback/* {
+        reverse_proxy rotation-api:3001 {
+            header_up X-Rotation-Write-Token {$ROTATION_WRITE_TOKEN}
+            header_up X-Forwarded-Host {http.request.host}
+            header_up X-Forwarded-Proto {http.request.scheme}
+        }
+    }
+
     # Static SPA files
     handle {
         root * /usr/share/caddy
