@@ -45,7 +45,7 @@ Before implementation begins, Sprint 89 must add a new ADR that explicitly recor
   embedded cover extraction. Sprint 89 should reuse that bounded parser for disc number,
   Track number, title, duration, and codec/container evidence rather than introduce a
   second media parsing stack.
-- [Sprint 88](./Sprint-88.md) provides the future Album Detail surface from which an
+- [Sprint 88](./done/Sprint-88.md) provides the Album Detail surface from which an
   Album Session can be started, but Playback Foundation remains independently testable.
 - Existing Binding confirmation, path guards, same-origin delivery, logging redaction,
   and read-only `/music` mounts remain authoritative.

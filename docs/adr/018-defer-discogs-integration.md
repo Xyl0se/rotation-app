@@ -65,5 +65,5 @@ workflow. General interest in more metadata is not sufficient.
 
 ## Related documentation
 
-- [Sprint 88](../sprints/Sprint-88.md)
+- [Sprint 88](../sprints/done/Sprint-88.md)
 - [ADR 013 — Data Ownership Boundaries](./013-data-ownership-boundaries.md)

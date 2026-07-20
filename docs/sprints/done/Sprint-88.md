@@ -1,6 +1,6 @@
 # Sprint 88 — Album Detail and External Sources
 
-**Status:** Implementation complete (88A–88E delivered; 88F no-go decision recorded; NAS acceptance pending)
+**Status:** Done — NAS acceptance granted 2026-07-20
 
 **Target version:** Future minor version
 
@@ -197,16 +197,19 @@ retry, never to React components.
 
 ## Definition of Done
 
-- [ ] Every Album can be opened in a dedicated Detail view.
-- [ ] The Detail view aggregates the relevant canonical Rotation data without creating
+- [x] Every Album can be opened in a dedicated Detail view.
+- [x] The Detail view aggregates the relevant canonical Rotation data without creating
       a second editable copy of it.
-- [ ] Capture permanently retains the selected MusicBrainz identity.
-- [ ] Available Wikipedia or Wikidata relationships are resolved once and stored.
-- [ ] Existing Albums can resolve and correct external sources explicitly.
-- [ ] Album Detail performs no third-party API call during normal rendering.
-- [ ] Missing or unavailable external sources never block Capture or Album Detail.
-- [ ] No third-party article text or scraped content is embedded.
-- [ ] DE/EN, accessibility, security, automated tests, and NAS acceptance are complete.
+- [x] Capture permanently retains the selected MusicBrainz identity.
+- [x] Available Wikipedia or Wikidata relationships are resolved once and stored.
+- [x] Existing Albums can resolve and correct external sources explicitly.
+- [x] Album Detail performs no third-party API call during normal rendering.
+- [x] Missing or unavailable external sources never block Capture or Album Detail.
+- [x] No third-party article text or scraped content is embedded.
+- [x] DE/EN, accessibility, security, automated tests, and NAS acceptance are complete.
+
+The completed maintainer acceptance checklist is recorded in
+[Sprint 88 NAS Acceptance](../../acceptance/SPRINT-88-NAS-ACCEPTANCE.md).
 
 ## Non-goals
 
