@@ -67,14 +67,21 @@ export function useAlbumPlayback(): UseAlbumPlaybackReturn {
     }, [])
 
     const loadTrack = useCallback((index: number) => {
-        if (!manifest || index >= manifest.tracks.length) return
+        console.log("[useAlbumPlayback] loadTrack index=", index, "manifest?", !!manifest)
+        if (!manifest || index >= manifest.tracks.length) {
+            console.log("[useAlbumPlayback] loadTrack ABORT: no manifest or index out of bounds")
+            return
+        }
         const track = manifest.tracks[index]
+        console.log("[useAlbumPlayback] loadTrack track=", track.opaqueTrackId, "playable=", track.playable)
         if (!track.playable) {
             setError(`Track "${track.title}" ist nicht abspielbar.`)
             return
         }
         const audio = getAudio()
-        audio.src = buildMediaUrl(manifest.albumId, track.opaqueTrackId)
+        const url = buildMediaUrl(manifest.albumId, track.opaqueTrackId)
+        console.log("[useAlbumPlayback] loadTrack setting audio.src to", url)
+        audio.src = url
         audio.load()
         setCurrentTrackIndex(index)
         setCurrentTime(0)
@@ -91,36 +98,54 @@ export function useAlbumPlayback(): UseAlbumPlaybackReturn {
     }, [manifest, getPreloadAudio])
 
     const playTrack = useCallback((index: number) => {
-        if (!manifest) return
+        console.log("[useAlbumPlayback] playTrack index=", index)
+        if (!manifest) {
+            console.log("[useAlbumPlayback] playTrack ABORT: no manifest")
+            return
+        }
         setError(null)
         loadTrack(index)
         const audio = getAudio()
+        console.log("[useAlbumPlayback] playTrack calling audio.play(), audio.src=", audio.src)
         audio.play().then(() => {
+            console.log("[useAlbumPlayback] playTrack audio.play() resolved")
             setIsPlaying(true)
             // Bounded preload: only preload next track
             preloadNextTrack(index + 1)
         }).catch((err: unknown) => {
+            console.error("[useAlbumPlayback] playTrack audio.play() rejected", err)
             setIsPlaying(false)
             setError(getPlaybackErrorMessage(err))
         })
     }, [manifest, getAudio, loadTrack, preloadNextTrack])
 
     const play = useCallback(() => {
-        if (!manifest) return
+        console.log("[useAlbumPlayback] play called")
+        if (!manifest) {
+            console.log("[useAlbumPlayback] play ABORT: no manifest")
+            return
+        }
         const audio = getAudio()
+        console.log("[useAlbumPlayback] play audio.paused=", audio.paused, "audio.src=", audio.src)
         if (audio.paused && audio.src) {
             audio.play().then(() => {
+                console.log("[useAlbumPlayback] play audio.play() resolved")
                 setIsPlaying(true)
             }).catch((err: unknown) => {
+                console.error("[useAlbumPlayback] play audio.play() rejected", err)
                 setIsPlaying(false)
                 setError(getPlaybackErrorMessage(err))
             })
         } else if (!audio.src && manifest.tracks.length > 0) {
+            console.log("[useAlbumPlayback] play: no src, starting playTrack(0)")
             playTrack(0)
+        } else {
+            console.log("[useAlbumPlayback] play ABORT: audio not paused or no tracks")
         }
     }, [manifest, getAudio, playTrack])
 
     const pause = useCallback(() => {
+        console.log("[useAlbumPlayback] pause called")
         const audio = audioRef.current
         if (audio && !audio.paused) {
             audio.pause()
@@ -129,17 +154,23 @@ export function useAlbumPlayback(): UseAlbumPlaybackReturn {
     }, [])
 
     const loadAlbum = useCallback(async (albumId: string) => {
-        if (currentAlbumIdRef.current === albumId && manifest) return
+        console.log("[useAlbumPlayback] loadAlbum albumId=", albumId, "current=", currentAlbumIdRef.current)
+        if (currentAlbumIdRef.current === albumId && manifest) {
+            console.log("[useAlbumPlayback] loadAlbum SKIP: already loaded")
+            return
+        }
         reset()
         setIsLoading(true)
         currentAlbumIdRef.current = albumId
         try {
             const m = await getPlaybackManifest(albumId)
+            console.log("[useAlbumPlayback] loadAlbum manifest loaded, tracks=", m.tracks.length)
             setManifest(m)
             if (m.tracks.length === 0) {
                 setError("Album enthält keine abspielbaren Tracks.")
             }
         } catch (err: unknown) {
+            console.error("[useAlbumPlayback] loadAlbum manifest FAILED", err)
             setError(getPlaybackErrorMessage(err))
         } finally {
             setIsLoading(false)
@@ -171,8 +202,9 @@ export function useAlbumPlayback(): UseAlbumPlaybackReturn {
         }
 
         const handleError = () => {
+            console.error("[useAlbumPlayback] Audio error event: audio.error=", audio.error, "audio.src=", audio.src)
             setIsPlaying(false)
-            setError("Fehler beim Laden des Audio-Tracks.")
+            setError(`Audio-Fehler (code ${audio.error?.code ?? "?"}): ${audio.src || "no src"}`)
         }
 
         audio.addEventListener("timeupdate", handleTimeUpdate)
