@@ -34,6 +34,7 @@ ADRs preserve durable decisions. They are not current feature manuals; use the
 | [016](./016-deterministic-insight-evidence.md) | Deterministic Insight evidence and AI boundary | Accepted |
 | [017](./017-local-cover-extraction.md) | Bounded local cover extraction | Proposed — NAS gate pending |
 | [018](./018-defer-discogs-integration.md) | Defer Discogs integration | Accepted |
+| [019](./019-bounded-whole-album-playback.md) | Bounded Whole-Album playback | Accepted — Sprint-89 direct-play gate pending |
 
 ADR 011 was never assigned. The gap is retained deliberately so historical numbering
 is never reused or made ambiguous.

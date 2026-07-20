@@ -946,6 +946,22 @@ export const en = {
             "no-cover": "No embedded cover",
             "parse-error": "Metadata could not be parsed",
         },
+        playbackInventoryTitle: "Playback media inventory",
+        playbackInventoryDescription: "Collects bounded technical audio and ordering evidence for confirmed albums. Private paths, filenames, and tag text never leave the server.",
+        playbackInventoryRun: "Run media inventory",
+        playbackInventoryRunning: "Inspecting media…",
+        playbackInventorySummary: (bindings: number, albums: number, files: number) =>
+            `${bindings} bindings inspected, ${albums} albums and ${files} audio files recorded`,
+        playbackInventoryFiles: (count: number) => `${count} files`,
+        playbackInventoryMedia: (containers: string, codecs: string) => `Containers ${containers}; codecs ${codecs}`,
+        playbackInventoryAudioProfile: (sampleRates: string, bitDepths: string) => `Sample rates ${sampleRates} Hz; bit depths ${bitDepths}`,
+        playbackInventoryLargest: (size: string) => `Largest file ${size}`,
+        playbackInventoryCoverage: (tracks: number, titles: number, durations: number, files: number) =>
+            `Tags: track ${tracks}/${files}, title ${titles}/${files}, duration ${durations}/${files}`,
+        playbackInventoryFallback: (count: number) => `${count} require filename fallback`,
+        playbackInventoryErrors: (count: number) => `${count} parse errors`,
+        playbackInventoryOrdering: (multiDisc: number, ambiguous: number) =>
+            `${multiDisc} multi-disc albums, ${ambiguous} albums with ambiguous ordering`,
     },
 }
 

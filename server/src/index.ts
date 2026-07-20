@@ -49,6 +49,7 @@ import { createInsightEvidenceRepository } from "./infrastructure/persistence/sq
 import { createInsightsService } from "./application/insightsService.js"
 import { createInsightsRouter } from "./routes/insights.js"
 import { createArtworkFeasibilityService } from "./application/artworkFeasibilityService.js"
+import { createPlaybackInventoryService } from "./application/playbackInventoryService.js"
 import { createLocalArtworkService } from "./application/localArtworkService.js"
 import { createCoverResolver } from "./application/coverResolver.js"
 import { createCoverResolutionBatchService } from "./application/coverResolutionBatchService.js"
@@ -91,6 +92,7 @@ const localArtworkService = createLocalArtworkService(bindingRepo, musicGuard)
 const coverResolver = createCoverResolver(coverService, localArtworkService)
 const coverBatchService = createCoverResolutionBatchService(bindingRepo, coverResolver)
 const artworkFeasibilityService = createArtworkFeasibilityService(bindingRepo, musicGuard)
+const playbackInventoryService = createPlaybackInventoryService(bindingRepo, musicGuard)
 const externalSourceResolver = createExternalSourceResolver()
 const musicBrainzReleaseSearch = createMusicBrainzReleaseSearch()
 const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRepo, bindingCandidateRepo)
@@ -158,6 +160,7 @@ app.use("/diagnostics", requireWriteTokenForMutations, createDiagnosticsRouter(
     workspaceGuard,
     syncthingGuard,
     artworkFeasibilityService,
+    playbackInventoryService,
 ))
 
 app.use("/bindings", requireWriteTokenForMutations, createBindingsRouter(

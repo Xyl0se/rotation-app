@@ -64,3 +64,38 @@ export interface ArtworkFeasibilityReport {
 export async function runArtworkFeasibility(): Promise<ArtworkFeasibilityReport> {
     return post<ArtworkFeasibilityReport>("/diagnostics/artwork-feasibility")
 }
+
+export interface PlaybackFormatInventory {
+    format: "mp3" | "m4a" | "flac"
+    files: number
+    parseErrors: number
+    totalBytes: number
+    largestFileBytes: number
+    containers: string[]
+    codecs: string[]
+    sampleRates: number[]
+    bitDepths: number[]
+    trackNumberCoverage: number
+    discNumberCoverage: number
+    titleCoverage: number
+    durationCoverage: number
+    filenameFallbackRequired: number
+}
+
+export interface PlaybackInventoryReport {
+    generatedAt: string
+    bindingsAvailable: number
+    bindingsInspected: number
+    albumsWithPlayableFiles: number
+    filesInspected: number
+    multiDiscAlbums: number
+    compilationAlbums: number
+    albumsWithUnicodeNames: number
+    albumsWithAmbiguousOrdering: number
+    skippedOversizedFiles: number
+    formats: PlaybackFormatInventory[]
+}
+
+export async function runPlaybackInventory(): Promise<PlaybackInventoryReport> {
+    return post<PlaybackInventoryReport>("/diagnostics/playback-inventory")
+}

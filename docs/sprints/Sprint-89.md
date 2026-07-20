@@ -6,6 +6,9 @@
 
 **Type:** Read-only media delivery, metadata extraction, security, and NAS validation
 
+**Progress:** Workstream 89A implemented — ADR 019 accepted; production inventory and
+direct-play compatibility evidence pending in the deployed NAS environment
+
 ## Goal
 
 Prove that Rotation can safely and reliably play the user's real NAS music files in a
@@ -60,6 +63,11 @@ Before implementation begins, Sprint 89 must add a new ADR that explicitly recor
   metadata.
 - Identify unsupported or ambiguous media before selecting any transcoding strategy.
 - Establish explicit go/no-go evidence for direct browser playback.
+
+Implementation note: the privacy-safe inventory is available through **Bindings →
+Diagnostics → Run media inventory** so it can run in the shell-less production API
+deployment. Results are recorded in
+[Sprint 89 Playback Acceptance](../acceptance/SPRINT-89-PLAYBACK-ACCEPTANCE.md).
 
 ## Workstream 89B — Canonical playback manifest
 

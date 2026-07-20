@@ -7,6 +7,7 @@ import type { PathGuard } from "../infrastructure/filesystem/pathGuard.js"
 import { createDirectoryScanner } from "../infrastructure/filesystem/directoryScanner.js"
 import type { Config } from "../application/config.js"
 import type { ArtworkFeasibilityService } from "../application/artworkFeasibilityService.js"
+import type { PlaybackInventoryService } from "../application/playbackInventoryService.js"
 
 export interface DiagnosticsResponse {
     connectivity: {
@@ -62,6 +63,7 @@ export function createDiagnosticsRouter(
     _workspaceGuard: PathGuard,
     _syncthingGuard: PathGuard,
     artworkFeasibilityService?: ArtworkFeasibilityService,
+    playbackInventoryService?: PlaybackInventoryService,
 ): Router {
     void _workspaceGuard
     void _syncthingGuard
@@ -136,6 +138,14 @@ export function createDiagnosticsRouter(
             return
         }
         res.json(await artworkFeasibilityService.run())
+    })
+
+    router.post("/playback-inventory", async (_req: Request, res: Response) => {
+        if (!playbackInventoryService) {
+            res.status(503).json({ error: "Playback inventory service is unavailable" })
+            return
+        }
+        res.json(await playbackInventoryService.run())
     })
 
     return router

@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from "react"
 import {
     fetchDiagnostics,
     runArtworkFeasibility,
+    runPlaybackInventory,
     type ArtworkFeasibilityReport,
     type DiagnosticsResponse,
+    type PlaybackInventoryReport,
 } from "../../../services/api/diagnosticsService.js"
 import { triggerScan, getScanProgress } from "../../../services/api/scanService.js"
 import { getApiErrorMessage, ApiError } from "../../../services/api/apiClient.js"
@@ -63,6 +65,9 @@ export default function DiagnosticsPanel() {
     const [artworkProbeRunning, setArtworkProbeRunning] = useState(false)
     const [artworkReport, setArtworkReport] = useState<ArtworkFeasibilityReport | null>(null)
     const [artworkProbeError, setArtworkProbeError] = useState<string | null>(null)
+    const [playbackInventoryRunning, setPlaybackInventoryRunning] = useState(false)
+    const [playbackInventory, setPlaybackInventory] = useState<PlaybackInventoryReport | null>(null)
+    const [playbackInventoryError, setPlaybackInventoryError] = useState<string | null>(null)
 
     const load = useCallback(async () => {
         setLoading(true)
@@ -86,6 +91,18 @@ export default function DiagnosticsPanel() {
             setArtworkProbeError(getApiErrorMessage(e))
         } finally {
             setArtworkProbeRunning(false)
+        }
+    }, [])
+
+    const handlePlaybackInventory = useCallback(async () => {
+        setPlaybackInventoryRunning(true)
+        setPlaybackInventoryError(null)
+        try {
+            setPlaybackInventory(await runPlaybackInventory())
+        } catch (e) {
+            setPlaybackInventoryError(getApiErrorMessage(e))
+        } finally {
+            setPlaybackInventoryRunning(false)
         }
     }, [])
 
@@ -331,6 +348,60 @@ export default function DiagnosticsPanel() {
                                 {artworkReport.missingFormats.length > 0 && (
                                     <p>{t.diagnostics.artworkProbeMissing(artworkReport.missingFormats.join(", ").toUpperCase())}</p>
                                 )}
+                            </div>
+                        )}
+                    </div>
+                    <div className="diagnostics-artwork-probe">
+                        <div>
+                            <strong>{t.diagnostics.playbackInventoryTitle}</strong>
+                            <p>{t.diagnostics.playbackInventoryDescription}</p>
+                        </div>
+                        <button
+                            className="diagnostics-scan-button"
+                            onClick={handlePlaybackInventory}
+                            disabled={playbackInventoryRunning || diag!.bindings.confirmed === 0}
+                        >
+                            {playbackInventoryRunning
+                                ? t.diagnostics.playbackInventoryRunning
+                                : t.diagnostics.playbackInventoryRun}
+                        </button>
+                        {playbackInventoryError && (
+                            <p className="diagnostics-artwork-error">{playbackInventoryError}</p>
+                        )}
+                        {playbackInventory && (
+                            <div className="diagnostics-artwork-results">
+                                <p>{t.diagnostics.playbackInventorySummary(
+                                    playbackInventory.bindingsInspected,
+                                    playbackInventory.albumsWithPlayableFiles,
+                                    playbackInventory.filesInspected,
+                                )}</p>
+                                {playbackInventory.formats.map(format => (
+                                    <div className="diagnostics-artwork-result" key={format.format}>
+                                        <strong>{format.format.toUpperCase()}</strong>
+                                        <span>{t.diagnostics.playbackInventoryFiles(format.files)}</span>
+                                        <span>{t.diagnostics.playbackInventoryMedia(
+                                            format.containers.join(", ") || "—",
+                                            format.codecs.join(", ") || "—",
+                                        )}</span>
+                                        <span>{t.diagnostics.playbackInventoryAudioProfile(
+                                            format.sampleRates.join(", ") || "—",
+                                            format.bitDepths.join(", ") || "—",
+                                        )}</span>
+                                        <span>{t.diagnostics.playbackInventoryLargest(formatBytes(format.largestFileBytes))}</span>
+                                        <span>{t.diagnostics.playbackInventoryCoverage(
+                                            format.trackNumberCoverage,
+                                            format.titleCoverage,
+                                            format.durationCoverage,
+                                            format.files,
+                                        )}</span>
+                                        <span>{t.diagnostics.playbackInventoryFallback(format.filenameFallbackRequired)}</span>
+                                        <span>{t.diagnostics.playbackInventoryErrors(format.parseErrors)}</span>
+                                    </div>
+                                ))}
+                                <p>{t.diagnostics.playbackInventoryOrdering(
+                                    playbackInventory.multiDiscAlbums,
+                                    playbackInventory.albumsWithAmbiguousOrdering,
+                                )}</p>
                             </div>
                         )}
                     </div>

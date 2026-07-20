@@ -947,5 +947,21 @@ export const de: Translation = {
             "no-cover": "Kein eingebettetes Cover",
             "parse-error": "Metadaten konnten nicht gelesen werden",
         },
+        playbackInventoryTitle: "Playback-Medieninventar",
+        playbackInventoryDescription: "Erfasst begrenzt technische Audio- und Sortiermerkmale bestätigter Alben. Private Pfade, Dateinamen und Tagtexte verlassen den Server nicht.",
+        playbackInventoryRun: "Medieninventar ausführen",
+        playbackInventoryRunning: "Medien werden untersucht…",
+        playbackInventorySummary: (bindings: number, albums: number, files: number) =>
+            `${bindings} Bindings untersucht, ${albums} Alben und ${files} Audiodateien erfasst`,
+        playbackInventoryFiles: (count: number) => `${count} Dateien`,
+        playbackInventoryMedia: (containers: string, codecs: string) => `Container ${containers}; Codecs ${codecs}`,
+        playbackInventoryAudioProfile: (sampleRates: string, bitDepths: string) => `Sampleraten ${sampleRates} Hz; Bittiefen ${bitDepths}`,
+        playbackInventoryLargest: (size: string) => `Größte Datei ${size}`,
+        playbackInventoryCoverage: (tracks: number, titles: number, durations: number, files: number) =>
+            `Tags: Track ${tracks}/${files}, Titel ${titles}/${files}, Dauer ${durations}/${files}`,
+        playbackInventoryFallback: (count: number) => `${count} benötigen Dateinamen-Fallback`,
+        playbackInventoryErrors: (count: number) => `${count} Parse-Fehler`,
+        playbackInventoryOrdering: (multiDisc: number, ambiguous: number) =>
+            `${multiDisc} Multi-Disc-Alben, ${ambiguous} Alben mit mehrdeutiger Reihenfolge`,
     },
 }

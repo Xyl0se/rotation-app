@@ -4,7 +4,10 @@
 
 Accepted and implemented. Data ownership was amended by
 [ADR 013](./013-data-ownership-boundaries.md) and
-[ADR 014](./014-server-owned-rotation-state.md).
+[ADR 014](./014-server-owned-rotation-state.md). The categorical no-playback boundary
+was superseded by the bounded Whole Album Session in
+[ADR 019](./019-bounded-whole-album-playback.md); all filesystem and privilege boundaries
+below remain in force.
 
 ---
 
@@ -194,7 +197,10 @@ musicGuard.resolve("../../../etc/passwd")
 
 ### A. Soll Rotation jemals direkt aus der Originalbibliothek streamen?
 
-**Empfehlung: Nein.** Das würde Rotation zu einem Musikplayer machen und die Philosophie verletzen. Wenn jedoch Cover-Art oder Metadaten-Tag-Lesen gewünscht wird, sollte dies über einen separaten, read-only Metadaten-Service erfolgen.
+**Superseded by ADR 019.** Rotation may stream only a confirmed Album through opaque,
+Album-scoped media identities as part of a bounded Whole Album Session. General Track
+playback remains rejected. The read-only mount, PathGuard, and separation from durable
+Listening History remain mandatory.
 
 ### B. Sollte der Export von Kopien auf Symlinks umsteigen?
 
