@@ -4,22 +4,11 @@ import type { PlaybackManifest } from "../../../server/src/domain/playback/playb
 export type { PlaybackManifest }
 
 export async function getPlaybackManifest(albumId: string): Promise<PlaybackManifest> {
-    const url = `/playback/manifest/${encodeURIComponent(albumId)}`
-    console.log("[playbackService] GET", url)
-    try {
-        const result = await get<PlaybackManifest>(url)
-        console.log("[playbackService] Manifest OK", result.tracks.length, "tracks")
-        return result
-    } catch (err: unknown) {
-        console.error("[playbackService] Manifest FAILED", url, err)
-        throw err
-    }
+    return get<PlaybackManifest>(`/playback/manifest/${encodeURIComponent(albumId)}`)
 }
 
 export function buildMediaUrl(albumId: string, opaqueTrackId: string): string {
-    const url = `/api/playback/media/${encodeURIComponent(albumId)}/${encodeURIComponent(opaqueTrackId)}`
-    console.log("[playbackService] buildMediaUrl", url)
-    return url
+    return `/api/playback/media/${encodeURIComponent(albumId)}/${encodeURIComponent(opaqueTrackId)}`
 }
 
 export function getPlaybackErrorMessage(error: unknown): string {

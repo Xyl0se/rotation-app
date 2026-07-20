@@ -11,11 +11,9 @@ export function createPlaybackRouter(
 
     router.get("/manifest/:albumId", async (req: Request, res: Response) => {
         const albumId = req.params.albumId as string
-        console.log("[playback/route] GET /manifest/:albumId albumId=", albumId)
         const result = await playbackManifestService.getManifest(albumId)
 
         if ("code" in result) {
-            console.log("[playback/route] manifest error code=", result.code, "albumId=", albumId)
             switch (result.code) {
                 case "not-found":
                     res.status(404).json({ error: "Album or binding not found" })
@@ -32,7 +30,6 @@ export function createPlaybackRouter(
             }
         }
 
-        console.log("[playback/route] manifest OK albumId=", albumId, "tracks=", result.manifest.tracks.length)
         res.json(result.manifest)
     })
 
@@ -44,10 +41,7 @@ export function createPlaybackRouter(
             const isHead = req.method === "HEAD"
             const rangeHeader = req.headers.range as string | undefined
 
-            console.log("[playback/route]", req.method, "/media/", albumId, "/", opaqueTrackId, "range=", rangeHeader)
-
             const result = playbackMediaService.streamMedia(albumId, opaqueTrackId, rangeHeader)
-            console.log("[playback/route] streamMedia result status=", "status" in result ? result.status : "?")
 
             if ("body" in result) {
                 res.status(result.status).json(result.body)

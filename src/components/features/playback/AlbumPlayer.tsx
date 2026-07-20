@@ -32,27 +32,19 @@ export default function AlbumPlayer({ albumId, albumTitle, bindingConfirmed }: A
         reset,
     } = useAlbumPlayback()
 
-    console.log("[AlbumPlayer] render albumId=", albumId, "bindingConfirmed=", bindingConfirmed, "manifest?", !!manifest, "isLoading=", isLoading, "error=", error)
-
     useEffect(() => {
-        console.log("[AlbumPlayer] mount effect: bindingConfirmed=", bindingConfirmed, "manifest?", !!manifest)
         if (bindingConfirmed && !manifest) {
-            console.log("[AlbumPlayer] calling loadAlbum(", albumId, ")")
             loadAlbum(albumId)
         }
     }, [albumId, bindingConfirmed, loadAlbum, manifest])
 
     useEffect(() => {
         return () => {
-            console.log("[AlbumPlayer] unmount: calling reset")
             reset()
         }
     }, [reset])
 
-    if (!bindingConfirmed) {
-        console.log("[AlbumPlayer] render null: binding not confirmed")
-        return null
-    }
+    if (!bindingConfirmed) return null
 
     if (isLoading) {
         return (
@@ -71,7 +63,6 @@ export default function AlbumPlayer({ albumId, albumTitle, bindingConfirmed }: A
     }
 
     if (!manifest || manifest.tracks.length === 0) {
-        console.log("[AlbumPlayer] render null: no manifest or no tracks")
         return null
     }
 
