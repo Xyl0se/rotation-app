@@ -112,7 +112,7 @@ describe("playback manifest route", () => {
 describe("playback media delivery route", () => {
     let server: Server
     let baseUrl: string
-    let streamMedia = vi.fn()
+    const streamMedia = vi.fn()
 
     beforeAll(async () => {
         tempDir = join(tmpdir(), `rotation-media-test-${Date.now()}`)
