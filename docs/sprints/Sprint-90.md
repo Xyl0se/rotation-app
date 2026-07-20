@@ -33,7 +33,7 @@ An Album Session:
 - advances automatically in canonical manifest order;
 - exposes Play/Pause as its central control;
 - allows the user to stop the Session;
-- permits “Restart Album” as a deliberate, confirmed action;
+- permits "Restart Album" as a deliberate, confirmed action;
 - has no next, previous, shuffle, repeat, queue, speed, or Track selection controls;
 - has no mouse-, touch-, or keyboard-operable seek control;
 - leaves volume primarily to the browser, operating system, or playback device.
@@ -101,7 +101,7 @@ idle -> loading -> playing <-> paused
 
 ## Workstream 90D — Entry points
 
-Allow “Start Album Session” only for Albums with a confirmed playable manifest from:
+Allow "Start Album Session" only for Albums with a confirmed playable manifest from:
 
 - Focus Album;
 - an Album in the active Player Rotation;
@@ -141,19 +141,71 @@ without exposing internal paths.
 - Insights and Reflection consume the resulting canonical Listening Event normally;
   they do not receive private playback telemetry.
 
-Alternative “nearly complete” thresholds are explicitly deferred until real use proves
+Alternative "nearly complete" thresholds are explicitly deferred until real use proves
 that natural completion is too strict.
 
-## Workstream 90G — Visual language
+## Workstream 90G — Visual language: 90s CD-Player Skeuomorphism
 
-- Treat the bottom band as a calm listening horizon rather than a transport-console
-  dashboard.
-- Reuse Rotation's established colors, 8px geometry, typography, and restrained motion.
-- Let artwork and Album identity remain primary; controls should not visually dominate.
-- Keep the collapsed band compact on desktop and mobile browser widths without hiding
-  Play/Pause or status.
-- Avoid waveform visuals, animated equalizers, Track-list density, and streaming-service
-  conventions that suggest endless choice.
+The bottom band is deliberately skeuomorphic — a self-contained visual object that
+references 1990s Hi-Fi CD players. It does not adopt Rotation's warm editorial palette
+for its own surfaces; instead it establishes its own material vocabulary as a persistent
+listening instrument.
+
+### Chassis
+
+- Dark matte-black housing with a subtle top-to-bottom gradient (`#1a1a1a` → `#0d0d0d`).
+- Rounded front edges with a faint bevel shadow to suggest physical depth.
+- Four corner screw heads (CSS or inline SVG) as subtle mechanical detail.
+
+### Display window
+
+- A glossy plastic-glass overlay above the text area using a semi-transparent
+  white linear-gradient at an angle to simulate acrylic reflection.
+- The display itself is a recessed dark panel behind this glass.
+
+### Typography
+
+- **Display font:** [Doto](https://fonts.google.com/specimen/Doto) (Google Fonts),
+  a rounded geometric dot-matrix typeface.
+- All track information, elapsed time, and status text in Doto at small sizes
+  (12–14 px).
+- Bright cyan glow on the characters (`#5cdbff` or `#7ee8ff`) with a soft
+  `text-shadow` to simulate vacuum-fluorescent / LED dot-matrix luminance.
+- Secondary labels (artist, album) in a slightly dimmer cyan; the active track
+  title in the brightest cyan.
+
+### Controls
+
+- Physical push-button look using `box-shadow` with dark outer bevel and bright
+  inner highlight.
+- Active / pressed state inverts the shadow to an `inset` appearance.
+- Play/Pause is the largest and most central control.
+- Stop is a smaller adjacent button.
+- Expand / collapse and Restart sit behind a discrete detail toggle, not
+  competing with the primary transport.
+
+### Album artwork
+
+- A small square thumbnail (40 × 40 px) on the far left of the band.
+- Slightly rounded corners (4 px) so it reads as a physical mini cover inside
+  the player chassis.
+
+### Progress
+
+- A thin horizontal line below the display, rendered as a calm cyan bar against
+  a dark recessed track.
+- Small tick marks at Track boundaries; the current Track marker slightly
+  brighter or taller.
+- No interaction; purely read-out.
+
+### Coexistence with the rest of Rotation
+
+- The band is visually self-contained: it carries its own blacks, its own
+  glows, and its own surface model.
+- Dialog overlays, page content, and the warm paper palette of Rotation remain
+  untouched. The band sits above them as a fixed appliance.
+- Page content receives adequate bottom padding so nothing is hidden behind the
+  player.
 
 ## Verification
 
@@ -194,4 +246,3 @@ that natural completion is too strict.
 - Social listening, casting, AirPlay, or Chromecast guarantees
 - Listening scores, completion streaks, or gamification
 - DRM-style enforcement against direct technical access
-

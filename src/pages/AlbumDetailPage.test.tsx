@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest"
 
 import { I18nContext } from "../i18n/I18nContext"
 import { de } from "../i18n/locales/de"
+import { AlbumSessionProvider } from "../contexts/AlbumSessionProvider.tsx"
 import type { Album } from "../types/album"
 import AlbumDetailPage from "./AlbumDetailPage"
 
@@ -35,7 +36,9 @@ const defaults = {
 
 const renderPage = (overrides: Partial<Parameters<typeof AlbumDetailPage>[0]> = {}) => render(
     <I18nContext.Provider value={{ t: de, language: "de", setLanguage: vi.fn() }}>
-        <AlbumDetailPage {...defaults} {...overrides} />
+        <AlbumSessionProvider>
+            <AlbumDetailPage {...defaults} {...overrides} />
+        </AlbumSessionProvider>
     </I18nContext.Provider>,
 )
 
