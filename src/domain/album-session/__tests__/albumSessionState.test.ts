@@ -65,7 +65,7 @@ describe("albumSessionReducer", () => {
         it("transitions idle -> loading", () => {
             const ctx = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
             expect(ctx.state.kind).toBe("loading")
-            expect(ctx.state.albumId).toBe("album-123")
+            expect((ctx.state as Extract<typeof ctx.state, { kind: "loading" }>).albumId).toBe("album-123")
             expect(ctx.lastSessionId).not.toBeNull()
         })
 

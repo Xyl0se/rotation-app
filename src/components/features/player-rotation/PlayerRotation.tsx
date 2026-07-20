@@ -348,9 +348,17 @@ function RotationTile({
 
         <article className="player-rotation-tile">
 
-            <button
+            <div
                 className="player-rotation-tile-link"
                 onClick={() => onOpenAlbum?.(album.id)}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault()
+                        onOpenAlbum?.(album.id)
+                    }
+                }}
+                role="button"
+                tabIndex={0}
                 aria-label={`${album.title} von ${album.artist} öffnen`}
             >
                 <RotationTileTooltip
@@ -381,7 +389,7 @@ function RotationTile({
                     </p>
 
                 </div>
-            </button>
+            </div>
 
             {
                 isDraft && (
