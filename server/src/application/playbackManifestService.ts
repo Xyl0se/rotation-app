@@ -130,6 +130,7 @@ export function createPlaybackManifestService(
             duration: pt.duration,
             mediaType: pt.mediaType!,
             playable: pt.mediaType !== null,
+            _sourcePath: pt.entry.relativePath,
         }))
 
         const totalDuration = tracks.every(t => t.duration !== null)

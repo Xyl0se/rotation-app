@@ -51,6 +51,7 @@ import { createInsightsRouter } from "./routes/insights.js"
 import { createArtworkFeasibilityService } from "./application/artworkFeasibilityService.js"
 import { createPlaybackInventoryService } from "./application/playbackInventoryService.js"
 import { createPlaybackManifestService } from "./application/playbackManifestService.js"
+import { createPlaybackMediaService } from "./application/playbackMediaService.js"
 import { createLocalArtworkService } from "./application/localArtworkService.js"
 import { createCoverResolver } from "./application/coverResolver.js"
 import { createCoverResolutionBatchService } from "./application/coverResolutionBatchService.js"
@@ -99,6 +100,9 @@ const artworkFeasibilityService = createArtworkFeasibilityService(bindingRepo, m
 const playbackInventoryService = createPlaybackInventoryService(bindingRepo, musicGuard)
 const playbackManifestService = createPlaybackManifestService(
     bindingRepo, albumRepo, playbackManifestRepo, musicGuard
+)
+const playbackMediaService = createPlaybackMediaService(
+    bindingRepo, playbackManifestRepo, musicGuard
 )
 const externalSourceResolver = createExternalSourceResolver()
 const musicBrainzReleaseSearch = createMusicBrainzReleaseSearch()
@@ -193,7 +197,7 @@ app.use("/rotation-state", requireWriteTokenForMutations, createRotationStateRou
 app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverService, coverResolver))
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))
 app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))
-app.use("/playback", createPlaybackRouter(playbackManifestService))
+app.use("/playback", createPlaybackRouter(playbackManifestService, playbackMediaService))
 
 app.use((_req, res) => {
     res.status(404).json({ error: "Not found" })

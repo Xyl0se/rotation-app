@@ -89,11 +89,11 @@ operational evidence if they identify a private environment.
       (`bindingCaptureService.invalidateManifest()`).
 - [x] Response contains no source paths, filenames, or physical identities.
 
-### D2. Safe media delivery (89C) — Pending
+### D2. Safe media delivery (89C) — Implemented
 
-- [ ] Opaque media endpoints expose no source paths and reject wrong Album/Track pairs.
-- [ ] `HEAD`, full `GET`, valid Range, malformed Range, and `416` behaviour pass.
-- [ ] Aborts close file handles and bounded concurrency does not exhaust API or NAS.
+- [x] Opaque media endpoints expose no source paths and reject wrong Album/Track pairs.
+- [x] `HEAD`, full `GET`, valid Range, malformed Range, and `416` behaviour pass.
+- [x] Aborts close file handles and bounded concurrency does not exhaust API or NAS.
 
 ### D3. Browser and continuity (89D) — Pending
 

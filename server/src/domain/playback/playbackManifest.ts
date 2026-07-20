@@ -15,6 +15,8 @@ export interface PlaybackTrack {
     duration: number | null
     mediaType: MediaType
     playable: boolean
+    /** @internal Server-side only — never exposed in API responses */
+    _sourcePath: string
 }
 
 export interface PlaybackManifest {
