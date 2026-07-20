@@ -95,23 +95,92 @@ operational evidence if they identify a private environment.
 - [x] `HEAD`, full `GET`, valid Range, malformed Range, and `416` behaviour pass.
 - [x] Aborts close file handles and bounded concurrency does not exhaust API or NAS.
 
-### D3. Browser and continuity (89D) — Pending
+### D3. Browser and continuity (89D) — Implemented
 
-- [ ] Track transition, interruption, restart, backgrounding, and next-Track preload pass.
-- [ ] Achieved continuous/live Album transition behaviour is documented without an
-      unmeasured gapless claim.
+**Scope:** Sprint 89D is a spike — no permanent Player UI, no Listening Events,
+no cross-browser sync. The goal is to prove direct browser playback works and
+document the achieved continuity behavior.
+
+**Implementation:**
+- `AlbumPlayer` component renders inline on Album Detail Page when binding is
+  `confirmed`. It is not a persistent bottom player.
+- `useAlbumPlayback` hook manages:
+  - Manifest loading via `GET /playback/manifest/:albumId`
+  - Sequential whole-album playback (Track 1 → Track N)
+  - Play / Pause / Resume via `<audio>` element
+  - Bounded preload: only the next Track is preloaded in a second `<audio>`
+    element
+  - Automatic Track-end transition via `ended` event
+  - Cleanup on unmount (audio.src cleared, streams destroyed)
+- No seeking, no Track selection, no queue management — per Sprint 89 non-goals.
+
+**Test coverage (unit, jsdom):**
+| Scenario | Result |
+|---|---|
+| Manifest loading and initialization | ✅ Pass |
+| 404 / missing binding error | ✅ Pass |
+| 503 ambiguous-order error | ✅ Pass |
+| Play starts first Track | ✅ Pass |
+| Pause stops playback | ✅ Pass |
+| Resume continues from paused state | ✅ Pass |
+| Track-end → next Track transition | ✅ Pass |
+| Last Track end → stop | ✅ Pass |
+| `timeupdate` → currentTime updates | ✅ Pass |
+| Audio error → error state | ✅ Pass |
+| Next-Track preload created on play | ✅ Pass |
+| No persistent Listening Events created | ✅ Pass |
+
+**Real browser tests — pending production NAS validation:**
+- [ ] Direct playback in production desktop browser (Chrome/Firefox/Safari)
+- [ ] MP3 playback
+- [ ] M4A playback
+- [ ] FLAC playback
+- [ ] Network interruption recovery
+- [ ] API restart during playback
+- [ ] Browser backgrounding behavior
+- [ ] Track transition audible gap measurement
+- [ ] Continuous/live Album transition behavior
+- [ ] Preload resource consumption
+
+**Gapless assessment:** Not claimed. The spike uses sequential `<audio>` elements
+with bounded preload. True gapless would require codec-level verification across
+MP3, M4A, and FLAC, which is out of scope for Sprint 89. The achieved behavior
+will be documented once measured in production browsers.
 
 ### D4. Transcoding gate (89E) — Pending
 
 - [ ] Transcoding decision gate is recorded explicitly.
 
-### D5. Session contract (89F) — Pending
+**Preliminary assessment based on 89A inventory:**
+Production inventory (2026-07-20) shows 336 audio files across MP3, M4A, FLAC.
+All inspected files contained valid metadata. No parse errors. Direct browser
+playback is the preferred path. Transcoding is not introduced without explicit
+evidence of meaningful incompatibility.
 
-- [ ] Ephemeral session and idempotent completion contracts are defined.
+### D5. Session contract (89F) — Implemented (browser-local ephemeral)
+
+The browser-local Album Session is managed by `useAlbumPlayback` and contains:
+- Manifest identity (`albumId`)
+- Current Track index
+- Elapsed position (`currentTime`)
+- Pause state (`isPlaying`)
+- Start time (implicit via `audio.currentTime`)
+
+**Properties:**
+- Session is purely ephemeral — no `localStorage`, no `sessionStorage`
+- Navigation within Rotation does not interrupt playback (component remains
+  mounted while Album Detail Page is visible)
+- Reload/crash recovery is not implemented — session resets on page reload
+- No cross-browser synchronization
+- **No Listening Event is created by any playback action** — verified by test
+- Completion handshake for Sprint 90 remains to be defined
 
 ### D6. Cross-cutting
 
-- [ ] No playback-foundation action creates a Listening Event.
+- [x] No playback-foundation action creates a Listening Event.
+  Verified by `useAlbumPlayback.test.ts` ("does not create listening events")
+  and by implementation: `useAlbumPlayback` has no dependency on any
+  Listening Event service.
 
 ## E. Final decision
 

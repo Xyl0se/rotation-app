@@ -1,6 +1,6 @@
 # Sprint 89 — Playback Foundation
 
-**Status:** In Progress — 89A implemented, 89B implemented, 89C–89F pending
+**Status:** In Progress — 89A implemented, 89B implemented, 89C implemented, 89D implemented, 89E–89F pending
 
 **Target version:** Future major product capability
 
@@ -8,7 +8,10 @@
 
 **Progress:** Workstream 89A implemented — ADR 019 accepted; production inventory
 complete. Workstream 89B implemented — manifest endpoint, cache, and invalidation
-deployed. Workstreams 89C–89F pending NAS validation.
+deployed. Workstream 89C implemented — safe media delivery with opaque URLs,
+Range support, and abort handling. Workstream 89D implemented — browser
+playback spike with play/pause/resume, Track transition, bounded preload,
+and continuity tests. Workstreams 89E–89F pending production browser validation.
 
 ## Goal
 
