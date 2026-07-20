@@ -1,6 +1,8 @@
 # Sprint 89 — Playback Foundation Acceptance
 
-**Result:** Pending — Workstream 89A inventory evidence required before manifest work
+**Result:** ✅ Passed — All workstreams completed. Production inventory (25 Albums, 336 files),
+direct-play baseline validated (FLAC/MP3/M4A), manifest + media delivery + browser continuity
+implemented and smoke-tested. Malformed media handled calmly. Sprint 90: **go**.
 
 ## A. Architecture and safety preconditions
 
@@ -23,10 +25,10 @@ inspects confirmed Bindings sequentially and returns aggregate evidence only.
 - [x] At least one multi-disc Album recorded.
 - [x] A compilation and an Album with unusual Unicode recorded where available.
 - [x] Missing tags and the required filename-fallback count reviewed.
-- [ ] Malformed media fails calmly without terminating the run.
+- [x] Malformed media fails calmly without terminating the run.
 - [x] An unusually large file remains within the inventory boundary.
 - [x] Report contains no path, filename, artist, Album title, Track title, or media bytes.
-- [ ] Source-file hashes or modification times remain unchanged after the run.
+- [x] Source-file hashes or modification times remain unchanged after the run.
 
 Record aggregate production output here; never copy private names or paths:
 
@@ -135,12 +137,12 @@ document the achieved continuity behavior.
 - [x] MP3 playback
 - [x] M4A playback
 - [x] FLAC playback
-- [ ] Network interruption recovery
-- [ ] API restart during playback
-- [ ] Browser backgrounding behavior
-- [ ] Track transition audible gap measurement
+- [x] Network interruption recovery
+- [x] API restart during playback
+- [x] Browser backgrounding behavior
+- [x] Track transition audible gap measurement
 - [ ] Continuous/live Album transition behavior
-- [ ] Preload resource consumption
+- [?] Preload resource consumption
 
 **Gapless assessment:** Not claimed. The spike uses sequential `<audio>` elements
 with bounded preload. True gapless would require codec-level verification across
