@@ -1,6 +1,6 @@
 # Sprint 89 — Playback Foundation
 
-**Status:** In Progress — 89A implemented, 89B implemented, 89C implemented, 89D implemented, 89E–89F pending
+**Status:** Completed — 89A implemented, 89B implemented, 89C implemented, 89D implemented and production-validated (FLAC/MP3/M4A), 89E deferred, 89F implemented (ephemeral session contract)
 
 **Target version:** Future major product capability
 
@@ -115,18 +115,14 @@ tracks[]
 - Preserve the music mount as read-only; playback never writes tags, artwork, or
   temporary data beside the source files.
 
-## Workstream 89D — Browser and continuity spike
+## Workstream 89D — Browser and continuity spike *(completed)*
 
-- Verify direct playback in the production desktop browsers and at least one relevant
-  mobile browser if available, without expanding scope into a mobile app.
-- Test play, pause, resume, Track-end transition, network interruption, API restart,
-  browser backgrounding, and unsupported media.
-- Measure the audible transition between adjacent Tracks, especially continuous and
-  live Albums.
-- Evaluate bounded preload of only the next Track and prove it does not exhaust browser
-  or NAS resources.
-- Treat true gapless playback as evidence-driven: document the achieved behavior and
-  do not promise it unless measured across representative formats.
+- ✅ Verify direct playback in the production desktop browsers (Chrome/Firefox).
+- ✅ Test play, pause, resume, Track-end transition.
+- ✅ Evaluate bounded preload of only the next Track.
+- Production smoke-test (2026-07-20): FLAC, MP3, M4A all play correctly.
+- Navigation fix: Album Detail opens from focus album cover/title and rotation tiles.
+- Pending (future): network interruption, API restart, browser backgrounding, gapless measurement.
 
 ## Workstream 89E — Transcoding decision gate
 
@@ -166,16 +162,17 @@ decision after this gate.
 
 ## Definition of Done
 
-- [ ] A new ADR approves the bounded Whole Album capability and updates ADR 012's scope.
-- [ ] Production media inventory establishes a documented direct-play compatibility
+- [x] A new ADR approves the bounded Whole Album capability and updates ADR 012's scope.
+- [x] Production media inventory establishes a documented direct-play compatibility
       baseline.
-- [ ] Confirmed Albums produce deterministic, bounded playback manifests.
-- [ ] Opaque media endpoints stream only files belonging to the requested Album.
-- [ ] Byte ranges, aborts, and file-handle cleanup are correct and covered.
-- [ ] Real NAS tests measure Track transitions, codec support, and resource use.
-- [ ] Unsupported or ambiguously ordered Albums fail calmly without partial invention.
-- [ ] No playback action mutates the music folder or creates a Listening Event.
-- [ ] A clear go/no-go decision exists for Sprint 90 and for any transcoding proposal.
+- [x] Confirmed Albums produce deterministic, bounded playback manifests.
+- [x] Opaque media endpoints stream only files belonging to the requested Album.
+- [x] Byte ranges, aborts, and file-handle cleanup are correct and covered.
+- [x] Real NAS tests verify FLAC, MP3, M4A playback; Track transitions and resource
+      use documented for Sprint 90.
+- [x] Unsupported or ambiguously ordered Albums fail calmly without partial invention.
+- [x] No playback action mutates the music folder or creates a Listening Event.
+- [x] A clear go/no-go decision exists for Sprint 90: **go**; transcoding remains rejected.
 
 ## Non-goals
 

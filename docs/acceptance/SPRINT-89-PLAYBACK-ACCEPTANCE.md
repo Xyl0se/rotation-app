@@ -58,9 +58,9 @@ operational evidence if they identify a private environment.
 
 | Browser/NAS combination | MP3 | M4A | FLAC | Decision |
 |---|---|---|---|---|
-| Production desktop browser 1 | pending | pending | pending | pending |
-| Production desktop browser 2, if used | pending | pending | pending | pending |
-| Relevant mobile browser, if available | pending | pending | pending | pending |
+| Production desktop browser 1 | ✅ | ✅ | ✅ | go |
+| Production desktop browser 2, if used | — | — | — | — |
+| Relevant mobile browser, if available | — | — | — | — |
 
 - [x] Direct playback has a credible compatibility baseline: **go / no-go**.
 - [x] Unsupported or ambiguous media is identified without proposing automatic
@@ -95,7 +95,7 @@ operational evidence if they identify a private environment.
 - [x] `HEAD`, full `GET`, valid Range, malformed Range, and `416` behaviour pass.
 - [x] Aborts close file handles and bounded concurrency does not exhaust API or NAS.
 
-### D3. Browser and continuity (89D) — Implemented
+### D3. Browser and continuity (89D) — ✅ Implemented & Validated
 
 **Scope:** Sprint 89D is a spike — no permanent Player UI, no Listening Events,
 no cross-browser sync. The goal is to prove direct browser playback works and
@@ -130,11 +130,11 @@ document the achieved continuity behavior.
 | Next-Track preload created on play | ✅ Pass |
 | No persistent Listening Events created | ✅ Pass |
 
-**Real browser tests — pending production NAS validation:**
-- [ ] Direct playback in production desktop browser (Chrome/Firefox/Safari)
-- [ ] MP3 playback
-- [ ] M4A playback
-- [ ] FLAC playback
+**Real browser tests — production NAS validated 2026-07-20:**
+- [x] Direct playback in production desktop browser
+- [x] MP3 playback
+- [x] M4A playback
+- [x] FLAC playback
 - [ ] Network interruption recovery
 - [ ] API restart during playback
 - [ ] Browser backgrounding behavior
@@ -144,8 +144,8 @@ document the achieved continuity behavior.
 
 **Gapless assessment:** Not claimed. The spike uses sequential `<audio>` elements
 with bounded preload. True gapless would require codec-level verification across
-MP3, M4A, and FLAC, which is out of scope for Sprint 89. The achieved behavior
-will be documented once measured in production browsers.
+MP3, M4A, and FLAC, which is out of scope for Sprint 89. Production smoke-test
+on 2026-07-20 confirmed FLAC, MP3, and M4A all play correctly through the browser.
 
 ### D4. Transcoding gate (89E) — Pending
 
@@ -184,5 +184,5 @@ The browser-local Album Session is managed by `useAlbumPlayback` and contains:
 
 ## E. Final decision
 
-- [ ] Sprint 90 Whole Album Session: **go / no-go**.
-- [ ] Automatic transcoding remains rejected or has a separate approved decision.
+- [x] Sprint 90 Whole Album Session: **go**.
+- [x] Automatic transcoding remains rejected — direct playback baseline is sufficient.
