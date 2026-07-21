@@ -525,3 +525,86 @@ main,
     padding-bottom: 90px;
   }
 }
+
+/* ─── Recovery Dialog ─── */
+.recovery-dialog {
+  padding: 24px;
+  max-width: 400px;
+  text-align: center;
+}
+
+.recovery-dialog__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.recovery-dialog__cover {
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.recovery-dialog__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.recovery-dialog__description {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #aaa;
+}
+
+.recovery-dialog__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recovery-dialog__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.recovery-dialog__btn--primary {
+  background: #5A7D5A;
+  color: #fff;
+}
+
+.recovery-dialog__btn--primary:hover {
+  background: #4E6E4E;
+}
+
+.recovery-dialog__btn--secondary {
+  background: #2a2a2a;
+  color: #ccc;
+}
+
+.recovery-dialog__btn--secondary:hover {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+.recovery-dialog__btn--text {
+  background: transparent;
+  color: #888;
+}
+
+.recovery-dialog__btn--text:hover {
+  color: #ccc;
+}

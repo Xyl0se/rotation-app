@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useReducer, useRef, type ReactNode } from "react"
+import { useCallback, useEffect, useReducer, useRef, useState, type ReactNode } from "react"
 import {
     createInitialContext,
     albumSessionReducer,
     getCurrentTrack,
     generateSessionId,
+    createRecoveryRecord,
+    isRecoveryRecordValid,
+    type RecoveryRecord,
 } from "../domain/album-session/albumSessionState.js"
 import {
     getPlaybackManifest,
@@ -12,23 +15,19 @@ import {
     type PlaybackManifest,
 } from "../services/api/playbackService.js"
 import { AlbumSessionContext } from "./albumSessionState.js"
+import RecoveryDialog from "../components/features/playback/RecoveryDialog.js"
+import type { RecoveryChoice } from "../components/features/playback/RecoveryDialog.js"
 
 const RECOVERY_KEY = "rotation-album-session-recovery"
 const TIME_UPDATE_THROTTLE_MS = 250
-
-interface RecoveryRecord {
-    albumId: string
-    manifest: PlaybackManifest
-    currentTrackIndex: number
-    currentTime: number
-    sessionId: string
-}
 
 function readRecovery(): RecoveryRecord | null {
     try {
         const raw = sessionStorage.getItem(RECOVERY_KEY)
         if (!raw) return null
-        return JSON.parse(raw) as RecoveryRecord
+        const parsed = JSON.parse(raw) as unknown
+        if (!isRecoveryRecordValid(parsed)) return null
+        return parsed
     } catch {
         return null
     }
@@ -53,6 +52,16 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
     const preloadAudioRef = useRef<HTMLAudioElement | null>(null)
     const lastTimeUpdateRef = useRef(0)
     const recoveryDismissedRef = useRef(false)
+    const previousStateKindRef = useRef<string | null>(null)
+
+    const [recoveryDialog, setRecoveryDialog] = useState<{
+        open: boolean
+        albumId: string
+        manifest: PlaybackManifest
+        currentTrackIndex: number
+        currentTime: number
+        sessionId: string
+    } | null>(null)
 
     const getAudio = useCallback((): HTMLAudioElement => {
         if (!audioRef.current) {
@@ -136,7 +145,7 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
                 dispatch({ type: "MANIFEST_FAILED", sessionId, error: msg })
             }
         },
-        [ctx]
+        []
     )
 
     const pause = useCallback(() => {
@@ -174,6 +183,49 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
         if (!sessionId) return
         dispatch({ type: "DISMISS_ERROR", sessionId })
     }, [ctx])
+
+    // --- Recovery dialog handler ---
+
+    const handleRecoveryChoice = useCallback(
+        (choice: RecoveryChoice, freshManifest?: PlaybackManifest) => {
+            if (!recoveryDialog) return
+
+            if (choice === "dismiss") {
+                writeRecovery(null)
+                setRecoveryDialog(null)
+                recoveryDismissedRef.current = true
+                return
+            }
+
+            const sessionId = generateSessionId()
+            const manifest = freshManifest ?? recoveryDialog.manifest
+
+            if (choice === "continue") {
+                dispatch({
+                    type: "RECOVER",
+                    sessionId,
+                    albumId: recoveryDialog.albumId,
+                    manifest,
+                    currentTrackIndex: recoveryDialog.currentTrackIndex,
+                    currentTime: recoveryDialog.currentTime,
+                })
+            } else if (choice === "restart") {
+                dispatch({
+                    type: "RECOVER",
+                    sessionId,
+                    albumId: recoveryDialog.albumId,
+                    manifest,
+                    currentTrackIndex: 0,
+                    currentTime: 0,
+                })
+            }
+
+            writeRecovery(null)
+            setRecoveryDialog(null)
+            recoveryDismissedRef.current = true
+        },
+        [recoveryDialog]
+    )
 
     // --- Audio event wiring ---
 
@@ -315,6 +367,10 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
         const state = ctx.state
         console.log(`[AlbumSession] state change: ${state.kind}`)
 
+        // Track previous state kind for transition detection
+        const previousKind = previousStateKindRef.current
+        previousStateKindRef.current = state.kind
+
         if (state.kind === "loading") {
             // Audio will be set up once manifest loads
             return
@@ -335,6 +391,10 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
                 console.log(`[AlbumSession] setting src: ${expectedSrc.split("/").pop()}, track=${track.title}`)
                 audio.src = expectedSrc
                 audio.load()
+                // Resume from recovered position on first play of this track
+                if (state.currentTime > 0) {
+                    audio.currentTime = state.currentTime
+                }
             }
 
             // Play if not already playing
@@ -356,13 +416,13 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
             preloadNextTrack(state.manifest, state.currentTrackIndex + 1)
 
             // Write recovery record
-            writeRecovery({
-                albumId: state.albumId,
-                manifest: state.manifest,
-                currentTrackIndex: state.currentTrackIndex,
-                currentTime: state.currentTime,
-                sessionId: state.sessionId,
-            })
+            writeRecovery(createRecoveryRecord(
+                state.sessionId,
+                state.albumId,
+                state.manifest,
+                state.currentTrackIndex,
+                state.currentTime
+            ))
             return
         }
 
@@ -371,13 +431,13 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
             if (!audio.paused) {
                 audio.pause()
             }
-            writeRecovery({
-                albumId: state.albumId,
-                manifest: state.manifest,
-                currentTrackIndex: state.currentTrackIndex,
-                currentTime: state.currentTime,
-                sessionId: state.sessionId,
-            })
+            writeRecovery(createRecoveryRecord(
+                state.sessionId,
+                state.albumId,
+                state.manifest,
+                state.currentTrackIndex,
+                state.currentTime
+            ))
             return
         }
 
@@ -393,6 +453,13 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
             if (!audio.paused) {
                 audio.pause()
             }
+            writeRecovery(createRecoveryRecord(
+                state.sessionId,
+                state.albumId,
+                state.manifest,
+                state.currentTrackIndex,
+                state.currentTime
+            ))
             return
         }
 
@@ -404,7 +471,11 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
 
         if (state.kind === "idle") {
             clearAudio()
-            writeRecovery(null)
+            // Only clear recovery when transitioning TO idle from a non-idle state,
+            // not on initial render where state is already idle
+            if (previousKind !== null && previousKind !== "idle") {
+                writeRecovery(null)
+            }
             return
         }
     }, [ctx.state, getAudio, clearAudio, preloadNextTrack])
@@ -413,15 +484,27 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         if (recoveryDismissedRef.current) return
+        if (recoveryDialog) return
         const recovery = readRecovery()
         if (!recovery) return
 
-        // Ask whether to continue (in a real UI this would be a dialog;
-        // for now we clear recovery to avoid auto-play issues)
-        // Workstream 90E will add the actual recovery dialog.
-        // For now, just preserve the data but do not auto-start.
-        recoveryDismissedRef.current = true
-    }, [])
+        // Only show recovery dialog when idle (no active session)
+        if (ctx.state.kind !== "idle") return
+
+        // Defer setState to avoid cascading renders
+        const timer = setTimeout(() => {
+            setRecoveryDialog({
+                open: true,
+                albumId: recovery.albumId,
+                manifest: recovery.manifest,
+                currentTrackIndex: recovery.currentTrackIndex,
+                currentTime: recovery.currentTime,
+                sessionId: recovery.sessionId,
+            })
+        }, 0)
+
+        return () => clearTimeout(timer)
+    }, [ctx.state.kind, recoveryDialog])
 
     // --- Cleanup on unmount ---
 
@@ -436,5 +519,17 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
         actions: { start, pause, resume, stop, retry, restart, dismiss },
     }
 
-    return <AlbumSessionContext.Provider value={value}>{children}</AlbumSessionContext.Provider>
+    return (
+        <AlbumSessionContext.Provider value={value}>
+            {children}
+            {recoveryDialog?.open && (
+                <RecoveryDialog
+                    open={true}
+                    albumId={recoveryDialog.albumId}
+                    manifest={recoveryDialog.manifest}
+                    onChoice={handleRecoveryChoice}
+                />
+            )}
+        </AlbumSessionContext.Provider>
+    )
 }

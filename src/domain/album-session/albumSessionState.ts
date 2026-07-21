@@ -1,6 +1,16 @@
 import type { PlaybackManifest } from "../../services/api/playbackService.js"
 import type { PlaybackTrack } from "../../../server/src/domain/playback/playbackManifest.js"
 
+export interface RecoveryRecord {
+    version: number
+    albumId: string
+    manifest: PlaybackManifest
+    currentTrackIndex: number
+    currentTime: number
+    sessionId: string
+    timestamp: number
+}
+
 export type AlbumSessionState =
     | { kind: "idle" }
     | { kind: "loading"; sessionId: string; albumId: string }
@@ -76,8 +86,14 @@ export type AlbumSessionAction =
     | { type: "STOPPED"; sessionId: string }
     | { type: "RETRY"; sessionId: string }
     | { type: "RESTART"; sessionId: string }
+    | { type: "RECOVER"; sessionId: string; albumId: string; manifest: PlaybackManifest; currentTrackIndex: number; currentTime: number }
     | { type: "COMPLETED"; sessionId: string }
     | { type: "DISMISS_ERROR"; sessionId: string }
+
+const RECOVERY_VERSION = 1
+
+/** Maximum age of a recovery record in milliseconds (24 hours) */
+const RECOVERY_MAX_AGE_MS = 24 * 60 * 60 * 1000
 
 function isStale(ctx: AlbumSessionContext, sessionId: string): boolean {
     return ctx.lastSessionId !== sessionId
@@ -388,6 +404,34 @@ export function albumSessionReducer(
             return ctx
         }
 
+        case "RECOVER": {
+            if (ctx.state.kind !== "idle") return ctx
+            // Validate that the recovered state is reasonable
+            const manifest = action.manifest
+            if (!manifest.tracks || manifest.tracks.length === 0) {
+                return ctx
+            }
+            const validTrackIndex = Math.min(
+                action.currentTrackIndex,
+                manifest.tracks.length - 1
+            )
+            return {
+                ...ctx,
+                state: {
+                    kind: "paused",
+                    sessionId: action.sessionId,
+                    albumId: action.albumId,
+                    manifest,
+                    currentTrackIndex: validTrackIndex,
+                    currentTime: Math.max(0, action.currentTime),
+                    trackDuration: manifest.tracks[validTrackIndex]?.duration ?? null,
+                },
+                lastSessionId: action.sessionId,
+                lastToggleAt: 0,
+                completedTracks: new Set(),
+            }
+        }
+
         case "DISMISS_ERROR": {
             if (isStale(ctx, action.sessionId)) return ctx
             if (
@@ -408,6 +452,76 @@ export function albumSessionReducer(
         default:
             return ctx
     }
+}
+
+export function createRecoveryRecord(
+    sessionId: string,
+    albumId: string,
+    manifest: PlaybackManifest,
+    currentTrackIndex: number,
+    currentTime: number
+): RecoveryRecord {
+    return {
+        version: RECOVERY_VERSION,
+        sessionId,
+        albumId,
+        manifest,
+        currentTrackIndex,
+        currentTime,
+        timestamp: Date.now(),
+    }
+}
+
+export function isRecoveryRecordValid(record: unknown): record is RecoveryRecord {
+    if (!record || typeof record !== "object") return false
+    const r = record as Record<string, unknown>
+
+    if (r.version !== RECOVERY_VERSION) return false
+    if (typeof r.albumId !== "string" || r.albumId.length === 0) return false
+    if (typeof r.sessionId !== "string" || r.sessionId.length === 0) return false
+    if (typeof r.timestamp !== "number") return false
+    if (Date.now() - r.timestamp > RECOVERY_MAX_AGE_MS) return false
+
+    if (
+        typeof r.currentTrackIndex !== "number" ||
+        r.currentTrackIndex < 0 ||
+        !Number.isFinite(r.currentTrackIndex)
+    ) {
+        return false
+    }
+    if (
+        typeof r.currentTime !== "number" ||
+        r.currentTime < 0 ||
+        !Number.isFinite(r.currentTime)
+    ) {
+        return false
+    }
+
+    // Validate manifest shape loosely
+    const manifest = r.manifest
+    if (!manifest || typeof manifest !== "object") return false
+    const m = manifest as Record<string, unknown>
+    if (typeof m.albumId !== "string") return false
+    if (!Array.isArray(m.tracks)) return false
+    if (m.tracks.length === 0) return false
+
+    return true
+}
+
+export function isManifestCompatible(
+    stored: PlaybackManifest,
+    fresh: PlaybackManifest
+): boolean {
+    if (stored.albumId !== fresh.albumId) return false
+    if (stored.tracks.length !== fresh.tracks.length) return false
+    // Compare track identities by opaqueTrackId and order
+    for (let i = 0; i < stored.tracks.length; i++) {
+        const a = stored.tracks[i]
+        const b = fresh.tracks[i]
+        if (!a || !b) return false
+        if (a.opaqueTrackId !== b.opaqueTrackId) return false
+    }
+    return true
 }
 
 export function getCurrentTrack(state: AlbumSessionState): PlaybackTrack | null {

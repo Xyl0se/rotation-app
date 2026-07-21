@@ -135,6 +135,15 @@ export const en = {
         loading: "Loading playback…",
     },
 
+    recoveryDialog: {
+        title: "Interrupted Session Found",
+        description: (album: string) => `Your album "${album}" was interrupted. Do you want to continue where you left off, or start from the beginning?`,
+        continue: "Continue",
+        restart: "Restart",
+        dismiss: "Dismiss",
+        manifestChanged: "The album has changed. The session will be reset.",
+    },
+
     playbackUnavailable: {
         noBinding: "No music folder linked.",
         unconfirmedBinding: "Music folder not yet confirmed.",

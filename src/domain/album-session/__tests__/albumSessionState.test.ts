@@ -4,6 +4,9 @@ import {
     albumSessionReducer,
     getCurrentTrack,
     getAlbumProgress,
+    createRecoveryRecord,
+    isRecoveryRecordValid,
+    isManifestCompatible,
     type AlbumSessionAction,
 } from "../albumSessionState.js"
 
@@ -419,7 +422,178 @@ describe("albumSessionReducer", () => {
             expect(ctx7.state.kind).toBe("loading")
         })
     })
+
+    describe("RECOVER", () => {
+        it("transitions idle -> paused with recovered state", () => {
+            const ctx = dispatch(createInitialContext(), {
+                type: "RECOVER",
+                sessionId: "recover-session",
+                albumId: "album-123",
+                manifest: mockManifest,
+                currentTrackIndex: 1,
+                currentTime: 42,
+            })
+            expect(ctx.state.kind).toBe("paused")
+            expect(ctx.state).toMatchObject({
+                sessionId: "recover-session",
+                albumId: "album-123",
+                currentTrackIndex: 1,
+                currentTime: 42,
+                trackDuration: 100,
+            })
+            expect(ctx.lastSessionId).toBe("recover-session")
+            expect(ctx.completedTracks.size).toBe(0)
+        })
+
+        it("caps track index to valid range", () => {
+            const ctx = dispatch(createInitialContext(), {
+                type: "RECOVER",
+                sessionId: "recover-session",
+                albumId: "album-123",
+                manifest: mockManifest,
+                currentTrackIndex: 99,
+                currentTime: 42,
+            })
+            expect(ctx.state).toMatchObject({
+                currentTrackIndex: 2,
+                currentTime: 42,
+            })
+        })
+
+        it("rejects negative currentTime", () => {
+            const ctx = dispatch(createInitialContext(), {
+                type: "RECOVER",
+                sessionId: "recover-session",
+                albumId: "album-123",
+                manifest: mockManifest,
+                currentTrackIndex: 0,
+                currentTime: -10,
+            })
+            expect(ctx.state).toMatchObject({
+                currentTime: 0,
+            })
+        })
+
+        it("ignores when not idle", () => {
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, {
+                type: "RECOVER",
+                sessionId: "recover-session",
+                albumId: "album-456",
+                manifest: mockManifest,
+                currentTrackIndex: 0,
+                currentTime: 0,
+            })
+            expect(ctx2.state.kind).toBe("loading")
+        })
+
+        it("ignores when manifest has no tracks", () => {
+            const ctx = dispatch(createInitialContext(), {
+                type: "RECOVER",
+                sessionId: "recover-session",
+                albumId: "album-123",
+                manifest: { ...mockManifest, tracks: [] },
+                currentTrackIndex: 0,
+                currentTime: 0,
+            })
+            expect(ctx.state.kind).toBe("idle")
+        })
+    })
 })
+
+describe("createRecoveryRecord", () => {
+    it("creates a record with version and timestamp", () => {
+        const record = createRecoveryRecord("s1", "a1", mockManifest, 1, 30)
+        expect(record.version).toBe(1)
+        expect(record.sessionId).toBe("s1")
+        expect(record.albumId).toBe("a1")
+        expect(record.currentTrackIndex).toBe(1)
+        expect(record.currentTime).toBe(30)
+        expect(record.timestamp).toBeGreaterThan(0)
+    })
+})
+
+describe("isRecoveryRecordValid", () => {
+    it("accepts a valid record", () => {
+        const record = createRecoveryRecord("s1", "a1", mockManifest, 1, 30)
+        expect(isRecoveryRecordValid(record)).toBe(true)
+    })
+
+    it("rejects null", () => {
+        expect(isRecoveryRecordValid(null)).toBe(false)
+    })
+
+    it("rejects wrong version", () => {
+        const record = { ...createRecoveryRecord("s1", "a1", mockManifest, 1, 30), version: 2 }
+        expect(isRecoveryRecordValid(record)).toBe(false)
+    })
+
+    it("rejects missing albumId", () => {
+        const record = { ...createRecoveryRecord("s1", "a1", mockManifest, 1, 30), albumId: "" }
+        expect(isRecoveryRecordValid(record)).toBe(false)
+    })
+
+    it("rejects expired record (>24h)", () => {
+        const record = createRecoveryRecord("s1", "a1", mockManifest, 1, 30)
+        const expired = { ...record, timestamp: record.timestamp - 25 * 60 * 60 * 1000 }
+        expect(isRecoveryRecordValid(expired)).toBe(false)
+    })
+
+    it("rejects negative currentTrackIndex", () => {
+        const record = { ...createRecoveryRecord("s1", "a1", mockManifest, 1, 30), currentTrackIndex: -1 }
+        expect(isRecoveryRecordValid(record)).toBe(false)
+    })
+
+    it("rejects NaN currentTime", () => {
+        const record = { ...createRecoveryRecord("s1", "a1", mockManifest, 1, 30), currentTime: NaN }
+        expect(isRecoveryRecordValid(record)).toBe(false)
+    })
+
+    it("rejects manifest without tracks", () => {
+        const record = createRecoveryRecord("s1", "a1", { ...mockManifest, tracks: [] }, 0, 0)
+        expect(isRecoveryRecordValid(record)).toBe(false)
+    })
+
+    it("rejects missing manifest", () => {
+        const record = { ...createRecoveryRecord("s1", "a1", mockManifest, 1, 30), manifest: undefined }
+        expect(isRecoveryRecordValid(record)).toBe(false)
+    })
+})
+
+describe("isManifestCompatible", () => {
+    it("returns true for identical manifests", () => {
+        expect(isManifestCompatible(mockManifest, mockManifest)).toBe(true)
+    })
+
+    it("returns false for different albumId", () => {
+        const other = { ...mockManifest, albumId: "other" }
+        expect(isManifestCompatible(mockManifest, other)).toBe(false)
+    })
+
+    it("returns false for different track count", () => {
+        const shorter = { ...mockManifest, tracks: mockManifest.tracks.slice(0, 2) }
+        expect(isManifestCompatible(mockManifest, shorter)).toBe(false)
+    })
+
+    it("returns false for different track order", () => {
+        const reordered = {
+            ...mockManifest,
+            tracks: [mockManifest.tracks[1], mockManifest.tracks[0], mockManifest.tracks[2]],
+        }
+        expect(isManifestCompatible(mockManifest, reordered)).toBe(false)
+    })
+
+    it("returns false for different opaqueTrackId", () => {
+        const changed = {
+            ...mockManifest,
+            tracks: mockManifest.tracks.map((t, i) =>
+                i === 1 ? { ...t, opaqueTrackId: "different" } : t
+            ),
+        }
+        expect(isManifestCompatible(mockManifest, changed)).toBe(false)
+    })
+})
+
 
 describe("getCurrentTrack", () => {
     it("returns current track when playing", () => {

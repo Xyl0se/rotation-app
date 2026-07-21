@@ -1,6 +1,6 @@
 # Sprint 90 — Whole Album Session
 
-**Status:** In Progress — Workstreams 90A–90D completed ✅, Workstreams 90E–90G planned
+**Status:** In Progress — Workstreams 90A–90E completed ✅, Workstreams 90F–90G planned
 
 **Target version:** Future major product capability
 
@@ -148,18 +148,28 @@ idle -> loading -> playing <-> paused
 - [x] All 345 frontend tests and 350 server tests passing; TypeScript strict; lint clean.
 - [x] Feedback iteration: compact circular play button (28px), removed from Rotation tiles, CSS import ordering fixed.
 
-## Workstream 90E — Interruption and recovery
+## Workstream 90E — Interruption and recovery ✅ Completed
 
-- Pause/resume preserves the current Track position in the active tab.
-- Internal navigation never interrupts the Session.
-- A recoverable network or Track error offers retry of the same position where the
-  browser and source permit, stop, or restart; it never silently skips ahead.
-- Define a bounded browser-local reload recovery record with Album/manifest identity,
-  Track, and position.
-- On reload, ask whether to continue the interrupted Session or restart the Album; do
-  not auto-play because browsers and user intent may prohibit it.
-- A changed or invalid manifest invalidates recovery calmly.
-- Cross-browser and cross-device position synchronization remains out of scope.
+- [x] Pause/resume preserves the current Track position in the active tab.
+- [x] Internal navigation never interrupts the Session.
+- [x] A recoverable network or Track error offers retry of the same position where the
+      browser and source permit, stop, or restart; it never silently skips ahead.
+- [x] Bounded browser-local reload recovery record with Album/manifest identity,
+      Track, and position (`RecoveryRecord` with `version`, `timestamp`, validation).
+- [x] On reload, a dialog asks whether to continue the interrupted Session or restart
+      the Album; does not auto-play because browsers and user intent may prohibit it.
+- [x] A changed or invalid manifest invalidates recovery calmly (`isManifestCompatible`
+      check on Continue; falls back to restart with fresh manifest).
+- [x] Cross-browser and cross-device position synchronization remains out of scope.
+- [x] Recovery record expires after 24 hours to prevent stale recovery offers.
+- [x] `RECOVER` action transitions `idle -> paused` with stored position; restart
+      recovers to track 0, time 0.
+- [x] `AlbumSessionProvider` writes recovery on `playing`/`paused`/`recoverable-error`,
+      clears on `stopping`/`terminal-error`/`completed`/`idle`.
+- [x] `RecoveryDialog` component with album cover, title, Continue/Restart/Dismiss
+      actions; DE/EN i18n; accessible dialog semantics.
+- [x] CSS styling for recovery dialog (dark theme, matching app aesthetics).
+- [x] 71 domain tests for recovery logic + 6 component tests for dialog.
 
 ## Workstream 90F — Listening completion and Journal
 

@@ -136,6 +136,15 @@ export const de: Translation = {
         loading: "Lade Wiedergabe…",
     },
 
+    recoveryDialog: {
+        title: "Unterbrochene Session gefunden",
+        description: (album: string) => `Dein Album „${album}“ wurde unterbrochen. Möchtest du dort weitermachen, wo du aufgehört hast, oder von vorne beginnen?`,
+        continue: "Weitermachen",
+        restart: "Neu starten",
+        dismiss: "Verwerfen",
+        manifestChanged: "Das Album hat sich geändert. Die Session wird zurückgesetzt.",
+    },
+
     playbackUnavailable: {
         noBinding: "Kein Musikordner verknüpft.",
         unconfirmedBinding: "Musikordner noch nicht bestätigt.",
