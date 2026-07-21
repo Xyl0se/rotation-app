@@ -4,7 +4,7 @@
 >
 > Rotation accompanies the relationship between person and album.
 
-Version: v0.30.0 — Sprint 87 release candidate
+Version: v0.50.0 — Whole Album Session milestone
 
 ---
 
@@ -64,8 +64,8 @@ Not optimization.
 | Done | [Sprint 87](./sprints/done/Sprint-87.md) | Local-first artwork with remote fallback | v0.30.0 | Accepted on NAS |
 | Done | [Sprint 87.1](./sprints/done/Sprint-87.1.md) | Completion and collection-essential acquisition context | v0.30.0 | Done ✅ |
 | Done | [Sprint 88](./sprints/done/Sprint-88.md) | Album Detail with persisted MusicBrainz/Wikipedia source links | Future minor | Done ✅; NAS acceptance passed |
-| 8 | [Sprint 89](./sprints/Sprint-89.md) | Safe read-only Playback Foundation and real NAS feasibility | Future major capability | Planned; architecture decision and spike first |
-| 9 | [Sprint 90](./sprints/Sprint-90.md) | Persistent Whole Album Session with Play/Pause-only philosophy | Future major capability | Planned; depends on Sprint 89 go decision |
+| Done | [Sprint 89](./sprints/done/Sprint-89.md) | Safe read-only Playback Foundation and real NAS feasibility | v0.50.0 | Done ✅ |
+| Done | [Sprint 90](./sprints/Sprint-90.md) | Persistent Whole Album Session with Play/Pause-only philosophy | v0.50.0 | Done ✅; 90F deferred |
 | 10 | [Sprint 91](./sprints/Sprint-91.md) | Unified TypeScript 6 and Node 22 development contract | Maintenance release | Planned; after current Dependabot triage |
 
 Sprint numbers express the present recommended order, not a promise to implement

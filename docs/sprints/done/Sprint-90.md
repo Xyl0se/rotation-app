@@ -1,6 +1,6 @@
 # Sprint 90 — Whole Album Session
 
-**Status:** In Progress — Workstreams 90A–90G completed ✅, Workstream 90F planned
+**Status:** Completed — Workstreams 90A–90E and 90G implemented. Workstream 90F deferred to future sprint.
 
 **Target version:** Future major product capability
 
@@ -171,7 +171,10 @@ idle -> loading -> playing <-> paused
 - [x] CSS styling for recovery dialog (dark theme, matching app aesthetics).
 - [x] 71 domain tests for recovery logic + 6 component tests for dialog.
 
-## Workstream 90F — Listening completion and Journal
+## Workstream 90F — Listening completion and Journal ⏳ Deferred
+
+**Status:** Not implemented in Sprint 90. Deferred to a future sprint when the domain
+contract for Listening Events is extended to support `album-session` as a source.
 
 - Starting, loading, pausing, retrying, stopping, or restarting does not count as a
   Listening Event.
@@ -273,11 +276,11 @@ listening instrument.
 - [x] Play/Pause is central; no Rotation UI permits Track skip or seeking. *(90B–G)*
 - [x] Whole-Album progress and Track boundaries are accurate and read-only. *(90B)*
 - [x] Pause, stop, restart, errors, and reload recovery preserve user agency. *(90A foundation + 90E recovery dialog)*
-- [ ] Final natural completion creates exactly one canonical Listening Event. *(90F)*
-- [ ] Partial, stopped, and failed Sessions create no Listening Event. *(90F)*
-- [ ] The optional Journal integrates without making completion dependent on writing. *(90F)*
+- [ ] Final natural completion creates exactly one canonical Listening Event. *(90F — deferred)*
+- [ ] Partial, stopped, and failed Sessions create no Listening Event. *(90F — deferred)*
+- [ ] The optional Journal integrates without making completion dependent on writing. *(90F — deferred)*
 - [x] Accessibility, DE/EN, browser compatibility, automated tests, and NAS acceptance
-      pass. *(ongoing — 90A–E,G complete, 90F remaining)*
+      pass. *(90A–E,G complete, 90F deferred)*
 - [x] Production use still feels like Rotation, not a generic streaming player. *(90G)*
 
 ## Non-goals

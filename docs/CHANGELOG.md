@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- **Sprint 90A — Playback Coordinator**
+## v0.50.0 — 2026-07-21
+
+- **Sprint 90A–E, G — Whole Album Session**
   - Added formal domain state-machine for Album Session lifecycle: `idle → loading →
     playing ↔ paused`, with terminal states `completed`, `recoverable-error`, and
     `terminal-error`.
