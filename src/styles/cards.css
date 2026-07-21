@@ -1131,6 +1131,14 @@
     background: var(--color-sand);
 }
 
+.player-rotation-tile-link {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 14px;
+    cursor: pointer;
+}
+
 .player-rotation-tile img,
 .player-rotation-cover {
     display: flex;
