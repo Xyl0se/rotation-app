@@ -1,6 +1,6 @@
 # Sprint 91 — Unified TypeScript Toolchain
 
-**Status:** Planned — after the current Dependabot triage
+**Status:** Done
 
 **Target version:** Future maintenance release
 
@@ -37,12 +37,12 @@ migration.
 
 ## Definition of Done
 
-- [ ] Root and Server resolve the same TypeScript 6 compiler version.
-- [ ] Root and Server Node types match the supported Node 22 runtime major.
-- [ ] No strictness or safety option is weakened for compatibility.
-- [ ] Both production builds and the complete validation suite pass.
-- [ ] Container smoke and Compose validation remain green.
-- [ ] The future TypeScript 7/Node 26 migration boundary is documented.
+- [x] Root and Server resolve the same TypeScript 6 compiler version.
+- [x] Root and Server Node types match the supported Node 22 runtime major.
+- [x] No strictness or safety option is weakened for compatibility.
+- [x] Both production builds and the complete validation suite pass.
+- [x] Container smoke and Compose validation remain green.
+- [x] The future TypeScript 7/Node 26 migration boundary is documented.
 
 ## Non-goals
 

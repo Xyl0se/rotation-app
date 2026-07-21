@@ -133,11 +133,36 @@ None of these PRs is approved merely by Sprint 85. Closing, recreating, or mergi
 GitHub PR remains an explicit maintainer action. The new configuration affects future
 Dependabot runs; existing bot branches may need to be closed/recreated.
 
+## Coordinated toolchain packages
+
+`typescript` and `@types/node` are installed independently in Root and Server. They
+must remain aligned because:
+
+- Divergent TypeScript versions cause inconsistent compiler behavior, type-check
+  failures, and broken cross-project refactors.
+- Divergent `@types/node` versions create type mismatches for shared interfaces
+  (streams, buffers, crypto) even when both containers run the same Node 22 runtime.
+
+### Synchronization rule
+
+Whenever either project needs a `typescript` or `@types/node` update, treat it as a
+**coordinated change**:
+
+1. Update both `package.json` manifests in the same commit.
+2. Regenerate both `package-lock.json` files in the same commit.
+3. Run the full validation suite (`npm run validate`) before pushing.
+4. Open one PR with a clear `build:` prefix and no product changes.
+
+Dependabot's existing grouping only covers patch/minor. Major updates for these
+packages remain isolated by default. If Dependabot proposes TypeScript 7 or Node 26
+types, defer it to a dedicated migration with the same coordinated scope.
+
 ## Monthly maintenance checklist
 
 - [ ] Review security alerts first.
 - [ ] Classify every new PR by ecosystem, dependency type, and SemVer level.
 - [ ] Reject mixed-risk groups and isolate majors.
+- [ ] Verify `typescript` and `@types/node` remain aligned if either project is touched.
 - [ ] Capture the required local, CI, container, and NAS evidence.
 - [ ] Record a rollback commit/image digest for production-affecting changes.
 - [ ] Merge one coherent update at a time and observe `main` before continuing.
