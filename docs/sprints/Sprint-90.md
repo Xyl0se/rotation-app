@@ -89,16 +89,25 @@ idle -> loading -> playing <-> paused
                   -> terminal-error
 ```
 
-## Workstream 90B — Whole-Album timeline
+## Workstream 90B — Whole-Album timeline ✅ Completed
 
-- Calculate Album progress as completed Track durations plus current Track time divided
-  by total manifest duration.
-- Position Track markers from cumulative durations, including multi-disc boundaries.
-- Render a semantic read-only progress indicator, not a disabled slider.
-- Do not attach click, drag, touch, wheel, or seek keyboard behavior.
-- Clearly identify the current Track without turning the Track list into navigation.
-- Handle unknown or corrected durations without jumping backwards or presenting false
-  precision.
+- [x] `trackTimeline.ts` domain module: `getTrackBoundaries()`, `getTrackContext()`,
+      `getElapsedAlbumTime()`, `formatAlbumTime()`, `getTotalAlbumDuration()`,
+      `isDiscBoundary()` with full test coverage (26 tests).
+- [x] `AlbumProgress` component: semantic `role="progressbar"` with `aria-valuenow`,
+      Track tick markers at cumulative positions, current-Track highlight,
+      disc-boundary distinction, elapsed/total time display. No interaction handlers.
+- [x] `AlbumSessionBand` component: persistent fixed bottom band with Album cover,
+      artist/title, current Track + "Track n of m", Play/Pause, Stop, expand/collapse,
+      and whole-Album progress. Survives all internal page transitions.
+- [x] Integrated into `App.tsx` as persistent shell component; pages receive bottom
+      padding so content is never hidden.
+- [x] Full i18n support (DE/EN) for all player controls and labels.
+- [x] CSS: dark gradient band, cyan progress fill, Track tick markers, responsive
+      mobile layout.
+- [x] 6 component tests for `AlbumProgress` covering progressbar semantics, tick
+      markers, current-Track highlight, time display, absence of clickable elements,
+      disc boundaries, and zero-duration fallback.
 
 ## Workstream 90C — Cooperative media controls
 

@@ -120,6 +120,17 @@ export const en = {
         binding: { title: "Music folder", stateLabel: "Binding", folder: "Folder", availability: "Availability", missing: "The linked folder is currently missing.", empty: "No music-folder Binding is confirmed for this Album.", states: { proposed: "Proposed", confirmed: "Confirmed", missing: "Missing" } },
     },
 
+    sessionPlayer: {
+        play: "Play",
+        pause: "Pause",
+        stop: "Stop",
+        restart: "Restart Album",
+        confirmRestart: "Are you sure you want to restart this Album from the beginning?",
+        trackOf: (current: number, total: number) => `Track ${current} of ${total}`,
+        expand: "Details",
+        collapse: "Collapse",
+    },
+
     albumSources: {
         title: "External sources",
         description: "Search only when you want to review or correct stored references. Nothing is replaced before you save.",

@@ -16,6 +16,24 @@
   - Added 45 state-machine unit tests covering every transition, guard, and edge case.
   - All 297 frontend tests and 350 server tests passing; TypeScript strict; lint clean.
 
+- **Sprint 90B — Whole-Album Timeline**
+  - Added `trackTimeline.ts` domain module with `getTrackBoundaries()`,
+    `getTrackContext()`, `getElapsedAlbumTime()`, `formatAlbumTime()`,
+    `getTotalAlbumDuration()`, and `isDiscBoundary()` for Album-wide progress
+    calculation with multi-disc support and unknown-duration fallback.
+  - Added `AlbumProgress` component: semantic read-only `progressbar` with Track tick
+    markers at cumulative positions, current-Track highlight, disc-boundary distinction,
+    and elapsed/total time display — no click, drag, touch, wheel, or seek handlers.
+  - Added `AlbumSessionBand` persistent bottom-band component with Album cover,
+    artist/title, current Track context ("Track n of m"), Play/Pause, Stop,
+    expand/collapse detail panel, and whole-Album progress. Survives all internal page
+    transitions via `App.tsx` integration.
+  - Full i18n support (DE/EN) for all player controls and labels.
+  - CSS: dark gradient band (`#1a1a1a` → `#0d0d0d`), cyan progress fill (`#5cdbff`),
+    Track tick markers, responsive mobile layout, bottom page padding.
+  - Added 26 domain tests for track timeline and 6 component tests for `AlbumProgress`.
+  - 328 frontend tests and 350 server tests passing; TypeScript strict; lint clean.
+
 - **Sprint 89B — Canonical Playback Manifest**
   - Added server-owned `GET /playback/manifest/:albumId` endpoint producing bounded,
     deterministic playback manifests for confirmed Album Bindings.

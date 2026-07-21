@@ -121,6 +121,17 @@ export const de: Translation = {
         binding: { title: "Musikordner", stateLabel: "Binding", folder: "Ordner", availability: "Verfügbarkeit", missing: "Der verknüpfte Ordner fehlt derzeit.", empty: "Für dieses Album ist kein Musikordner-Binding bestätigt.", states: { proposed: "Vorgeschlagen", confirmed: "Bestätigt", missing: "Fehlt" } },
     },
 
+    sessionPlayer: {
+        play: "Abspielen",
+        pause: "Pausieren",
+        stop: "Stop",
+        restart: "Album neu starten",
+        confirmRestart: "Möchtest du dieses Album wirklich von vorne beginnen?",
+        trackOf: (current: number, total: number) => `Track ${current} von ${total}`,
+        expand: "Details",
+        collapse: "Einklappen",
+    },
+
     albumSources: {
         title: "Externe Quellen",
         description: "Starte die Suche nur, wenn du gespeicherte Verweise prüfen oder korrigieren möchtest. Vor dem Speichern wird nichts ersetzt.",

@@ -9,6 +9,7 @@ import RotationHistoryPage from "./pages/RotationHistoryPage"
 import InsightsPage from "./pages/InsightsPage"
 import AppHeader, { type AppPage } from "./components/features/AppHeader"
 import ToastContainer from "./components/ui/Toast"
+import AlbumSessionBand from "./components/features/playback/AlbumSessionBand"
 import { useBindings } from "./hooks/useBindings"
 import { albumDetailPath, albumIdFromPath } from "./routing/albumDetailRoute"
 
@@ -84,6 +85,7 @@ function App() {
             {page === "settings" && <SettingsPage />}
             {page === "history" && <RotationHistoryPage />}
             {page === "insights" && <InsightsPage />}
+            <AlbumSessionBand />
             <ToastContainer />
         </>
     )

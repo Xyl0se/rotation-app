@@ -182,3 +182,253 @@
     border-right-color: var(--border);
   }
 }
+
+/* ─── Album Session Band ─── */
+.album-session-band {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+  border-top: 1px solid #333;
+  color: #e0e0e0;
+  padding: 8px 16px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.album-session-band__inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.album-session-band__cover {
+  flex-shrink: 0;
+}
+
+.album-session-band__cover-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.album-session-band__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.album-session-band__meta {
+  font-size: 12px;
+  color: #aaa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.album-session-band__artist {
+  font-weight: 600;
+}
+
+.album-session-band__album {
+  color: #888;
+}
+
+.album-session-band__track {
+  font-size: 12px;
+  color: #ccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.album-session-band__track-title {
+  font-weight: 500;
+}
+
+.album-session-band__track-index {
+  color: #888;
+}
+
+.album-session-band__controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.album-session-band__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 6px 10px;
+  background: #2a2a2a;
+  color: #ccc;
+  transition: background 0.15s, color 0.15s;
+}
+
+.album-session-band__btn:hover {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+.album-session-band__btn:active {
+  background: #444;
+}
+
+.album-session-band__btn--primary {
+  font-size: 16px;
+  padding: 8px 14px;
+  background: #333;
+  color: #fff;
+}
+
+.album-session-band__btn--text {
+  background: transparent;
+  color: #888;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+.album-session-band__detail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 1200px;
+  margin: 6px auto 0;
+  padding-top: 6px;
+  border-top: 1px solid #333;
+}
+
+.album-session-band__error {
+  color: #ff6b6b;
+  font-size: 12px;
+  margin: 0;
+}
+
+.album-session-band__completed {
+  color: #6bcb77;
+  font-size: 12px;
+  margin: 0;
+}
+
+/* ─── Album Progress ─── */
+.album-progress {
+  max-width: 1200px;
+  margin: 6px auto 0;
+  padding-top: 6px;
+}
+
+.album-progress__track {
+  position: relative;
+  height: 4px;
+  background: #2a2a2a;
+  border-radius: 2px;
+  overflow: visible;
+}
+
+.album-progress__fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #5cdbff;
+  border-radius: 2px;
+  transition: width 0.25s linear;
+}
+
+.album-progress__tick {
+  position: absolute;
+  top: -2px;
+  width: 2px;
+  height: 8px;
+  background: #555;
+  border-radius: 1px;
+  z-index: 2;
+}
+
+.album-progress__tick--current {
+  background: #7ee8ff;
+  height: 10px;
+  top: -3px;
+}
+
+.album-progress__tick--disc {
+  background: #888;
+  width: 3px;
+}
+
+.album-progress__time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #888;
+  font-variant-numeric: tabular-nums;
+}
+
+.album-progress__elapsed {
+  color: #ccc;
+}
+
+.album-progress__separator {
+  color: #555;
+}
+
+/* Bottom padding for pages so content isn't hidden behind the band */
+main,
+.home-page,
+.bindings-workspace,
+.export-workspace,
+.settings-page,
+.history-page,
+.insights-page {
+  padding-bottom: 100px;
+}
+
+@media (max-width: 600px) {
+  .album-session-band__inner {
+    gap: 8px;
+    padding: 0 8px;
+  }
+
+  .album-session-band__meta {
+    font-size: 11px;
+  }
+
+  .album-session-band__track {
+    font-size: 11px;
+  }
+
+  .album-session-band__btn {
+    padding: 5px 8px;
+    font-size: 13px;
+  }
+
+  .album-session-band__btn--primary {
+    padding: 7px 12px;
+    font-size: 15px;
+  }
+
+  main,
+  .home-page,
+  .bindings-workspace,
+  .export-workspace,
+  .settings-page,
+  .history-page,
+  .insights-page {
+    padding-bottom: 90px;
+  }
+}
