@@ -10,8 +10,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: var(--space-3);
-    z-index: 20;
+    padding: var(--space-3) var(--space-3) 100px;
+    z-index: 110;
 }
 
 .dialog {
