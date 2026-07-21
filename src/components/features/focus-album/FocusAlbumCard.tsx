@@ -168,20 +168,24 @@ function FocusAlbumCard({
                 </div>
 
                 <aside className="focus-album-listening" aria-label={t.focusAlbum.listenCountLabel}>
-                    <StartAlbumSessionButton
-                        albumId={album.id}
-                        albumTitle={album.title}
-                        variant="primary"
-                        compact
-                        className="listen-button"
-                    />
-                    <button
-                        className="listen-button"
-                        onClick={onLogListen}
-                        aria-label={`${t.focusAlbum.listened}: ${album.title}`}
-                    >
-                        {t.focusAlbum.listened}
-                    </button>
+                    <div className="focus-album-actions">
+                        <StartAlbumSessionButton
+                            albumId={album.id}
+                            albumTitle={album.title}
+                            variant="primary"
+                            compact
+                            className="listen-button"
+                        />
+                        <button
+                            type="button"
+                            className="listen-button listen-button--icon"
+                            onClick={onLogListen}
+                            aria-label={`${t.focusAlbum.listened}: ${album.title}`}
+                            title={t.focusAlbum.listened}
+                        >
+                            {"📝"}
+                        </button>
+                    </div>
 
                     <div className="focus-album-stats">
 

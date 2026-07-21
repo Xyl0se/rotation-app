@@ -6,12 +6,10 @@ import type { ReflectionInboxItem } from "../services/api/reflectionService"
 
 import AlbumCover from "../components/ui/AlbumCover"
 import AlbumTimeline from "../components/features/timeline/AlbumTimeline"
-import Button from "../components/ui/Button"
 import { useI18n } from "../i18n/useI18n"
 import AlbumSourceEditor from "../components/features/album-sources/AlbumSourceEditor"
 import type { AlbumSource } from "../types/album"
 import AlbumExternalSources from "../components/features/album-sources/AlbumExternalSources"
-import AlbumPlayer from "../components/features/playback/AlbumPlayer"
 import StartAlbumSessionButton from "../components/features/playback/StartAlbumSessionButton"
 
 interface AlbumDetailPageProps {
@@ -55,10 +53,25 @@ export default function AlbumDetailPage({ album, albumId, listenEvents, reflecti
                     {binding?.state === "confirmed" && (
                         <StartAlbumSessionButton albumId={albumId} albumTitle={album.title} compact />
                     )}
-                    <Button onClick={onLogListen}>{t.albumDetail.listened}</Button>
-                    <Button variant="secondary" onClick={onEdit}>{t.albumDetail.edit}</Button>
+                    <button
+                        type="button"
+                        className="album-detail-action-btn album-detail-action-btn--journal"
+                        onClick={onLogListen}
+                        aria-label={t.albumDetail.listened}
+                        title={t.albumDetail.listened}
+                    >
+                        {"📝"}
+                    </button>
+                    <button
+                        type="button"
+                        className="album-detail-action-btn album-detail-action-btn--edit"
+                        onClick={onEdit}
+                        aria-label={t.albumDetail.edit}
+                        title={t.albumDetail.edit}
+                    >
+                        {"✎"}
+                    </button>
                 </div>
-                <AlbumPlayer albumId={albumId} albumTitle={album.title} bindingConfirmed={binding?.state === "confirmed"} />
             </div>
         </header>
 

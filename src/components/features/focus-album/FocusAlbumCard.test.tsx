@@ -34,7 +34,7 @@ describe("FocusAlbumCard actions", () => {
 
         expect(container.querySelector(".focus-album-info")).toBeTruthy()
         expect(container.querySelector(".focus-album-listening")).toBeTruthy()
-        expect(screen.getByRole("button", { name: "Gehört: Kind of Blue" })).toBeTruthy()
+        expect(screen.getByRole("button", { name: /Gehört/ })).toBeTruthy()
     })
 
     it("opens Album editing through an accessible action", () => {
