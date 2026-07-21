@@ -246,17 +246,17 @@
   overflow: hidden;
 }
 
-/* Glossy acrylic reflection overlay */
+/* Glossy acrylic reflection overlay — subtle diagonal sheen across entire display */
 .album-session-band__display-glass {
   position: absolute;
   inset: 0;
   border-radius: 4px;
   pointer-events: none;
   background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.04) 35%,
-    transparent 50%
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 40%,
+    transparent 60%
   );
   z-index: 2;
 }
@@ -608,6 +608,50 @@
   width: 28px;
   height: 28px;
   display: block;
+}
+
+/* Header nav buttons — seamless, no dark box or underline */
+.app-header .app-nav button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-ink);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  transition: background var(--transition-base);
+}
+
+.app-header .app-nav button:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.app-header .app-nav button.active {
+  background: transparent;
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+/* Focus album cover button — invisible, same size as cover */
+.focus-album-cover-button {
+  display: block;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  width: 100%;
+  max-width: 240px;
+}
+
+.focus-album-cover-button .focus-album-cover {
+  box-shadow:
+    0 6px 16px rgba(43, 43, 43, .1);
+}
+
+.focus-album-cover-button:hover .focus-album-cover {
+  box-shadow:
+    0 8px 20px rgba(43, 43, 43, .14);
 }
 
 /* Screen-reader only utility */
