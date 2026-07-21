@@ -7,6 +7,16 @@ import { AlbumSessionProvider } from "../contexts/AlbumSessionProvider.tsx"
 import type { Album } from "../types/album"
 import AlbumDetailPage from "./AlbumDetailPage"
 
+vi.mock("../hooks/useBindings", () => ({
+    useBindings: () => ({
+        getBindingForLibraryAlbum: () => ({ state: "confirmed", folderExists: true }),
+        orphans: [],
+        loading: false,
+        error: null,
+        refresh: vi.fn(),
+    }),
+}))
+
 const album: Album = {
     id: "album-1",
     title: "Detailalbum",

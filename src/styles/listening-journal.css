@@ -14,7 +14,7 @@
 .listening-journal-editor textarea:focus-visible { outline:3px solid rgba(180,126,145,.28); outline-offset:2px; border-color:#b77e91; }
 .listening-journal-editor label small { justify-self:end; }
 .listening-journal-editor fieldset { margin:0; padding:0; border:0; }
-.listening-journal-editor legend { margin-bottom:9px; font-weight:650; }
+.listening-journal-editor legend { margin-bottom:9px; font-weight:650; color:#3e3540; }
 .journal-tags { display:flex; flex-wrap:wrap; gap:8px; }
 .journal-tags button { padding:8px 11px; border:1px solid #d6c1c7; border-radius:5px; background:rgba(255,255,255,.68); color:#4d4248; cursor:pointer; transition:background var(--transition-fast),border-color var(--transition-fast),box-shadow var(--transition-fast),transform var(--transition-fast); }
 .journal-tags button:hover { border-color:#b98798; background:#fff7f8; }

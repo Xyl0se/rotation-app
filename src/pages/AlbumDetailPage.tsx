@@ -12,6 +12,7 @@ import AlbumSourceEditor from "../components/features/album-sources/AlbumSourceE
 import type { AlbumSource } from "../types/album"
 import AlbumExternalSources from "../components/features/album-sources/AlbumExternalSources"
 import AlbumPlayer from "../components/features/playback/AlbumPlayer"
+import StartAlbumSessionButton from "../components/features/playback/StartAlbumSessionButton"
 
 interface AlbumDetailPageProps {
     album?: Album
@@ -49,7 +50,13 @@ export default function AlbumDetailPage({ album, albumId, listenEvents, reflecti
         <header className="album-detail-hero">
             <AlbumCover coverUrl={album.coverUrl} coverOverride={album.coverOverride} albumId={album.id} title={album.title} alt={t.common.coverOf(album.title)} className="album-detail-cover" />
             <div><p className="album-detail-kicker">{t.albumDetail.kicker}</p><h1>{album.title}</h1><p className="album-detail-artist">{album.artist}</p><p>{album.year || t.albumDetail.unknownYear}</p>{role && <span className={`album-role-label role-${album.category}`}>{role.title}</span>}
-                <div className="album-detail-actions"><Button onClick={onLogListen}>{t.albumDetail.listened}</Button><Button variant="secondary" onClick={onEdit}>{t.albumDetail.edit}</Button></div>
+                <div className="album-detail-actions">
+                    {binding?.state === "confirmed" && (
+                        <StartAlbumSessionButton albumId={albumId} albumTitle={album.title} compact />
+                    )}
+                    <Button onClick={onLogListen}>{t.albumDetail.listened}</Button>
+                    <Button variant="secondary" onClick={onEdit}>{t.albumDetail.edit}</Button>
+                </div>
                 <AlbumPlayer albumId={albumId} albumTitle={album.title} bindingConfirmed={binding?.state === "confirmed"} />
             </div>
         </header>
