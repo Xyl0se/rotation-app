@@ -150,7 +150,8 @@ export default function AlbumCover({
 
     const hue = stringToHue(title)
 
-    const showPlaceholder = (!coverUrl && !coverOverride) || hasError
+    const hasImageSource = !!(albumId || coverUrl || coverOverride)
+    const showPlaceholder = hasError || (!hasImageSource && !isLoading)
 
     if (showPlaceholder && !isLoading) {
         return (
