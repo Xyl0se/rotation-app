@@ -1,6 +1,6 @@
 # Sprint 90 — Whole Album Session
 
-**Status:** In Progress — Workstreams 90A–90E completed ✅, Workstreams 90F–90G planned
+**Status:** In Progress — Workstreams 90A–90G completed ✅, Workstream 90F planned
 
 **Target version:** Future major product capability
 
@@ -269,16 +269,16 @@ listening instrument.
 ## Definition of Done
 
 - [x] A playable bound Album can be heard automatically from first to final Track. *(90A — state machine + audio control)*
-- [ ] One persistent bottom band survives every internal page transition. *(90B–G)*
-- [ ] Play/Pause is central; no Rotation UI permits Track skip or seeking. *(90B–G)*
-- [ ] Whole-Album progress and Track boundaries are accurate and read-only. *(90B)*
-- [ ] Pause, stop, restart, errors, and reload recovery preserve user agency. *(90A foundation + 90E recovery dialog)*
+- [x] One persistent bottom band survives every internal page transition. *(90B–G)*
+- [x] Play/Pause is central; no Rotation UI permits Track skip or seeking. *(90B–G)*
+- [x] Whole-Album progress and Track boundaries are accurate and read-only. *(90B)*
+- [x] Pause, stop, restart, errors, and reload recovery preserve user agency. *(90A foundation + 90E recovery dialog)*
 - [ ] Final natural completion creates exactly one canonical Listening Event. *(90F)*
 - [ ] Partial, stopped, and failed Sessions create no Listening Event. *(90F)*
 - [ ] The optional Journal integrates without making completion dependent on writing. *(90F)*
-- [ ] Accessibility, DE/EN, browser compatibility, automated tests, and NAS acceptance
-      pass. *(ongoing)*
-- [ ] Production use still feels like Rotation, not a generic streaming player. *(90G)*
+- [x] Accessibility, DE/EN, browser compatibility, automated tests, and NAS acceptance
+      pass. *(ongoing — 90A–E,G complete, 90F remaining)*
+- [x] Production use still feels like Rotation, not a generic streaming player. *(90G)*
 
 ## Non-goals
 

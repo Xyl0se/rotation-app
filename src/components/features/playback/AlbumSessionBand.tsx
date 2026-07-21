@@ -128,139 +128,150 @@ export default function AlbumSessionBand() {
                 {statusText}
             </div>
 
-            <div className="album-session-band__inner">
-                {/* Album cover */}
-                <div className="album-session-band__cover">
-                    <AlbumCover
-                        albumId={manifest.albumId}
-                        title={manifest.title}
-                        alt={t.common.coverOf(manifest.title)}
-                        className="album-session-band__cover-img"
-                        lazy={false}
-                    />
-                </div>
+            <div className="album-session-band__chassis">
+                {/* Four corner screw heads */}
+                <div className="album-session-band__screw album-session-band__screw--tl" aria-hidden="true" />
+                <div className="album-session-band__screw album-session-band__screw--tr" aria-hidden="true" />
+                <div className="album-session-band__screw album-session-band__screw--bl" aria-hidden="true" />
+                <div className="album-session-band__screw album-session-band__screw--br" aria-hidden="true" />
 
-                {/* Info column */}
-                <div className="album-session-band__info">
-                    <div className="album-session-band__meta">
-                        <span className="album-session-band__artist">{manifest.artist}</span>
-                        <span className="album-session-band__album" aria-hidden="true">
-                            {" — "}
-                        </span>
-                        <span className="album-session-band__album">{manifest.title}</span>
+                <div className="album-session-band__inner">
+                    {/* Album cover */}
+                    <div className="album-session-band__cover">
+                        <AlbumCover
+                            albumId={manifest.albumId}
+                            title={manifest.title}
+                            alt={t.common.coverOf(manifest.title)}
+                            className="album-session-band__cover-img"
+                            lazy={false}
+                        />
                     </div>
-                    {trackContext && (
-                        <div className="album-session-band__track">
-                            <span className="album-session-band__track-title">{trackContext.title}</span>
-                            <span className="album-session-band__track-index" aria-hidden="true">
-                                {" · "}
-                                {t.sessionPlayer.trackOf(trackContext.current, trackContext.total)}
-                            </span>
+
+                    {/* Display window with glossy overlay */}
+                    <div className="album-session-band__display-window">
+                        <div className="album-session-band__display-glass" aria-hidden="true" />
+                        <div className="album-session-band__info">
+                            <div className="album-session-band__meta">
+                                <span className="album-session-band__artist">{manifest.artist}</span>
+                                <span className="album-session-band__album" aria-hidden="true">
+                                    {" — "}
+                                </span>
+                                <span className="album-session-band__album">{manifest.title}</span>
+                            </div>
+                            {trackContext && (
+                                <div className="album-session-band__track">
+                                    <span className="album-session-band__track-title">{trackContext.title}</span>
+                                    <span className="album-session-band__track-index" aria-hidden="true">
+                                        {" · "}
+                                        {t.sessionPlayer.trackOf(trackContext.current, trackContext.total)}
+                                    </span>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
+                    </div>
 
-                {/* Controls */}
-                <div className="album-session-band__controls">
-                    <button
-                        type="button"
-                        className="album-session-band__btn album-session-band__btn--primary"
-                        onClick={handlePlayPause}
-                        aria-label={isPlaying ? t.sessionPlayer.pause : t.sessionPlayer.play}
-                        aria-pressed={isPlaying}
-                    >
-                        {isPlaying ? "⏸" : "▶"}
-                    </button>
-
-                    <button
-                        type="button"
-                        className="album-session-band__btn album-session-band__btn--secondary"
-                        onClick={handleStop}
-                        aria-label={t.sessionPlayer.stop}
-                    >
-                        {"⏹"}
-                    </button>
-
-                    <button
-                        type="button"
-                        className="album-session-band__btn album-session-band__btn--secondary"
-                        onClick={() => setExpanded((e) => !e)}
-                        aria-label={expanded ? t.sessionPlayer.collapse : t.sessionPlayer.expand}
-                        aria-expanded={expanded}
-                    >
-                        {expanded ? "▲" : "▼"}
-                    </button>
-                </div>
-            </div>
-
-            {/* Expanded detail area */}
-            {expanded && (
-                <div className="album-session-band__detail">
-                    {isRecoverableError && (
-                        <p className="album-session-band__error" role="alert">
-                            {(state as { error: string }).error}
-                        </p>
-                    )}
-
-                    {isCompleted && <p className="album-session-band__completed">{t.sessionPlayer.albumCompleted}</p>}
-
-                    {isCompleted && completedEvent && !showJournal && (
+                    {/* Controls */}
+                    <div className="album-session-band__controls">
                         <button
                             type="button"
-                            className="album-session-band__btn album-session-band__btn--secondary"
-                            onClick={() => setShowJournal(true)}
+                            className="album-session-band__btn album-session-band__btn--primary album-session-band__btn--physical"
+                            onClick={handlePlayPause}
+                            aria-label={isPlaying ? t.sessionPlayer.pause : t.sessionPlayer.play}
+                            aria-pressed={isPlaying}
                         >
-                            {t.sessionPlayer.writeInJournal}
+                            {isPlaying ? "⏸" : "▶"}
                         </button>
-                    )}
 
-                    {/* Restart button/confirmation - hidden when journal offer is active */}
-                    {!(isCompleted && completedEvent && !showJournal) && (
-                        showRestartConfirm ? (
-                            <div role="alertdialog" aria-labelledby="restart-confirm-title" className="album-session-band__confirm">
-                                <p id="restart-confirm-title" className="album-session-band__confirm-text">
-                                    {t.sessionPlayer.confirmRestart}
-                                </p>
-                                <div className="album-session-band__confirm-actions">
-                                    <button
-                                        type="button"
-                                        className="album-session-band__btn album-session-band__btn--secondary"
-                                        onClick={handleRestart}
-                                        aria-label={t.sessionPlayer.restart}
-                                    >
-                                        {t.sessionPlayer.restart}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="album-session-band__btn album-session-band__btn--text"
-                                        onClick={() => setShowRestartConfirm(false)}
-                                    >
-                                        {t.common.cancel}
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
+                        <button
+                            type="button"
+                            className="album-session-band__btn album-session-band__btn--secondary album-session-band__btn--physical"
+                            onClick={handleStop}
+                            aria-label={t.sessionPlayer.stop}
+                        >
+                            {"⏹"}
+                        </button>
+
+                        <button
+                            type="button"
+                            className="album-session-band__btn album-session-band__btn--secondary album-session-band__btn--physical"
+                            onClick={() => setExpanded((e) => !e)}
+                            aria-label={expanded ? t.sessionPlayer.collapse : t.sessionPlayer.expand}
+                            aria-expanded={expanded}
+                        >
+                            {expanded ? "▲" : "▼"}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Expanded detail area */}
+                {expanded && (
+                    <div className="album-session-band__detail">
+                        {isRecoverableError && (
+                            <p className="album-session-band__error" role="alert">
+                                {(state as { error: string }).error}
+                            </p>
+                        )}
+
+                        {isCompleted && <p className="album-session-band__completed">{t.sessionPlayer.albumCompleted}</p>}
+
+                        {isCompleted && completedEvent && !showJournal && (
                             <button
                                 type="button"
-                                className="album-session-band__btn album-session-band__btn--secondary"
-                                onClick={handleRestart}
-                                aria-label={t.sessionPlayer.restart}
+                                className="album-session-band__btn album-session-band__btn--secondary album-session-band__btn--physical"
+                                onClick={() => setShowJournal(true)}
                             >
-                                {t.sessionPlayer.restart}
+                                {t.sessionPlayer.writeInJournal}
                             </button>
-                        )
-                    )}
-                </div>
-            )}
+                        )}
 
-            {/* Whole-album progress */}
-            <AlbumProgress
-                manifest={manifest}
-                currentTrackIndex={currentTrackIndex}
-                currentTime={currentTime}
-                trackDuration={trackDuration}
-                albumProgress={albumProgress}
-            />
+                        {/* Restart button/confirmation - hidden when journal offer is active */}
+                        {!(isCompleted && completedEvent && !showJournal) && (
+                            showRestartConfirm ? (
+                                <div role="alertdialog" aria-labelledby="restart-confirm-title" className="album-session-band__confirm">
+                                    <p id="restart-confirm-title" className="album-session-band__confirm-text">
+                                        {t.sessionPlayer.confirmRestart}
+                                    </p>
+                                    <div className="album-session-band__confirm-actions">
+                                        <button
+                                            type="button"
+                                            className="album-session-band__btn album-session-band__btn--secondary album-session-band__btn--physical"
+                                            onClick={handleRestart}
+                                            aria-label={t.sessionPlayer.restart}
+                                        >
+                                            {t.sessionPlayer.restart}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="album-session-band__btn album-session-band__btn--text"
+                                            onClick={() => setShowRestartConfirm(false)}
+                                        >
+                                            {t.common.cancel}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="album-session-band__btn album-session-band__btn--secondary album-session-band__btn--physical"
+                                    onClick={handleRestart}
+                                    aria-label={t.sessionPlayer.restart}
+                                >
+                                    {t.sessionPlayer.restart}
+                                </button>
+                            )
+                        )}
+                    </div>
+                )}
+
+                {/* Whole-album progress */}
+                <AlbumProgress
+                    manifest={manifest}
+                    currentTrackIndex={currentTrackIndex}
+                    currentTime={currentTime}
+                    trackDuration={trackDuration}
+                    albumProgress={albumProgress}
+                />
+            </div>
 
             {/* Listening Journal Editor overlay */}
             {showJournal && completedEvent && journalAlbum && (

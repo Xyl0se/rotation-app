@@ -190,11 +190,82 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
-  border-top: 1px solid #333;
-  color: #e0e0e0;
+  font-family: 'Doto', monospace;
+  color: #5cdbff;
   padding: 8px 16px;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Chassis: dark matte-black housing with gradient and bevel depth */
+.album-session-band__chassis {
+  position: relative;
+  background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+  border-radius: 12px 12px 0 0;
+  box-shadow:
+    0 -4px 0 #0a0a0a,
+    0 -1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 -6px 12px rgba(0, 0, 0, 0.6);
+  padding: 10px 14px 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Screw heads at four corners */
+.album-session-band__screw {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #444, #222);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  z-index: 2;
+}
+
+.album-session-band__screw::before,
+.album-session-band__screw::after {
+  content: '';
+  position: absolute;
+  background: #111;
+  border-radius: 0.5px;
+}
+
+/* Cross slot: horizontal line */
+.album-session-band__screw::before {
+  width: 4px;
+  height: 1px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Cross slot: vertical line */
+.album-session-band__screw::after {
+  width: 1px;
+  height: 4px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.album-session-band__screw--tl {
+  top: 6px;
+  left: 6px;
+}
+
+.album-session-band__screw--tr {
+  top: 6px;
+  right: 6px;
+}
+
+.album-session-band__screw--bl {
+  bottom: 6px;
+  left: 6px;
+}
+
+.album-session-band__screw--br {
+  bottom: 6px;
+  right: 6px;
 }
 
 .album-session-band__inner {
@@ -203,6 +274,8 @@
   gap: 12px;
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .album-session-band__cover {
@@ -214,84 +287,168 @@
   height: 40px;
   border-radius: 4px;
   object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Display window: recessed panel with glossy glass overlay */
+.album-session-band__display-window {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  background: #0a0a0a;
+  border-radius: 6px;
+  padding: 6px 10px;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+/* Glossy acrylic reflection overlay */
+.album-session-band__display-glass {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  pointer-events: none;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 35%,
+    transparent 50%
+  );
+  z-index: 2;
 }
 
 .album-session-band__info {
-  flex: 1;
-  min-width: 0;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 .album-session-band__meta {
-  font-size: 12px;
-  color: #aaa;
+  font-size: 13px;
+  color: #3ba8c4;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 0 4px rgba(92, 219, 255, 0.25);
 }
 
 .album-session-band__artist {
-  font-weight: 600;
+  font-weight: 700;
+  color: #3ba8c4;
 }
 
 .album-session-band__album {
-  color: #888;
+  color: #2a8aa6;
 }
 
 .album-session-band__track {
-  font-size: 12px;
-  color: #ccc;
+  font-size: 13px;
+  color: #5cdbff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 0 6px rgba(92, 219, 255, 0.45), 0 0 12px rgba(92, 219, 255, 0.2);
 }
 
 .album-session-band__track-title {
-  font-weight: 500;
+  font-weight: 700;
+  color: #7ee8ff;
 }
 
 .album-session-band__track-index {
-  color: #888;
+  color: #3ba8c4;
+  text-shadow: 0 0 3px rgba(92, 219, 255, 0.2);
 }
 
 .album-session-band__controls {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
+/* Base button styles */
 .album-session-band__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  font-family: 'Doto', monospace;
   font-size: 14px;
   line-height: 1;
   padding: 6px 10px;
   background: #2a2a2a;
   color: #ccc;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.1s, box-shadow 0.1s, transform 0.05s;
 }
 
 .album-session-band__btn:hover {
-  background: #3a3a3a;
+  background: #333;
   color: #fff;
 }
 
 .album-session-band__btn:active {
-  background: #444;
+  background: #3a3a3a;
+}
+
+/* Physical push-button look with bevel shadow */
+.album-session-band__btn--physical {
+  background: linear-gradient(to bottom, #3a3a3a, #2a2a2a);
+  box-shadow:
+    0 2px 0 #1a1a1a,
+    0 3px 4px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #ccc;
+}
+
+.album-session-band__btn--physical:hover {
+  background: linear-gradient(to bottom, #444, #333);
+  color: #e0e0e0;
+}
+
+/* Active / pressed state: inset shadow */
+.album-session-band__btn--physical:active {
+  background: linear-gradient(to bottom, #2a2a2a, #333);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.04);
+  transform: translateY(1px);
 }
 
 .album-session-band__btn--primary {
   font-size: 16px;
   padding: 8px 14px;
-  background: #333;
   color: #fff;
+}
+
+.album-session-band__btn--primary.album-session-band__btn--physical {
+  background: linear-gradient(to bottom, #4a4a4a, #3a3a3a);
+  box-shadow:
+    0 2px 0 #222,
+    0 3px 5px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.album-session-band__btn--primary.album-session-band__btn--physical:hover {
+  background: linear-gradient(to bottom, #555, #444);
+}
+
+.album-session-band__btn--primary.album-session-band__btn--physical:active {
+  background: linear-gradient(to bottom, #3a3a3a, #444);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.album-session-band__btn--secondary {
+  font-size: 13px;
+  padding: 5px 9px;
 }
 
 .album-session-band__btn--text {
@@ -299,6 +456,11 @@
   color: #888;
   font-size: 12px;
   padding: 4px 8px;
+  box-shadow: none;
+}
+
+.album-session-band__btn--text:hover {
+  color: #ccc;
 }
 
 .album-session-band__detail {
@@ -306,36 +468,41 @@
   align-items: center;
   gap: 8px;
   max-width: 1200px;
-  margin: 6px auto 0;
-  padding-top: 6px;
-  border-top: 1px solid #333;
+  margin: 8px auto 0;
+  padding-top: 8px;
+  border-top: 1px solid #222;
 }
 
 .album-session-band__error {
   color: #ff6b6b;
   font-size: 12px;
   margin: 0;
+  text-shadow: 0 0 4px rgba(255, 107, 107, 0.3);
 }
 
 .album-session-band__completed {
   color: #6bcb77;
   font-size: 12px;
   margin: 0;
+  text-shadow: 0 0 4px rgba(107, 203, 119, 0.3);
 }
 
 /* ─── Album Progress ─── */
 .album-progress {
   max-width: 1200px;
-  margin: 6px auto 0;
+  margin: 8px auto 0;
   padding-top: 6px;
 }
 
 .album-progress__track {
   position: relative;
-  height: 4px;
-  background: #2a2a2a;
-  border-radius: 2px;
+  height: 6px;
+  background: #0a0a0a;
+  border-radius: 3px;
   overflow: visible;
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .album-progress__fill {
@@ -344,7 +511,8 @@
   left: 0;
   height: 100%;
   background: #5cdbff;
-  border-radius: 2px;
+  border-radius: 3px;
+  box-shadow: 0 0 6px rgba(92, 219, 255, 0.4), 0 0 12px rgba(92, 219, 255, 0.15);
   transition: width 0.25s linear;
 }
 
@@ -358,20 +526,21 @@
   position: absolute;
   top: -2px;
   width: 2px;
-  height: 8px;
-  background: #555;
+  height: 10px;
+  background: #444;
   border-radius: 1px;
   z-index: 2;
 }
 
 .album-progress__tick--current {
   background: #7ee8ff;
-  height: 10px;
+  height: 12px;
   top: -3px;
+  box-shadow: 0 0 4px rgba(126, 232, 255, 0.5);
 }
 
 .album-progress__tick--disc {
-  background: #888;
+  background: #666;
   width: 3px;
 }
 
@@ -379,18 +548,25 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-top: 4px;
-  font-size: 11px;
-  color: #888;
+  margin-top: 6px;
+  font-size: 12px;
+  font-family: 'Doto', monospace;
+  color: #3ba8c4;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 3px rgba(92, 219, 255, 0.2);
 }
 
 .album-progress__elapsed {
-  color: #ccc;
+  color: #5cdbff;
+  text-shadow: 0 0 4px rgba(92, 219, 255, 0.3);
 }
 
 .album-progress__separator {
-  color: #555;
+  color: #333;
+}
+
+.album-progress__total {
+  color: #3ba8c4;
 }
 
 /* ─── Album Session Entry Button (compact inline play control) ─── */
@@ -482,7 +658,7 @@ main,
 .insights-page,
 .album-detail,
 .welcome {
-  padding-bottom: 100px;
+  padding-bottom: 120px;
 }
 
 @media (max-width: 600px) {
@@ -509,6 +685,10 @@ main,
     font-size: 15px;
   }
 
+  .album-session-band__chassis {
+    padding: 8px 10px 6px;
+  }
+
   main,
   .home-page,
   .bindings-page,
@@ -522,7 +702,7 @@ main,
   .insights-page,
   .album-detail,
   .welcome {
-    padding-bottom: 90px;
+    padding-bottom: 110px;
   }
 }
 
