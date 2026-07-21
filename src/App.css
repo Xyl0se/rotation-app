@@ -429,11 +429,17 @@
 /* Bottom padding for pages so content isn't hidden behind the band */
 main,
 .home-page,
+.bindings-page,
 .bindings-workspace,
+.export-page,
 .export-workspace,
 .settings-page,
+.settings-workspace,
+.rotation-history,
 .history-page,
-.insights-page {
+.insights-page,
+.album-detail,
+.welcome {
   padding-bottom: 100px;
 }
 
@@ -463,11 +469,17 @@ main,
 
   main,
   .home-page,
+  .bindings-page,
   .bindings-workspace,
+  .export-page,
   .export-workspace,
   .settings-page,
+  .settings-workspace,
+  .rotation-history,
   .history-page,
-  .insights-page {
+  .insights-page,
+  .album-detail,
+  .welcome {
     padding-bottom: 90px;
   }
 }
