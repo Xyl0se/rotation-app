@@ -57,6 +57,7 @@ describe("AlbumSessionBand accessibility", () => {
         retry: vi.fn(),
         restart: vi.fn(),
         dismiss: vi.fn(),
+        dismissCompletedEvent: vi.fn(),
     }
 
     beforeEach(() => {
@@ -78,6 +79,7 @@ describe("AlbumSessionBand accessibility", () => {
                 trackDuration: 180,
                 sessionId: "s1",
             },
+            completedEvent: null,
             actions: mockActions,
         })
 
@@ -97,6 +99,7 @@ describe("AlbumSessionBand accessibility", () => {
                 trackDuration: 180,
                 sessionId: "s1",
             },
+            completedEvent: null,
             actions: mockActions,
         })
 
@@ -115,6 +118,7 @@ describe("AlbumSessionBand accessibility", () => {
                 trackDuration: 180,
                 sessionId: "s1",
             },
+            completedEvent: null,
             actions: mockActions,
         })
 
@@ -133,6 +137,7 @@ describe("AlbumSessionBand accessibility", () => {
                 trackDuration: 180,
                 sessionId: "s1",
             },
+            completedEvent: null,
             actions: mockActions,
         })
 
@@ -155,6 +160,7 @@ describe("AlbumSessionBand accessibility", () => {
                 sessionId: "s1",
                 error: "Network timeout",
             },
+            completedEvent: null,
             actions: mockActions,
         })
 
@@ -176,6 +182,7 @@ describe("AlbumSessionBand accessibility", () => {
                 trackDuration: 180,
                 sessionId: "s1",
             },
+            completedEvent: null,
             actions: mockActions,
         })
 
@@ -204,6 +211,7 @@ describe("AlbumSessionBand accessibility", () => {
                 trackDuration: 180,
                 sessionId: "s1",
             },
+            completedEvent: null,
             actions: mockActions,
         })
 
@@ -220,6 +228,7 @@ describe("AlbumSessionBand accessibility", () => {
                 manifest: makeManifest(),
                 sessionId: "s1",
             },
+            completedEvent: null,
             actions: mockActions,
         })
 
@@ -233,9 +242,90 @@ describe("AlbumSessionBand accessibility", () => {
     it("is not rendered when idle", () => {
         const { container } = renderBand({
             state: { kind: "idle" },
+            completedEvent: null,
             actions: mockActions,
         })
 
         expect(container.firstChild).toBeNull()
+    })
+
+    it("shows 'Write in Journal' button when completedEvent is present", () => {
+        renderBand({
+            state: {
+                kind: "completed",
+                albumId: "album-1",
+                manifest: makeManifest(),
+                sessionId: "s1",
+            },
+            completedEvent: {
+                id: "event-123",
+                albumId: "album-1",
+                listenedAt: "2026-01-01T12:00:00.000Z",
+            },
+            actions: mockActions,
+        })
+
+        const expandBtn = screen.getByRole("button", { name: /Details/i })
+        fireEvent.click(expandBtn)
+
+        expect(screen.getByRole("button", { name: /Write in Journal/i })).toBeTruthy()
+    })
+
+    it("does not show 'Write in Journal' button without completedEvent", () => {
+        renderBand({
+            state: {
+                kind: "completed",
+                albumId: "album-1",
+                manifest: makeManifest(),
+                sessionId: "s1",
+            },
+            completedEvent: null,
+            actions: mockActions,
+        })
+
+        const expandBtn = screen.getByRole("button", { name: /Details/i })
+        fireEvent.click(expandBtn)
+
+        expect(screen.queryByRole("button", { name: /Write in Journal/i })).toBeNull()
+    })
+
+    it("does not show restart button when completed (journal offer shown instead)", () => {
+        renderBand({
+            state: {
+                kind: "completed",
+                albumId: "album-1",
+                manifest: makeManifest(),
+                sessionId: "s1",
+            },
+            completedEvent: {
+                id: "event-123",
+                albumId: "album-1",
+                listenedAt: "2026-01-01T12:00:00.000Z",
+            },
+            actions: mockActions,
+        })
+
+        const expandBtn = screen.getByRole("button", { name: /Details/i })
+        fireEvent.click(expandBtn)
+
+        expect(screen.queryByRole("button", { name: /Restart Album/i })).toBeNull()
+    })
+
+    it("shows restart button in completed state when journal was dismissed", () => {
+        renderBand({
+            state: {
+                kind: "completed",
+                albumId: "album-1",
+                manifest: makeManifest(),
+                sessionId: "s1",
+            },
+            completedEvent: null,
+            actions: mockActions,
+        })
+
+        const expandBtn = screen.getByRole("button", { name: /Details/i })
+        fireEvent.click(expandBtn)
+
+        expect(screen.getByRole("button", { name: /Restart Album/i })).toBeTruthy()
     })
 })

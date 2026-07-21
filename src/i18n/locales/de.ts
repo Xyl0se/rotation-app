@@ -134,6 +134,7 @@ export const de: Translation = {
         errorOccurred: "Wiedergabefehler",
         albumCompleted: "Album beendet",
         loading: "Lade Wiedergabe…",
+        writeInJournal: "Im Tagebuch schreiben",
     },
 
     recoveryDialog: {

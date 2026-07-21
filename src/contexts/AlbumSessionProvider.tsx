@@ -17,6 +17,9 @@ import {
 import { AlbumSessionContext } from "./albumSessionState.js"
 import RecoveryDialog from "../components/features/playback/RecoveryDialog.js"
 import type { RecoveryChoice } from "../components/features/playback/RecoveryDialog.js"
+import type { ListenEvent } from "../domain/listening/listenEvents.js"
+import { createListenEvent } from "../services/api/rotationStateService.js"
+import { generateUUID } from "../utils/uuid.js"
 
 const RECOVERY_KEY = "rotation-album-session-recovery"
 const TIME_UPDATE_THROTTLE_MS = 250
@@ -53,6 +56,9 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
     const lastTimeUpdateRef = useRef(0)
     const recoveryDismissedRef = useRef(false)
     const previousStateKindRef = useRef<string | null>(null)
+    const recordedCompletionsRef = useRef<Set<string>>(new Set())
+
+    const [completedEvent, setCompletedEvent] = useState<ListenEvent | null>(null)
 
     const [recoveryDialog, setRecoveryDialog] = useState<{
         open: boolean
@@ -183,6 +189,10 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
         if (!sessionId) return
         dispatch({ type: "DISMISS_ERROR", sessionId })
     }, [ctx])
+
+    const dismissCompletedEvent = useCallback(() => {
+        setCompletedEvent(null)
+    }, [])
 
     // --- Recovery dialog handler ---
 
@@ -361,7 +371,7 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
         }
     }, [ctx.state, resume, pause])
 
-    // --- React to state changes for audio control ---
+    // --- React to state changes for audio control and completion recording ---
 
     useEffect(() => {
         const state = ctx.state
@@ -480,6 +490,33 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
         }
     }, [ctx.state, getAudio, clearAudio, preloadNextTrack])
 
+    // --- Record listening event on completion ---
+    useEffect(() => {
+        const state = ctx.state
+        if (state.kind !== "completed") return
+        if (recordedCompletionsRef.current.has(state.sessionId)) return
+
+        recordedCompletionsRef.current.add(state.sessionId)
+
+        const event: ListenEvent = {
+            id: generateUUID(),
+            albumId: state.albumId,
+            listenedAt: new Date().toISOString(),
+        }
+
+        createListenEvent(event)
+            .then(confirmed => {
+                console.log(`[AlbumSession] Listening event recorded: ${confirmed.id}`)
+                setCompletedEvent(confirmed)
+            })
+            .catch((err: unknown) => {
+                const msg = err instanceof Error ? err.message : "Unknown error"
+                console.error(`[AlbumSession] Failed to record listening event: ${msg}`)
+                // Store the unconfirmed event anyway so the user can still journal
+                setCompletedEvent(event)
+            })
+    }, [ctx.state])
+
     // --- Reload recovery ---
 
     useEffect(() => {
@@ -516,7 +553,8 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
 
     const value = {
         state: ctx.state,
-        actions: { start, pause, resume, stop, retry, restart, dismiss },
+        completedEvent,
+        actions: { start, pause, resume, stop, retry, restart, dismiss, dismissCompletedEvent },
     }
 
     return (

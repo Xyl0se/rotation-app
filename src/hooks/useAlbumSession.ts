@@ -9,7 +9,7 @@ export function useAlbumSession() {
         throw new Error("useAlbumSession must be used within an AlbumSessionProvider")
     }
 
-    const { state, actions } = value
+    const { state, completedEvent, actions } = value
 
     const currentTrack = useMemo(() => getCurrentTrack(state), [state])
 
@@ -19,6 +19,7 @@ export function useAlbumSession() {
         state,
         currentTrack,
         albumProgress,
+        completedEvent,
         ...actions,
     }
 }

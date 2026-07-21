@@ -133,6 +133,7 @@ export const en = {
         errorOccurred: "Playback error",
         albumCompleted: "Album completed",
         loading: "Loading playback…",
+        writeInJournal: "Write in Journal",
     },
 
     recoveryDialog: {

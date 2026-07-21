@@ -1,5 +1,6 @@
 import { createContext } from "react"
 import type { AlbumSessionState } from "../domain/album-session/albumSessionState.js"
+import type { ListenEvent } from "../domain/listening/listenEvents.js"
 
 export interface AlbumSessionActions {
     start: (albumId: string) => void
@@ -9,10 +10,12 @@ export interface AlbumSessionActions {
     retry: () => void
     restart: () => void
     dismiss: () => void
+    dismissCompletedEvent: () => void
 }
 
 export interface AlbumSessionContextValue {
     state: AlbumSessionState
+    completedEvent: ListenEvent | null
     actions: AlbumSessionActions
 }
 

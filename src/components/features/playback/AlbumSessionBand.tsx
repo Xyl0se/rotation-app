@@ -4,12 +4,16 @@ import { useAlbumSession } from "../../../hooks/useAlbumSession.js"
 import { getTrackContext } from "../../../domain/album-session/trackTimeline.js"
 import AlbumProgress from "./AlbumProgress.js"
 import AlbumCover from "../../ui/AlbumCover.js"
+import ListeningJournalEditor from "../listening/ListeningJournalEditor.js"
+import { saveListeningJournal, deleteListeningJournal } from "../../../services/api/rotationStateService.js"
+import type { Album } from "../../../types/album.js"
 
 export default function AlbumSessionBand() {
     const { t } = useI18n()
-    const { state, pause, resume, stop, restart, albumProgress } = useAlbumSession()
+    const { state, pause, resume, stop, restart, albumProgress, completedEvent, dismissCompletedEvent } = useAlbumSession()
     const [expanded, setExpanded] = useState(false)
     const [showRestartConfirm, setShowRestartConfirm] = useState(false)
+    const [showJournal, setShowJournal] = useState(false)
 
     // Band is only visible when there's an active session
     const isVisible =
@@ -61,6 +65,7 @@ export default function AlbumSessionBand() {
         stop()
         setExpanded(false)
         setShowRestartConfirm(false)
+        setShowJournal(false)
     }
 
     function handleRestart() {
@@ -71,6 +76,42 @@ export default function AlbumSessionBand() {
         restart()
         setShowRestartConfirm(false)
     }
+
+    function handleDismissJournal() {
+        setShowJournal(false)
+        dismissCompletedEvent()
+    }
+
+    async function handleSaveJournal(id: string, draft: { note: string; moodTags: string[]; contextTags: string[] }): Promise<boolean> {
+        const result = await saveListeningJournal(id, {
+            note: draft.note,
+            moodTags: draft.moodTags as ("calm" | "energized" | "melancholic" | "curious" | "nostalgic")[],
+            contextTags: draft.contextTags as ("focused" | "background" | "on-the-go" | "evening" | "shared")[],
+        })
+        return result !== null
+    }
+
+    async function handleDeleteJournal(id: string): Promise<boolean> {
+        try {
+            await deleteListeningJournal(id)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    // Build a minimal Album from manifest data for the journal editor
+    const journalAlbum: Album | undefined = completedEvent
+        ? {
+            id: manifest.albumId,
+            title: manifest.title,
+            artist: manifest.artist,
+            year: "",
+            roleHistory: [],
+            listenCount: 0,
+            lastListened: null,
+        }
+        : undefined
 
     // Status announcement for screen readers
     const statusText = (() => {
@@ -163,40 +204,51 @@ export default function AlbumSessionBand() {
 
                     {isCompleted && <p className="album-session-band__completed">{t.sessionPlayer.albumCompleted}</p>}
 
-                    {showRestartConfirm && (
-                        <div role="alertdialog" aria-labelledby="restart-confirm-title" className="album-session-band__confirm">
-                            <p id="restart-confirm-title" className="album-session-band__confirm-text">
-                                {t.sessionPlayer.confirmRestart}
-                            </p>
-                            <div className="album-session-band__confirm-actions">
-                                <button
-                                    type="button"
-                                    className="album-session-band__btn album-session-band__btn--secondary"
-                                    onClick={handleRestart}
-                                    aria-label={t.sessionPlayer.restart}
-                                >
-                                    {t.sessionPlayer.restart}
-                                </button>
-                                <button
-                                    type="button"
-                                    className="album-session-band__btn album-session-band__btn--text"
-                                    onClick={() => setShowRestartConfirm(false)}
-                                >
-                                    {t.common.cancel}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {!showRestartConfirm && (
+                    {isCompleted && completedEvent && !showJournal && (
                         <button
                             type="button"
                             className="album-session-band__btn album-session-band__btn--secondary"
-                            onClick={handleRestart}
-                            aria-label={t.sessionPlayer.restart}
+                            onClick={() => setShowJournal(true)}
                         >
-                            {t.sessionPlayer.restart}
+                            {t.sessionPlayer.writeInJournal}
                         </button>
+                    )}
+
+                    {/* Restart button/confirmation - hidden when journal offer is active */}
+                    {!(isCompleted && completedEvent && !showJournal) && (
+                        showRestartConfirm ? (
+                            <div role="alertdialog" aria-labelledby="restart-confirm-title" className="album-session-band__confirm">
+                                <p id="restart-confirm-title" className="album-session-band__confirm-text">
+                                    {t.sessionPlayer.confirmRestart}
+                                </p>
+                                <div className="album-session-band__confirm-actions">
+                                    <button
+                                        type="button"
+                                        className="album-session-band__btn album-session-band__btn--secondary"
+                                        onClick={handleRestart}
+                                        aria-label={t.sessionPlayer.restart}
+                                    >
+                                        {t.sessionPlayer.restart}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="album-session-band__btn album-session-band__btn--text"
+                                        onClick={() => setShowRestartConfirm(false)}
+                                    >
+                                        {t.common.cancel}
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                className="album-session-band__btn album-session-band__btn--secondary"
+                                onClick={handleRestart}
+                                aria-label={t.sessionPlayer.restart}
+                            >
+                                {t.sessionPlayer.restart}
+                            </button>
+                        )
                     )}
                 </div>
             )}
@@ -209,6 +261,17 @@ export default function AlbumSessionBand() {
                 trackDuration={trackDuration}
                 albumProgress={albumProgress}
             />
+
+            {/* Listening Journal Editor overlay */}
+            {showJournal && completedEvent && journalAlbum && (
+                <ListeningJournalEditor
+                    event={completedEvent}
+                    album={journalAlbum}
+                    onClose={handleDismissJournal}
+                    onSave={handleSaveJournal}
+                    onDelete={handleDeleteJournal}
+                />
+            )}
         </div>
     )
 }

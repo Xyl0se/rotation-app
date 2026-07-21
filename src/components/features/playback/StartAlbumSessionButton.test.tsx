@@ -8,6 +8,7 @@ import { I18nProvider } from "../../../i18n/I18nProvider"
 function createIdleState(): AlbumSessionContextValue {
     return {
         state: { kind: "idle" },
+        completedEvent: null,
         actions: {
             start: vi.fn(),
             pause: vi.fn(),
@@ -16,6 +17,7 @@ function createIdleState(): AlbumSessionContextValue {
             retry: vi.fn(),
             restart: vi.fn(),
             dismiss: vi.fn(),
+            dismissCompletedEvent: vi.fn(),
         },
     }
 }
@@ -48,6 +50,7 @@ function createPlayingState(albumId: string): AlbumSessionContextValue {
             currentTime: 0,
             trackDuration: 180,
         },
+        completedEvent: null,
         actions: {
             start: vi.fn(),
             pause: vi.fn(),
@@ -56,6 +59,7 @@ function createPlayingState(albumId: string): AlbumSessionContextValue {
             retry: vi.fn(),
             restart: vi.fn(),
             dismiss: vi.fn(),
+            dismissCompletedEvent: vi.fn(),
         },
     }
 }
@@ -63,6 +67,7 @@ function createPlayingState(albumId: string): AlbumSessionContextValue {
 function createLoadingState(albumId: string): AlbumSessionContextValue {
     return {
         state: { kind: "loading", sessionId: "test-session", albumId },
+        completedEvent: null,
         actions: {
             start: vi.fn(),
             pause: vi.fn(),
@@ -71,6 +76,7 @@ function createLoadingState(albumId: string): AlbumSessionContextValue {
             retry: vi.fn(),
             restart: vi.fn(),
             dismiss: vi.fn(),
+            dismissCompletedEvent: vi.fn(),
         },
     }
 }
