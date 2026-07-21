@@ -3,6 +3,7 @@ import {
     createInitialContext,
     albumSessionReducer,
     getCurrentTrack,
+    generateSessionId,
 } from "../domain/album-session/albumSessionState.js"
 import {
     getPlaybackManifest,
@@ -99,20 +100,19 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
 
     const start = useCallback(
         async (albumId: string) => {
-            // Compute the new session ID upfront before async work
-            const newCtx = albumSessionReducer(ctx, { type: "START", albumId })
-            const newSessionId = newCtx.lastSessionId!
-            dispatch({ type: "START", albumId })
+            // Generate session ID once and reuse it for both dispatches
+            const sessionId = generateSessionId()
+            dispatch({ type: "START", albumId, sessionId })
 
             try {
-                console.log(`[AlbumSession] Loading manifest for ${albumId}, session=${newSessionId}`)
+                console.log(`[AlbumSession] Loading manifest for ${albumId}, session=${sessionId}`)
                 const manifest = await getPlaybackManifest(albumId)
                 console.log(`[AlbumSession] Manifest loaded: ${manifest.tracks.length} tracks, ordering=${manifest.orderingDiagnostic}`)
-                dispatch({ type: "MANIFEST_LOADED", sessionId: newSessionId, manifest })
+                dispatch({ type: "MANIFEST_LOADED", sessionId, manifest })
             } catch (err: unknown) {
                 const msg = getPlaybackErrorMessage(err)
                 console.error(`[AlbumSession] Manifest failed: ${msg}`, err)
-                dispatch({ type: "MANIFEST_FAILED", sessionId: newSessionId, error: msg })
+                dispatch({ type: "MANIFEST_FAILED", sessionId, error: msg })
             }
         },
         [ctx]

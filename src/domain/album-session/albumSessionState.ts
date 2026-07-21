@@ -55,7 +55,7 @@ export function createInitialContext(): AlbumSessionContext {
     }
 }
 
-function generateSessionId(): string {
+export function generateSessionId(): string {
     return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 }
 
@@ -63,7 +63,7 @@ function generateSessionId(): string {
 const TOGGLE_GUARD_MS = 50
 
 export type AlbumSessionAction =
-    | { type: "START"; albumId: string }
+    | { type: "START"; albumId: string; sessionId?: string }
     | { type: "MANIFEST_LOADED"; sessionId: string; manifest: PlaybackManifest }
     | { type: "MANIFEST_FAILED"; sessionId: string; error: string }
     | { type: "PLAY"; sessionId: string }
@@ -101,7 +101,7 @@ export function albumSessionReducer(
             if (ctx.state.kind === "loading" || ctx.state.kind === "playing") {
                 return ctx
             }
-            const sessionId = generateSessionId()
+            const sessionId = action.sessionId ?? generateSessionId()
             return {
                 ...ctx,
                 state: { kind: "loading", sessionId, albumId: action.albumId },
