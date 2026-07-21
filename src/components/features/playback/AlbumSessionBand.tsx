@@ -141,38 +141,30 @@ export default function AlbumSessionBand() {
                         />
                     </div>
 
-                    {/* Display window + Brand */}
-                    <div className="album-session-band__content">
-                        {/* Display window with glossy overlay */}
-                        <div className="album-session-band__display-window">
-                            <div className="album-session-band__display-glass" aria-hidden="true" />
-                            <div className="album-session-band__info">
+                    {/* Display window with glossy overlay */}
+                    <div className="album-session-band__display-window">
+                        <div className="album-session-band__display-glass" aria-hidden="true" />
+                        <div className="album-session-band__info">
+                            <div className="album-session-band__scroll-track">
+                                <div className="album-session-band__meta">
+                                    <span className="album-session-band__artist">{manifest.artist}</span>
+                                    <span className="album-session-band__album" aria-hidden="true">
+                                        {" — "}
+                                    </span>
+                                    <span className="album-session-band__album">{manifest.title}</span>
+                                </div>
+                            </div>
+                            {trackContext && (
                                 <div className="album-session-band__scroll-track">
-                                    <div className="album-session-band__meta">
-                                        <span className="album-session-band__artist">{manifest.artist}</span>
-                                        <span className="album-session-band__album" aria-hidden="true">
-                                            {" — "}
+                                    <div className="album-session-band__track">
+                                        <span className="album-session-band__track-title">{trackContext.title}</span>
+                                        <span className="album-session-band__track-index" aria-hidden="true">
+                                            {" · "}
+                                            {t.sessionPlayer.trackOf(trackContext.current, trackContext.total)}
                                         </span>
-                                        <span className="album-session-band__album">{manifest.title}</span>
                                     </div>
                                 </div>
-                                {trackContext && (
-                                    <div className="album-session-band__scroll-track">
-                                        <div className="album-session-band__track">
-                                            <span className="album-session-band__track-title">{trackContext.title}</span>
-                                            <span className="album-session-band__track-index" aria-hidden="true">
-                                                {" · "}
-                                                {t.sessionPlayer.trackOf(trackContext.current, trackContext.total)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* HiFi brand mark */}
-                        <div className="album-session-band__brand" aria-hidden="true">
-                            Rotation
+                            )}
                         </div>
                     </div>
 
@@ -206,6 +198,11 @@ export default function AlbumSessionBand() {
                         >
                             {expanded ? "▲" : "▼"}
                         </button>
+                    </div>
+
+                    {/* HiFi brand mark */}
+                    <div className="album-session-band__brand" aria-hidden="true">
+                        Rotation
                     </div>
                 </div>
 
