@@ -105,10 +105,14 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
             dispatch({ type: "START", albumId })
 
             try {
+                console.log(`[AlbumSession] Loading manifest for ${albumId}, session=${newSessionId}`)
                 const manifest = await getPlaybackManifest(albumId)
+                console.log(`[AlbumSession] Manifest loaded: ${manifest.tracks.length} tracks, ordering=${manifest.orderingDiagnostic}`)
                 dispatch({ type: "MANIFEST_LOADED", sessionId: newSessionId, manifest })
             } catch (err: unknown) {
-                dispatch({ type: "MANIFEST_FAILED", sessionId: newSessionId, error: getPlaybackErrorMessage(err) })
+                const msg = getPlaybackErrorMessage(err)
+                console.error(`[AlbumSession] Manifest failed: ${msg}`, err)
+                dispatch({ type: "MANIFEST_FAILED", sessionId: newSessionId, error: msg })
             }
         },
         [ctx]
@@ -173,6 +177,7 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
         const handleLoadedMetadata = () => {
             const sessionId = ctx.lastSessionId
             if (!sessionId) return
+            console.log(`[AlbumSession] loadedmetadata: duration=${audio.duration}, src=${audio.src.split("/").pop()}`)
             if (Number.isFinite(audio.duration)) {
                 dispatch({
                     type: "TIME_UPDATE",
@@ -185,6 +190,7 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
 
         const handleEnded = () => {
             const sessionId = ctx.lastSessionId
+            console.log(`[AlbumSession] ended event, session=${sessionId}, state=${ctx.state.kind}`)
             if (!sessionId) return
             if (ctx.state.kind !== "playing") return
             dispatch({ type: "TRACK_ENDED", sessionId, trackIndex: ctx.state.currentTrackIndex })
@@ -192,6 +198,9 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
 
         const handleError = () => {
             const sessionId = ctx.lastSessionId
+            const errCode = audio.error?.code ?? "unknown"
+            const errMsg = audio.error?.message ?? "unknown"
+            console.error(`[AlbumSession] audio error: code=${errCode}, msg=${errMsg}, src=${audio.src.split("/").pop()}, networkState=${audio.networkState}, readyState=${audio.readyState}`)
             if (!sessionId) return
             // Network errors during load are recoverable; decode errors are terminal
             const isRecoverable = audio.error?.code === MediaError.MEDIA_ERR_NETWORK
@@ -203,16 +212,28 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
             })
         }
 
+        const handlePlay = () => {
+            console.log(`[AlbumSession] play event, src=${audio.src.split("/").pop()}`)
+        }
+
+        const handlePause = () => {
+            console.log(`[AlbumSession] pause event, currentTime=${audio.currentTime}`)
+        }
+
         audio.addEventListener("timeupdate", handleTimeUpdate)
         audio.addEventListener("loadedmetadata", handleLoadedMetadata)
         audio.addEventListener("ended", handleEnded)
         audio.addEventListener("error", handleError)
+        audio.addEventListener("play", handlePlay)
+        audio.addEventListener("pause", handlePause)
 
         return () => {
             audio.removeEventListener("timeupdate", handleTimeUpdate)
             audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
             audio.removeEventListener("ended", handleEnded)
             audio.removeEventListener("error", handleError)
+            audio.removeEventListener("play", handlePlay)
+            audio.removeEventListener("pause", handlePause)
         }
     }, [getAudio, ctx.lastSessionId, ctx.state.kind, ctx.state])
 
@@ -220,6 +241,7 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const state = ctx.state
+        console.log(`[AlbumSession] state change: ${state.kind}`)
 
         if (state.kind === "loading") {
             // Audio will be set up once manifest loads
@@ -228,21 +250,27 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
 
         if (state.kind === "playing") {
             const track = getCurrentTrack(state)
-            if (!track) return
+            if (!track) {
+                console.warn(`[AlbumSession] playing state but no current track (index=${state.currentTrackIndex})`)
+                return
+            }
 
             const audio = getAudio()
             const expectedSrc = buildMediaUrl(state.manifest.albumId, track.opaqueTrackId)
 
             // Only set src if it changed (prevents restart on every state tick)
             if (audio.src !== expectedSrc) {
+                console.log(`[AlbumSession] setting src: ${expectedSrc.split("/").pop()}, track=${track.title}`)
                 audio.src = expectedSrc
                 audio.load()
             }
 
             // Play if not already playing
             if (audio.paused) {
+                console.log(`[AlbumSession] calling audio.play()`)
                 audio.play().catch((err: unknown) => {
                     const errorMessage = err instanceof Error ? err.message : "Wiedergabe nicht möglich"
+                    console.error(`[AlbumSession] play() rejected: ${errorMessage}`)
                     dispatch({
                         type: "AUDIO_ERROR",
                         sessionId: state.sessionId,
