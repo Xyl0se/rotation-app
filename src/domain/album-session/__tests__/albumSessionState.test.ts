@@ -48,6 +48,8 @@ const mockManifest = {
     orderingDiagnostic: "ok" as const,
 }
 
+const TEST_SESSION_ID = "test-session-123"
+
 function dispatch(
     ctx = createInitialContext(),
     ...actions: AlbumSessionAction[]
@@ -63,52 +65,47 @@ describe("albumSessionReducer", () => {
 
     describe("START", () => {
         it("transitions idle -> loading", () => {
-            const ctx = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
+            const ctx = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
             expect(ctx.state.kind).toBe("loading")
             expect((ctx.state as Extract<typeof ctx.state, { kind: "loading" }>).albumId).toBe("album-123")
-            expect(ctx.lastSessionId).not.toBeNull()
+            expect(ctx.lastSessionId).toBe(TEST_SESSION_ID)
         })
 
         it("guards against double-start while loading", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const ctx2 = dispatch(ctx1, { type: "START", albumId: "album-456" })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "START", albumId: "album-456", sessionId: "other-session" })
             expect(ctx2.state.kind).toBe("loading")
             expect((ctx2.state as Extract<typeof ctx2.state, { kind: "loading" }>).albumId).toBe("album-123")
-            expect(ctx2.lastSessionId).toBe(ctx1.lastSessionId)
+            expect(ctx2.lastSessionId).toBe(TEST_SESSION_ID)
         })
 
         it("guards against double-start while playing", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sessionId = ctx1.lastSessionId!
-            const ctx = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId, manifest: mockManifest })
-            const currentSessionId = ctx.lastSessionId!
-            const ctx2 = dispatch(ctx, { type: "START", albumId: "album-456" })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx2 = dispatch(ctx, { type: "START", albumId: "album-456", sessionId: "other-session" })
             expect(ctx2.state.kind).toBe("playing")
-            expect(ctx2.lastSessionId).toBe(currentSessionId)
+            expect(ctx2.lastSessionId).toBe(TEST_SESSION_ID)
         })
 
         it("resets completedTracks", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid1 = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid1, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: sid1, trackIndex: 0 })
-            const currentSessionId = ctx3.lastSessionId!
-            const ctx4 = dispatch(ctx3, { type: "START", albumId: "album-456" })
-            // Should be blocked because we're playing, but if it were allowed:
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: TEST_SESSION_ID, trackIndex: 0 })
+            const ctx4 = dispatch(ctx3, { type: "START", albumId: "album-456", sessionId: "other-session" })
+            // Should be blocked because we're playing
             expect(ctx4.completedTracks.has(0)).toBe(true)
             // Start a fresh one after stopping
-            const ctx5 = dispatch(ctx4, { type: "STOP", sessionId: currentSessionId })
-            const ctx6 = dispatch(ctx5, { type: "STOPPED", sessionId: currentSessionId })
-            const ctx7 = dispatch(ctx6, { type: "START", albumId: "album-789" })
+            const ctx5 = dispatch(ctx4, { type: "STOP", sessionId: TEST_SESSION_ID })
+            const ctx6 = dispatch(ctx5, { type: "STOPPED", sessionId: TEST_SESSION_ID })
+            const ctx7 = dispatch(ctx6, { type: "START", albumId: "album-789", sessionId: "fresh-session" })
             expect(ctx7.completedTracks.size).toBe(0)
         })
     })
 
     describe("MANIFEST_LOADED", () => {
         it("transitions loading -> playing with first track", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sessionId = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId, manifest: mockManifest })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
             expect(ctx2.state.kind).toBe("playing")
             expect(ctx2.state).toMatchObject({
                 currentTrackIndex: 0,
@@ -118,26 +115,23 @@ describe("albumSessionReducer", () => {
         })
 
         it("is ignored when stale", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: "old-session" })
             // Bring to playing so STOP works, then start fresh session
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "STOP", sessionId: sid })
-            const ctx4 = dispatch(ctx3, { type: "STOPPED", sessionId: sid })
-            const ctx5 = dispatch(ctx4, { type: "START", albumId: "album-456" })
-            const newSessionId = ctx5.lastSessionId!
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: "old-session", manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "STOP", sessionId: "old-session" })
+            const ctx4 = dispatch(ctx3, { type: "STOPPED", sessionId: "old-session" })
+            const ctx5 = dispatch(ctx4, { type: "START", albumId: "album-456", sessionId: "new-session" })
             // Old manifest response arrives
-            const ctx6 = dispatch(ctx5, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
+            const ctx6 = dispatch(ctx5, { type: "MANIFEST_LOADED", sessionId: "old-session", manifest: mockManifest })
             expect(ctx6.state.kind).toBe("loading")
-            expect(ctx6.lastSessionId).toBe(newSessionId)
+            expect(ctx6.lastSessionId).toBe("new-session")
         })
 
         it("fails when manifest has no tracks", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sessionId = ctx1.lastSessionId!
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
             const ctx2 = dispatch(ctx1, {
                 type: "MANIFEST_LOADED",
-                sessionId,
+                sessionId: TEST_SESSION_ID,
                 manifest: { ...mockManifest, tracks: [] },
             })
             expect(ctx2.state.kind).toBe("terminal-error")
@@ -149,9 +143,8 @@ describe("albumSessionReducer", () => {
 
     describe("MANIFEST_FAILED", () => {
         it("transitions loading -> terminal-error", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sessionId = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_FAILED", sessionId, error: "Network error" })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_FAILED", sessionId: TEST_SESSION_ID, error: "Network error" })
             expect(ctx2.state.kind).toBe("terminal-error")
             expect(ctx2.state).toMatchObject({ error: "Network error" })
         })
@@ -164,9 +157,8 @@ describe("albumSessionReducer", () => {
 
     describe("PLAY", () => {
         it("is no-op during loading", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sessionId = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "PLAY", sessionId })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "PLAY", sessionId: TEST_SESSION_ID })
             expect(ctx2.state.kind).toBe("loading")
         })
 
@@ -178,32 +170,29 @@ describe("albumSessionReducer", () => {
 
     describe("PAUSE / RESUME", () => {
         it("transitions playing -> paused", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "PAUSE", sessionId: sid })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "PAUSE", sessionId: TEST_SESSION_ID })
             expect(ctx3.state.kind).toBe("paused")
             expect(ctx3.lastToggleAt).toBeGreaterThan(0)
         })
 
         it("transitions paused -> playing", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "PAUSE", sessionId: sid })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "PAUSE", sessionId: TEST_SESSION_ID })
             // Advance time past toggle guard
             vi.advanceTimersByTime(100)
-            const ctx4 = dispatch(ctx3, { type: "RESUME", sessionId: sid })
+            const ctx4 = dispatch(ctx3, { type: "RESUME", sessionId: TEST_SESSION_ID })
             expect(ctx4.state.kind).toBe("playing")
         })
 
         it("guards against rapid pause/resume", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "PAUSE", sessionId: sid })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "PAUSE", sessionId: TEST_SESSION_ID })
             // Immediate resume should be blocked
-            const ctx4 = dispatch(ctx3, { type: "RESUME", sessionId: sid })
+            const ctx4 = dispatch(ctx3, { type: "RESUME", sessionId: TEST_SESSION_ID })
             expect(ctx4.state.kind).toBe("paused")
         })
 
@@ -220,10 +209,9 @@ describe("albumSessionReducer", () => {
 
     describe("TRACK_ENDED", () => {
         it("advances to next track", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: sid, trackIndex: 0 })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: TEST_SESSION_ID, trackIndex: 0 })
             expect(ctx3.state.kind).toBe("playing")
             expect(ctx3.state).toMatchObject({
                 currentTrackIndex: 1,
@@ -234,20 +222,18 @@ describe("albumSessionReducer", () => {
 
         it("completes album on final track", () => {
             const singleTrackManifest = { ...mockManifest, tracks: [mockManifest.tracks[0]] }
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: singleTrackManifest })
-            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: sid, trackIndex: 0 })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: singleTrackManifest })
+            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: TEST_SESSION_ID, trackIndex: 0 })
             expect(ctx3.state.kind).toBe("completed")
             expect(ctx3.completedTracks.has(0)).toBe(true)
         })
 
         it("guards against duplicate ended for same track", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: sid, trackIndex: 0 })
-            const ctx4 = dispatch(ctx3, { type: "TRACK_ENDED", sessionId: sid, trackIndex: 0 })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: TEST_SESSION_ID, trackIndex: 0 })
+            const ctx4 = dispatch(ctx3, { type: "TRACK_ENDED", sessionId: TEST_SESSION_ID, trackIndex: 0 })
             expect(ctx4.state).toMatchObject({
                 currentTrackIndex: 1,
             })
@@ -261,10 +247,9 @@ describe("albumSessionReducer", () => {
 
     describe("TIME_UPDATE", () => {
         it("updates currentTime and trackDuration during playing", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "TIME_UPDATE", sessionId: sid, currentTime: 42, trackDuration: 120 })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "TIME_UPDATE", sessionId: TEST_SESSION_ID, currentTime: 42, trackDuration: 120 })
             expect(ctx3.state).toMatchObject({
                 currentTime: 42,
                 trackDuration: 120,
@@ -272,11 +257,10 @@ describe("albumSessionReducer", () => {
         })
 
         it("updates during paused", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "PAUSE", sessionId: sid })
-            const ctx4 = dispatch(ctx3, { type: "TIME_UPDATE", sessionId: sid, currentTime: 15, trackDuration: null })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "PAUSE", sessionId: TEST_SESSION_ID })
+            const ctx4 = dispatch(ctx3, { type: "TIME_UPDATE", sessionId: TEST_SESSION_ID, currentTime: 15, trackDuration: null })
             expect(ctx4.state).toMatchObject({ currentTime: 15 })
         })
 
@@ -288,10 +272,9 @@ describe("albumSessionReducer", () => {
 
     describe("AUDIO_ERROR", () => {
         it("transitions playing -> recoverable-error", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "AUDIO_ERROR", sessionId: sid, error: "Network timeout", recoverable: true })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "AUDIO_ERROR", sessionId: TEST_SESSION_ID, error: "Network timeout", recoverable: true })
             expect(ctx3.state.kind).toBe("recoverable-error")
             expect(ctx3.state).toMatchObject({
                 currentTrackIndex: 0,
@@ -301,17 +284,15 @@ describe("albumSessionReducer", () => {
         })
 
         it("transitions playing -> terminal-error", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "AUDIO_ERROR", sessionId: sid, error: "Unsupported codec", recoverable: false })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "AUDIO_ERROR", sessionId: TEST_SESSION_ID, error: "Unsupported codec", recoverable: false })
             expect(ctx3.state.kind).toBe("terminal-error")
         })
 
         it("handles error during loading", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sessionId = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "AUDIO_ERROR", sessionId, error: "Load failed", recoverable: true })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "AUDIO_ERROR", sessionId: TEST_SESSION_ID, error: "Load failed", recoverable: true })
             expect(ctx2.state.kind).toBe("recoverable-error")
         })
 
@@ -323,19 +304,17 @@ describe("albumSessionReducer", () => {
 
     describe("STOP / STOPPED", () => {
         it("transitions playing -> stopping", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "STOP", sessionId: sid })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "STOP", sessionId: TEST_SESSION_ID })
             expect(ctx3.state.kind).toBe("stopping")
         })
 
         it("transitions stopping -> idle", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "STOP", sessionId: sid })
-            const ctx4 = dispatch(ctx3, { type: "STOPPED", sessionId: sid })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "STOP", sessionId: TEST_SESSION_ID })
+            const ctx4 = dispatch(ctx3, { type: "STOPPED", sessionId: TEST_SESSION_ID })
             expect(ctx4.state.kind).toBe("idle")
             expect(ctx4.lastSessionId).toBeNull()
         })
@@ -348,11 +327,10 @@ describe("albumSessionReducer", () => {
 
     describe("RETRY", () => {
         it("transitions recoverable-error -> playing", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "AUDIO_ERROR", sessionId: sid, error: "oops", recoverable: true })
-            const ctx4 = dispatch(ctx3, { type: "RETRY", sessionId: sid })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "AUDIO_ERROR", sessionId: TEST_SESSION_ID, error: "oops", recoverable: true })
+            const ctx4 = dispatch(ctx3, { type: "RETRY", sessionId: TEST_SESSION_ID })
             expect(ctx4.state.kind).toBe("playing")
         })
 
@@ -364,11 +342,10 @@ describe("albumSessionReducer", () => {
 
     describe("RESTART", () => {
         it("restarts from playing", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: mockManifest })
-            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: sid, trackIndex: 0 })
-            const ctx4 = dispatch(ctx3, { type: "RESTART", sessionId: sid })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: mockManifest })
+            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: TEST_SESSION_ID, trackIndex: 0 })
+            const ctx4 = dispatch(ctx3, { type: "RESTART", sessionId: TEST_SESSION_ID })
             expect(ctx4.state.kind).toBe("playing")
             expect(ctx4.state).toMatchObject({
                 currentTrackIndex: 0,
@@ -379,11 +356,10 @@ describe("albumSessionReducer", () => {
 
         it("restarts from completed", () => {
             const singleTrackManifest = { ...mockManifest, tracks: [mockManifest.tracks[0]] }
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: singleTrackManifest })
-            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: sid, trackIndex: 0 })
-            const ctx4 = dispatch(ctx3, { type: "RESTART", sessionId: sid })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: singleTrackManifest })
+            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: TEST_SESSION_ID, trackIndex: 0 })
+            const ctx4 = dispatch(ctx3, { type: "RESTART", sessionId: TEST_SESSION_ID })
             expect(ctx4.state.kind).toBe("playing")
             expect(ctx4.state).toMatchObject({
                 currentTrackIndex: 0,
@@ -399,21 +375,19 @@ describe("albumSessionReducer", () => {
 
     describe("DISMISS_ERROR", () => {
         it("transitions terminal-error -> idle", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_FAILED", sessionId: sid, error: "oops" })
-            const ctx3 = dispatch(ctx2, { type: "DISMISS_ERROR", sessionId: sid })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_FAILED", sessionId: TEST_SESSION_ID, error: "oops" })
+            const ctx3 = dispatch(ctx2, { type: "DISMISS_ERROR", sessionId: TEST_SESSION_ID })
             expect(ctx3.state.kind).toBe("idle")
             expect(ctx3.lastSessionId).toBeNull()
         })
 
         it("transitions completed -> idle", () => {
             const singleTrackManifest = { ...mockManifest, tracks: [mockManifest.tracks[0]] }
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const sid = ctx1.lastSessionId!
-            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: sid, manifest: singleTrackManifest })
-            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: sid, trackIndex: 0 })
-            const ctx4 = dispatch(ctx3, { type: "DISMISS_ERROR", sessionId: sid })
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: TEST_SESSION_ID })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: TEST_SESSION_ID, manifest: singleTrackManifest })
+            const ctx3 = dispatch(ctx2, { type: "TRACK_ENDED", sessionId: TEST_SESSION_ID, trackIndex: 0 })
+            const ctx4 = dispatch(ctx3, { type: "DISMISS_ERROR", sessionId: TEST_SESSION_ID })
             expect(ctx4.state.kind).toBe("idle")
         })
 
@@ -425,22 +399,24 @@ describe("albumSessionReducer", () => {
 
     describe("stale session protection", () => {
         it("ignores all actions for old sessionId", () => {
-            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123" })
-            const oldSessionId = ctx1.lastSessionId!
+            // Transition through playing so STOP works
+            const ctx1 = dispatch(createInitialContext(), { type: "START", albumId: "album-123", sessionId: "old-session" })
+            const ctx2 = dispatch(ctx1, { type: "MANIFEST_LOADED", sessionId: "old-session", manifest: mockManifest })
+            const oldSessionId = "old-session"
 
             // Stop and start new session
-            const ctx2 = dispatch(ctx1, { type: "STOP", sessionId: oldSessionId })
-            const ctx3 = dispatch(ctx2, { type: "STOPPED", sessionId: oldSessionId })
-            const ctx4 = dispatch(ctx3, { type: "START", albumId: "album-456" })
-            const newSessionId = ctx4.lastSessionId!
+            const ctx3 = dispatch(ctx2, { type: "STOP", sessionId: oldSessionId })
+            const ctx4 = dispatch(ctx3, { type: "STOPPED", sessionId: oldSessionId })
+            const ctx5 = dispatch(ctx4, { type: "START", albumId: "album-456", sessionId: "new-session" })
+            const newSessionId = "new-session"
 
-            // Old session actions
-            const ctx5 = dispatch(ctx4, { type: "PAUSE", sessionId: oldSessionId })
-            expect(ctx5.state.kind).toBe("loading")
-            expect(ctx5.lastSessionId).toBe(newSessionId)
-
-            const ctx6 = dispatch(ctx5, { type: "TRACK_ENDED", sessionId: oldSessionId, trackIndex: 0 })
+            // Old session actions should be ignored
+            const ctx6 = dispatch(ctx5, { type: "PAUSE", sessionId: oldSessionId })
             expect(ctx6.state.kind).toBe("loading")
+            expect(ctx6.lastSessionId).toBe(newSessionId)
+
+            const ctx7 = dispatch(ctx6, { type: "TRACK_ENDED", sessionId: oldSessionId, trackIndex: 0 })
+            expect(ctx7.state.kind).toBe("loading")
         })
     })
 })
