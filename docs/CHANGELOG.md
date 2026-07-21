@@ -34,6 +34,25 @@
   - Added 26 domain tests for track timeline and 6 component tests for `AlbumProgress`.
   - 328 frontend tests and 350 server tests passing; TypeScript strict; lint clean.
 
+- **Sprint 90C — Cooperative Media Controls**
+  - Media Session API integration: `navigator.mediaSession.metadata` updates with title,
+    artist, album, and artwork on every track/state change. Play/Pause action handlers
+    registered; seek/next/previous intentionally omitted.
+  - Full keyboard and screen-reader accessibility:
+    - `role="region"` with descriptive `aria-label` (artist — album).
+    - `aria-pressed` on Play/Pause toggle; `aria-expanded` on expand/collapse.
+    - `aria-live="polite"` live region for dynamic status (error, completed, playing).
+    - `role="alert"` on errors; `role="alertdialog"` with `aria-labelledby` for restart
+      confirmation.
+  - Reduced motion support: `@media (prefers-reduced-motion: reduce)` removes progress
+    fill transition so real position is never obscured.
+  - i18n keys added (DE/EN): `nowPlaying`, `errorOccurred`, `albumCompleted`, `loading`,
+    plus `common.cancel`.
+  - Bottom page padding expanded to cover all page classNames so content is never hidden
+    behind the persistent band.
+  - Added 9 accessibility component tests for `AlbumSessionBand`.
+  - 337 frontend tests and 350 server tests passing; TypeScript strict; lint clean.
+
 - **Sprint 89B — Canonical Playback Manifest**
   - Added server-owned `GET /playback/manifest/:albumId` endpoint producing bounded,
     deterministic playback manifests for confirmed Album Bindings.
