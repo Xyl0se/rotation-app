@@ -61,6 +61,10 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
         return audioRef.current
     }, [])
 
+    function resolveMediaUrl(albumId: string, opaqueTrackId: string): string {
+        return new URL(buildMediaUrl(albumId, opaqueTrackId), window.location.origin).href
+    }
+
     const getPreloadAudio = useCallback((): HTMLAudioElement => {
         if (!preloadAudioRef.current) {
             preloadAudioRef.current = new Audio()
@@ -75,7 +79,7 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
             const track = manifest.tracks[nextIndex]
             if (!track?.playable) return
             const preload = getPreloadAudio()
-            preload.src = buildMediaUrl(manifest.albumId, track.opaqueTrackId)
+            preload.src = resolveMediaUrl(manifest.albumId, track.opaqueTrackId)
             preload.load()
         },
         [getPreloadAudio]
@@ -256,7 +260,7 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
             }
 
             const audio = getAudio()
-            const expectedSrc = buildMediaUrl(state.manifest.albumId, track.opaqueTrackId)
+            const expectedSrc = resolveMediaUrl(state.manifest.albumId, track.opaqueTrackId)
 
             // Only set src if it changed (prevents restart on every state tick)
             if (audio.src !== expectedSrc) {
