@@ -190,7 +190,6 @@
   left: 0;
   right: 0;
   z-index: 100;
-  font-family: 'Doto', monospace;
   color: #5cdbff;
   padding: 8px 16px;
 }
@@ -199,7 +198,7 @@
 .album-session-band__chassis {
   position: relative;
   background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
-  border-radius: 0;
+  border-radius: 8px;
   box-shadow:
     0 -4px 0 #0a0a0a,
     0 -1px 0 rgba(255, 255, 255, 0.06) inset,
@@ -207,65 +206,6 @@
   padding: 10px 14px 8px;
   max-width: 1200px;
   margin: 0 auto;
-}
-
-/* Screw heads at four corners */
-.album-session-band__screw {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #444, #222);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.8),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  z-index: 2;
-}
-
-.album-session-band__screw::before,
-.album-session-band__screw::after {
-  content: '';
-  position: absolute;
-  background: #111;
-  border-radius: 0.5px;
-}
-
-/* Cross slot: horizontal line */
-.album-session-band__screw::before {
-  width: 4px;
-  height: 1px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/* Cross slot: vertical line */
-.album-session-band__screw::after {
-  width: 1px;
-  height: 4px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.album-session-band__screw--tl {
-  top: 6px;
-  left: 6px;
-}
-
-.album-session-band__screw--tr {
-  top: 6px;
-  right: 6px;
-}
-
-.album-session-band__screw--bl {
-  bottom: 6px;
-  left: 6px;
-}
-
-.album-session-band__screw--br {
-  bottom: 6px;
-  right: 6px;
 }
 
 .album-session-band__inner {
@@ -283,8 +223,8 @@
   flex: 1;
   min-width: 0;
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 24px;
 }
 
 .album-session-band__cover {
@@ -302,8 +242,9 @@
 /* Display window: recessed panel with glossy glass overlay */
 .album-session-band__display-window {
   position: relative;
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
+  max-width: 50%;
   background: #0a0a0a;
   border-radius: 4px;
   padding: 6px 10px;
@@ -332,7 +273,7 @@
 .album-session-band__brand {
   font-family: 'Orbitron', sans-serif;
   font-weight: 900;
-  font-size: 18px;
+  font-size: 14.4px;
   letter-spacing: 3px;
   text-transform: uppercase;
   color: #c0c0c0;
@@ -346,6 +287,8 @@
   background-clip: text;
   flex-shrink: 0;
   user-select: none;
+  align-self: flex-start;
+  margin-top: 2px;
 }
 
 .album-session-band__info {
@@ -354,6 +297,31 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  font-family: 'Doto', monospace;
+}
+
+/* Marquee scroll for long text — classic CD-player style */
+.album-session-band__scroll-track {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+
+.album-session-band__scroll-track .album-session-band__meta,
+.album-session-band__scroll-track .album-session-band__track {
+  display: inline-block;
+  white-space: nowrap;
+  animation: album-marquee 10s linear infinite;
+  padding-left: 100%;
+}
+
+@keyframes album-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 .album-session-band__meta {
