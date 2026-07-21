@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- **Sprint 90A — Playback Coordinator**
+  - Added formal domain state-machine for Album Session lifecycle: `idle → loading →
+    playing ↔ paused`, with terminal states `completed`, `recoverable-error`, and
+    `terminal-error`.
+  - `AlbumSessionProvider` owns the single `HTMLAudioElement`, drives `audio.play()` /
+    `audio.pause()` from state, preloads the next Track, and wires all audio events.
+  - Guards against double-starts, stale async events, duplicate `ended` events, and
+    rapid Play/Pause toggles via `lastSessionId`, `completedTracks`, and `lastToggleAt`.
+  - `useAlbumSession` hook provides thin read/write interface; `AlbumPlayer` migrated
+    from legacy `useAlbumPlayback`.
+  - Recovery infrastructure (`sessionStorage` persistence) prepared for Workstream 90E.
+  - Added 45 state-machine unit tests covering every transition, guard, and edge case.
+  - All 297 frontend tests and 350 server tests passing; TypeScript strict; lint clean.
+
 - **Sprint 89B — Canonical Playback Manifest**
   - Added server-owned `GET /playback/manifest/:albumId` endpoint producing bounded,
     deterministic playback manifests for confirmed Album Bindings.

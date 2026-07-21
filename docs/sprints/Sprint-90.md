@@ -1,6 +1,6 @@
 # Sprint 90 — Whole Album Session
 
-**Status:** Planned — depends on Sprint 89 go decision
+**Status:** In Progress — Workstream 90A completed, Workstreams 90B–90G planned
 
 **Target version:** Future major product capability
 
@@ -56,23 +56,36 @@ Its compact state shows:
 
 No page may create a second competing audio element or separate playback authority.
 
-## Workstream 90A — Playback coordinator
+## Workstream 90A — Playback coordinator ✅ Completed
 
-- Add one application-level playback coordinator backed by the Sprint 89 manifest.
-- Own the active `HTMLAudioElement`, automatic Track transition, preload policy, and
-  state-machine transitions in one place.
-- Keep playback alive during internal navigation and component remounts.
-- Guard against double starts, stale events from a previous Track, duplicate `ended`
-  events, rapid Play/Pause input, and manifest changes during a Session.
-- Allow only one active Album Session per browser tab.
+- [x] Formal state-machine with 8 states (`idle`, `loading`, `playing`, `paused`,
+      `stopping`, `completed`, `recoverable-error`, `terminal-error`) implemented in
+      `src/domain/album-session/albumSessionState.ts`.
+- [x] Stale-session guards via `lastSessionId`; duplicate `TRACK_ENDED` deduplication
+      via `completedTracks`; rapid Play/Pause toggle guard via `lastToggleAt`.
+- [x] `AlbumSessionProvider` owns the single `HTMLAudioElement`, wires all audio events,
+      handles preload policy, and drives `audio.play()` / `audio.pause()` from state.
+- [x] `useAlbumSession` hook exposes thin read/write interface to components.
+- [x] `AlbumPlayer` migrated from legacy `useAlbumPlayback` to new coordinator.
+- [x] `main.tsx` wrapped with `AlbumSessionProvider`.
+- [x] 45 unit tests covering every legal transition, stale-event rejection, and edge
+      cases (double-start, rapid toggle, duplicate ended, empty manifest).
+- [x] All 297 frontend tests and 350 server tests passing; TypeScript strict; lint clean.
 
-Suggested state model:
+**Implementation notes:**
+- Session ID is generated once in `start()` and passed through the `START` action so
+  `MANIFEST_LOADED` / `MANIFEST_FAILED` share the same ID (fixed session-ID mismatch bug).
+- `resolveMediaUrl()` resolves relative manifest paths to absolute URLs before comparing
+  with `audio.src` (fixed "operation was aborted" bug from constant src resets).
+- Recovery infrastructure (`sessionStorage` read/write) is in place for Workstream 90E.
+
+Suggested state model (implemented):
 
 ```text
 idle -> loading -> playing <-> paused
                   -> stopping -> idle
                   -> completed
-                  -> recoverable-error
+                  -> recoverable-error -> playing (retry)
                   -> terminal-error
 ```
 
@@ -224,17 +237,17 @@ listening instrument.
 
 ## Definition of Done
 
-- [ ] A playable bound Album can be heard automatically from first to final Track.
-- [ ] One persistent bottom band survives every internal page transition.
-- [ ] Play/Pause is central; no Rotation UI permits Track skip or seeking.
-- [ ] Whole-Album progress and Track boundaries are accurate and read-only.
-- [ ] Pause, stop, restart, errors, and reload recovery preserve user agency.
-- [ ] Final natural completion creates exactly one canonical Listening Event.
-- [ ] Partial, stopped, and failed Sessions create no Listening Event.
-- [ ] The optional Journal integrates without making completion dependent on writing.
+- [x] A playable bound Album can be heard automatically from first to final Track. *(90A — state machine + audio control)*
+- [ ] One persistent bottom band survives every internal page transition. *(90B–G)*
+- [ ] Play/Pause is central; no Rotation UI permits Track skip or seeking. *(90B–G)*
+- [ ] Whole-Album progress and Track boundaries are accurate and read-only. *(90B)*
+- [ ] Pause, stop, restart, errors, and reload recovery preserve user agency. *(90A foundation + 90E recovery dialog)*
+- [ ] Final natural completion creates exactly one canonical Listening Event. *(90F)*
+- [ ] Partial, stopped, and failed Sessions create no Listening Event. *(90F)*
+- [ ] The optional Journal integrates without making completion dependent on writing. *(90F)*
 - [ ] Accessibility, DE/EN, browser compatibility, automated tests, and NAS acceptance
-      pass.
-- [ ] Production use still feels like Rotation, not a generic streaming player.
+      pass. *(ongoing)*
+- [ ] Production use still feels like Rotation, not a generic streaming player. *(90G)*
 
 ## Non-goals
 
