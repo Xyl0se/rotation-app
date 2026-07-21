@@ -8,6 +8,7 @@ interface StartAlbumSessionButtonProps {
     albumTitle: string
     variant?: "primary" | "secondary"
     className?: string
+    compact?: boolean
 }
 
 function isActiveSessionFor(
@@ -22,6 +23,7 @@ export default function StartAlbumSessionButton({
     albumTitle,
     variant = "primary",
     className,
+    compact = false,
 }: StartAlbumSessionButtonProps) {
     const { t } = useI18n()
     const { state, start, pause, resume } = useAlbumSession()
@@ -50,9 +52,11 @@ export default function StartAlbumSessionButton({
         }
     }
 
+    const baseClass = compact ? "album-session-entry-btn album-session-entry-btn--compact" : "album-session-entry-btn"
+
     if (unavailabilityReason) {
         return (
-            <span className={`album-session-unavailable ${className ?? ""}`} role="status">
+            <span className={`${baseClass} album-session-entry-btn--unavailable ${className ?? ""}`} role="status">
                 {unavailabilityReason}
             </span>
         )
@@ -60,9 +64,28 @@ export default function StartAlbumSessionButton({
 
     if (isLoading) {
         return (
-            <span className={`album-session-loading ${className ?? ""}`} role="status">
+            <span className={`${baseClass} album-session-entry-btn--loading ${className ?? ""}`} role="status">
                 {t.common.loading}
             </span>
+        )
+    }
+
+    if (compact) {
+        return (
+            <button
+                type="button"
+                onClick={handlePlayPause}
+                className={`${baseClass} ${className ?? ""}`}
+                aria-label={
+                    isPlaying
+                        ? `${t.sessionPlayer.pause}: ${albumTitle}`
+                        : isPaused
+                          ? `${t.albumDetail.resume}: ${albumTitle}`
+                          : `${t.albumDetail.playAlbum}: ${albumTitle}`
+                }
+            >
+                {isPlaying ? "⏸" : isPaused ? "▶" : "▶"}
+            </button>
         )
     }
 

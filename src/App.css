@@ -393,6 +393,48 @@
   color: #555;
 }
 
+/* ─── Album Session Entry Button (compact inline play control) ─── */
+.album-session-entry-btn {
+  display: inline-block;
+}
+
+.album-session-entry-btn--compact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-primary, #5A7D5A);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.album-session-entry-btn--compact:hover {
+  background: var(--color-primary-hover, #4E6E4E);
+  transform: scale(1.1);
+}
+
+.album-session-entry-btn--compact:active {
+  transform: scale(0.95);
+}
+
+.album-session-entry-btn--unavailable {
+  font-size: 11px;
+  color: var(--color-smoke, #6F6B66);
+  font-style: italic;
+}
+
+.album-session-entry-btn--loading {
+  font-size: 11px;
+  color: var(--color-smoke, #6F6B66);
+}
+
 /* Screen-reader only utility */
 .sr-only {
   position: absolute;

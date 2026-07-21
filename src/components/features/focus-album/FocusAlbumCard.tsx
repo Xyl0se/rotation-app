@@ -228,6 +228,7 @@ function FocusAlbumCard({
                         albumId={album.id}
                         albumTitle={album.title}
                         variant="primary"
+                        compact
                         className="listen-button"
                     />
                     <button
