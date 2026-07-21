@@ -1,69 +1,19 @@
 import type { Album } from "../../../types/album"
 
-import type { ListenEvent } from "../../../domain/listening/listenEvents"
-
 import {
     getRoleSince,
 } from "../../../domain/album/roleHistoryHelpers"
 
 import AlbumCover from "../../ui/AlbumCover"
-import AlbumTimeline from "../timeline/AlbumTimeline"
 import { useI18n } from "../../../i18n/useI18n"
 import StartAlbumSessionButton from "../playback/StartAlbumSessionButton"
 
-function StoryBadge({ label, value }: { label: string; value: string }) {
-    return (
-        <span className="story-badge">
-            <span className="story-badge-label">{label}</span>
-            <span className="story-badge-value">{value}</span>
-        </span>
-    )
-}
-
-function AlbumStory({ story }: { story: NonNullable<Album["story"]> }) {
-    const { t } = useI18n()
-
-    return (
-        <div className="album-story">
-            <div className="story-badges">
-                {story.acquiredBecause && (
-                    <StoryBadge
-                        label={t.albumStory.why}
-                        value={t.acquisitionReasons[story.acquiredBecause]}
-                    />
-                )}
-                {story.lifePhase && (
-                    <StoryBadge
-                        label={t.albumStory.when}
-                        value={t.lifePhases[story.lifePhase]}
-                    />
-                )}
-            </div>
-            {story.memoryNote && (
-                <blockquote className="story-note">
-                    {story.memoryNote}
-                </blockquote>
-            )}
-        </div>
-    )
-}
-
 type FocusAlbumCardProps = {
-
     album: Album
-
-    listenEvents: ListenEvent[]
-
     onLogListen: () => void
-
     onSuggestAnother: () => void
-
     onEdit: () => void
-
-    onEditJournal?: (eventId:string)=>void
-
     onOpenAlbum?: (albumId: string) => void
-
 }
 
 function formatLastListened(date: string | null, t: ReturnType<typeof useI18n>["t"]) {
@@ -121,17 +71,11 @@ function formatRoleSince(album: Album) {
 }
 
 function FocusAlbumCard({
-
     album,
-
-    listenEvents,
-
     onLogListen,
     onSuggestAnother,
     onEdit,
-    onEditJournal,
     onOpenAlbum,
-
 }: FocusAlbumCardProps) {
 
     const { t } = useI18n()
@@ -282,17 +226,6 @@ function FocusAlbumCard({
                 </aside>
 
             </div>
-
-            {album.story && (
-                <AlbumStory story={album.story} />
-            )}
-
-            <details className="focus-timeline-popover">
-                <summary>{t.focusAlbum.timeline}</summary>
-                <div className="focus-timeline-panel">
-                    <AlbumTimeline album={album} listenEvents={listenEvents} onEditJournal={onEditJournal} />
-                </div>
-            </details>
 
         </section>
 

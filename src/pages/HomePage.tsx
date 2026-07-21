@@ -130,11 +130,9 @@ function HomePage({ albumDetailId = null, onOpenAlbum, onCloseAlbum }: HomePageP
                         {focusAlbum ? (
                             <FocusAlbumCard
                                 album={focusAlbum}
-                                listenEvents={listenEvents}
                                 onLogListen={() => void handleLogListen(focusAlbum.id)}
                                 onSuggestAnother={() => void suggestFocusAlbum()}
                                 onEdit={() => setEditingAlbumId(focusAlbum.id)}
-                                onEditJournal={setJournalEditorEventId}
                                 onOpenAlbum={onOpenAlbum}
                             />
                         ) : (

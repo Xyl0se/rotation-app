@@ -6,7 +6,6 @@ import type { Album } from "../../../types/album"
 import FocusAlbumCard from "./FocusAlbumCard"
 
 vi.mock("../../ui/AlbumCover", () => ({ default: () => <div data-testid="cover" /> }))
-vi.mock("../timeline/AlbumTimeline", () => ({ default: () => <div data-testid="timeline" /> }))
 vi.mock("../playback/StartAlbumSessionButton", () => ({ default: () => <button data-testid="start-session">Album abspielen</button> }))
 
 const album: Album = {
@@ -26,7 +25,6 @@ describe("FocusAlbumCard actions", () => {
             <I18nContext.Provider value={{ t: de, language: "de", setLanguage: vi.fn() }}>
                 <FocusAlbumCard
                     album={album}
-                    listenEvents={[]}
                     onLogListen={vi.fn()}
                     onSuggestAnother={vi.fn()}
                     onEdit={vi.fn()}
@@ -45,7 +43,6 @@ describe("FocusAlbumCard actions", () => {
             <I18nContext.Provider value={{ t: de, language: "de", setLanguage: vi.fn() }}>
                 <FocusAlbumCard
                     album={album}
-                    listenEvents={[]}
                     onLogListen={vi.fn()}
                     onSuggestAnother={vi.fn()}
                     onEdit={onEdit}

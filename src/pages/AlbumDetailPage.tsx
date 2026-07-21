@@ -27,12 +27,13 @@ interface AlbumDetailPageProps {
     onBack: () => void
     onEdit: () => void
     onLogListen: () => void
+    onEditJournal?: (eventId: string) => void
     onSaveSources: (sources: AlbumSource[]) => Promise<boolean>
 }
 
 const formatDate = (value: string) => new Date(value).toLocaleDateString(undefined, { day: "2-digit", month: "2-digit", year: "numeric" })
 
-export default function AlbumDetailPage({ album, albumId, listenEvents, reflections, currentRotation, historicRotations, binding, isLoading, partialErrors, onBack, onEdit, onLogListen, onSaveSources }: AlbumDetailPageProps) {
+export default function AlbumDetailPage({ album, albumId, listenEvents, reflections, currentRotation, historicRotations, binding, isLoading, partialErrors, onBack, onEdit, onLogListen, onEditJournal, onSaveSources }: AlbumDetailPageProps) {
     const { t } = useI18n()
 
     if (isLoading && !album) return <main className="container album-detail"><p role="status">{t.albumDetail.loading}</p></main>
@@ -80,6 +81,6 @@ export default function AlbumDetailPage({ album, albumId, listenEvents, reflecti
             <AlbumExternalSources sources={album.sources ?? []} />
             <details className="album-source-management"><summary>{t.albumSources.manage}</summary><AlbumSourceEditor album={album} onSave={onSaveSources} /></details>
         </div>
-        <AlbumTimeline album={album} listenEvents={albumListens} />
+        <AlbumTimeline album={album} listenEvents={albumListens} onEditJournal={onEditJournal} />
     </main>
 }
