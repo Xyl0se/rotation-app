@@ -65,6 +65,23 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
         return new URL(buildMediaUrl(albumId, opaqueTrackId), window.location.origin).href
     }
 
+    function resolveCoverUrl(albumId: string): string {
+        return new URL(`/api/covers/${encodeURIComponent(albumId)}`, window.location.origin).href
+    }
+
+    function clearMediaSession() {
+        if ("mediaSession" in navigator) {
+            navigator.mediaSession.metadata = null
+            try {
+                navigator.mediaSession.setActionHandler("play", null)
+                navigator.mediaSession.setActionHandler("pause", null)
+            } catch {
+                // Some platforms throw when clearing handlers
+            }
+        }
+    }
+
+
     const getPreloadAudio = useCallback((): HTMLAudioElement => {
         if (!preloadAudioRef.current) {
             preloadAudioRef.current = new Audio()
@@ -241,6 +258,57 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
         }
     }, [getAudio, ctx.lastSessionId, ctx.state.kind, ctx.state])
 
+    // --- Media Session API ---
+
+    useEffect(() => {
+        if (!("mediaSession" in navigator)) return
+
+        const state = ctx.state
+
+        if (
+            state.kind !== "playing" &&
+            state.kind !== "paused" &&
+            state.kind !== "recoverable-error"
+        ) {
+            clearMediaSession()
+            return
+        }
+
+        const track = getCurrentTrack(state)
+        if (!track) {
+            clearMediaSession()
+            return
+        }
+
+        const artwork: MediaImage[] = []
+        if (state.manifest.coverPath || state.manifest.albumId) {
+            artwork.push({
+                src: resolveCoverUrl(state.manifest.albumId),
+                sizes: "512x512",
+                type: "image/jpeg",
+            })
+        }
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: track.title,
+            artist: state.manifest.artist,
+            album: state.manifest.title,
+            artwork,
+        })
+
+        try {
+            navigator.mediaSession.setActionHandler("play", () => {
+                resume()
+            })
+            navigator.mediaSession.setActionHandler("pause", () => {
+                pause()
+            })
+            // Explicitly do NOT register seek, next, or previous handlers.
+        } catch {
+            // Platform may not support these actions
+        }
+    }, [ctx.state, resume, pause])
+
     // --- React to state changes for audio control ---
 
     useEffect(() => {
@@ -353,6 +421,14 @@ export function AlbumSessionProvider({ children }: { children: ReactNode }) {
         // Workstream 90E will add the actual recovery dialog.
         // For now, just preserve the data but do not auto-start.
         recoveryDismissedRef.current = true
+    }, [])
+
+    // --- Cleanup on unmount ---
+
+    useEffect(() => {
+        return () => {
+            clearMediaSession()
+        }
     }, [])
 
     const value = {

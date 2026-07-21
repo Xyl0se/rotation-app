@@ -72,8 +72,21 @@ export default function AlbumSessionBand() {
         setShowRestartConfirm(false)
     }
 
+    // Status announcement for screen readers
+    const statusText = (() => {
+        if (isRecoverableError) return (state as { error: string }).error
+        if (isCompleted) return t.sessionPlayer.albumCompleted
+        if (isPlaying && trackContext) return t.sessionPlayer.nowPlaying(manifest.artist, manifest.title)
+        return null
+    })()
+
     return (
-        <div className="album-session-band" role="region" aria-label="Album session player">
+        <div className="album-session-band" role="region" aria-label={t.sessionPlayer.nowPlaying(manifest.artist, manifest.title)}>
+            {/* Live region for dynamic status announcements */}
+            <div aria-live="polite" aria-atomic="true" className="sr-only">
+                {statusText}
+            </div>
+
             <div className="album-session-band__inner">
                 {/* Album cover */}
                 <div className="album-session-band__cover">
@@ -113,6 +126,7 @@ export default function AlbumSessionBand() {
                         className="album-session-band__btn album-session-band__btn--primary"
                         onClick={handlePlayPause}
                         aria-label={isPlaying ? t.sessionPlayer.pause : t.sessionPlayer.play}
+                        aria-pressed={isPlaying}
                     >
                         {isPlaying ? "⏸" : "▶"}
                     </button>
@@ -147,24 +161,41 @@ export default function AlbumSessionBand() {
                         </p>
                     )}
 
-                    {isCompleted && <p className="album-session-band__completed">Album completed</p>}
-
-                    <button
-                        type="button"
-                        className="album-session-band__btn album-session-band__btn--secondary"
-                        onClick={handleRestart}
-                        aria-label={t.sessionPlayer.restart}
-                    >
-                        {showRestartConfirm ? t.sessionPlayer.confirmRestart : t.sessionPlayer.restart}
-                    </button>
+                    {isCompleted && <p className="album-session-band__completed">{t.sessionPlayer.albumCompleted}</p>}
 
                     {showRestartConfirm && (
+                        <div role="alertdialog" aria-labelledby="restart-confirm-title" className="album-session-band__confirm">
+                            <p id="restart-confirm-title" className="album-session-band__confirm-text">
+                                {t.sessionPlayer.confirmRestart}
+                            </p>
+                            <div className="album-session-band__confirm-actions">
+                                <button
+                                    type="button"
+                                    className="album-session-band__btn album-session-band__btn--secondary"
+                                    onClick={handleRestart}
+                                    aria-label={t.sessionPlayer.restart}
+                                >
+                                    {t.sessionPlayer.restart}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="album-session-band__btn album-session-band__btn--text"
+                                    onClick={() => setShowRestartConfirm(false)}
+                                >
+                                    {t.common.cancel}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {!showRestartConfirm && (
                         <button
                             type="button"
-                            className="album-session-band__btn album-session-band__btn--text"
-                            onClick={() => setShowRestartConfirm(false)}
+                            className="album-session-band__btn album-session-band__btn--secondary"
+                            onClick={handleRestart}
+                            aria-label={t.sessionPlayer.restart}
                         >
-                            Cancel
+                            {t.sessionPlayer.restart}
                         </button>
                     )}
                 </div>

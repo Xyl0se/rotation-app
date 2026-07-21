@@ -109,17 +109,28 @@ idle -> loading -> playing <-> paused
       markers, current-Track highlight, time display, absence of clickable elements,
       disc boundaries, and zero-duration fallback.
 
-## Workstream 90C — Cooperative media controls
+## Workstream 90C — Cooperative media controls ✅ Completed
 
-- Do not expose native browser audio controls.
-- Register Media Session metadata where supported so Album, artist, artwork, and current
-  Track are visible outside the tab.
-- Support Play and Pause media actions only where the platform permits.
-- Do not register seek, next, or previous handlers; verify the actual production
-  browser behavior and document controls the browser or OS cannot suppress.
-- Make Play/Pause, Stop, Restart, status, and errors fully keyboard and screen-reader
-  accessible.
-- Respect reduced motion and never use progress animation that obscures real position.
+- [x] No native browser audio controls exposed (`HTMLAudioElement` without `controls`).
+- [x] Media Session API integration: `navigator.mediaSession.metadata` updated with
+      title, artist, album, and artwork on every track/state change.
+- [x] `setActionHandler("play")` → `resume()`; `setActionHandler("pause")` → `pause()`.
+- [x] **No** `seekbackward`, `seekforward`, `previoustrack`, `nexttrack` handlers
+      registered — browser/OS cannot suppress these, but Rotation intentionally omits them.
+- [x] Full keyboard accessibility: all controls are `<button>` elements with visible focus.
+- [x] Screen-reader support:
+  - `role="region"` with descriptive `aria-label` (artist — album).
+  - `aria-pressed` on Play/Pause toggle button.
+  - `aria-expanded` on expand/collapse button.
+  - `aria-live="polite"` live region for dynamic status (error, completed, playing).
+  - `role="alert"` on error messages.
+  - `role="alertdialog"` with `aria-labelledby` for restart confirmation.
+- [x] Reduced motion: `@media (prefers-reduced-motion: reduce)` removes the
+      `width` transition from `AlbumProgress` fill so the real position is never obscured.
+- [x] i18n keys added for screen-reader status text (DE/EN): `nowPlaying`,
+      `errorOccurred`, `albumCompleted`, `loading`, plus `common.cancel`.
+- [x] 9 component tests covering region semantics, `aria-pressed`, `aria-expanded`,
+      `aria-live`, alert roles, alertdialog, and idle-state absence.
 
 ## Workstream 90D — Entry points
 

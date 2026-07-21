@@ -129,6 +129,10 @@ export const en = {
         trackOf: (current: number, total: number) => `Track ${current} of ${total}`,
         expand: "Details",
         collapse: "Collapse",
+        nowPlaying: (artist: string, album: string) => `${artist} — ${album}`,
+        errorOccurred: "Playback error",
+        albumCompleted: "Album completed",
+        loading: "Loading playback…",
     },
 
     albumSources: {
@@ -762,6 +766,7 @@ export const en = {
         album: "Album",
         albums: "Albums",
         coverOf: (title: string) => `Cover of ${title}`,
+        cancel: "Cancel",
     },
 
     nav: {

@@ -130,6 +130,10 @@ export const de: Translation = {
         trackOf: (current: number, total: number) => `Track ${current} von ${total}`,
         expand: "Details",
         collapse: "Einklappen",
+        nowPlaying: (artist: string, album: string) => `${artist} — ${album}`,
+        errorOccurred: "Wiedergabefehler",
+        albumCompleted: "Album beendet",
+        loading: "Lade Wiedergabe…",
     },
 
     albumSources: {
@@ -763,6 +767,7 @@ export const de: Translation = {
         album: "Album",
         albums: "Alben",
         coverOf: (title: string) => `Cover von ${title}`,
+        cancel: "Abbrechen",
     },
 
     nav: {
