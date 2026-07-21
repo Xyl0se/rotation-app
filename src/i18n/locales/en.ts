@@ -135,6 +135,14 @@ export const en = {
         loading: "Loading playback…",
     },
 
+    playbackUnavailable: {
+        noBinding: "No music folder linked.",
+        unconfirmedBinding: "Music folder not yet confirmed.",
+        noManifest: "No playable manifest available.",
+        unsupportedCodec: "Audio format not supported.",
+        generic: "Playback not available right now.",
+    },
+
     albumSources: {
         title: "External sources",
         description: "Search only when you want to review or correct stored references. Nothing is replaced before you save.",

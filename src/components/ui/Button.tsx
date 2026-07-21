@@ -10,6 +10,7 @@ type ButtonProps = {
 
     disabled?: boolean
     title?: string
+    className?: string
 
 }
 
@@ -23,6 +24,7 @@ function Button({
 
     disabled = false,
     title,
+    className,
 
 }: ButtonProps) {
 
@@ -30,7 +32,7 @@ function Button({
 
         <button
 
-            className={`button ${variant}`}
+            className={`button ${variant}${className ? ` ${className}` : ""}`}
 
             onClick={onClick}
 

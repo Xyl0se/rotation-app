@@ -1,6 +1,6 @@
 # Sprint 90 — Whole Album Session
 
-**Status:** In Progress — Workstream 90A completed, Workstreams 90B–90G planned
+**Status:** In Progress — Workstreams 90A–90D completed, Workstreams 90E–90G planned
 
 **Target version:** Future major product capability
 
@@ -132,20 +132,20 @@ idle -> loading -> playing <-> paused
 - [x] 9 component tests covering region semantics, `aria-pressed`, `aria-expanded`,
       `aria-live`, alert roles, alertdialog, and idle-state absence.
 
-## Workstream 90D — Entry points
+## Workstream 90D — Entry points ✅ Completed
 
-Allow "Start Album Session" only for Albums with a confirmed playable manifest from:
-
-- Focus Album;
-- an Album in the active Player Rotation;
-- the Sprint 88 Album Detail page.
-
-Library-wide playback may be evaluated after production use. It is not required for the
-first release because Focus, active Rotation, and Album Detail are the intentional
-attention contexts.
-
-Unavailable Albums explain whether the Binding, ordering, file, or codec is the reason
-without exposing internal paths.
+- [x] Reusable `StartAlbumSessionButton` component created in `src/components/features/playback/StartAlbumSessionButton.tsx`.
+- [x] Entry point added to **Focus Album** (`FocusAlbumCard`): shows Play/Pause/Resume when binding is confirmed, otherwise shows a calm unavailability reason.
+- [x] Entry point added to **active Player Rotation tiles** (`PlayerRotation`): each tile shows a secondary Play button for its album when binding is confirmed; draft rotation tiles remain unchanged.
+- [x] **Album Detail page** already had `AlbumPlayer` with play capability; no changes needed.
+- [x] Unavailability reasons implemented via `playbackUnavailable` i18n namespace:
+  - `noBinding` — when no music folder is linked.
+  - `unconfirmedBinding` — when binding exists but is not confirmed.
+  - `noManifest`, `unsupportedCodec`, `generic` — reserved for manifest/codec errors.
+- [x] `Button` component extended with optional `className` prop for layout flexibility.
+- [x] 8 component tests for `StartAlbumSessionButton` covering: play button, pause button, loading state, no binding, unconfirmed binding, start action, pause action, different-album playback.
+- [x] Existing `FocusAlbumCard.test.tsx` updated to mock `StartAlbumSessionButton`.
+- [x] All 345 frontend tests and 350 server tests passing; TypeScript strict; lint clean.
 
 ## Workstream 90E — Interruption and recovery
 

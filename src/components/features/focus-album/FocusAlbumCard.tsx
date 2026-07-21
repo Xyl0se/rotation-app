@@ -9,6 +9,7 @@ import {
 import AlbumCover from "../../ui/AlbumCover"
 import AlbumTimeline from "../timeline/AlbumTimeline"
 import { useI18n } from "../../../i18n/useI18n"
+import StartAlbumSessionButton from "../playback/StartAlbumSessionButton"
 
 function StoryBadge({ label, value }: { label: string; value: string }) {
     return (
@@ -223,6 +224,12 @@ function FocusAlbumCard({
                 </div>
 
                 <aside className="focus-album-listening" aria-label={t.focusAlbum.listenCountLabel}>
+                    <StartAlbumSessionButton
+                        albumId={album.id}
+                        albumTitle={album.title}
+                        variant="primary"
+                        className="listen-button"
+                    />
                     <button
                         className="listen-button"
                         onClick={onLogListen}

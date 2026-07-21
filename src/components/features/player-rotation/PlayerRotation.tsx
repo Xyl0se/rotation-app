@@ -17,6 +17,7 @@ import type { ListenEvent } from "../../../domain/listening/listenEvents"
 import AlbumCover from "../../ui/AlbumCover"
 import RotationTileTooltip from "./RotationTileTooltip"
 import { useI18n } from "../../../i18n/useI18n"
+import StartAlbumSessionButton from "../playback/StartAlbumSessionButton"
 import { fetchRotationHandover, type RotationHandoverPreview } from "../../../services/api/rotationStateService"
 import { formatFileSize } from "../../../utils/formatFileSize"
 
@@ -390,6 +391,16 @@ function RotationTile({
 
                 </div>
             </div>
+
+            {!isDraft && (
+                <div className="player-rotation-tile-playback">
+                    <StartAlbumSessionButton
+                        albumId={album.id}
+                        albumTitle={album.title}
+                        variant="secondary"
+                    />
+                </div>
+            )}
 
             {
                 isDraft && (

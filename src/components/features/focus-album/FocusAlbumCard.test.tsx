@@ -7,6 +7,7 @@ import FocusAlbumCard from "./FocusAlbumCard"
 
 vi.mock("../../ui/AlbumCover", () => ({ default: () => <div data-testid="cover" /> }))
 vi.mock("../timeline/AlbumTimeline", () => ({ default: () => <div data-testid="timeline" /> }))
+vi.mock("../playback/StartAlbumSessionButton", () => ({ default: () => <button data-testid="start-session">Album abspielen</button> }))
 
 const album: Album = {
     id: "11111111-1111-4111-8111-111111111111",

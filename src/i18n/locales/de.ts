@@ -136,6 +136,14 @@ export const de: Translation = {
         loading: "Lade Wiedergabe…",
     },
 
+    playbackUnavailable: {
+        noBinding: "Kein Musikordner verknüpft.",
+        unconfirmedBinding: "Musikordner noch nicht bestätigt.",
+        noManifest: "Kein abspielbares Manifest verfügbar.",
+        unsupportedCodec: "Audioformat wird nicht unterstützt.",
+        generic: "Wiedergabe derzeit nicht möglich.",
+    },
+
     albumSources: {
         title: "Externe Quellen",
         description: "Starte die Suche nur, wenn du gespeicherte Verweise prüfen oder korrigieren möchtest. Vor dem Speichern wird nichts ersetzt.",
