@@ -790,11 +790,11 @@ export const de: Translation = {
 
     nav: {
         home: "Start",
-        bindings: "Bindings",
-        export: "Export",
+        library: "Bibliothek",
         insights: "Insights",
+        export: "Export",
+        bindings: "Bindings",
         settings: "Einstellungen",
-        history: "Verlauf",
         offline: "Offline — warte auf Verbindung",
         apiUnavailable: "Server nicht erreichbar — lokaler Cache aktiv",
         retrying: "Wiederhole…",

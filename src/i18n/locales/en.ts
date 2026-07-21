@@ -789,11 +789,11 @@ export const en = {
 
     nav: {
         home: "Home",
-        bindings: "Bindings",
-        export: "Export",
+        library: "Library",
         insights: "Insights",
+        export: "Export",
+        bindings: "Bindings",
         settings: "Settings",
-        history: "History",
         offline: "Offline — waiting for connection",
         apiUnavailable: "Server unavailable — using local cache",
         retrying: "Retrying…",

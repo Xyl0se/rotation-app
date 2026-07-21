@@ -16,10 +16,10 @@ function renderHeader(orphanCount = 0, onNavigate = vi.fn()) {
 describe("AppHeader navigation", () => {
     it("uses the approved primary navigation order", () => {
         renderHeader()
-        expect(screen.getByRole("navigation").querySelectorAll("button")).toHaveLength(5)
+        expect(screen.getByRole("navigation").querySelectorAll("button")).toHaveLength(6)
         expect(
             Array.from(screen.getByRole("navigation").querySelectorAll("button"), button => button.textContent),
-        ).toEqual(["Start", "Insights", "Export", "Bindings", "Einstellungen"])
+        ).toEqual(["Start", "Bibliothek", "Insights", "Export", "Bindings", "Einstellungen"])
     })
 
     it("offers the dedicated Insights page", () => {

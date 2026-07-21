@@ -1,12 +1,13 @@
 import OfflineIndicator from "../ui/OfflineIndicator"
 import { useI18n } from "../../i18n/useI18n"
 
-export type AppPage = "home" | "bindings" | "export" | "insights" | "history" | "settings"
+export type AppPage = "home" | "library" | "insights" | "export" | "bindings" | "settings"
 
 export default function AppHeader({ page, onNavigate, orphanCount = 0 }: { page: AppPage; onNavigate: (page: AppPage) => void; orphanCount?: number }) {
     const { t } = useI18n()
     const entries: Array<[AppPage, string]> = [
         ["home", t.nav.home],
+        ["library", t.nav.library],
         ["insights", t.nav.insights],
         ["export", t.nav.export],
         ["bindings", t.nav.bindings],

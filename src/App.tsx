@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react"
 
 import HomePage from "./pages/HomePage"
+import LibraryPage from "./pages/LibraryPage"
 import WelcomePage from "./pages/WelcomePage"
 import BindingsPage from "./pages/BindingsPage"
 import ExportPage from "./pages/ExportPage"
 import SettingsPage from "./pages/SettingsPage"
-import RotationHistoryPage from "./pages/RotationHistoryPage"
 import InsightsPage from "./pages/InsightsPage"
 import AppHeader, { type AppPage } from "./components/features/AppHeader"
 import ToastContainer from "./components/ui/Toast"
@@ -71,7 +71,8 @@ function App() {
     return (
         <>
             <AppHeader page={page} onNavigate={navigate} orphanCount={orphans.length} />
-            {page === "home" && <HomePage onNavigateToBindings={() => navigate("bindings")} highlightAlbumId={highlightAlbumId} albumDetailId={albumDetailId} onOpenAlbum={openAlbum} onCloseAlbum={closeAlbum} />}
+            {page === "home" && <HomePage onNavigateToBindings={() => navigate("bindings")} albumDetailId={albumDetailId} onOpenAlbum={openAlbum} onCloseAlbum={closeAlbum} />}
+            {page === "library" && <LibraryPage highlightAlbumId={highlightAlbumId} albumDetailId={albumDetailId} onOpenAlbum={openAlbum} />}
             {page === "bindings" && (
                 <main className="bindings-workspace">
                     <BindingsPage onNavigateToLibrary={handleNavigateToLibrary} onBindingsChanged={refreshBindings} />
@@ -83,7 +84,6 @@ function App() {
                 </main>
             )}
             {page === "settings" && <SettingsPage />}
-            {page === "history" && <RotationHistoryPage />}
             {page === "insights" && <InsightsPage />}
             <AlbumSessionBand />
             <ToastContainer />
