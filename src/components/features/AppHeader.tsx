@@ -14,7 +14,7 @@ export default function AppHeader({ page, onNavigate, orphanCount = 0 }: { page:
     ]
     return <header className="app-header">
         <button className="product-mark" onClick={() => onNavigate("home")} aria-label={t.header.title}>
-            <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="5"/><path d="M36 10a19 19 0 0 1 5 11"/></svg>
+            <img src="/logo.svg" alt="" className="product-mark__logo" aria-hidden="true" width="28" height="28" />
             <span>{t.header.title}</span>
         </button>
         <nav className="app-nav" aria-label={t.header.title}>
