@@ -1,6 +1,6 @@
 # Sprint 90 — Whole Album Session
 
-**Status:** In Progress — Workstreams 90A–90D completed, Workstreams 90E–90G planned
+**Status:** In Progress — Workstreams 90A–90D completed ✅, Workstreams 90E–90G planned
 
 **Target version:** Future major product capability
 
@@ -146,6 +146,7 @@ idle -> loading -> playing <-> paused
 - [x] 8 component tests for `StartAlbumSessionButton` covering: play button, pause button, loading state, no binding, unconfirmed binding, start action, pause action, different-album playback.
 - [x] Existing `FocusAlbumCard.test.tsx` updated to mock `StartAlbumSessionButton`.
 - [x] All 345 frontend tests and 350 server tests passing; TypeScript strict; lint clean.
+- [x] Feedback iteration: compact circular play button (28px), removed from Rotation tiles, CSS import ordering fixed.
 
 ## Workstream 90E — Interruption and recovery
 
