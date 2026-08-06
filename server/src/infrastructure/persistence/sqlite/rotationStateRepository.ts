@@ -9,12 +9,14 @@ export function createRotationStateRepository(db: Database.Database) {
             db.prepare("UPDATE rotation_plans SET status='archived', focus_album_id=NULL, archived_at=? WHERE status='active' AND id!=?").run(now, plan.id)
             db.prepare("DELETE FROM rotation_plans WHERE status='draft' AND id!=?").run(plan.id)
         }
-        db.prepare(`INSERT INTO rotation_plans (id,name,target_size,role_quotas_json,status,focus_album_id,created_at,accepted_at,archived_at)
-            VALUES (?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,target_size=excluded.target_size,
+        db.prepare(`INSERT INTO rotation_plans (id,name,target_size,role_quotas_json,status,focus_album_id,created_at,accepted_at,archived_at,generation_source,automation_execution_key)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,target_size=excluded.target_size,
             role_quotas_json=excluded.role_quotas_json,status=excluded.status,focus_album_id=NULL,
-            accepted_at=excluded.accepted_at,archived_at=excluded.archived_at`).run(
+            accepted_at=excluded.accepted_at,archived_at=excluded.archived_at,
+            generation_source=excluded.generation_source,automation_execution_key=excluded.automation_execution_key`).run(
             plan.id, plan.name, plan.targetSize, JSON.stringify(plan.roleQuotas), plan.status,
             null, plan.createdAt, plan.acceptedAt ?? null, plan.archivedAt ?? null,
+            plan.generationSource ?? null, plan.automationExecutionKey ?? null,
         )
         db.prepare("DELETE FROM rotation_plan_items WHERE rotation_plan_id = ?").run(plan.id)
         const insert = db.prepare(`INSERT INTO rotation_plan_items
@@ -53,6 +55,8 @@ export function createRotationStateRepository(db: Database.Database) {
             createdAt: row.created_at as string,
             acceptedAt: typeof row.accepted_at === "string" ? row.accepted_at : undefined,
             archivedAt: typeof row.archived_at === "string" ? row.archived_at : undefined,
+            generationSource: (row.generation_source as "manual" | "automation" | null) ?? undefined,
+            automationExecutionKey: (row.automation_execution_key as string | null) ?? undefined,
             items: items.map(item => ({ albumId: item.album_id, role: item.role, reason: item.reason, albumTitleSnapshot: item.album_title_snapshot, albumArtistSnapshot: item.album_artist_snapshot })),
             albumIds: items.map(item => item.album_id),
             exports: exports.map(item => ({ id:item.id, appliedAt:item.created_at, totalSizeBytes:item.total_size_bytes, fileCount:item.file_count })),

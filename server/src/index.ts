@@ -57,6 +57,13 @@ import { createCoverResolver } from "./application/coverResolver.js"
 import { createCoverResolutionBatchService } from "./application/coverResolutionBatchService.js"
 import { createCoverResolutionRepository } from "./infrastructure/persistence/sqlite/coverResolutionRepository.js"
 import { createPlaybackManifestRepository } from "./infrastructure/persistence/sqlite/playbackManifestRepository.js"
+import { createAutomationSettingsRepository } from "./infrastructure/persistence/sqlite/automationSettingsRepository.js"
+import { createAutomationJobLogRepository } from "./infrastructure/persistence/sqlite/automationJobLogRepository.js"
+import { createAutomationService } from "./application/automationService.js"
+import { createAutomationRouter } from "./routes/automation.js"
+import { createRotationGenerationService } from "./application/rotationGenerationService.js"
+import { createAutomatedExportService } from "./application/automatedExportService.js"
+import { createWeeklyRotationJob } from "./application/weeklyRotationJob.js"
 import { createExternalSourceResolver, createMusicBrainzReleaseSearch } from "./application/externalSourceResolver.js"
 import { createPlaybackRouter } from "./routes/playback.js"
 
@@ -85,6 +92,9 @@ const reflectionInboxRepo = createReflectionInboxRepository(db)
 const reflectionInboxService = createReflectionInboxService(albumRepo, reflectionInboxRepo, rotationStateRepo)
 const coverResolutionRepo = createCoverResolutionRepository(db)
 const coverService = createCoverService(config.ROTATION_DATA_DIR, coverResolutionRepo)
+const automationSettingsRepo = createAutomationSettingsRepository(db)
+const automationJobLogRepo = createAutomationJobLogRepository(db)
+const automationService = createAutomationService(automationSettingsRepo, automationJobLogRepo)
 const insightsService = createInsightsService(createInsightEvidenceRepository(db))
 const playbackManifestRepo = createPlaybackManifestRepository(db)
 
@@ -110,6 +120,13 @@ const scanService = createScanService(scanner, bindingRepo, albumRepo, scanRunRe
 const lockRepo = createExportLockRepository(db)
 const exportService = createExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard, albumRepo, rotationStateRepo)
 const bindingCaptureService = createBindingCaptureService(db, albumRepo, bindingRepo, playbackManifestRepo)
+
+const rotationGenerationService = createRotationGenerationService(albumRepo, rotationStateRepo)
+const automatedExportService = createAutomatedExportService(bindingRepo, exportRepo, lockRepo, musicGuard, workspaceGuard)
+const weeklyRotationJob = createWeeklyRotationJob(rotationGenerationService, automatedExportService, automationSettingsRepo)
+
+automationService.registerJobHandler("weekly-rotation", weeklyRotationJob)
+
 
 // Run crash recovery on startup
 const recovery = runCrashRecovery(exportRepo, lockRepo, workspaceGuard)
@@ -198,6 +215,7 @@ app.use("/covers", requireWriteTokenForMutations, createCoversRouter(coverServic
 app.use("/exports", requireWriteToken, createExportsRouter(exportService))
 app.use("/backups", requireWriteToken, createBackupsRouter(backupScheduler, backupStatusRepo, backupService))
 app.use("/playback", createPlaybackRouter(playbackManifestService, playbackMediaService))
+app.use("/automation", createAutomationRouter(automationService, requireWriteTokenForMutations, rotationStateRepo))
 
 app.use((_req, res) => {
     res.status(404).json({ error: "Not found" })
@@ -209,6 +227,8 @@ const handleUnexpectedError = createApiErrorHandler((error) => {
     })
 })
 app.use(handleUnexpectedError)
+
+automationService.start()
 
 const port = config.PORT
 app.listen(port, () => {

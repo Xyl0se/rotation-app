@@ -3,8 +3,9 @@ import { useState, useEffect, useCallback } from "react"
 import type { Album } from "../types/album"
 import type { RotationPlan } from "../domain/rotation-plan/rotationPlan"
 
-import { generateRotationPlan } from "../domain/rotation-plan/generateRotationPlan"
-import { findReplacementCandidates } from "../domain/rotation-plan/findReplacement"
+import { generateRotationPlan, findReplacementCandidates } from "@rotation/domain"
+import { toRotationCandidate } from "../adapters/rotationDomain"
+import { generateUUID } from "../utils/uuid"
 import { chooseRandomServerFocus, fetchRotationSettings, fetchRotationState, saveRotationPlan, setServerFocus } from "../services/api/rotationStateService"
 
 export function useRotationPlan(
@@ -59,9 +60,13 @@ export function useRotationPlan(
     const generatePlan = useCallback(async () => {
         try {
             const settings = await fetchRotationSettings()
-            return persist(generateRotationPlan(albums, {
+            const candidates = albums.map(toRotationCandidate).filter((c): c is NonNullable<typeof c> => c !== null)
+            return persist(generateRotationPlan(candidates, {
                 ...settings,
                 previousAlbumIds: previousActiveAlbumIds,
+            }, {
+                random: Math.random,
+                generateId: generateUUID,
             }))
         } catch (cause) {
             setError(cause instanceof Error ? cause.message : "Rotation settings request failed")
@@ -94,7 +99,7 @@ export function useRotationPlan(
                     ? {
                         ...item,
                         albumId: replacementAlbumId,
-                        role: replacementAlbum.category ?? item.role,
+                        role: (replacementAlbum.category as typeof item.role) ?? item.role,
                         reason: "fill" as const,
                     }
                     : item
@@ -141,7 +146,7 @@ export function useRotationPlan(
 
     const getReplacementCandidates = useCallback((
         removedAlbumId: string,
-    ) => {
+    ): Album[] => {
         if (!rotationPlan) {
             return []
         }
@@ -151,11 +156,13 @@ export function useRotationPlan(
         if (!removedItem) {
             return []
         }
-        return findReplacementCandidates(
+        const candidates = albums.map(toRotationCandidate).filter((c): c is NonNullable<typeof c> => c !== null)
+        const candidateIds = findReplacementCandidates(
             removedItem,
             rotationPlan,
-            albums,
-        )
+            candidates,
+        ).map(c => c.id)
+        return albums.filter(album => candidateIds.includes(album.id))
     }, [rotationPlan, albums])
 
     return {

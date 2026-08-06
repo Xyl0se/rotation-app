@@ -1,0 +1,10 @@
+import type { RotationRoleQuota } from "./types"
+
+export const defaultRotationTargetSize = 25
+
+export const defaultRotationRoleQuotas: RotationRoleQuota[] = [
+    { role: "new", targetCount: 10 },
+    { role: "comfort-food", targetCount: 5 },
+    { role: "classic", targetCount: 5 },
+    { role: "growing", targetCount: 5 },
+]

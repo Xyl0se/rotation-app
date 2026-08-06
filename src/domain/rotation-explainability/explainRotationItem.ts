@@ -2,9 +2,7 @@ import type { Album } from "../../types/album"
 
 import type { RoleId } from "../roles"
 
-import type {
-    RotationPlanItem,
-} from "../rotation-plan/rotationPlan"
+import type { RotationPlanReason } from "../rotation-plan/rotationPlan"
 
 import type { ListenEvent } from "../listening/listenEvents"
 
@@ -183,7 +181,7 @@ function roleHistoryExplanation(
 }
 
 function planReasonExplanation(
-    item: RotationPlanItem,
+    item: { reason: RotationPlanReason },
 ): RotationExplanation | null {
     if (item.reason === "fill") {
         return {
@@ -249,7 +247,7 @@ function storyExplanation(
  */
 export function explainRotationItem(
     album: Album,
-    item: RotationPlanItem,
+    item: { role: RoleId; reason: RotationPlanReason },
     listenEvents: ListenEvent[],
     now = new Date(),
 ): RotationExplanation {

@@ -22,13 +22,13 @@ describe("representative SQLite performance gates", () => {
         insertAlbums()
 
         const insertHistory = db.transaction(() => {
-            const plan = db.prepare("INSERT INTO rotation_plans VALUES (?,?,?,?,?,NULL,?,?,?)")
+            const plan = db.prepare("INSERT INTO rotation_plans VALUES (?,?,?,?,?,NULL,?,?,?,?,?)")
             const item = db.prepare("INSERT INTO rotation_plan_items VALUES (?,?,?,?,?,?,?)")
             const operation = db.prepare("INSERT INTO export_operations (id,rotation_plan_id,created_at,status,album_ids,total_size_bytes,file_count) VALUES (?,?,?,'applied','[]',?,?)")
             for (let rotation = 0; rotation < 50; rotation++) {
                 const planId = `rotation-${rotation}`
                 const timestamp = new Date(Date.UTC(2026, 1, rotation + 1)).toISOString()
-                plan.run(planId, `Rotation ${rotation}`, 25, "[]", "archived", timestamp, timestamp, timestamp)
+                plan.run(planId, `Rotation ${rotation}`, 25, "[]", "archived", timestamp, timestamp, timestamp, null, null)
                 for (let position = 0; position < 25; position++) {
                     const albumId = `album-${String(rotation * 25 + position).padStart(5, "0")}`
                     item.run(planId, albumId, position, "new", "quota", `Album ${position}`, "Artist")

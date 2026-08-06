@@ -3,19 +3,28 @@
   "private": true,
   "version": "0.50.0",
   "type": "module",
+  "workspaces": [
+    "packages/*",
+    "server"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "npm run lint:frontend && npm run lint:server",
+    "build": "npm run build:domain && npm run build:client && npm run build:server",
+    "build:domain": "npm --prefix packages/rotation-domain run build",
+    "build:client": "tsc -b && vite build",
+    "build:server": "npm --prefix server run build",
+    "lint": "npm run lint:frontend && npm run lint:server && npm run lint:domain",
     "lint:frontend": "eslint src vite.config.ts vitest.config.ts",
     "lint:server": "npm --prefix server run lint",
+    "lint:domain": "npm --prefix packages/rotation-domain run lint",
     "preview": "vite preview",
-    "test": "npm run test:frontend && npm run test:server",
+    "test": "npm run test:domain && npm run test:frontend && npm run test:server",
+    "test:domain": "npm --prefix packages/rotation-domain test",
     "test:frontend": "vitest run --config vitest.config.ts",
     "test:server": "npm --prefix server test",
     "test:watch": "vitest --config vitest.config.ts",
     "docs:check": "node scripts/check-markdown-links.mjs",
-    "validate": "npm run lint && npm test && npm run docs:check && npm run build && npm --prefix server run build"
+    "validate": "npm run lint && npm test && npm run docs:check && npm run build"
   },
   "dependencies": {
     "react": "^19.2.7",

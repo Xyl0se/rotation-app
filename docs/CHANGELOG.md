@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+- **Sprint 92B.1 — Extract Shared Rotation Domain**
+  - Extracted `generateRotationPlan` and `findReplacementCandidates` into a new internal
+    workspace package `@rotation/domain` (`packages/rotation-domain/`).
+  - Shared package contains only platform-independent pure domain logic: no React, Express,
+    SQLite, browser APIs, or Node APIs.
+  - Minimal domain model (`RotationCandidate`) with only algorithmically required fields:
+    `id`, `title`, `category`, `listenCount`, `lastListened`.
+  - Explicit `RotationEligibleRole` type (`new` | `growing` | `comfort-food` | `classic`);
+    `admire` and `archive` are deliberately excluded, not silently missing.
+  - Dependency injection for platform-specific behavior: `random` and `generateId` are
+    injected via `GenerateRotationPlanDeps`.
+  - Client adapter (`src/adapters/rotationDomain.ts`) maps `Album → RotationCandidate`
+    with `isRotationEligibleRole` type guard.
+  - Server adapter (`server/src/adapters/rotationDomain.ts`) maps server `Album →
+    RotationCandidate` identically.
+  - Server-specific persistence fields (`focusAlbumId`, `generationSource`,
+    `automationExecutionKey`) remain in server-side `RotationPlan` definition only.
+  - Algorithm tests (36) moved into shared package; client and server only test adapters.
+  - Build order: `rotation-domain` → `client` → `server` via npm workspaces.
+  - All 805 tests passing (36 domain + 362 client + 407 server); TypeScript strict;
+    lint clean.
+
 ## v0.50.0 — 2026-07-21
 
 - **Sprint 90A–E, G — Whole Album Session**

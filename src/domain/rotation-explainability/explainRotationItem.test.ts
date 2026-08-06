@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest"
 
 import type { Album } from "../../types/album"
-import type { RotationPlanItem } from "../rotation-plan/rotationPlan"
+import type { RoleId } from "../roles"
+import type { RotationPlanReason } from "../rotation-plan/rotationPlan"
 import type { ListenEvent } from "../listening/listenEvents"
 
 import { explainRotationItem } from "./explainRotationItem"
@@ -25,7 +26,7 @@ function makeAlbum(overrides: Partial<Album> = {}): Album {
     }
 }
 
-function makeItem(overrides: Partial<RotationPlanItem> = {}): RotationPlanItem {
+function makeItem(overrides: Partial<{ albumId: string; role: RoleId; reason: RotationPlanReason }> = {}): { albumId: string; role: RoleId; reason: RotationPlanReason } {
     return {
         albumId: "album-1",
         role: "new",

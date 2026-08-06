@@ -66,7 +66,7 @@ The user opens their email and immediately discovers:
 
 The listening device already contains the new music.
 
-No manual interaction is required.
+No manual interaction is required. This means, that the current button for generating a new Player Rotation manually will be removed.
 
 ------------------------------------------------------------------------
 

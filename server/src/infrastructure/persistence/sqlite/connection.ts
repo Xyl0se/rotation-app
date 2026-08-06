@@ -525,6 +525,56 @@ const migrations: Migration[] = [
             `)
         },
     },
+    {
+        version: 17,
+        name: "automation-settings-and-job-log",
+        run(db) {
+            db.exec(`
+                CREATE TABLE automation_settings (
+                    singleton INTEGER PRIMARY KEY CHECK(singleton = 1),
+                    enabled INTEGER NOT NULL DEFAULT 0 CHECK(enabled IN (0,1)),
+                    weekday INTEGER NOT NULL DEFAULT 0 CHECK(weekday BETWEEN 0 AND 6),
+                    time TEXT NOT NULL DEFAULT '20:00' CHECK(time LIKE '__:__'),
+                    timezone TEXT NOT NULL DEFAULT 'Europe/Berlin',
+                    email_recipient TEXT,
+                    email_enabled INTEGER NOT NULL DEFAULT 0 CHECK(email_enabled IN (0,1)),
+                    auto_export_enabled INTEGER NOT NULL DEFAULT 0 CHECK(auto_export_enabled IN (0,1)),
+                    grace_period_minutes INTEGER NOT NULL DEFAULT 240 CHECK(grace_period_minutes >= 0),
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE TABLE automation_job_log (
+                    id TEXT PRIMARY KEY,
+                    job_type TEXT NOT NULL,
+                    execution_key TEXT NOT NULL,
+                    status TEXT NOT NULL CHECK(status IN ('started','completed','failed')),
+                    scheduled_for TEXT,
+                    started_at TEXT NOT NULL,
+                    finished_at TEXT,
+                    error_message TEXT,
+                    result_reference TEXT,
+                    created_at TEXT NOT NULL
+                );
+
+                CREATE UNIQUE INDEX idx_automation_job_log_unique_run
+                    ON automation_job_log(job_type, execution_key);
+
+                CREATE INDEX idx_automation_job_log_latest
+                    ON automation_job_log(job_type, started_at DESC);
+            `)
+        },
+    },
+    {
+        version: 18,
+        name: "rotation-automation-metadata",
+        run(db) {
+            db.exec(`
+                ALTER TABLE rotation_plans ADD COLUMN generation_source TEXT CHECK(generation_source IN ('manual', 'automation'));
+                ALTER TABLE rotation_plans ADD COLUMN automation_execution_key TEXT;
+                CREATE INDEX idx_rotation_plans_automation_key ON rotation_plans(automation_execution_key) WHERE automation_execution_key IS NOT NULL;
+            `)
+        },
+    },
 ]
 
 function migrate(db: Database.Database, maxMigrationVersion: number): void {
