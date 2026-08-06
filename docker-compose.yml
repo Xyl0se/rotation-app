@@ -1,6 +1,8 @@
 services:
   rotation-api:
-    build: ./server
+    build:
+      context: .
+      dockerfile: server/Dockerfile
     container_name: rotation-api
     restart: unless-stopped
     volumes:
