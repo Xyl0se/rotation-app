@@ -24,6 +24,8 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install workspace dependencies
         run: npm ci
+      - name: Build shared domain package
+        run: npm run build:domain
       - name: Run quality gate
         run: npm run validate
       - name: Validate Compose files
