@@ -76,6 +76,14 @@ function HomePage({ albumDetailId = null, onOpenAlbum, onCloseAlbum }: HomePageP
     }
 
     const focusAlbum = albums.find(album => album.id === focusAlbumId)
+    const activeRotation = rotationPlan?.status === "active" ? rotationPlan : null
+    const rotationActivation = activeRotation?.acceptedAt ?? activeRotation?.createdAt ?? null
+    const remainingFocusAlbumCount = activeRotation && rotationActivation
+        ? activeRotation.albumIds.filter(albumId => !listenEvents.some(event =>
+            event.albumId === albumId && event.listenedAt >= rotationActivation,
+        )).length
+        : 0
+    const isRotationComplete = Boolean(activeRotation?.albumIds.length) && remainingFocusAlbumCount === 0
     const editingAlbum = albums.find(album => album.id === editingAlbumId)
     const journalEditorEvent = listenEvents.find(event => event.id === journalEditorEventId) ?? null
     const journalEditorAlbum = albums.find(album => album.id === journalEditorEvent?.albumId)
@@ -134,11 +142,16 @@ function HomePage({ albumDetailId = null, onOpenAlbum, onCloseAlbum }: HomePageP
                                 onSuggestAnother={() => void suggestFocusAlbum()}
                                 onEdit={() => setEditingAlbumId(focusAlbum.id)}
                                 onOpenAlbum={onOpenAlbum}
+                                remainingAlbumCount={remainingFocusAlbumCount}
+                                rotationAlbumCount={activeRotation?.albumIds.length ?? 0}
                             />
                         ) : (
                             <EmptyFocusAlbumCard
                                 hasActiveRotation={rotationPlan?.status === "active" && rotationPlan.items.length > 0}
                                 onSuggest={() => void suggestFocusAlbum()}
+                                isRotationComplete={isRotationComplete}
+                                remainingAlbumCount={remainingFocusAlbumCount}
+                                rotationAlbumCount={activeRotation?.albumIds.length ?? 0}
                             />
                         )}
                         <PlayerRotation

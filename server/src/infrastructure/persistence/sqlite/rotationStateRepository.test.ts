@@ -39,6 +39,29 @@ describe("rotation state repository", () => {
         db.close()
     })
 
+    it("only considers Rotation items without a session since activation eligible for Focus", () => {
+        const { db, repository } = setup()
+        repository.savePlan({
+            ...plan(null),
+            items: [
+                { albumId: A, role: "classic", reason: "quota" },
+                { albumId: B, role: "new", reason: "quota" },
+            ],
+            albumIds: [A, B],
+        })
+        repository.saveListenEvent({ id: "44444444-4444-4444-8444-444444444440", albumId: A, listenedAt: "2026-01-01T00:00:00.000Z" })
+        repository.saveListenEvent({ id: "44444444-4444-4444-8444-444444444441", albumId: B, listenedAt: "2026-01-01T00:01:00.000Z" })
+
+        expect(repository.findEligibleFocusAlbumIds()).toEqual([A])
+        expect(() => repository.setFocus(B)).toThrow("FOCUS_ALBUM_ALREADY_HEARD")
+        expect(repository.setFocus(A).focusAlbumId).toBe(A)
+
+        repository.saveListenEvent({ id: "44444444-4444-4444-8444-444444444442", albumId: A, listenedAt: "2026-01-01T00:02:00.000Z" })
+        expect(repository.findEligibleFocusAlbumIds()).toEqual([])
+        expect(() => repository.setFocus(A)).toThrow("NO_ELIGIBLE_FOCUS_ALBUM")
+        db.close()
+    })
+
     it("stores listen events idempotently and cascades Album deletion", () => {
         const { db, repository } = setup()
         const event = { id: "44444444-4444-4444-8444-444444444444", albumId: A, listenedAt: "2026-01-01T00:00:00.000Z" }

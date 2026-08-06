@@ -84,6 +84,9 @@ export const de: Translation = {
         emptyTitle: "Noch kein Fokusalbum ausgewählt",
         emptyDescription: "Lass dir ein zufälliges Album aus deiner aktiven Rotation vorschlagen.",
         needsRotation: "Aktiviere zuerst eine Rotation, um daraus ein Fokusalbum auszuwählen.",
+        remainingInRotation: (remaining: number, total: number) => `${remaining} von ${total} Alben in dieser Rotation sind noch offen.`,
+        rotationCompleteTitle: "Diese Rotation ist einmal durchgehört",
+        rotationComplete: "Alle Alben dieser Rotation haben seit ihrer Aktivierung eine Hörsession. Das nächste Fokusalbum kommt mit der nächsten Rotation.",
     },
 
     albumStory: {

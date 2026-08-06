@@ -103,8 +103,27 @@ export function createRotationStateRepository(db: Database.Database) {
             const active = this.findActive()
             if (!active) throw new Error("NO_ACTIVE_ROTATION")
             if (albumId && !active.albumIds.includes(albumId)) throw new Error("FOCUS_NOT_IN_ACTIVE_ROTATION")
+            if (albumId) {
+                const eligibleAlbumIds = this.findEligibleFocusAlbumIds()
+                if (eligibleAlbumIds.length === 0) throw new Error("NO_ELIGIBLE_FOCUS_ALBUM")
+                if (!eligibleAlbumIds.includes(albumId)) throw new Error("FOCUS_ALBUM_ALREADY_HEARD")
+            }
             db.prepare("UPDATE rotation_plans SET focus_album_id=? WHERE id=?").run(albumId, active.id)
             return this.findActive()!
+        },
+        findEligibleFocusAlbumIds(): string[] {
+            const active = this.findActive()
+            if (!active) return []
+            const activationTimestamp = active.acceptedAt ?? active.createdAt
+            return (db.prepare(`SELECT item.album_id
+                FROM rotation_plan_items item
+                WHERE item.rotation_plan_id = ?
+                  AND NOT EXISTS (
+                      SELECT 1 FROM listen_events event
+                      WHERE event.album_id = item.album_id AND event.listened_at >= ?
+                  )
+                ORDER BY item.position`).all(active.id, activationTimestamp) as Array<{ album_id: string }>)
+                .map(row => row.album_id)
         },
         saveListenEvent(event: ListenEvent): void {
             saveListenEventTx(event)

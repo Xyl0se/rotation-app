@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { chooseRandomServerFocus, fetchRotationSettings, fetchRotationState, saveRotationPlan, setServerFocus } from "../services/api/rotationStateService"
+import { ApiError } from "../services/api/apiClient"
 import { useRotationPlan } from "./useRotationPlan"
 
 vi.mock("../services/api/rotationStateService", () => ({
@@ -50,9 +51,20 @@ describe("useRotationPlan server ownership", () => {
         vi.mocked(chooseRandomServerFocus).mockResolvedValue({ ...active, focusAlbumId: active.albumIds[0]! })
         const { result } = renderHook(() => useRotationPlan([], true))
         await waitFor(() => expect(result.current.rotationPlan).not.toBeNull())
-        await act(async () => expect(await result.current.suggestFocusAlbum()).toBe(true))
+        await act(async () => expect(await result.current.suggestFocusAlbum()).toBe("selected"))
         expect(result.current.focusAlbumId).toBe(active.albumIds[0])
         expect(saveRotationPlan).not.toHaveBeenCalled()
+    })
+
+    it("treats a completed Rotation as an expected Focus state", async () => {
+        vi.mocked(chooseRandomServerFocus).mockRejectedValueOnce(
+            new ApiError(409, { error: "NO_ELIGIBLE_FOCUS_ALBUM" }, "NO_ELIGIBLE_FOCUS_ALBUM"),
+        )
+        const { result } = renderHook(() => useRotationPlan([], true))
+        await waitFor(() => expect(result.current.rotationPlan).not.toBeNull())
+
+        await act(async () => expect(await result.current.suggestFocusAlbum()).toBe("completed"))
+        expect(result.current.error).toBeNull()
     })
 
     it("keeps the server-confirmed active status after acceptance and reload", async () => {

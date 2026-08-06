@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Sprint 93 — Completion-aware Focus Album**
+  - Focus Album suggestions now select only active-Rotation albums without a
+    listening session since that Rotation was activated.
+  - The server enforces the rule for both random and explicit Focus selection.
+  - The Focus area shows the quiet remaining-album count and an accessible
+    completion state once the Rotation has been heard once.
+
 - **Sprint 92B.1 — Extract Shared Rotation Domain**
   - Extracted `generateRotationPlan` and `findReplacementCandidates` into a new internal
     workspace package `@rotation/domain` (`packages/rotation-domain/`).

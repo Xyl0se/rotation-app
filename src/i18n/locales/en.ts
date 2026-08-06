@@ -83,6 +83,9 @@ export const en = {
         emptyTitle: "No Focus Album selected yet",
         emptyDescription: "Let Rotation choose a random album from your active Rotation.",
         needsRotation: "Activate a Rotation first to select a Focus Album from it.",
+        remainingInRotation: (remaining: number, total: number) => `${remaining} of ${total} albums in this Rotation are still open.`,
+        rotationCompleteTitle: "This Rotation has been heard once",
+        rotationComplete: "Every album in this Rotation has a listen session since activation. The next Focus Album arrives with the next Rotation.",
     },
 
     albumStory: {

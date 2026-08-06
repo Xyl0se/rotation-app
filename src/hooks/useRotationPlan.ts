@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react"
 
+import { ApiError } from "../services/api/apiClient"
+
 import type { Album } from "../types/album"
 import type { RotationPlan } from "../domain/rotation-plan/rotationPlan"
 
@@ -132,15 +134,19 @@ export function useRotationPlan(
         }
     }, [])
 
-    const suggestFocusAlbum = useCallback(async () => {
+    const suggestFocusAlbum = useCallback(async (): Promise<"selected" | "completed" | "error"> => {
         try {
             const active = await chooseRandomServerFocus()
             setFocusAlbumIdState(active.focusAlbumId)
             setError(null)
-            return true
+            return "selected"
         } catch (cause) {
+            if (cause instanceof ApiError && cause.status === 409 && cause.message === "NO_ELIGIBLE_FOCUS_ALBUM") {
+                setError(null)
+                return "completed"
+            }
             setError(cause instanceof Error ? cause.message : "Focus mutation failed")
-            return false
+            return "error"
         }
     }, [])
 

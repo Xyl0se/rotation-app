@@ -106,7 +106,9 @@ export function createRotationStateRouter(repository: RotationStateRepository, b
     router.post("/focus/random", (_req, res) => {
         const active = repository.findActive()
         if (!active?.albumIds.length) return void res.status(409).json({ error: "NO_ACTIVE_ROTATION" })
-        res.json(repository.setFocus(active.albumIds[randomInt(active.albumIds.length)]!))
+        const eligibleAlbumIds = repository.findEligibleFocusAlbumIds()
+        if (!eligibleAlbumIds.length) return void res.status(409).json({ error: "NO_ELIGIBLE_FOCUS_ALBUM" })
+        res.json(repository.setFocus(eligibleAlbumIds[randomInt(eligibleAlbumIds.length)]!))
     })
     router.get("/listens", (req, res) => {
         const limit = Math.min(Math.max(Number(req.query.limit) || 1_000, 1), 5_000)

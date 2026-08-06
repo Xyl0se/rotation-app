@@ -212,6 +212,24 @@ describe("rotation state route contract", () => {
         expect(secondPage).toEqual([expect.objectContaining({ id: EVENT_ID })])
     })
 
+    it("does not select a Focus Album once every active Rotation item has a newer session", async () => {
+        const afterActivation = "2026-07-16T14:00:00.000Z"
+        expect((await request("POST", "/rotation-state/listens", {
+            id: "550e8400-e29b-41d4-a716-446655440033", albumId: ALBUM_A, listenedAt: afterActivation,
+        })).status).toBe(201)
+        expect((await request("POST", "/rotation-state/listens", {
+            id: "550e8400-e29b-41d4-a716-446655440034", albumId: ALBUM_B, listenedAt: afterActivation,
+        })).status).toBe(201)
+
+        const random = await request("POST", "/rotation-state/focus/random")
+        expect(random.status).toBe(409)
+        await expect(random.json()).resolves.toEqual({ error: "NO_ELIGIBLE_FOCUS_ALBUM" })
+
+        const explicit = await request("PUT", "/rotation-state/focus", { albumId: ALBUM_A })
+        expect(explicit.status).toBe(409)
+        await expect(explicit.json()).resolves.toEqual({ error: "NO_ELIGIBLE_FOCUS_ALBUM" })
+    })
+
     it("rejects listening events for unknown Albums", async () => {
         const response = await request("POST", "/rotation-state/listens", {
             id: "550e8400-e29b-41d4-a716-446655440031",

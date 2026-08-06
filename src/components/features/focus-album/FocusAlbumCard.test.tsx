@@ -53,4 +53,22 @@ describe("FocusAlbumCard actions", () => {
         fireEvent.click(screen.getByRole("button", { name: "Album bearbeiten: Kind of Blue" }))
         expect(onEdit).toHaveBeenCalledOnce()
     })
+
+    it("announces completion and disables another Focus suggestion once all Rotation albums are heard", () => {
+        render(
+            <I18nContext.Provider value={{ t: de, language: "de", setLanguage: vi.fn() }}>
+                <FocusAlbumCard
+                    album={album}
+                    onLogListen={vi.fn()}
+                    onSuggestAnother={vi.fn()}
+                    onEdit={vi.fn()}
+                    remainingAlbumCount={0}
+                    rotationAlbumCount={12}
+                />
+            </I18nContext.Provider>,
+        )
+
+        expect(screen.getByText(de.focusAlbum.rotationComplete)).toBeTruthy()
+        expect(screen.getByRole("button", { name: de.home.suggestFocusAlbum }).hasAttribute("disabled")).toBe(true)
+    })
 })

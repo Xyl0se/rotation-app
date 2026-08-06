@@ -14,6 +14,8 @@ type FocusAlbumCardProps = {
     onSuggestAnother: () => void
     onEdit: () => void
     onOpenAlbum?: (albumId: string) => void
+    remainingAlbumCount?: number
+    rotationAlbumCount?: number
 }
 
 function formatLastListened(date: string | null, t: ReturnType<typeof useI18n>["t"]) {
@@ -76,6 +78,8 @@ function FocusAlbumCard({
     onSuggestAnother,
     onEdit,
     onOpenAlbum,
+    remainingAlbumCount,
+    rotationAlbumCount,
 }: FocusAlbumCardProps) {
 
     const { t } = useI18n()
@@ -100,13 +104,22 @@ function FocusAlbumCard({
                     <button
                         className="focus-album-shuffle"
                         onClick={onSuggestAnother}
+                        disabled={remainingAlbumCount === 0}
                         aria-label={t.home.suggestFocusAlbum}
-                        title={t.home.suggestFocusAlbum}
+                        title={remainingAlbumCount === 0 ? t.focusAlbum.rotationComplete : t.home.suggestFocusAlbum}
                     >
                         🎲
                     </button>
                 </div>
             </div>
+
+            {typeof remainingAlbumCount === "number" && (rotationAlbumCount ?? 0) > 0 && (
+                <p className="focus-album-progress" role="status">
+                    {remainingAlbumCount === 0
+                        ? t.focusAlbum.rotationComplete
+                        : t.focusAlbum.remainingInRotation(remainingAlbumCount, rotationAlbumCount ?? 0)}
+                </p>
+            )}
 
             <div className="focus-album-hero">
 

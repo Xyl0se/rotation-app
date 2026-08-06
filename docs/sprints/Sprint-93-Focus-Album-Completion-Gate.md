@@ -1,6 +1,6 @@
 # Sprint 93 — Focus Album: Completion-aware Rotation
 
-**Status:** Planned
+**Status:** Implemented — NAS acceptance pending
 
 **Target version:** Subsequent minor after v0.51.0
 
@@ -121,14 +121,14 @@ localized screen-reader announcement and DE/EN copy.
 
 ## Definition of done
 
-- [ ] Eligibility is computed server-side from active rotation state and
+- [x] Eligibility is computed server-side from active rotation state and
   persisted listening events.
-- [ ] Random and explicit Focus Album selection cannot bypass the rule.
-- [ ] The completed-rotation state is intentional, localized, and accessible.
-- [ ] Existing session-completion and manual-listen flows are covered as inputs.
-- [ ] Repository, route, hook, and component tests cover the acceptance cases.
-- [ ] Lint, tests, production build, documentation-link check, and NAS
-  acceptance pass.
+- [x] Random and explicit Focus Album selection cannot bypass the rule.
+- [x] The completed-rotation state is intentional, localized, and accessible.
+- [x] Existing session-completion and manual-listen flows are covered as inputs.
+- [x] Repository, route, hook, and component tests cover the acceptance cases.
+- [x] Lint, tests, production build, and documentation-link check pass.
+- [ ] NAS acceptance pass.
 
 ## Release gate inherited from Sprint 92
 
