@@ -65,7 +65,7 @@ Not optimization.
 | Done | [Sprint 87.1](./sprints/done/Sprint-87.1.md) | Completion and collection-essential acquisition context | v0.30.0 | Done ✅ |
 | Done | [Sprint 88](./sprints/done/Sprint-88.md) | Album Detail with persisted MusicBrainz/Wikipedia source links | Future minor | Done ✅; NAS acceptance passed |
 | Done | [Sprint 89](./sprints/done/Sprint-89.md) | Safe read-only Playback Foundation and real NAS feasibility | v0.50.0 | Done ✅ |
-| Done | [Sprint 90](./sprints/Sprint-90.md) | Persistent Whole Album Session with Play/Pause-only philosophy | v0.50.0 | Done ✅; 90F deferred |
+| Done | [Sprint 90](./sprints/done/Sprint-90.md) | Persistent Whole Album Session with Play/Pause-only philosophy | v0.50.0 | Done ✅; 90F deferred |
 | Done | [Sprint 91](./sprints/Sprint-91.md) | Unified TypeScript 6 and Node 22 development contract | Maintenance release | Done ✅ |
 | Future | [Sprint 92](./sprints/Sprint-92-Master.md) | Automated weekly Rotation: scheduler, generation, export, briefing, and workflow | Future minor | Deferred until SMTP, deployment, and operational prerequisites are available |
 | Next | [Sprint 93](./sprints/Sprint-93-Focus-Album-Completion-Gate.md) | Focus Album selects only not-yet-heard items from the active Rotation | Subsequent minor | Scheduled ahead of independent Sprint 92 |

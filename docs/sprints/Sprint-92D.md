@@ -1,8 +1,8 @@
 # Sprint 92D — Client: Automation Settings UI
 
-**Status:** Planned
+**Status:** Future
 
-**Target version:** v0.51.0
+**Target version:** Future minor (not scheduled)
 
 **Type:** Frontend feature
 

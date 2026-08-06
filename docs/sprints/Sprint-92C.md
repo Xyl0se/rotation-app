@@ -1,8 +1,8 @@
 # Sprint 92C — Email Service & Weekly Briefing
 
-**Status:** Planned
+**Status:** Future
 
-**Target version:** v0.51.0
+**Target version:** Future minor (not scheduled)
 
 **Type:** Notification & content generation
 

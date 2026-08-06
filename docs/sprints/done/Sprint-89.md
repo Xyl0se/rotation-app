@@ -35,7 +35,7 @@ idea without weakening Rotation's safety or attention philosophy.
 
 ## Architecture decision
 
-[ADR 012](../adr/012-self-hosted-music-platform.md) currently states that Rotation is
+[ADR 012](../../adr/012-self-hosted-music-platform.md) currently states that Rotation is
 not a music player. That remains the correct description of the shipped product.
 
 Before implementation begins, Sprint 89 must add a new ADR that explicitly records:
@@ -48,11 +48,11 @@ Before implementation begins, Sprint 89 must add a new ADR that explicitly recor
 
 ## Dependencies and reuse
 
-- [Sprint 87](./done/Sprint-87.md) establishes the safe local metadata parser used for
+- [Sprint 87](./Sprint-87.md) establishes the safe local metadata parser used for
   embedded cover extraction. Sprint 89 should reuse that bounded parser for disc number,
   Track number, title, duration, and codec/container evidence rather than introduce a
   second media parsing stack.
-- [Sprint 88](./done/Sprint-88.md) provides the Album Detail surface from which an
+- [Sprint 88](./Sprint-88.md) provides the Album Detail surface from which an
   Album Session can be started, but Playback Foundation remains independently testable.
 - Existing Binding confirmation, path guards, same-origin delivery, logging redaction,
   and read-only `/music` mounts remain authoritative.
@@ -71,7 +71,7 @@ Before implementation begins, Sprint 89 must add a new ADR that explicitly recor
 Implementation note: the privacy-safe inventory is available through **Bindings →
 Diagnostics → Run media inventory** so it can run in the shell-less production API
 deployment. Results are recorded in
-[Sprint 89 Playback Acceptance](../acceptance/SPRINT-89-PLAYBACK-ACCEPTANCE.md).
+[Sprint 89 Playback Acceptance](../../acceptance/SPRINT-89-PLAYBACK-ACCEPTANCE.md).
 
 ## Workstream 89B — Canonical playback manifest
 

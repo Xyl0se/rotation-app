@@ -21,8 +21,8 @@
     `automationExecutionKey`) remain in server-side `RotationPlan` definition only.
   - Algorithm tests (36) moved into shared package; client and server only test adapters.
   - Build order: `rotation-domain` → `client` → `server` via npm workspaces.
-  - All 805 tests passing (36 domain + 362 client + 407 server); TypeScript strict;
-    lint clean.
+  - Domain package is covered by 36 algorithm tests; client and server adapters
+    cover their respective boundary mappings.
 
 ## v0.50.0 — 2026-07-21
 

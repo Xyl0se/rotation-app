@@ -29,4 +29,11 @@ export default defineConfig([
       '@typescript-eslint/no-unused-vars': ['error', { args: 'all', argsIgnorePattern: '^_' }],
     },
   },
+  {
+    files: ['packages/rotation-domain/src/**/*.ts'],
+    extends: [js.configs.recommended, tseslint.configs.recommended],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])

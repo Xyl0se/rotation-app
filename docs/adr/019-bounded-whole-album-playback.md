@@ -105,5 +105,5 @@ Media delivery must stream with backpressure and tighter request-level resource 
 - [ADR 012 — Self-hosted music platform](./012-self-hosted-music-platform.md)
 - [ADR 013 — Data Ownership Boundaries](./013-data-ownership-boundaries.md)
 - [ADR 017 — Bounded Local Cover Extraction](./017-local-cover-extraction.md)
-- [Sprint 89](../sprints/Sprint-89.md)
+- [Sprint 89](../sprints/done/Sprint-89.md)
 - [Sprint 89 NAS acceptance](../acceptance/SPRINT-89-PLAYBACK-ACCEPTANCE.md)
