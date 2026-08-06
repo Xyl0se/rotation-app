@@ -1,6 +1,6 @@
 # Quality Gates and Image Promotion
 
-Every pull request and every push to `main` runs the reusable `Validate` workflow. It installs both npm packages with `npm ci`, lints and tests frontend and server in their own environments, validates local Markdown links, builds both packages, validates development and production Compose files, and starts the development stack for HTTP health checks.
+Every pull request and every push to `main` runs the reusable `Validate` workflow. It installs the npm workspace from the root `package-lock.json` with `npm ci`, runs the repository quality gate, validates development and production Compose files, and starts the development stack for HTTP health checks. The Validate and Docker publish workflows can also be started manually from the GitHub Actions UI.
 
 The web and API publication workflows call that same workflow as a required `needs`
 dependency. Images are built only after validation succeeds. A successful `main`

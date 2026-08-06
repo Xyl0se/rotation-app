@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
   workflow_call:
 
 permissions:
@@ -20,19 +21,11 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            server/package-lock.json
-      - name: Install frontend dependencies
+          cache-dependency-path: package-lock.json
+      - name: Install workspace dependencies
         run: npm ci
-      - name: Install server dependencies
-        run: npm ci --prefix server
-      - name: Lint frontend and server
-        run: npm run lint
-      - name: Test frontend and server
-        run: npm test
-      - name: Build frontend and server
-        run: npm run build && npm run build --prefix server
+      - name: Run quality gate
+        run: npm run validate
       - name: Validate Compose files
         env:
           ROTATION_HOST_MUSIC_PATH: /tmp/rotation-ci-music
