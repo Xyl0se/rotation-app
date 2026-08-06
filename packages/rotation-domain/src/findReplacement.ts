@@ -2,7 +2,7 @@ import type {
     RotationCandidate,
     RotationPlan,
     RotationPlanItem,
-} from "./types"
+} from "./types.js"
 
 const ROTATION_ELIGIBLE_ROLES = new Set([
     "new",

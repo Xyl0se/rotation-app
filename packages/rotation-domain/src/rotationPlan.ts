@@ -1,4 +1,4 @@
-import type { RotationRoleQuota } from "./types"
+import type { RotationRoleQuota } from "./types.js"
 
 export const defaultRotationTargetSize = 25
 

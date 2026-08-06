@@ -3,12 +3,12 @@ import type {
     RotationPlan,
     RotationPlanItem,
     RotationRoleQuota,
-} from "./types"
+} from "./types.js"
 
 import {
     defaultRotationRoleQuotas,
     defaultRotationTargetSize,
-} from "./rotationPlan"
+} from "./rotationPlan.js"
 
 export interface GenerateRotationPlanOptions {
 

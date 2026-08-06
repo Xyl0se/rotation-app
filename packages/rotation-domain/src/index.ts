@@ -6,19 +6,19 @@ export type {
     RotationPlanReason,
     RotationPlanStatus,
     RotationRoleQuota,
-} from "./types"
+} from "./types.js"
 
 export {
     defaultRotationRoleQuotas,
     defaultRotationTargetSize,
-} from "./rotationPlan"
+} from "./rotationPlan.js"
 
 export {
     type GenerateRotationPlanDeps,
     type GenerateRotationPlanOptions,
     generateRotationPlan,
-} from "./generateRotationPlan"
+} from "./generateRotationPlan.js"
 
 export {
     findReplacementCandidates,
-} from "./findReplacement"
+} from "./findReplacement.js"
